@@ -192,6 +192,7 @@ const CSS = `
     display: inline-flex; align-items: center; gap: 0.4rem;
     font-size: 0.75rem; color: var(--violet-l); font-weight: 600;
     text-decoration: none; transition: color 0.2s;
+    background: none; border: none; padding: 0; cursor: pointer;
   }
   .sp-open-link:hover { color: var(--cyan); }
 `;
@@ -234,6 +235,16 @@ export default function SubjectPage() {
       logActivity({ activity_type: 'animation', content_id: item.id });
       getAnimation(item.animation_id);
     }
+  };
+
+  /* ── Open animation HTML in a new tab via a temporary Blob URL ── */
+  const openAnimInNewTab = (anim) => {
+    if (!anim?.html_content) return;
+    const blob = new Blob([anim.html_content], { type: 'text/html' });
+    const url  = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    // Revoke after the tab has had time to load the content
+    setTimeout(() => URL.revokeObjectURL(url), 10_000);
   };
 
   const items = content ?? [];
@@ -410,6 +421,15 @@ export default function SubjectPage() {
           title={previewAnim?.title ?? 'Animation'}
           size="xl"
         >
+          <div className="sp-modal-toolbar">
+            {/* Use a button + Blob URL instead of <a href> since there's no direct URL */}
+            <button
+              onClick={() => openAnimInNewTab(previewAnim)}
+              className="sp-open-link"
+            >
+              Open in new tab <ExternalLink size={12} />
+            </button>
+          </div>
           <div style={{ borderRadius: 16, overflow: 'hidden', background: '#fff', height: 500 }}>
             {previewAnim?.html_content && (
               <iframe
