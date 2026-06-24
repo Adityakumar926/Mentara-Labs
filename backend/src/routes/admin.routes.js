@@ -68,6 +68,20 @@ router.put(
 router.post('/subjects/:subjectId/content/video/upload-url', currCtrl.createMuxUpload);
 router.post('/content/:id/video/confirm',                    currCtrl.confirmMuxUpload);
 
+// Worksheets (image) → Cloudinary
+router.post(
+  '/subjects/:subjectId/content/worksheet',
+  upload('image').single('file'),
+  handleUploadError,
+  currCtrl.uploadWorksheet
+);
+router.put(
+  '/content/:id/worksheet',
+  upload('image').single('file'),
+  handleUploadError,
+  currCtrl.replaceWorksheet
+);
+
 // ─── QUESTIONS ────────────────────────────────────────────────────────────────
 router.get('/questions',               qCtrl.getAll);
 router.post('/questions',              qCtrl.create);

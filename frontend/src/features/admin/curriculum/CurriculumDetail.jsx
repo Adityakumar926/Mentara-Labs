@@ -4,7 +4,7 @@ import {
   ArrowLeft, Plus, Trash2, Edit2, GripVertical,
   FileText, Video, Sparkles, ChevronDown, Lock,
   Eye, Code2, UploadCloud, CheckCircle2, Loader2,
-  FilePlus, X,
+  FilePlus, X, Image,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -167,6 +167,7 @@ const CSS = `
   .cd-content-icon.note      { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: var(--muted); }
   .cd-content-icon.video     { background: rgba(124,58,237,0.12); border-color: rgba(124,58,237,0.3); color: var(--violet-l); }
   .cd-content-icon.animation { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); color: #6EE7B7; }
+  .cd-content-icon.worksheet { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); color: #FCD34D; }
   .cd-content-title { flex: 1; min-width: 0; font-size: 0.78rem; font-weight: 600; color: var(--cream); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cd-type-badge {
     display: inline-flex; align-items: center; padding: 0.14rem 0.5rem;
@@ -176,6 +177,7 @@ const CSS = `
   .cd-type-badge.note      { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); color: var(--muted); }
   .cd-type-badge.video     { background: rgba(124,58,237,0.12); border-color: rgba(124,58,237,0.3); color: var(--lavender); }
   .cd-type-badge.animation { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); color: #6EE7B7; }
+  .cd-type-badge.worksheet { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); color: #FCD34D; }
   .cd-premium-tag { color: #FCD34D; flex-shrink: 0; }
   .cd-add-content-btn {
     display: flex; align-items: center; justify-content: center; gap: 0.5rem;
@@ -210,12 +212,33 @@ const CSS = `
     display: flex; align-items: center; justify-content: center;
     background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.2);
   }
-  .cd-dropzone-icon.green { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); }
+  .cd-dropzone-icon.green  { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); }
+  .cd-dropzone-icon.amber  { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); }
   .cd-dropzone-label { font-size: 0.78rem; font-weight: 600; color: var(--cream); }
   .cd-dropzone-hint  { font-size: 0.68rem; color: var(--muted); }
   .cd-file-name {
     font-size: 0.72rem; font-weight: 600; color: #6EE7B7;
     display: flex; align-items: center; gap: 0.35rem;
+  }
+
+  /* ── WORKSHEET IMAGE PREVIEW ── */
+  .cd-ws-preview {
+    border-radius: 12px; overflow: hidden;
+    border: 1px solid rgba(245,158,11,0.25);
+    background: rgba(10,14,26,0.6);
+    display: flex; flex-direction: column;
+  }
+  .cd-ws-preview-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.45rem 0.75rem;
+    background: rgba(245,158,11,0.06);
+    border-bottom: 1px solid rgba(245,158,11,0.15);
+    font-size: 0.68rem; font-weight: 700; color: #FCD34D;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .cd-ws-preview img {
+    width: 100%; max-height: 220px; object-fit: contain;
+    display: block; background: #fff;
   }
 
   /* ── VIDEO UPLOADER STATES ── */
@@ -306,7 +329,7 @@ const CSS = `
   .cd-empty-desc  { font-size: 0.78rem; color: var(--muted); max-width: 260px; line-height: 1.55; }
 `;
 
-const CONTENT_ICON = { note: FileText, video: Video, animation: Sparkles };
+const CONTENT_ICON = { note: FileText, video: Video, animation: Sparkles, worksheet: Image };
 
 const BLANK_SUBJECT = { name: '', description: '' };
 const BLANK_CONTENT = {
@@ -314,7 +337,7 @@ const BLANK_CONTENT = {
   // note
   noteFile: null,
   // video – tracked across 3 stages: idle → uploading → confirming → done
-  videoStage: 'idle',   // 'idle' | 'uploading' | 'confirming' | 'done'
+  videoStage: 'idle',
   videoFile: null,
   videoProgress: 0,
   videoContentId: null,
@@ -322,6 +345,9 @@ const BLANK_CONTENT = {
   videoPlaybackId: null,
   // animation
   html_content: '',
+  // worksheet
+  worksheetFile: null,
+  worksheetPreviewUrl: null,
   is_premium: false,
 };
 
@@ -329,7 +355,7 @@ const ANIM_PLACEHOLDER = `<!DOCTYPE html>
 <html>
 <head>
   <style>
-    body { margin: 0; background: #0A0E1A; display: flex; align-items: center; justify-content: center; height: 100vh; }
+    body { margin: 0; background: #0A0E1A; display: flex; align-items: center; justify-content: height: 100vh; }
   </style>
 </head>
 <body>
@@ -395,14 +421,12 @@ export default function CurriculumDetail() {
       if (f.content_type === 'note') {
         // ── NOTE ──────────────────────────────────────────────────────────────
         if (editingContent) {
-          // Edit: may or may not include a new file
           const fd = new FormData();
           fd.append('title', f.title);
           fd.append('is_premium', String(f.is_premium));
           if (f.noteFile) fd.append('file', f.noteFile);
           await adminApi.replaceNote(editingContent.id, fd);
         } else {
-          // Create: file is required
           if (!f.noteFile) { setSaveError('Please select a PDF file.'); setSaving(false); return; }
           const fd = new FormData();
           fd.append('title', f.title);
@@ -414,16 +438,13 @@ export default function CurriculumDetail() {
       } else if (f.content_type === 'video') {
         // ── VIDEO ─────────────────────────────────────────────────────────────
         if (editingContent) {
-          // Editing video: only allow title/premium update (file replacement not supported in UI for now)
           await adminApi.updateContent(editingContent.id, { title: f.title, is_premium: f.is_premium });
         } else {
-          // New video: must have completed the upload flow
           if (f.videoStage !== 'done') {
             setSaveError('Please upload a video file first.');
             setSaving(false);
             return;
           }
-          // Content row is already created on the backend; just update title/premium
           await adminApi.updateContent(f.videoContentId, { title: f.title, is_premium: f.is_premium });
         }
 
@@ -443,6 +464,24 @@ export default function CurriculumDetail() {
           await adminApi.updateContent(editingContent.id, payload);
         } else {
           await adminApi.addContent(contentModal, payload);
+        }
+
+      } else if (f.content_type === 'worksheet') {
+        // ── WORKSHEET ─────────────────────────────────────────────────────────
+        if (editingContent) {
+          // Edit: new image is optional — keep existing if none selected
+          const fd = new FormData();
+          fd.append('title', f.title);
+          fd.append('is_premium', String(f.is_premium));
+          if (f.worksheetFile) fd.append('file', f.worksheetFile);
+          await adminApi.replaceWorksheet(editingContent.id, fd);
+        } else {
+          if (!f.worksheetFile) { setSaveError('Please select an image file for the worksheet.'); setSaving(false); return; }
+          const fd = new FormData();
+          fd.append('title', f.title);
+          fd.append('is_premium', String(f.is_premium));
+          fd.append('file', f.worksheetFile);
+          await adminApi.uploadWorksheet(contentModal, fd);
         }
       }
 
@@ -472,7 +511,6 @@ export default function CurriculumDetail() {
     setContentForm(f => ({ ...f, videoFile: file, videoStage: 'uploading', videoProgress: 0 }));
 
     try {
-      // Step 1: get upload URL + placeholder content row
       const res = await adminApi.createMuxUpload(contentModal, {
         title: contentForm.title,
         is_premium: String(contentForm.is_premium),
@@ -480,7 +518,6 @@ export default function CurriculumDetail() {
       const { uploadUrl, uploadId, content_id } = res.data;
       setContentForm(f => ({ ...f, videoContentId: content_id, videoUploadId: uploadId }));
 
-      // Step 2: PUT file directly to Mux
       await new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open('PUT', uploadUrl);
@@ -495,13 +532,11 @@ export default function CurriculumDetail() {
         xhr.send(file);
       });
 
-      // Step 3: confirm with backend (polls Mux for playback_id)
       setContentForm(f => ({ ...f, videoStage: 'confirming', videoProgress: 100 }));
       const confirmRes = await adminApi.confirmMuxUpload(content_id, { upload_id: uploadId });
       const confirmData = confirmRes.data;
 
       if (confirmData.processing) {
-        // Mux still processing — leave in confirming state; user can save and it will update later
         setContentForm(f => ({ ...f, videoStage: 'confirming' }));
       } else {
         setContentForm(f => ({
@@ -538,9 +573,10 @@ export default function CurriculumDetail() {
       content_type: c.content_type,
       html_content: c.html_content ?? '',
       is_premium: c.is_premium,
-      // For video editing, treat as already done (we have the existing playback id)
       videoStage: c.content_type === 'video' ? 'done' : 'idle',
       videoPlaybackId: c.mux_playback_id ?? null,
+      // For worksheet editing show the existing image URL as preview
+      worksheetPreviewUrl: c.content_type === 'worksheet' ? (c.file_url ?? null) : null,
     });
     setContentModal(subjectId);
   };
@@ -685,12 +721,13 @@ export default function CurriculumDetail() {
             <Select
               label="Content Type"
               value={contentForm.content_type}
-              onChange={(e) => setContentForm({ ...contentForm, content_type: e.target.value, videoStage: 'idle', noteFile: null })}
+              onChange={(e) => setContentForm({ ...contentForm, content_type: e.target.value, videoStage: 'idle', noteFile: null, worksheetFile: null, worksheetPreviewUrl: null })}
               disabled={!!editingContent}
             >
               <option value="note">Note / PDF</option>
               <option value="video">Video</option>
               <option value="animation">Animation</option>
+              <option value="worksheet">Worksheet (Image)</option>
             </Select>
 
             {/* ── NOTE: file picker ── */}
@@ -740,6 +777,26 @@ export default function CurriculumDetail() {
                 </div>
                 <p style={{ fontSize: '0.68rem', color: 'var(--muted)', marginTop: '0.4rem', paddingLeft: '0.25rem' }}>
                   Paste a complete single-page HTML document. Inline CSS &amp; JS are supported.
+                </p>
+              </div>
+            )}
+
+            {/* ── WORKSHEET: image uploader ── */}
+            {contentForm.content_type === 'worksheet' && (
+              <div>
+                <p style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--muted)', marginBottom: '0.5rem' }}>
+                  {editingContent ? 'Replace Image (optional — leave empty to keep existing)' : 'Upload Worksheet Image'}
+                </p>
+                <WorksheetDropzone
+                  file={contentForm.worksheetFile}
+                  previewUrl={contentForm.worksheetPreviewUrl}
+                  onChange={(f) => {
+                    const url = URL.createObjectURL(f);
+                    setContentForm({ ...contentForm, worksheetFile: f, worksheetPreviewUrl: url });
+                  }}
+                />
+                <p style={{ fontSize: '0.68rem', color: 'var(--muted)', marginTop: '0.4rem', paddingLeft: '0.25rem' }}>
+                  Students will see this image on a drawable canvas. Submissions are not saved — it's practice only.
                 </p>
               </div>
             )}
@@ -797,7 +854,7 @@ function SubjectContentPanel({ subjectId, onAddContent, onEditContent, onDeleteC
         <>{Array(2).fill(0).map((_, i) => <div key={i} className="cd-skel" style={{ height: 46 }} />)}</>
       ) : items.length === 0 ? (
         <p style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--muted)', padding: '1rem 0' }}>
-          No content yet — add notes, videos, or animations.
+          No content yet — add notes, videos, animations, or worksheets.
         </p>
       ) : (
         <AnimatePresence>
@@ -858,13 +915,67 @@ function NoteDropzone({ file, onChange, existingName }) {
   );
 }
 
+// ── Worksheet drop-zone ───────────────────────────────────────────────────────
+function WorksheetDropzone({ file, previewUrl, onChange }) {
+  const [drag, setDrag] = useState(false);
+  const inputRef = useRef(null);
+  const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp'];
+
+  const handleFile = (f) => {
+    if (f && ACCEPTED.includes(f.type)) onChange(f);
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+      <div
+        className={clsx('cd-dropzone', drag && 'drag-over', file && 'has-file')}
+        onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
+        onDragLeave={() => setDrag(false)}
+        onDrop={(e) => { e.preventDefault(); setDrag(false); handleFile(e.dataTransfer.files[0]); }}
+      >
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={(e) => handleFile(e.target.files[0])}
+        />
+        <div className={clsx('cd-dropzone-icon', file ? 'green' : 'amber')}>
+          {file ? <CheckCircle2 size={18} color="#6EE7B7" /> : <Image size={18} color="#FCD34D" />}
+        </div>
+        {file ? (
+          <span className="cd-file-name"><CheckCircle2 size={12} /> {file.name}</span>
+        ) : previewUrl ? (
+          <>
+            <span className="cd-dropzone-label">Click or drag to replace</span>
+            <span className="cd-dropzone-hint">JPG, PNG, WebP · max 10 MB</span>
+          </>
+        ) : (
+          <>
+            <span className="cd-dropzone-label">Click or drag an image here</span>
+            <span className="cd-dropzone-hint">JPG, PNG, WebP · max 10 MB</span>
+          </>
+        )}
+      </div>
+
+      {/* Live preview of selected or existing image */}
+      {previewUrl && (
+        <div className="cd-ws-preview">
+          <div className="cd-ws-preview-toolbar">
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Image size={11} /> Preview</span>
+            {file && <span style={{ fontSize: '0.62rem', color: 'rgba(252,211,77,0.6)', fontWeight: 500 }}>New image selected</span>}
+          </div>
+          <img src={previewUrl} alt="Worksheet preview" />
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Video uploader ────────────────────────────────────────────────────────────
 function VideoUploader({ editingContent, stage, progress, playbackId, titleReady, onFileSelected }) {
   const inputRef = useRef(null);
 
   if (editingContent) {
-    // When editing a video content item, we only allow title/premium edits.
-    // Full re-upload would require deleting the old Mux asset first — show info instead.
     return (
       <div className="cd-video-stage">
         <div className="cd-video-stage-header"><Video size={12} /> Existing Video</div>

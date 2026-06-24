@@ -111,6 +111,26 @@ exports.getNoteUrl = async (req, res) => {
   }
 };
 
+exports.getWorksheetUrl = async (req, res) => {
+  // Worksheet images are stored on Cloudinary — return the public URL directly.
+  // The student will use this URL to render the drawable worksheet canvas.
+  try {
+    const { rows } = await db.query(
+      `SELECT c.file_url, c.is_premium FROM content c
+       WHERE c.id = $1 AND c.content_type = 'worksheet'`,
+      [req.params.contentId]
+    );
+    if (!rows[0])
+      return res.status(404).json({ success: false, message: 'Worksheet not found' });
+    if (rows[0].is_premium && !req.user.is_premium)
+      return res.status(403).json({ success: false, message: 'Premium access required' });
+
+    res.json({ success: true, url: rows[0].file_url });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 exports.getAnimation = async (req, res) => {
   // Animations are stored as html_content text in the DB — no file fetch needed
   try {

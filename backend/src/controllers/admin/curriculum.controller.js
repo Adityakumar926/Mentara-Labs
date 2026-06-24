@@ -214,10 +214,9 @@ exports.uploadNote = async (req, res) => {
     if (!title)
       return res.status(400).json({ success: false, message: 'title is required' });
 
-    // ← CHANGED: use Cloudinary instead of B2
-    const cloudinaryService = require('../../services/cloudinary');
+    const cloudinaryService = require('../../services/cloudinary.service');
     const result = await cloudinaryService.uploadImage(req.file.buffer, 'notes', {
-      resource_type: 'raw',              // 'raw' handles PDFs and non-image files
+      resource_type: 'raw',
       public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_')}`,
       use_filename: false,
     });
@@ -256,19 +255,110 @@ exports.replaceNote = async (req, res) => {
       `SELECT file_url FROM content WHERE id = $1 AND content_type = 'note'`,
       [req.params.id]
     );
+
     if (!existing[0])
       return res.status(404).json({ success: false, message: 'Note not found' });
 
     let file_url = existing[0].file_url;
 
     if (req.file) {
-      const b2Service = require('../../services/b2.service');
-      const { buildB2Key } = require('../../middleware/upload.middleware');
-
-      // NEW
-      const cloudinaryService = require('../../services/cloudinary');
+      const cloudinaryService = require('../../services/cloudinary.service');
       const result = await cloudinaryService.uploadImage(req.file.buffer, 'notes', {
         resource_type: 'raw',
+        public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_')}`,
+        use_filename: false,
+      });
+      file_url = result.url;
+    }
+
+    const { rows } = await db.query(
+      `UPDATE content
+       SET title      = COALESCE($1, title),
+           file_url   = $2,
+           is_premium = COALESCE($3, is_premium)
+       WHERE id = $4
+       RETURNING *`,
+      [title ?? null, file_url, is_premium !== undefined ? is_premium === 'true' : null, req.params.id]
+    );
+
+    res.json({ success: true, data: rows[0] });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ─── CONTENT — WORKSHEET UPLOAD ───────────────────────────────────────────────
+// POST /admin/subjects/:subjectId/content/worksheet
+// multipart/form-data: file (image — jpg/png/webp), title, is_premium
+
+exports.uploadWorksheet = async (req, res) => {
+  try {
+    if (!req.file)
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+
+    const { title, is_premium } = req.body;
+    if (!title)
+      return res.status(400).json({ success: false, message: 'title is required' });
+
+    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowed.includes(req.file.mimetype))
+      return res.status(400).json({ success: false, message: 'Only JPG, PNG, or WebP images are accepted' });
+
+    const cloudinaryService = require('../../services/cloudinary.service');
+    const result = await cloudinaryService.uploadImage(req.file.buffer, 'worksheets', {
+      resource_type: 'image',
+      public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_')}`,
+      use_filename: false,
+    });
+    const file_url = result.url;
+
+    const { rows: orderRows } = await db.query(
+      `SELECT COALESCE(MAX(order_index), -1) + 1 AS next_order
+       FROM content WHERE subject_id = $1`,
+      [req.params.subjectId]
+    );
+
+    const { rows } = await db.query(
+      `INSERT INTO content
+         (subject_id, title, content_type, file_url, is_premium, order_index)
+       VALUES ($1, $2, 'worksheet', $3, $4, $5)
+       RETURNING *`,
+      [req.params.subjectId, title, file_url, is_premium === 'true', orderRows[0].next_order]
+    );
+
+    res.status(201).json({ success: true, data: rows[0] });
+  } catch (err) {
+    console.error('[uploadWorksheet]', err.message);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// ─── CONTENT — WORKSHEET REPLACE ─────────────────────────────────────────────
+// PUT /admin/content/:id/worksheet
+// multipart/form-data: file (image, optional), title (optional), is_premium (optional)
+
+exports.replaceWorksheet = async (req, res) => {
+  try {
+    const { title, is_premium } = req.body;
+
+    const { rows: existing } = await db.query(
+      `SELECT file_url FROM content WHERE id = $1 AND content_type = 'worksheet'`,
+      [req.params.id]
+    );
+
+    if (!existing[0])
+      return res.status(404).json({ success: false, message: 'Worksheet not found' });
+
+    let file_url = existing[0].file_url;
+
+    if (req.file) {
+      const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!allowed.includes(req.file.mimetype))
+        return res.status(400).json({ success: false, message: 'Only JPG, PNG, or WebP images are accepted' });
+
+      const cloudinaryService = require('../../services/cloudinary.service');
+      const result = await cloudinaryService.uploadImage(req.file.buffer, 'worksheets', {
+        resource_type: 'image',
         public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_')}`,
         use_filename: false,
       });
@@ -386,21 +476,23 @@ exports.confirmMuxUpload = async (req, res) => {
 
 // ─── CONTENT — GENERIC ADD (animations only) ──────────────────────────────────
 // POST /admin/subjects/:subjectId/content
-// For notes use /content/note, for videos use /content/video/upload-url.
+// For notes use /content/note, for videos use /content/video/upload-url,
+// for worksheets use /content/worksheet.
 
 exports.addContent = async (req, res) => {
   try {
     const { title, content_type, animation_id, is_premium } = req.body;
     const subject_id = req.params.subjectId;
 
-    // Guard: give the frontend a clear, actionable 400 instead of crashing.
     if (content_type !== 'animation') {
       const hint =
         content_type === 'note'
           ? 'POST /api/admin/subjects/:subjectId/content/note'
           : content_type === 'video'
             ? 'POST /api/admin/subjects/:subjectId/content/video/upload-url'
-            : 'the dedicated note/video upload endpoints';
+            : content_type === 'worksheet'
+              ? 'POST /api/admin/subjects/:subjectId/content/worksheet'
+              : 'the dedicated note/video/worksheet upload endpoints';
       return res.status(400).json({
         success: false,
         message: `Use ${hint} for ${content_type || 'this content type'} uploads.`,
@@ -465,6 +557,9 @@ exports.deleteContent = async (req, res) => {
         await b2Service.deleteFile(key);
       } catch (_) { /* Non-fatal */ }
     }
+
+    // Worksheet images on Cloudinary — deletion is non-fatal / optional
+    // (Cloudinary auto-cleans via lifecycle rules; add explicit delete here if needed)
 
     if (existing[0]?.content_type === 'video' && existing[0]?.mux_asset_id) {
       try {
