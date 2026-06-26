@@ -536,13 +536,13 @@ export default function ExamTakePage() {
                   </div>
                   <p className="take-qtext">{q.question_text}</p>
                   
-                  {/* Image Display for Photo Questions */}
+                  {/* Image Display for Structured Text Questions */}
                   {q.question_type === 'photo' && q.image_url && (
-                    <div style={{ marginTop: '1.25rem', borderRadius: '14px', overflow: 'hidden', border: '1px solid var(--card-bdr)' }}>
+                    <div style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'center' }}>
                       <img 
                         src={q.image_url} 
                         alt="Question illustration" 
-                        style={{ width: '100%', maxHeight: '320px', objectFit: 'contain', background: 'rgba(0,0,0,0.2)', display: 'block' }} 
+                        style={{ maxWidth: '100%', maxHeight: '320px', borderRadius: '12px', border: '1px solid var(--card-bdr)', display: 'block' }} 
                         loading="lazy"
                       />
                     </div>
@@ -552,8 +552,8 @@ export default function ExamTakePage() {
                 {/* Answer area */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginBottom: '1.5rem' }}>
                   
-                  {/* MCQ & Photo treated the exact same for answering */}
-                  {['mcq', 'photo'].includes(q.question_type) && Array.isArray(q.options) && q.options.map((opt, i) => {
+                  {/* MCQ options (only for MCQ questions) */}
+                  {q.question_type === 'mcq' && Array.isArray(q.options) && q.options.map((opt, i) => {
                     const val      = typeof opt === 'object' ? opt.id : opt;
                     const display  = typeof opt === 'object' ? opt.text : opt;
                     const selected = answers[q.id] === val;

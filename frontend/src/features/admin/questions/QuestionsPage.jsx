@@ -386,6 +386,14 @@ export default function QuestionsPage() {
     (data) => editing ? adminApi.updateQuestion(editing.id, data) : adminApi.createQuestion(data),
     { onSuccess: () => { setModal(false); setEditing(null); refetch(); }, successMsg: editing ? 'Question updated' : 'Question created' }
   );
+  const handleSave = (formData) => {
+    const cleaned = { ...formData };
+    if (formData.question_type === 'photo') {
+      cleaned.options = null;
+      cleaned.correct_answer = null;
+    }
+    saveQ(cleaned);
+  };
   const { mutate: deleteQ    } = useMutation(adminApi.deleteQuestion,        { onSuccess: () => { setDeleteId(null); refetch(); }, successMsg: 'Question deleted' });
   const { mutate: toggleStar } = useMutation(adminApi.toggleQuestionStar,    { onSuccess: refetch });
   const { mutate: togglePrem } = useMutation(adminApi.toggleQuestionPremium, { onSuccess: refetch });
@@ -505,7 +513,7 @@ export default function QuestionsPage() {
             </div>
             <select className="qp-select" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
               <option value="">All Types</option>
-              {TYPES.map((t) => <option key={t} value={t}>{t.replace('_', ' ')}</option>)}
+              {TYPES.map((t) => <option key={t} value={t}>{t === 'photo' ? 'structured text' : t.replace('_', ' ')}</option>)}
             </select>
             <select className="qp-select" value={filters.is_premium} onChange={(e) => setFilters({ ...filters, is_premium: e.target.value })}>
               <option value="">All Access</option>
@@ -539,7 +547,7 @@ export default function QuestionsPage() {
                   >
                     {/* Type pill */}
                     <span className={`qp-type-pill ${typeClass(q.question_type)}`}>
-                      {q.question_type.replace('_', ' ')}
+                      {q.question_type === 'photo' ? 'structured text' : q.question_type.replace('_', ' ')}
                     </span>
 
                     {/* Body */}
@@ -653,7 +661,7 @@ export default function QuestionsPage() {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
               <Select label="Type" value={form.question_type} onChange={(e) => set('question_type', e.target.value)}>
-                {TYPES.map((t) => <option key={t} value={t}>{t.replace('_', ' ')}</option>)}
+                {TYPES.map((t) => <option key={t} value={t}>{t === 'photo' ? 'structured text' : t.replace('_', ' ')}</option>)}
               </Select>
               <Select label="Difficulty" value={form.difficulty} onChange={(e) => set('difficulty', e.target.value)}>
                 {DIFFICULTIES.map((d) => <option key={d} value={d}>{d}</option>)}
@@ -695,24 +703,8 @@ export default function QuestionsPage() {
               </div>
             )}
 
-            {/* Photo questions: pick the answer as MCQ-style*/}
-            {form.question_type === 'photo' && (
-              <div>
-                <p className="qp-section-label">Answer Format</p>
-                <div className="qp-format-toggle">
-                  <button
-                    type="button"
-                    className={clsx('qp-format-btn', form.photoAnswerFormat === 'mcq' && 'active')}
-                    onClick={() => set('photoAnswerFormat', 'mcq')}
-                  >
-                    Multiple Choice
-                  </button>
-                </div>
-              </div>
-            )}
-
             {/* MCQ Options */}
-            {(form.question_type === 'mcq' || (form.question_type === 'photo' && form.photoAnswerFormat === 'mcq')) && (
+            {form.question_type === 'mcq' && (
               <div>
                 <p className="qp-section-label">Options — select correct answer</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -741,7 +733,7 @@ export default function QuestionsPage() {
               </div>
             )}
 
-            {(form.question_type === 'fill_blank' || (form.question_type === 'photo' && form.photoAnswerFormat === 'text')) && (
+            {form.question_type === 'fill_blank' && (
               <Input label="Correct Answer" value={form.correct_answer}
                 onChange={(e) => set('correct_answer', e.target.value)} />
             )}
@@ -754,7 +746,7 @@ export default function QuestionsPage() {
 
           <div className="qp-modal-footer">
             <Button variant="ghost" onClick={() => setModal(false)}>Cancel</Button>
-            <Button variant="primary" loading={saving} onClick={() => saveQ(form)}>
+            <Button variant="primary" loading={saving} onClick={() => handleSave(form)}>
               {editing ? 'Save Changes' : 'Create Question'}
             </Button>
           </div>

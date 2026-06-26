@@ -485,29 +485,43 @@ export default function ResultPage() {
                       </div>
                     </div>
 
-                    {/* Answer pills */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem' }}>
-                      <div
-                        className="answer-pill"
-                        style={
-                          correct
-                            ? { background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', color: 'var(--green)' }
-                            : wrong
-                            ? { background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.22)', color: 'var(--red)' }
-                            : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'var(--muted)' }
-                        }
-                      >
-                        <span className="answer-pill-label">Your answer</span>
-                        <span style={{ fontWeight: 600 }}>{q.student_answer ?? 'Not answered'}</span>
+                    {/* Image Display for Structured Text Questions */}
+                    {q.question_type === 'photo' && q.image_url && (
+                      <div style={{ marginTop: '0.85rem', display: 'flex', justifyContent: 'center' }}>
+                        <img 
+                          src={q.image_url} 
+                          alt="Question illustration" 
+                          style={{ maxWidth: '100%', maxHeight: '240px', borderRadius: '12px', border: '1px solid var(--card-bdr)', display: 'block' }} 
+                          loading="lazy"
+                        />
                       </div>
+                    )}
 
-                      {!correct && q.correct_answer && (
-                        <div className="answer-pill" style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', color: 'var(--green)' }}>
-                          <span className="answer-pill-label">Correct</span>
-                          <span style={{ fontWeight: 600 }}>{q.correct_answer}</span>
+                    {/* Answer pills */}
+                    {q.question_type !== 'photo' && (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.5rem' }}>
+                        <div
+                          className="answer-pill"
+                          style={
+                            correct
+                              ? { background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', color: 'var(--green)' }
+                              : wrong
+                              ? { background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.22)', color: 'var(--red)' }
+                              : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'var(--muted)' }
+                          }
+                        >
+                          <span className="answer-pill-label">Your answer</span>
+                          <span style={{ fontWeight: 600 }}>{q.student_answer ?? 'Not answered'}</span>
                         </div>
-                      )}
-                    </div>
+
+                        {!correct && q.correct_answer && (
+                          <div className="answer-pill" style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', color: 'var(--green)' }}>
+                            <span className="answer-pill-label">Correct</span>
+                            <span style={{ fontWeight: 600 }}>{q.correct_answer}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     {/* Explanation */}
                     {q.explanation && (
