@@ -13,6 +13,11 @@ import HierarchySidebar from '@/components/shared/HierarchySidebar';
 /* ─── unchanged constants ─── */
 const TYPES        = ['mcq', 'fill_blank', 'photo'];
 const DIFFICULTIES = ['easy', 'medium', 'hard'];
+const DIFFICULTY_MAPPING = {
+  easy: 'foundation',
+  medium: 'developing',
+  hard: 'secure'
+};
 const BLANK_Q = {
   question_text: '', question_type: 'mcq', difficulty: 'medium',
   options: [{ id: 'a', text: '' }, { id: 'b', text: '' }, { id: 'c', text: '' }, { id: 'd', text: '' }],
@@ -513,7 +518,7 @@ export default function QuestionsPage() {
             </div>
             <select className="qp-select" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
               <option value="">All Types</option>
-              {TYPES.map((t) => <option key={t} value={t}>{t === 'photo' ? 'structured text' : t.replace('_', ' ')}</option>)}
+              {TYPES.map((t) => <option key={t} value={t}>{t === 'photo' ? 'structure' : t.replace('_', ' ')}</option>)}
             </select>
             <select className="qp-select" value={filters.is_premium} onChange={(e) => setFilters({ ...filters, is_premium: e.target.value })}>
               <option value="">All Access</option>
@@ -547,7 +552,7 @@ export default function QuestionsPage() {
                   >
                     {/* Type pill */}
                     <span className={`qp-type-pill ${typeClass(q.question_type)}`}>
-                      {q.question_type === 'photo' ? 'structured text' : q.question_type.replace('_', ' ')}
+                      {q.question_type === 'photo' ? 'structure' : q.question_type.replace('_', ' ')}
                     </span>
 
                     {/* Body */}
@@ -562,7 +567,7 @@ export default function QuestionsPage() {
                             {q.topic_name && ` • ${q.topic_name}`}
                           </span>
                         )}
-                        {q.difficulty   && <span className={diffClass(q.difficulty)}>{q.difficulty}</span>}
+                        {q.difficulty   && <span className={diffClass(q.difficulty)}>{DIFFICULTY_MAPPING[q.difficulty] || q.difficulty}</span>}
                         {q.is_premium   && (
                           <span className="qp-prem-pill">
                             <Lock size={9} /> Premium
@@ -661,10 +666,10 @@ export default function QuestionsPage() {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
               <Select label="Type" value={form.question_type} onChange={(e) => set('question_type', e.target.value)}>
-                {TYPES.map((t) => <option key={t} value={t}>{t === 'photo' ? 'structured text' : t.replace('_', ' ')}</option>)}
+                {TYPES.map((t) => <option key={t} value={t}>{t === 'photo' ? 'structure' : t.replace('_', ' ')}</option>)}
               </Select>
               <Select label="Difficulty" value={form.difficulty} onChange={(e) => set('difficulty', e.target.value)}>
-                {DIFFICULTIES.map((d) => <option key={d} value={d}>{d}</option>)}
+                {DIFFICULTIES.map((d) => <option key={d} value={d}>{DIFFICULTY_MAPPING[d] || d}</option>)}
               </Select>
             </div>
 

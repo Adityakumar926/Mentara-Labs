@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Clock, ChevronLeft, ChevronRight, Send, AlertTriangle } from 'lucide-react';
+import { Clock, ChevronLeft, ChevronRight, Send, AlertTriangle, Maximize2, Minimize2, Paintbrush, Slash, Eraser, Undo2, Redo2, RefreshCw, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button, Modal } from '@/components/ui';
 import { studentApi } from '@/api/services';
@@ -359,6 +359,122 @@ const CSS = `
 
   @media (max-width: 1024px) { .take-sidebar { display: none; } }
   @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+
+  /* ── FULLSCREEN TOGGLE & LAYOUT ADJUSTMENTS ── */
+  body.has-fullscreen-exam .sl-aside {
+    display: none !important;
+  }
+  body.has-fullscreen-exam .sl-bottom-nav {
+    display: none !important;
+  }
+  body.has-fullscreen-exam .sl-main {
+    padding-bottom: 0 !important;
+  }
+
+  .take-root.fullscreen-mode {
+    padding: 0;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+  .take-root.fullscreen-mode .take-main {
+    max-width: 100% !important;
+    padding: 2rem 4rem !important;
+  }
+
+  /* ── CANVAS DRAWING TOOLBOX ── */
+  .canvas-wrapper {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+  }
+  .canvas-container {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    background: #0D111E;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .take-toolbox {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 700px;
+    padding: 0.65rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .toolbox-group {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .toolbox-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif;
+    transition: all 0.2s;
+  }
+  .toolbox-btn:hover:not(:disabled) {
+    background: rgba(255,255,255,0.08);
+    color: var(--cream);
+    border-color: rgba(255,255,255,0.15);
+  }
+  .toolbox-btn.active {
+    background: rgba(124,58,237,0.2);
+    border-color: rgba(124,58,237,0.4);
+    color: var(--lavender);
+    box-shadow: 0 0 12px rgba(124,58,237,0.2);
+  }
+  .toolbox-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .color-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid rgba(0,0,0,0.3);
+  }
+  .color-dot.active {
+    transform: scale(1.2);
+    box-shadow: 0 0 8px currentColor;
+    border: 2px solid #fff;
+  }
+  .saving-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .saving-spinner {
+    animation: take-spin 1s linear infinite;
+  }
 `;
 
 /* ─── Timer hook ──────────────────────────────────────────────────────────── */
@@ -378,6 +494,393 @@ function useCountdown(deadlineIso) {
   return { remaining, label, expired: remaining === 0 };
 }
 
+/* ─── DRAWING CANVAS COMPONENTS ───────────────────────────────────────────── */
+const redraw = (ctx, width, height, strokeList) => {
+  ctx.clearRect(0, 0, width, height);
+  strokeList.forEach(stroke => {
+    ctx.beginPath();
+    ctx.strokeStyle = stroke.color;
+    ctx.lineWidth = stroke.size;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    
+    if (stroke.type === 'freehand' || stroke.type === 'draw') {
+      if (stroke.points.length > 0) {
+        ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+        for (let i = 1; i < stroke.points.length; i++) {
+          ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+        }
+        ctx.stroke();
+      }
+    } else if (stroke.type === 'line') {
+      if (stroke.points.length >= 2) {
+        ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+        ctx.lineTo(stroke.points[1].x, stroke.points[1].y);
+        ctx.stroke();
+      }
+    } else if (stroke.type === 'erase') {
+      ctx.globalCompositeOperation = 'destination-out';
+      if (stroke.points.length > 0) {
+        ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+        for (let i = 1; i < stroke.points.length; i++) {
+          ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+        }
+        ctx.stroke();
+      }
+      ctx.globalCompositeOperation = 'source-over';
+    }
+  });
+};
+
+function StructureCanvas({ imageUrl, savedAnswerUrl, onSave, saving }) {
+  const containerRef = useRef(null);
+  const imgRef = useRef(null);
+  const canvasRef = useRef(null);
+
+  const [baseImage, setBaseImage] = useState(savedAnswerUrl || imageUrl);
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
+  const [tool, setTool] = useState('draw'); // 'draw', 'line', 'erase'
+  const [color, setColor] = useState('#EF4444'); // default red
+  const [brushSize, setBrushSize] = useState(4);
+  const [strokes, setStrokes] = useState([]);
+  const [redoList, setRedoList] = useState([]);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [currentStroke, setCurrentStroke] = useState(null);
+
+  useEffect(() => {
+    setBaseImage(savedAnswerUrl || imageUrl);
+    setStrokes([]);
+    setRedoList([]);
+  }, [imageUrl, savedAnswerUrl]);
+
+  const handleImageLoad = () => {
+    if (!imgRef.current) return;
+    const rect = imgRef.current.getBoundingClientRect();
+    setCanvasSize({ width: rect.width, height: rect.height });
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (!imgRef.current) return;
+      const rect = imgRef.current.getBoundingClientRect();
+      setCanvasSize({ width: rect.width, height: rect.height });
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!canvasRef.current || canvasSize.width === 0) return;
+    const canvas = canvasRef.current;
+    canvas.width = canvasSize.width;
+    canvas.height = canvasSize.height;
+    
+    const ctx = canvas.getContext('2d');
+    redraw(ctx, canvasSize.width, canvasSize.height, strokes);
+  }, [canvasSize, strokes]);
+
+  const getCoordinates = (e) => {
+    if (!canvasRef.current) return { x: 0, y: 0 };
+    const rect = canvasRef.current.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    };
+  };
+
+  const handleStart = (e) => {
+    e.preventDefault();
+    const coords = getCoordinates(e);
+    setIsDrawing(true);
+    
+    const newStroke = {
+      type: tool,
+      color: tool === 'erase' ? '#000000' : color,
+      size: brushSize,
+      points: [coords]
+    };
+    
+    setCurrentStroke(newStroke);
+  };
+
+  const handleMove = (e) => {
+    if (!isDrawing || !currentStroke) return;
+    e.preventDefault();
+    const coords = getCoordinates(e);
+    
+    let updatedPoints = [...currentStroke.points];
+    if (tool === 'line') {
+      updatedPoints = [updatedPoints[0], coords];
+    } else {
+      updatedPoints.push(coords);
+    }
+    
+    const updatedStroke = { ...currentStroke, points: updatedPoints };
+    setCurrentStroke(updatedStroke);
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    redraw(ctx, canvas.width, canvas.height, [...strokes, updatedStroke]);
+  };
+
+  const handleEnd = () => {
+    if (!isDrawing || !currentStroke) return;
+    setIsDrawing(false);
+    
+    const finalStrokes = [...strokes, currentStroke];
+    setStrokes(finalStrokes);
+    setCurrentStroke(null);
+    setRedoList([]);
+
+    triggerSave(finalStrokes);
+  };
+
+  const triggerSave = (currentStrokes) => {
+    if (!imgRef.current || !canvasRef.current) return;
+    
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = imgRef.current.naturalWidth;
+    tempCanvas.height = imgRef.current.naturalHeight;
+    const tempCtx = tempCanvas.getContext('2d');
+
+    tempCtx.drawImage(imgRef.current, 0, 0, tempCanvas.width, tempCanvas.height);
+
+    const scaleX = tempCanvas.width / canvasSize.width;
+    const scaleY = tempCanvas.height / canvasSize.height;
+
+    const scaledStrokes = currentStrokes.map(stroke => ({
+      ...stroke,
+      size: stroke.size * scaleX,
+      points: stroke.points.map(pt => ({
+        x: pt.x * scaleX,
+        y: pt.y * scaleY
+      }))
+    }));
+
+    redraw(tempCtx, tempCanvas.width, tempCanvas.height, scaledStrokes);
+    onSave(tempCanvas);
+  };
+
+  const handleUndo = () => {
+    if (strokes.length === 0) return;
+    const undone = strokes[strokes.length - 1];
+    const newStrokes = strokes.slice(0, -1);
+    setStrokes(newStrokes);
+    setRedoList([...redoList, undone]);
+    triggerSave(newStrokes);
+  };
+
+  const handleRedo = () => {
+    if (redoList.length === 0) return;
+    const redone = redoList[redoList.length - 1];
+    const newStrokes = [...strokes, redone];
+    setStrokes(newStrokes);
+    setRedoList(redoList.slice(0, -1));
+    triggerSave(newStrokes);
+  };
+
+  const handleClear = () => {
+    if (strokes.length === 0) return;
+    setStrokes([]);
+    setRedoList([]);
+    triggerSave([]);
+  };
+
+  const handleResetToOriginal = () => {
+    setBaseImage(imageUrl);
+    setStrokes([]);
+    setRedoList([]);
+    
+    if (imgRef.current) {
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = imgRef.current.naturalWidth;
+      tempCanvas.height = imgRef.current.naturalHeight;
+      const tempCtx = tempCanvas.getContext('2d');
+      
+      const tempImg = new Image();
+      tempImg.crossOrigin = 'anonymous';
+      tempImg.onload = () => {
+        tempCtx.drawImage(tempImg, 0, 0, tempCanvas.width, tempCanvas.height);
+        onSave(tempCanvas);
+      };
+      tempImg.src = imageUrl;
+    }
+  };
+
+  const COLORS = [
+    { value: '#EF4444', label: 'Red' },
+    { value: '#00D4FF', label: 'Cyan' },
+    { value: '#10B981', label: 'Green' },
+    { value: '#7C3AED', label: 'Violet' },
+    { value: '#FFFFFF', label: 'White' }
+  ];
+
+  const SIZES = [
+    { value: 2, label: 'Thin' },
+    { value: 4, label: 'Medium' },
+    { value: 8, label: 'Thick' }
+  ];
+
+  return (
+    <div className="canvas-wrapper">
+      <div 
+        ref={containerRef} 
+        className="canvas-container"
+        style={{ position: 'relative', display: 'inline-block', maxWidth: '100%' }}
+      >
+        <img
+          ref={imgRef}
+          src={baseImage}
+          alt="Structure diagram"
+          onLoad={handleImageLoad}
+          style={{ width: '100%', maxHeight: '550px', objectFit: 'contain', borderRadius: '12px', display: 'block' }}
+          crossOrigin="anonymous"
+        />
+        
+        {canvasSize.width > 0 && (
+          <canvas
+            ref={canvasRef}
+            onMouseDown={handleStart}
+            onMouseMove={handleMove}
+            onMouseUp={handleEnd}
+            onMouseLeave={handleEnd}
+            onTouchStart={handleStart}
+            onTouchMove={handleMove}
+            onTouchEnd={handleEnd}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: canvasSize.width,
+              height: canvasSize.height,
+              cursor: tool === 'erase' ? 'cell' : 'crosshair',
+              touchAction: 'none'
+            }}
+          />
+        )}
+      </div>
+
+      <div className="take-toolbox">
+        <div className="toolbox-group">
+          <button 
+            type="button"
+            className={clsx('toolbox-btn', tool === 'draw' && 'active')} 
+            onClick={() => setTool('draw')}
+            title="Draw Freehand"
+          >
+            <Paintbrush size={14} />
+            <span>Draw</span>
+          </button>
+          <button 
+            type="button"
+            className={clsx('toolbox-btn', tool === 'line' && 'active')} 
+            onClick={() => setTool('line')}
+            title="Draw Straight Line"
+          >
+            <Slash size={14} />
+            <span>Line</span>
+          </button>
+          <button 
+            type="button"
+            className={clsx('toolbox-btn', tool === 'erase' && 'active')} 
+            onClick={() => setTool('erase')}
+            title="Eraser"
+          >
+            <Eraser size={14} />
+            <span>Erase</span>
+          </button>
+        </div>
+
+        {tool !== 'erase' && (
+          <div className="toolbox-group" style={{ padding: '0 0.5rem' }}>
+            {COLORS.map(c => (
+              <button
+                key={c.value}
+                type="button"
+                className={clsx('color-dot', color === c.value && 'active')}
+                style={{ backgroundColor: c.value, color: c.value }}
+                onClick={() => setColor(c.value)}
+                title={c.label}
+              />
+            ))}
+          </div>
+        )}
+
+        <div className="toolbox-group">
+          {SIZES.map(s => (
+            <button
+              key={s.value}
+              type="button"
+              className={clsx('toolbox-btn', brushSize === s.value && 'active')}
+              onClick={() => setBrushSize(s.value)}
+              title={`${s.label} Brush`}
+            >
+              <span style={{ 
+                display: 'inline-block', 
+                width: s.value + 2, 
+                height: s.value + 2, 
+                borderRadius: '50%', 
+                backgroundColor: 'currentColor' 
+              }} />
+            </button>
+          ))}
+        </div>
+
+        <div className="toolbox-group">
+          <button 
+            type="button"
+            className="toolbox-btn" 
+            onClick={handleUndo} 
+            disabled={strokes.length === 0}
+            title="Undo"
+          >
+            <Undo2 size={14} />
+          </button>
+          <button 
+            type="button"
+            className="toolbox-btn" 
+            onClick={handleRedo} 
+            disabled={redoList.length === 0}
+            title="Redo"
+          >
+            <Redo2 size={14} />
+          </button>
+          <button 
+            type="button"
+            className="toolbox-btn" 
+            onClick={handleClear} 
+            disabled={strokes.length === 0}
+            title="Clear current drawing"
+          >
+            Clear
+          </button>
+          {baseImage !== imageUrl && (
+            <button 
+              type="button"
+              className="toolbox-btn" 
+              style={{ color: '#EF4444' }}
+              onClick={handleResetToOriginal}
+              title="Reset to clean original illustration"
+            >
+              Reset Original
+            </button>
+          )}
+        </div>
+
+        {saving && (
+          <div className="saving-indicator">
+            <Loader2 size={12} className="saving-spinner" />
+            <span>Saving...</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function ExamTakePage() {
   const { id: examId } = useParams();
   const navigate = useNavigate();
@@ -392,7 +895,41 @@ export default function ExamTakePage() {
   const [submitting, setSubmitting]         = useState(false);
   const saveTimer = useRef(null);
 
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [savingDrawing, setSavingDrawing] = useState(false);
+  const drawingSaveTimeout = useRef(null);
+  const pendingCanvasRef = useRef(null);
+
   const { remaining, label: timerLabel, expired } = useCountdown(deadline);
+
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
+
+  useEffect(() => {
+    if (isFullscreen) {
+      document.body.classList.add('has-fullscreen-exam');
+    } else {
+      document.body.classList.remove('has-fullscreen-exam');
+    }
+    return () => {
+      document.body.classList.remove('has-fullscreen-exam');
+    };
+  }, [isFullscreen]);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen().catch(() => {});
+      setIsFullscreen(false);
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -403,12 +940,21 @@ export default function ExamTakePage() {
         setSubmissionId(sid);
         setDeadline(dl);
         const qRes = await studentApi.getExamQuestions(examId);
-        setQuestions(
-          (qRes.data.data.questions ?? []).map((q) => ({
-            ...q,
-            options: typeof q.options === 'string' ? JSON.parse(q.options) : (q.options ?? []),
-          }))
-        );
+        const fetchedQuestions = (qRes.data.data.questions ?? []).map((q) => ({
+          ...q,
+          options: typeof q.options === 'string' ? JSON.parse(q.options) : (q.options ?? []),
+        }));
+        setQuestions(fetchedQuestions);
+        
+        // Initialize answers state from database
+        const initialAnswers = {};
+        fetchedQuestions.forEach(q => {
+          if (q.student_answer !== undefined && q.student_answer !== null) {
+            initialAnswers[q.id] = q.student_answer;
+          }
+        });
+        setAnswers(initialAnswers);
+
         setPhase('taking');
       } catch (err) {
         toast.error(err.response?.data?.message ?? 'Could not start exam');
@@ -431,6 +977,49 @@ export default function ExamTakePage() {
     setAnswers((p) => ({ ...p, [questionId]: answer }));
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => saveAnswer(questionId, answer), 800);
+  };
+
+  const uploadDrawing = async (canvas, questionId) => {
+    if (!submissionId || !canvas) return;
+    setSavingDrawing(true);
+    try {
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+      const file = new File([blob], `answer_${questionId}.png`, { type: 'image/png' });
+      
+      const res = await studentApi.savePhotoAnswer(examId, submissionId, questionId, file);
+      const uploadedUrl = res.data.data.url;
+      
+      setAnswers((p) => ({ ...p, [questionId]: uploadedUrl }));
+    } catch (err) {
+      console.error('Error auto-saving drawing:', err);
+      toast.error('Failed to auto-save drawing');
+    } finally {
+      setSavingDrawing(false);
+    }
+  };
+
+  const triggerPendingSave = async () => {
+    if (!pendingCanvasRef.current) return;
+    if (drawingSaveTimeout.current) {
+      clearTimeout(drawingSaveTimeout.current);
+      drawingSaveTimeout.current = null;
+    }
+    const canvas = pendingCanvasRef.current;
+    pendingCanvasRef.current = null;
+    const currentQuestionId = questions[current]?.id;
+    if (currentQuestionId) {
+      await uploadDrawing(canvas, currentQuestionId);
+    }
+  };
+
+  const handleDrawingSave = (canvas) => {
+    pendingCanvasRef.current = canvas;
+    if (drawingSaveTimeout.current) {
+      clearTimeout(drawingSaveTimeout.current);
+    }
+    drawingSaveTimeout.current = setTimeout(() => {
+      triggerPendingSave();
+    }, 2000);
   };
 
   const handleSubmit = async (auto = false) => {
@@ -491,7 +1080,7 @@ export default function ExamTakePage() {
   return (
     <>
       <style>{CSS}</style>
-      <div className="take-root">
+      <div className={clsx('take-root', isFullscreen && 'fullscreen-mode')}>
 
         {/* ── TOP BAR ── */}
         <div className="take-topbar">
@@ -503,14 +1092,31 @@ export default function ExamTakePage() {
             </div>
           </div>
 
-          {/* Timer */}
-          <div className={clsx('take-timer', isUrgent && 'urgent')}>
-            <Clock size={14} />
-            {timerLabel}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            {/* Fullscreen Option */}
+            <button 
+              type="button"
+              className="toolbox-btn" 
+              style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)', color: 'var(--cream)', padding: '0.45rem 0.95rem', gap: '0.4rem', height: '36px', borderRadius: '12px' }}
+              onClick={toggleFullscreen}
+              title={isFullscreen ? "Exit Fullscreen" : "Fullscreen Mode"}
+            >
+              {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+              <span>{isFullscreen ? "Exit Fullscreen" : "Fullscreen"}</span>
+            </button>
+
+            {/* Timer */}
+            <div className={clsx('take-timer', isUrgent && 'urgent')} style={{ height: '36px' }}>
+              <Clock size={14} />
+              {timerLabel}
+            </div>
           </div>
 
           {/* Submit */}
-          <button className="take-submit-btn" disabled={submitting} onClick={() => setConfirmSubmit(true)}>
+          <button className="take-submit-btn" disabled={submitting} onClick={async () => {
+            if (pendingCanvasRef.current) await triggerPendingSave();
+            setConfirmSubmit(true);
+          }}>
             <Send size={13} /> Submit
           </button>
         </div>
@@ -536,16 +1142,14 @@ export default function ExamTakePage() {
                   </div>
                   <p className="take-qtext">{q.question_text}</p>
                   
-                  {/* Image Display for Structured Text Questions */}
+                  {/* Structure Question Canvas overlay with toolbox */}
                   {q.question_type === 'photo' && q.image_url && (
-                    <div style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'center' }}>
-                      <img 
-                        src={q.image_url} 
-                        alt="Question illustration" 
-                        style={{ maxWidth: '100%', maxHeight: '320px', borderRadius: '12px', border: '1px solid var(--card-bdr)', display: 'block' }} 
-                        loading="lazy"
-                      />
-                    </div>
+                    <StructureCanvas
+                      imageUrl={q.image_url}
+                      savedAnswerUrl={answers[q.id]}
+                      onSave={handleDrawingSave}
+                      saving={savingDrawing}
+                    />
                   )}
                 </div>
 
@@ -594,14 +1198,24 @@ export default function ExamTakePage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <button
                     className="take-nav-btn ghost"
-                    onClick={() => setCurrent((p) => Math.max(0, p - 1))}
+                    onClick={async () => {
+                      if (pendingCanvasRef.current) await triggerPendingSave();
+                      setCurrent((p) => Math.max(0, p - 1));
+                    }}
                     disabled={current === 0}
                   >
                     <ChevronLeft size={15} /> Previous
                   </button>
                   <button
                     className={clsx('take-nav-btn', current < total - 1 ? 'outline' : 'primary')}
-                    onClick={() => current < total - 1 ? setCurrent((p) => p + 1) : setConfirmSubmit(true)}
+                    onClick={async () => {
+                      if (pendingCanvasRef.current) await triggerPendingSave();
+                      if (current < total - 1) {
+                        setCurrent((p) => p + 1);
+                      } else {
+                        setConfirmSubmit(true);
+                      }
+                    }}
                   >
                     {current < total - 1 ? <><span>Next</span><ChevronRight size={15} /></> : <><Send size={13} /><span>Submit</span></>}
                   </button>
@@ -620,7 +1234,10 @@ export default function ExamTakePage() {
                 return (
                   <button
                     key={i}
-                    onClick={() => setCurrent(i)}
+                    onClick={async () => {
+                      if (pendingCanvasRef.current) await triggerPendingSave();
+                      setCurrent(i);
+                    }}
                     className={clsx(
                       'take-qnum-btn',
                       isCur ? 'cur' : isAns ? 'answered' : 'unanswered'

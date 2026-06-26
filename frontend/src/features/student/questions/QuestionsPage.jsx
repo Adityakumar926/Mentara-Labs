@@ -377,7 +377,7 @@ const CSS = `
 `;
 
 /* ─── constants ────────────────────────────────────────────────────────────── */
-const TYPE_LABEL = { mcq: 'MCQ', fill_blank: 'Fill blank', photo: 'Photo' };
+const TYPE_LABEL = { mcq: 'MCQ', fill_blank: 'Fill blank', photo: 'Structure' };
 const ALL_TYPES = ['all', 'mcq', 'fill_blank', 'photo'];
 
 function TypeBadge({ type }) {
