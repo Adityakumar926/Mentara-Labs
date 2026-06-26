@@ -123,6 +123,7 @@ router.post('/exams',    examCtrl.create);
 router.get('/exams/:id', examCtrl.getOne);
 router.put('/exams/:id', examCtrl.update);
 router.delete('/exams/:id', examCtrl.delete);
+router.post('/exams/:id/duplicate', examCtrl.duplicate);
 
 // Exam questions management
 router.post('/exams/:id/questions',               examCtrl.addQuestions);

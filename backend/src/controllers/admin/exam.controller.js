@@ -149,7 +149,7 @@ exports.update = async (req, res) => {
          total_marks      = COALESCE($7,  total_marks),
          passing_marks    = COALESCE($8,  passing_marks),
          is_premium       = COALESCE($9,  is_premium)
-       WHERE id = $10 AND status = 'draft'
+       WHERE id = $10 AND (status = 'draft' OR status = 'scheduled')
        RETURNING *`,
       [
         title        || null,
@@ -165,7 +165,7 @@ exports.update = async (req, res) => {
       ]
     );
     if (!rows[0])
-      return res.status(404).json({ success: false, message: 'Exam not found or already published' });
+      return res.status(404).json({ success: false, message: 'Exam not found or not in draft/scheduled status' });
     res.json({ success: true, data: rows[0] });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -175,14 +175,78 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
   try {
     const { rowCount } = await db.query(
-      `DELETE FROM exams WHERE id = $1 AND status = 'draft'`,
+      `DELETE FROM exams WHERE id = $1 AND (status = 'draft' OR status = 'scheduled')`,
       [req.params.id]
     );
     if (!rowCount)
-      return res.status(400).json({ success: false, message: 'Only draft exams can be deleted' });
+      return res.status(400).json({ success: false, message: 'Only draft or scheduled exams can be deleted' });
     res.json({ success: true, message: 'Exam deleted' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.duplicate = async (req, res) => {
+  const client = await db.pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Get the exam to copy
+    const { rows: examRows } = await client.query(
+      `SELECT * FROM exams WHERE id = $1`,
+      [req.params.id]
+    );
+    if (!examRows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ success: false, message: 'Exam not found' });
+    }
+
+    const orig = examRows[0];
+
+    // Insert new exam with "Copy of ..." title in draft status
+    const { rows: newExamRows } = await client.query(
+      `INSERT INTO exams
+       (title, description, subject_id, topic_id, batch_id,
+        duration_minutes, total_marks, passing_marks, is_premium, status, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'draft', $10)
+       RETURNING *`,
+      [
+        `Copy of ${orig.title}`,
+        orig.description,
+        orig.subject_id,
+        orig.topic_id,
+        orig.batch_id,
+        orig.duration_minutes,
+        orig.total_marks,
+        orig.passing_marks,
+        orig.is_premium,
+        req.user.id
+      ]
+    );
+
+    const newExam = newExamRows[0];
+
+    // Duplicate exam questions
+    const { rows: questionRows } = await client.query(
+      `SELECT question_id, marks, order_index FROM exam_questions WHERE exam_id = $1`,
+      [req.params.id]
+    );
+
+    for (const q of questionRows) {
+      await client.query(
+        `INSERT INTO exam_questions (exam_id, question_id, marks, order_index)
+         VALUES ($1, $2, $3, $4)`,
+        [newExam.id, q.question_id, q.marks, q.order_index]
+      );
+    }
+
+    await client.query('COMMIT');
+    res.status(201).json({ success: true, data: newExam });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ success: false, message: err.message });
+  } finally {
+    client.release();
   }
 };
 
