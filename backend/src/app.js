@@ -11,7 +11,26 @@ const app = express();
 
 // Middleware
 app.use(helmet());
-app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const cleanOrigin = origin.replace(/\/$/, '');
+    const allowed = [process.env.FRONTEND_URL, process.env.CLIENT_URL]
+      .filter(Boolean)
+      .map(url => url.replace(/\/$/, ''));
+
+    if (
+      allowed.includes(cleanOrigin) || 
+      cleanOrigin.includes('vercel.app') || 
+      cleanOrigin.includes('localhost') ||
+      cleanOrigin.includes('127.0.0.1')
+    ) {
+      return callback(null, true);
+    }
+    callback(new Error(`Origin ${origin} not allowed by CORS`));
+  },
+  credentials: true
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(morgan('dev'));
 
