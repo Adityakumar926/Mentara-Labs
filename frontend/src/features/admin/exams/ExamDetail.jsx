@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Calendar, Radio, CheckCircle, Clock, Users, TrendingUp, Award } from 'lucide-react';
-import { PageWrapper, Button, Badge, Skeleton, Modal, EmptyState, ConfirmDialog } from '@/components/ui';
+import { PageWrapper, Button, Badge, Skeleton, Modal, EmptyState, ConfirmDialog, Select, Input } from '@/components/ui';
 import { useApi, useMutation } from '@/hooks/useApi';
 import { adminApi } from '@/api/services';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -357,8 +357,31 @@ const fadeUp = (delay = 0) => ({
 
 const STAT_VARIANTS = ['ed-stat-violet', 'ed-stat-cyan', 'ed-stat-green', 'ed-stat-amber'];
 
+function findTopicPath(topics, targetId, currentPath = []) {
+  if (!topics || !targetId) return null;
+  for (const topic of topics) {
+    if (topic.id === targetId) {
+      return [...currentPath, topic];
+    }
+    if (topic.children && topic.children.length > 0) {
+      const path = findTopicPath(topic.children, targetId, [...currentPath, topic]);
+      if (path) return path;
+    }
+  }
+  return null;
+}
+
+function getDescendantTopicIds(topic) {
+  let ids = [topic.id];
+  if (topic.children) {
+    for (const child of topic.children) {
+      ids = [...ids, ...getDescendantTopicIds(child)];
+    }
+  }
+  return ids;
+}
+
 export default function ExamDetail() {
-  /* ─── unchanged logic ─── */
   const { id } = useParams();
   const navigate = useNavigate();
   const [addQModal, setAddQModal]   = useState(false);
@@ -366,10 +389,20 @@ export default function ExamDetail() {
   const [schedForm, setSchedForm]   = useState({ scheduled_at: '' });
   const [selected, setSelected]     = useState([]);
   const [activeTab, setActiveTab]   = useState('questions');
+  const [filterTopicId, setFilterTopicId] = useState('');
+  const [confirmPublishOpen, setConfirmPublishOpen] = useState(false);
+  const [confirmRescheduleOpen, setConfirmRescheduleOpen] = useState(false);
 
   const { data: exam, loading, refetch } = useApi(() => adminApi.getExam(id), null, [id]);
-  const { data: allQuestions }           = useApi(adminApi.getQuestions);
-  const { data: results }                = useApi(() => adminApi.getExamResults(id), null, [id]);
+  
+  const { data: allQuestions } = useApi(
+    adminApi.getQuestions,
+    useMemo(() => ({ subject_id: exam?.subject_id }), [exam?.subject_id]),
+    [exam?.subject_id]
+  );
+  
+  const { data: results } = useApi(() => adminApi.getExamResults(id), null, [id]);
+  const { data: hierarchy } = useApi(adminApi.getHierarchy);
 
   const { mutate: addQs, loading: adding } = useMutation(
     () => adminApi.addExamQuestions(id, { questions: selected.map((qid) => ({ question_id: qid, marks: 1 })) }),
@@ -390,10 +423,64 @@ export default function ExamDetail() {
   const { mutate: goLive  } = useMutation(() => adminApi.goLiveExam(id), { onSuccess: refetch, successMsg: 'Exam is now live!' });
   const { mutate: endExam } = useMutation(() => adminApi.endExam(id),    { onSuccess: refetch, successMsg: 'Exam ended' });
 
+  const subjectNode = useMemo(() => {
+    if (!exam?.subject_id || !hierarchy) return null;
+    for (const curr of hierarchy) {
+      for (const cls of curr.classes) {
+        for (const subj of cls.subjects) {
+          if (subj.id === exam.subject_id) {
+            return subj;
+          }
+        }
+      }
+    }
+    return null;
+  }, [hierarchy, exam?.subject_id]);
+
+  const filterTopicPath = useMemo(() => {
+    if (!subjectNode || !filterTopicId) return [];
+    return findTopicPath(subjectNode.topics, filterTopicId) || [];
+  }, [subjectNode, filterTopicId]);
+
   const existingIds  = new Set((exam?.questions ?? []).map((q) => q.id));
   const availableQs  = (allQuestions ?? []).filter((q) => !existingIds.has(q.id));
+  
+  const filteredAvailableQs = useMemo(() => {
+    const list = availableQs ?? [];
+    if (!filterTopicId || !subjectNode) return list;
+    
+    const findNode = (topics, id) => {
+      for (const t of topics) {
+        if (t.id === id) return t;
+        if (t.children) {
+          const found = findNode(t.children, id);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+    
+    const selectedTopicNode = findNode(subjectNode.topics, filterTopicId);
+    if (!selectedTopicNode) return list.filter((q) => q.topic_id === filterTopicId);
+    
+    const allowedIds = new Set(getDescendantTopicIds(selectedTopicNode));
+    return list.filter((q) => q.topic_id && allowedIds.has(q.topic_id));
+  }, [availableQs, filterTopicId, subjectNode]);
+
   const toggleSelect = (qid) =>
     setSelected((p) => p.includes(qid) ? p.filter((x) => x !== qid) : [...p, qid]);
+
+  const handleFilterTopicChange = (index, value) => {
+    if (!value) {
+      if (index === 0) {
+        setFilterTopicId('');
+      } else {
+        setFilterTopicId(filterTopicPath[index - 1].id);
+      }
+    } else {
+      setFilterTopicId(value);
+    }
+  };
 
   const isDraft     = exam?.status === 'draft';
   const isScheduled = exam?.status === 'scheduled';
@@ -464,6 +551,9 @@ export default function ExamDetail() {
           <div className="ed-header-actions">
             {isDraft && (
               <>
+                <button className="ed-btn-golive" onClick={() => goLive()}>
+                  <Radio size={13} /> Enable
+                </button>
                 <button className="ed-btn-outline" onClick={() => setSchedModal(true)}>
                   <Calendar size={14} /> Schedule
                 </button>
@@ -481,6 +571,16 @@ export default function ExamDetail() {
               <button className="ed-btn-danger" onClick={() => endExam()}>
                 End Exam
               </button>
+            )}
+            {exam.status === 'ended' && (
+              <>
+                <button className="ed-btn-golive" onClick={() => setConfirmPublishOpen(true)}>
+                  <Radio size={13} /> Publish
+                </button>
+                <button className="ed-btn-outline" onClick={() => setConfirmRescheduleOpen(true)}>
+                  <Calendar size={14} /> Reschedule
+                </button>
+              </>
             )}
           </div>
         </motion.div>
@@ -626,32 +726,72 @@ export default function ExamDetail() {
 
         {/* ── Add Questions Modal ── */}
         <Modal open={addQModal} onClose={() => setAddQModal(false)} title="Add Questions" size="xl">
-          <div className="ed-modal-q-list">
-            {availableQs.length === 0 ? (
-              <p style={{ textAlign: 'center', padding: '2.5rem 0', fontSize: '0.82rem', color: 'var(--muted)' }}>
-                All questions are already added, or no questions exist yet.
-              </p>
-            ) : (
-              availableQs.map((q) => {
-                const sel = selected.includes(q.id);
-                return (
-                  <motion.div
-                    key={q.id}
-                    onClick={() => toggleSelect(q.id)}
-                    className={clsx('ed-modal-q-item', sel && 'ed-modal-q-sel')}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <div className={clsx('ed-checkbox', sel && 'ed-checkbox-sel')}>
-                      {sel && <span className="ed-check-mark">✓</span>}
-                    </div>
-                    <div>
-                      <p className="ed-modal-q-text">{q.question_text}</p>
-                      <p className="ed-modal-q-type">{q.question_type.replace('_', ' ')}</p>
-                    </div>
-                  </motion.div>
-                );
-              })
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            
+            {/* Topic Filters */}
+            {subjectNode && subjectNode.topics && subjectNode.topics.length > 0 && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+                <Select
+                  label="Filter by Topic"
+                  value={filterTopicPath[0]?.id ?? ''}
+                  onChange={(e) => handleFilterTopicChange(0, e.target.value)}
+                >
+                  <option value="">All Topics</option>
+                  {subjectNode.topics.map(t => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </Select>
+
+                {filterTopicPath.map((topicNode, idx) => {
+                  if (!topicNode.children || topicNode.children.length === 0) return null;
+                  const nextIdx = idx + 1;
+                  return (
+                    <Select
+                      key={topicNode.id}
+                      label="Filter by Sub-topic"
+                      value={filterTopicPath[nextIdx]?.id ?? ''}
+                      onChange={(e) => handleFilterTopicChange(nextIdx, e.target.value)}
+                    >
+                      <option value="">All Sub-topics</option>
+                      {topicNode.children.map(child => (
+                        <option key={child.id} value={child.id}>{child.name}</option>
+                      ))}
+                    </Select>
+                  );
+                })}
+              </div>
             )}
+
+            <div className="ed-modal-q-list">
+              {filteredAvailableQs.length === 0 ? (
+                <p style={{ textAlign: 'center', padding: '2.5rem 0', fontSize: '0.82rem', color: 'var(--muted)' }}>
+                  No available questions found matching your filter criteria.
+                </p>
+              ) : (
+                filteredAvailableQs.map((q) => {
+                  const sel = selected.includes(q.id);
+                  return (
+                    <motion.div
+                      key={q.id}
+                      onClick={() => toggleSelect(q.id)}
+                      className={clsx('ed-modal-q-item', sel && 'ed-modal-q-sel')}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <div className={clsx('ed-checkbox', sel && 'ed-checkbox-sel')}>
+                        {sel && <span className="ed-check-mark">✓</span>}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p className="ed-modal-q-text">{q.question_text}</p>
+                        <p className="ed-modal-q-type">
+                          {q.question_type.replace('_', ' ')}
+                          {q.topic_name && ` • ${q.topic_name}`}
+                        </p>
+                      </div>
+                    </motion.div>
+                  );
+                })
+              )}
+            </div>
           </div>
           {selected.length > 0 && (
             <div className="ed-modal-footer">
@@ -662,19 +802,14 @@ export default function ExamDetail() {
         </Modal>
 
         {/* ── Schedule Modal ── */}
-        <Modal open={schedModal} onClose={() => setSchedModal(false)} title="Schedule Exam" size="sm">
+        <Modal open={schedModal} onClose={() => setSchedModal(false)} title={exam.status === 'ended' ? "Reschedule Exam" : "Schedule Exam"} size="sm" preventOutsideClickClose={true}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--muted)', letterSpacing: '0.04em' }}>
-                Start Date &amp; Time
-              </label>
-              <input
-                type="datetime-local"
-                className="input"
-                value={schedForm.scheduled_at}
-                onChange={(e) => setSchedForm({ scheduled_at: e.target.value })}
-              />
-            </div>
+            <Input
+              type="datetime-local"
+              label="Start Date & Time"
+              value={schedForm.scheduled_at}
+              onChange={(e) => setSchedForm({ scheduled_at: e.target.value })}
+            />
             <p className="ed-sched-note">
               The exam will automatically go live at the scheduled time and end after{' '}
               <strong>{exam.duration_minutes} minutes</strong>.
@@ -683,9 +818,37 @@ export default function ExamDetail() {
           </div>
           <div className="ed-modal-footer-end">
             <Button variant="ghost" onClick={() => setSchedModal(false)}>Cancel</Button>
-            <Button variant="primary" loading={scheduling} onClick={schedule}>Schedule</Button>
+            <Button variant="primary" loading={scheduling} onClick={schedule}>
+              {exam.status === 'ended' ? 'Reschedule' : 'Schedule'}
+            </Button>
           </div>
         </Modal>
+
+        {/* ── Confirm Publish Dialog ── */}
+        <ConfirmDialog
+          open={confirmPublishOpen}
+          onClose={() => setConfirmPublishOpen(false)}
+          onConfirm={() => {
+            setConfirmPublishOpen(false);
+            goLive();
+          }}
+          title="Republish Exam?"
+          description="Warning: Publishing this exam again will permanently delete all previous student submissions and results for this exam. Students will be able to take the exam again immediately. Do you want to proceed?"
+          danger={true}
+        />
+
+        {/* ── Confirm Reschedule Dialog ── */}
+        <ConfirmDialog
+          open={confirmRescheduleOpen}
+          onClose={() => setConfirmRescheduleOpen(false)}
+          onConfirm={() => {
+            setConfirmRescheduleOpen(false);
+            setSchedModal(true);
+          }}
+          title="Reschedule Exam?"
+          description="Warning: Rescheduling this exam will permanently delete all previous student submissions and results for this exam. Students will be able to take the exam again at the newly scheduled time. Do you want to proceed?"
+          danger={true}
+        />
 
       </div>
     </PageWrapper>

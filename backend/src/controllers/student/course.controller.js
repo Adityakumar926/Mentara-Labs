@@ -4,21 +4,16 @@ const db = require('../../config/db');
 
 exports.getMyCurriculums = async (req, res) => {
   try {
+    if (!req.user.curriculum_id) {
+      return res.json({ success: true, data: [] });
+    }
     const { rows } = await db.query(
-      `SELECT DISTINCT
+      `SELECT
          c.id, c.name, c.description, c.thumbnail_url,
-         b.id   AS batch_id,
-         b.name AS batch_name,
-         b.start_date, b.end_date,
-         COUNT(DISTINCT s.id) AS subject_count
-       FROM batch_students bs
-       JOIN batches b      ON b.id = bs.batch_id
-       JOIN curriculums c  ON c.id = b.curriculum_id
-       LEFT JOIN subjects s ON s.curriculum_id = c.id
-       WHERE bs.student_id = $1 AND c.is_active = true
-       GROUP BY c.id, b.id
-       ORDER BY b.start_date DESC`,
-      [req.user.id]
+         (SELECT COUNT(*) FROM classes cl WHERE cl.curriculum_id = c.id) AS class_count
+       FROM curriculums c
+       WHERE c.id = $1 AND c.is_active = true`,
+      [req.user.curriculum_id]
     );
     res.json({ success: true, data: rows });
   } catch (err) {
@@ -28,26 +23,22 @@ exports.getMyCurriculums = async (req, res) => {
 
 exports.getCurriculumSubjects = async (req, res) => {
   try {
-    const { rows: access } = await db.query(
-      `SELECT 1 FROM batch_students bs
-       JOIN batches b ON b.id = bs.batch_id
-       WHERE bs.student_id = $1 AND b.curriculum_id = $2`,
-      [req.user.id, req.params.curriculumId]
-    );
-    if (!access.length)
-      return res.status(403).json({ success: false, message: 'Not enrolled in this curriculum' });
+    if (req.user.curriculum_id !== req.params.curriculumId) {
+      return res.status(403).json({ success: false, message: 'Access denied: not enrolled in this curriculum' });
+    }
 
     const { rows } = await db.query(
       `SELECT
          s.*,
-         COUNT(c.id) AS content_count,
-         COUNT(c.id) FILTER (WHERE c.is_premium = true) AS premium_content_count
+         cl.name AS class_name,
+         curr.name AS curriculum_name,
+         (SELECT COUNT(*) FROM topics t WHERE t.subject_id = s.id) AS topic_count
        FROM subjects s
-       LEFT JOIN content c ON c.subject_id = s.id
-       WHERE s.curriculum_id = $1
-       GROUP BY s.id
+       JOIN classes cl ON cl.id = s.class_id
+       JOIN curriculums curr ON curr.id = cl.curriculum_id
+       WHERE s.class_id = $1
        ORDER BY s.order_index`,
-      [req.params.curriculumId]
+      [req.user.class_id]
     );
     res.json({ success: true, data: rows });
   } catch (err) {
@@ -55,21 +46,61 @@ exports.getCurriculumSubjects = async (req, res) => {
   }
 };
 
-exports.getSubjectContent = async (req, res) => {
+// Get topics in a subject
+exports.getSubjectTopics = async (req, res) => {
   try {
-    const isPremium = req.user.is_premium;
+    const { subjectId } = req.params;
 
+    // Verify subject belongs to student's class
     const { rows: access } = await db.query(
-      `SELECT 1 FROM batch_students bs
-       JOIN batches   b ON b.id = bs.batch_id
-       JOIN subjects  s ON s.curriculum_id = b.curriculum_id
-       WHERE bs.student_id = $1 AND s.id = $2`,
-      [req.user.id, req.params.subjectId]
+      `SELECT 1 FROM subjects s
+       WHERE s.id = $1 AND s.class_id = $2`,
+      [subjectId, req.user.class_id]
     );
-    if (!access.length)
+    if (!access.length) {
       return res.status(403).json({ success: false, message: 'Access denied to this subject' });
+    }
 
     const { rows } = await db.query(
+      `SELECT t.*,
+              up.completed AS is_completed,
+              (SELECT COUNT(*) FROM content c WHERE c.topic_id = t.id) AS resource_count,
+              (SELECT COUNT(*) FROM exams e WHERE e.topic_id = t.id AND e.status IN ('live', 'scheduled', 'ended')
+                 AND (e.batch_id IS NULL OR EXISTS (
+                   SELECT 1 FROM batch_students bs
+                   WHERE bs.batch_id = e.batch_id AND bs.student_id = $1
+                 ))
+              ) AS exam_count
+       FROM topics t
+       LEFT JOIN user_progress up ON up.topic_id = t.id AND up.user_id = $1
+       WHERE t.subject_id = $2
+       ORDER BY t.parent_topic_id ASC NULLS FIRST, t.order_index ASC`,
+      [req.user.id, subjectId]
+    );
+    res.json({ success: true, data: rows });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Get learning resources in a topic
+exports.getTopicContent = async (req, res) => {
+  try {
+    const { topicId } = req.params;
+    const isPremium = req.user.is_premium;
+
+    // Verify topic belongs to student's class via subjects
+    const { rows: access } = await db.query(
+      `SELECT t.name AS topic_name, s.name AS subject_name FROM topics t
+       JOIN subjects s ON s.id = t.subject_id
+       WHERE t.id = $1 AND s.class_id = $2`,
+      [topicId, req.user.class_id]
+    );
+    if (!access.length) {
+      return res.status(403).json({ success: false, message: 'Access denied to this topic' });
+    }
+
+    const { rows: contentRows } = await db.query(
       `SELECT
          c.id,
          c.title,
@@ -78,13 +109,51 @@ exports.getSubjectContent = async (req, res) => {
          c.is_premium,
          CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.file_url          END AS file_url,
          CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.mux_playback_id   END AS mux_playback_id,
-         CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.animation_id      END AS animation_id
+         CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.animation_id      END AS animation_id,
+         up.completed AS is_completed,
+         up.video_progress
        FROM content c
-       WHERE c.subject_id = $1
+       LEFT JOIN user_progress up ON up.content_id = c.id AND up.user_id = $3
+       WHERE c.topic_id = $1
        ORDER BY c.order_index`,
-      [req.params.subjectId, isPremium]
+      [topicId, isPremium, req.user.id]
     );
-    res.json({ success: true, data: rows });
+
+    const { rows: examRows } = await db.query(
+      `SELECT
+         e.id,
+         e.title,
+         e.description,
+         e.duration_minutes,
+         e.total_marks,
+         e.passing_marks,
+         e.is_premium,
+         e.status,
+         e.scheduled_at,
+         e.ends_at,
+         es.status AS submission_status,
+         es.id AS submission_id
+       FROM exams e
+       LEFT JOIN exam_submissions es ON es.exam_id = e.id AND es.student_id = $2
+       WHERE e.topic_id = $1
+         AND e.status IN ('live', 'scheduled', 'ended')
+         AND (e.batch_id IS NULL OR EXISTS (
+           SELECT 1 FROM batch_students bs
+           WHERE bs.batch_id = e.batch_id AND bs.student_id = $2
+         ))
+       ORDER BY e.created_at DESC`,
+      [topicId, req.user.id]
+    );
+
+    res.json({
+      success: true,
+      data: {
+        topic_name: access[0].topic_name,
+        subject_name: access[0].subject_name,
+        items: contentRows,
+        exams: examRows
+      }
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -181,11 +250,11 @@ exports.getMyQuestions = async (req, res) => {
 
     if (subject_id) {
       extraParams.push(subject_id);
-      conditions.push(`s.id = $${2 + extraParams.length}`);
+      conditions.push(`s.id = $${4 + extraParams.length}`);
     }
     if (search) {
       extraParams.push(`%${search.toLowerCase()}%`);
-      conditions.push(`LOWER(q.question_text) LIKE $${2 + extraParams.length}`);
+      conditions.push(`LOWER(q.question_text) LIKE $${4 + extraParams.length}`);
     }
 
     const where = conditions.length ? 'AND ' + conditions.join(' AND ') : '';
@@ -204,16 +273,15 @@ exports.getMyQuestions = async (req, res) => {
          s.order_index AS subject_order,
          c.id          AS curriculum_id,
          c.name        AS curriculum_name
-       FROM batch_students bs
-       JOIN batches     b  ON b.id            = bs.batch_id
-       JOIN curriculums c  ON c.id            = b.curriculum_id
-       JOIN subjects    s  ON s.curriculum_id = c.id
+       FROM subjects    s
+       JOIN classes     cl ON cl.id           = s.class_id
+       JOIN curriculums c  ON c.id            = cl.curriculum_id
        JOIN questions   q  ON q.subject_id    = s.id
-       WHERE bs.student_id = $1
+       WHERE c.id = $1 AND cl.id = $3
          AND c.is_active = true
          ${where}
        ORDER BY s.order_index, q.is_premium ASC, q.created_at DESC`,
-      [studentId, isPremium, ...extraParams]
+      [req.user.curriculum_id, isPremium, req.user.class_id, ...extraParams]
     );
 
     const grouped     = [];
@@ -242,6 +310,38 @@ exports.getMyQuestions = async (req, res) => {
     }
 
     res.json({ success: true, data: grouped });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Get all active curriculums (for student onboarding)
+exports.getAllCurriculums = async (req, res) => {
+  try {
+    const { rows } = await db.query(
+      `SELECT id, name, description, thumbnail_url
+       FROM curriculums
+       WHERE is_active = true
+       ORDER BY name ASC`
+    );
+    res.json({ success: true, data: rows });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Get active classes under a curriculum (for student onboarding)
+exports.getCurriculumClasses = async (req, res) => {
+  try {
+    const { curriculumId } = req.params;
+    const { rows } = await db.query(
+      `SELECT id, name, description
+       FROM classes
+       WHERE curriculum_id = $1
+       ORDER BY order_index ASC, name ASC`,
+      [curriculumId]
+    );
+    res.json({ success: true, data: rows });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

@@ -10,6 +10,7 @@ router.post('/login',    authCtrl.login);
 
 // ─── PROTECTED ────────────────────────────────────────────────────────────────
 router.get('/me',             protect, authCtrl.me);
+router.post('/onboarding',    protect, authCtrl.onboard);
 router.post('/logout',        protect, authCtrl.logout);
 router.post('/refresh-token', authCtrl.refreshToken);
 

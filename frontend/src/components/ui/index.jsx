@@ -43,6 +43,28 @@ const TOKENS = `
     backdrop-filter: blur(24px);
     box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,58,237,0.08);
     overflow: hidden;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .ui-modal-body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 4px;
+  }
+  .ui-modal-body::-webkit-scrollbar {
+    width: 6px;
+  }
+  .ui-modal-body::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .ui-modal-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+  .ui-modal-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(124, 58, 237, 0.4);
   }
   /* Subtle violet sheen at top of modal */
   .ui-modal-panel::before {
@@ -389,14 +411,14 @@ export function SkeletonCard() {
 /* ─────────────────────────────────────────────
    MODAL
 ───────────────────────────────────────────── */
-export function Modal({ open, onClose, title, children, size = 'md' }) {
+export function Modal({ open, onClose, title, children, size = 'md', preventOutsideClickClose = false }) {
   ensureTokens();
   const s = { sm: 'ui-modal-sm', md: 'ui-modal-md', lg: 'ui-modal-lg', xl: 'ui-modal-xl' };
   return (
     <AnimatePresence>
       {open && (
         <motion.div className="ui-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-          <motion.div className="ui-modal-backdrop" onClick={onClose} />
+          <motion.div className="ui-modal-backdrop" onClick={preventOutsideClickClose ? undefined : onClose} />
           <motion.div
             className={clsx('ui-modal-panel', s[size] ?? 'ui-modal-md')}
             initial={{ opacity: 0, scale: 0.94, y: 20 }}
@@ -408,7 +430,9 @@ export function Modal({ open, onClose, title, children, size = 'md' }) {
               <h2 className="ui-modal-title">{title}</h2>
               <button className="ui-modal-close" onClick={onClose}><X size={15} /></button>
             </div>
-            {children}
+            <div className="ui-modal-body">
+              {children}
+            </div>
           </motion.div>
         </motion.div>
       )}

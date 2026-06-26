@@ -380,6 +380,7 @@ export default function BatchesPage() {
           onClose={() => { setModal(false); setEditing(null); }}
           title={editing ? 'Edit Batch' : 'New Batch'}
           size="md"
+          preventOutsideClickClose={true}
         >
           <div className="bp-form-section">
             <Input

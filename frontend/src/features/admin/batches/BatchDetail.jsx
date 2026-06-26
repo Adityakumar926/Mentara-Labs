@@ -665,8 +665,9 @@ export default function BatchDetail() {
         </AnimatePresence>
 
         {/* ── Add Students Modal ── */}
-        <Modal open={addModal} onClose={() => { setAddModal(false); setSelectedIds([]); }} title="Add Students" size="lg">
-          <div className="bd-search-wrap">
+        <Modal open={addModal} onClose={() => { setAddModal(false); setSelectedIds([]); }} title="Add Students" size="lg" preventOutsideClickClose={true}>
+          <div className="bd-root" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: 'auto' }}>
+            <div className="bd-search-wrap">
             <Search size={13} className="bd-search-icon" />
             <input
               className="bd-search-input"
@@ -720,6 +721,7 @@ export default function BatchDetail() {
               </Button>
             </div>
           )}
+          </div>
         </Modal>
 
         {/* ── Remove confirm ── */}

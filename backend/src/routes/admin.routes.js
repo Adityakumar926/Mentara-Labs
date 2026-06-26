@@ -9,13 +9,19 @@ const { upload, handleUploadError } = require('../middleware/upload.middleware')
 
 const dashCtrl  = require('../controllers/admin/dashboard.controller');
 const currCtrl  = require('../controllers/admin/curriculum.controller');
+const classCtrl = require('../controllers/admin/class.controller');
+const topicCtrl = require('../controllers/admin/topic.controller');
 const qCtrl     = require('../controllers/admin/question.controller');
 const examCtrl  = require('../controllers/admin/exam.controller');
 const animCtrl  = require('../controllers/admin/animation.controller');
 const batchCtrl = require('../controllers/admin/batch.controller');
+const hierarchyCtrl = require('../controllers/admin/hierarchy.controller');
 
 // All admin routes require auth + admin role
 router.use(protect, authorize('admin'));
+
+// ─── HIERARCHY ────────────────────────────────────────────────────────────────
+router.get('/hierarchy', hierarchyCtrl.getTree);
 
 // ─── DASHBOARD ────────────────────────────────────────────────────────────────
 router.get('/dashboard', dashCtrl.getStats);
@@ -27,21 +33,36 @@ router.post('/curriculums',       currCtrl.create);
 router.put('/curriculums/:id',    currCtrl.update);
 router.delete('/curriculums/:id', currCtrl.delete);
 
+// ─── CLASSES ──────────────────────────────────────────────────────────────────
+router.get('/curriculums/:curriculumId/classes', classCtrl.getAll);
+router.get('/classes/:id',                       classCtrl.getOne);
+router.post('/curriculums/:curriculumId/classes', classCtrl.create);
+router.put('/classes/:id',                        classCtrl.update);
+router.delete('/classes/:id',                     classCtrl.delete);
+
 // ─── SUBJECTS ─────────────────────────────────────────────────────────────────
-router.get('/subjects',                             currCtrl.getAllSubjects);
-router.post('/curriculums/:id/subjects',            currCtrl.createSubject);
-router.put('/curriculums/:id/subjects/reorder',     currCtrl.reorderSubjects);
-router.put('/subjects/:id',                         currCtrl.updateSubject);
-router.delete('/subjects/:id',                      currCtrl.deleteSubject);
+router.get('/subjects',                        currCtrl.getAllSubjects);
+router.post('/classes/:classId/subjects',      currCtrl.createSubject);
+router.put('/classes/:classId/subjects/reorder', currCtrl.reorderSubjects);
+router.put('/subjects/:id',                    currCtrl.updateSubject);
+router.delete('/subjects/:id',                 currCtrl.deleteSubject);
+
+// ─── TOPICS ───────────────────────────────────────────────────────────────────
+router.get('/subjects/:subjectId/topics',         topicCtrl.getAll);
+router.get('/topics/:id',                         topicCtrl.getOne);
+router.post('/subjects/:subjectId/topics',         topicCtrl.create);
+router.put('/topics/:id',                         topicCtrl.update);
+router.delete('/topics/:id',                      topicCtrl.delete);
+router.put('/subjects/:subjectId/topics/reorder', topicCtrl.reorder);
 
 // ─── CONTENT ──────────────────────────────────────────────────────────────────
-router.get('/subjects/:subjectId/content', currCtrl.getSubjectContent);
+router.get('/topics/:topicId/content', currCtrl.getSubjectContent);
 
 // Animation-only generic add. upload().none() parses multipart field-only bodies
 // (no file expected) so Express doesn't crash when the frontend sends multipart.
 // NOTE: For notes use /content/note, for videos use /content/video/upload-url.
 router.post(
-  '/subjects/:subjectId/content',
+  '/topics/:topicId/content',
   upload('image').none(),
   handleUploadError,
   currCtrl.addContent
@@ -52,7 +73,7 @@ router.delete('/content/:id', currCtrl.deleteContent);
 
 // Notes (PDF) → Cloudinary
 router.post(
-  '/subjects/:subjectId/content/note',
+  '/topics/:topicId/content/note',
   upload('note').single('file'),
   handleUploadError,
   currCtrl.uploadNote
@@ -65,12 +86,12 @@ router.put(
 );
 
 // Videos → Mux direct upload (two-step: get upload URL, then confirm after browser PUT)
-router.post('/subjects/:subjectId/content/video/upload-url', currCtrl.createMuxUpload);
-router.post('/content/:id/video/confirm',                    currCtrl.confirmMuxUpload);
+router.post('/topics/:topicId/content/video/upload-url', currCtrl.createMuxUpload);
+router.post('/content/:id/video/confirm',                 currCtrl.confirmMuxUpload);
 
 // Worksheets (image) → Cloudinary
 router.post(
-  '/subjects/:subjectId/content/worksheet',
+  '/topics/:topicId/content/worksheet',
   upload('image').single('file'),
   handleUploadError,
   currCtrl.uploadWorksheet

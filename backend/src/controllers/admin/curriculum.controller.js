@@ -7,10 +7,9 @@ exports.getAll = async (req, res) => {
     const { rows } = await db.query(`
       SELECT
         c.*,
-        COUNT(DISTINCT s.id)  AS subject_count,
+        (SELECT COUNT(*) FROM classes cl WHERE cl.curriculum_id = c.id) AS class_count,
         COUNT(DISTINCT bs.student_id) AS student_count
       FROM curriculums c
-      LEFT JOIN subjects s  ON s.curriculum_id = c.id
       LEFT JOIN batches  b  ON b.curriculum_id = c.id
       LEFT JOIN batch_students bs ON bs.batch_id = b.id
       GROUP BY c.id
@@ -25,10 +24,11 @@ exports.getAll = async (req, res) => {
 exports.getAllSubjects = async (req, res) => {
   try {
     const { rows } = await db.query(
-      `SELECT s.*, c.name AS curriculum_name
+      `SELECT s.*, cl.name AS class_name, c.name AS curriculum_name, cl.curriculum_id
        FROM subjects s
-       LEFT JOIN curriculums c ON s.curriculum_id = c.id
-       ORDER BY c.name, s.order_index`
+       LEFT JOIN classes cl ON s.class_id = cl.id
+       LEFT JOIN curriculums c ON cl.curriculum_id = c.id
+       ORDER BY c.name, cl.order_index, s.order_index`
     );
     res.json({ success: true, data: rows });
   } catch (err) {
@@ -42,13 +42,13 @@ exports.getOne = async (req, res) => {
       `SELECT c.*,
               json_agg(
                 json_build_object(
-                  'id', s.id, 'name', s.name,
-                  'description', s.description,
-                  'order_index', s.order_index
-                ) ORDER BY s.order_index
-              ) FILTER (WHERE s.id IS NOT NULL) AS subjects
+                  'id', cl.id, 'name', cl.name,
+                  'description', cl.description,
+                  'order_index', cl.order_index
+                ) ORDER BY cl.order_index
+              ) FILTER (WHERE cl.id IS NOT NULL) AS classes
        FROM curriculums c
-       LEFT JOIN subjects s ON s.curriculum_id = c.id
+       LEFT JOIN classes cl ON cl.curriculum_id = c.id
        WHERE c.id = $1
        GROUP BY c.id`,
       [req.params.id]
@@ -112,17 +112,18 @@ exports.delete = async (req, res) => {
 exports.createSubject = async (req, res) => {
   try {
     const { name, description } = req.body;
+    const { classId } = req.params;
     if (!name) return res.status(400).json({ success: false, message: 'Name is required' });
 
     const { rows: orderRows } = await db.query(
       `SELECT COALESCE(MAX(order_index), -1) + 1 AS next_order
-       FROM subjects WHERE curriculum_id = $1`,
-      [req.params.id]
+       FROM subjects WHERE class_id = $1`,
+      [classId]
     );
     const { rows } = await db.query(
-      `INSERT INTO subjects (curriculum_id, name, description, order_index)
+      `INSERT INTO subjects (class_id, name, description, order_index)
        VALUES ($1, $2, $3, $4) RETURNING *`,
-      [req.params.id, name, description, orderRows[0].next_order]
+      [classId, name, description, orderRows[0].next_order]
     );
     res.status(201).json({ success: true, data: rows[0] });
   } catch (err) {
@@ -191,9 +192,9 @@ exports.getSubjectContent = async (req, res) => {
          a.html_content
        FROM content c
        LEFT JOIN animations a ON a.id = c.animation_id
-       WHERE c.subject_id = $1
+       WHERE c.topic_id = $1
        ORDER BY c.order_index ASC`,
-      [req.params.subjectId]
+      [req.params.topicId]
     );
     res.json({ success: true, data: rows });
   } catch (err) {
@@ -224,16 +225,16 @@ exports.uploadNote = async (req, res) => {
 
     const { rows: orderRows } = await db.query(
       `SELECT COALESCE(MAX(order_index), -1) + 1 AS next_order
-       FROM content WHERE subject_id = $1`,
-      [req.params.subjectId]
+       FROM content WHERE topic_id = $1`,
+      [req.params.topicId]
     );
 
     const { rows } = await db.query(
       `INSERT INTO content
-         (subject_id, title, content_type, file_url, is_premium, order_index)
+         (topic_id, title, content_type, file_url, is_premium, order_index)
        VALUES ($1, $2, 'note', $3, $4, $5)
        RETURNING *`,
-      [req.params.subjectId, title, file_url, is_premium === 'true', orderRows[0].next_order]
+      [req.params.topicId, title, file_url, is_premium === 'true', orderRows[0].next_order]
     );
 
     res.status(201).json({ success: true, data: rows[0] });
@@ -314,16 +315,16 @@ exports.uploadWorksheet = async (req, res) => {
 
     const { rows: orderRows } = await db.query(
       `SELECT COALESCE(MAX(order_index), -1) + 1 AS next_order
-       FROM content WHERE subject_id = $1`,
-      [req.params.subjectId]
+       FROM content WHERE topic_id = $1`,
+      [req.params.topicId]
     );
 
     const { rows } = await db.query(
       `INSERT INTO content
-         (subject_id, title, content_type, file_url, is_premium, order_index)
+         (topic_id, title, content_type, file_url, is_premium, order_index)
        VALUES ($1, $2, 'worksheet', $3, $4, $5)
        RETURNING *`,
-      [req.params.subjectId, title, file_url, is_premium === 'true', orderRows[0].next_order]
+      [req.params.topicId, title, file_url, is_premium === 'true', orderRows[0].next_order]
     );
 
     res.status(201).json({ success: true, data: rows[0] });
@@ -396,16 +397,16 @@ exports.createMuxUpload = async (req, res) => {
 
     const { rows: orderRows } = await db.query(
       `SELECT COALESCE(MAX(order_index), -1) + 1 AS next_order
-       FROM content WHERE subject_id = $1`,
-      [req.params.subjectId]
+       FROM content WHERE topic_id = $1`,
+      [req.params.topicId]
     );
 
     const { rows } = await db.query(
       `INSERT INTO content
-         (subject_id, title, content_type, mux_upload_id, is_premium, order_index)
+         (topic_id, title, content_type, mux_upload_id, is_premium, order_index)
        VALUES ($1, $2, 'video', $3, $4, $5)
        RETURNING *`,
-      [req.params.subjectId, title, uploadId, is_premium === 'true', orderRows[0].next_order]
+      [req.params.topicId, title, uploadId, is_premium === 'true', orderRows[0].next_order]
     );
 
     res.status(201).json({
@@ -482,16 +483,16 @@ exports.confirmMuxUpload = async (req, res) => {
 exports.addContent = async (req, res) => {
   try {
     const { title, content_type, animation_id, is_premium } = req.body;
-    const subject_id = req.params.subjectId;
+    const topic_id = req.params.topicId;
 
     if (content_type !== 'animation') {
       const hint =
         content_type === 'note'
-          ? 'POST /api/admin/subjects/:subjectId/content/note'
+          ? 'POST /api/admin/topics/:topicId/content/note'
           : content_type === 'video'
-            ? 'POST /api/admin/subjects/:subjectId/content/video/upload-url'
+            ? 'POST /api/admin/topics/:topicId/content/video/upload-url'
             : content_type === 'worksheet'
-              ? 'POST /api/admin/subjects/:subjectId/content/worksheet'
+              ? 'POST /api/admin/topics/:topicId/content/worksheet'
               : 'the dedicated note/video/worksheet upload endpoints';
       return res.status(400).json({
         success: false,
@@ -506,14 +507,14 @@ exports.addContent = async (req, res) => {
 
     const { rows: orderRows } = await db.query(
       `SELECT COALESCE(MAX(order_index), -1) + 1 AS next_order
-       FROM content WHERE subject_id = $1`,
-      [subject_id]
+       FROM content WHERE topic_id = $1`,
+      [topic_id]
     );
     const { rows } = await db.query(
       `INSERT INTO content
-         (subject_id, title, content_type, animation_id, is_premium, order_index)
+         (topic_id, title, content_type, animation_id, is_premium, order_index)
        VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
-      [subject_id, title, content_type, animation_id, is_premium, orderRows[0].next_order]
+      [topic_id, title, content_type, animation_id, is_premium, orderRows[0].next_order]
     );
     res.status(201).json({ success: true, data: rows[0] });
   } catch (err) {

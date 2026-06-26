@@ -100,6 +100,10 @@ exports.leaveBatch = async (req, res) => {
 // GET /student/exams — live exams from enrolled batches
 exports.getLiveExams = async (req, res) => {
   try {
+    if (!req.user.class_id) {
+      return res.json({ success: true, data: [] });
+    }
+
     const { rows } = await db.query(
       `SELECT
          e.id, e.title, e.description, e.duration_minutes,
@@ -112,12 +116,16 @@ exports.getLiveExams = async (req, res) => {
            WHERE es.exam_id = e.id AND es.student_id = $1
          ) AS already_attempted
        FROM exams e
-       JOIN batches b ON b.id = e.batch_id
-       JOIN batch_students bs ON bs.batch_id = b.id
-       LEFT JOIN subjects s ON s.id = e.subject_id
-       WHERE bs.student_id = $1 AND e.status = 'live'
+       JOIN subjects s ON s.id = e.subject_id
+       LEFT JOIN batches b ON b.id = e.batch_id
+       WHERE s.class_id = $2
+         AND e.status = 'live'
+         AND (e.batch_id IS NULL OR EXISTS (
+           SELECT 1 FROM batch_students bs
+           WHERE bs.batch_id = e.batch_id AND bs.student_id = $1
+         ))
        ORDER BY e.ends_at ASC`,
-      [req.user.id]
+      [req.user.id, req.user.class_id]
     );
     res.json({ success: true, data: rows });
   } catch (err) {
@@ -128,6 +136,10 @@ exports.getLiveExams = async (req, res) => {
 // GET /student/exams/scheduled — upcoming exams from enrolled batches
 exports.getScheduledExams = async (req, res) => {
   try {
+    if (!req.user.class_id) {
+      return res.json({ success: true, data: [] });
+    }
+
     const { rows } = await db.query(
       `SELECT
          e.id, e.title, e.description, e.duration_minutes,
@@ -136,12 +148,16 @@ exports.getScheduledExams = async (req, res) => {
          s.name AS subject_name,
          b.name AS batch_name
        FROM exams e
-       JOIN batches b ON b.id = e.batch_id
-       JOIN batch_students bs ON bs.batch_id = b.id
-       LEFT JOIN subjects s ON s.id = e.subject_id
-       WHERE bs.student_id = $1 AND e.status = 'scheduled'
+       JOIN subjects s ON s.id = e.subject_id
+       LEFT JOIN batches b ON b.id = e.batch_id
+       WHERE s.class_id = $2
+         AND e.status = 'scheduled'
+         AND (e.batch_id IS NULL OR EXISTS (
+           SELECT 1 FROM batch_students bs
+           WHERE bs.batch_id = e.batch_id AND bs.student_id = $1
+         ))
        ORDER BY e.scheduled_at ASC`,
-      [req.user.id]
+      [req.user.id, req.user.class_id]
     );
     res.json({ success: true, data: rows });
   } catch (err) {

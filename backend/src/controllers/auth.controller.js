@@ -98,7 +98,7 @@ exports.me = async (req, res) => {
   try {
     const { rows } = await db.query(
       `SELECT id, email, full_name, role, is_premium,
-              premium_expires_at, avatar_url, created_at
+              premium_expires_at, avatar_url, curriculum_id, class_id, onboarded, created_at
        FROM users WHERE id = $1`,
       [req.user.id]
     );
@@ -159,6 +159,29 @@ exports.logout = async (req, res) => {
       [req.user.id]
     );
     res.json({ success: true, message: 'Logged out successfully' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Onboarding selection endpoint
+exports.onboard = async (req, res) => {
+  try {
+    const { curriculum_id, class_id } = req.body;
+    if (!curriculum_id || !class_id)
+      return res.status(400).json({ success: false, message: 'curriculum_id and class_id are required' });
+
+    const { rows } = await db.query(
+      `UPDATE users
+       SET curriculum_id = $1,
+           class_id = $2,
+           onboarded = true,
+           updated_at = NOW()
+       WHERE id = $3 RETURNING id, email, full_name, role, is_premium, premium_expires_at, avatar_url, curriculum_id, class_id, onboarded, created_at`,
+      [curriculum_id, class_id, req.user.id]
+    );
+
+    res.json({ success: true, user: rows[0] });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

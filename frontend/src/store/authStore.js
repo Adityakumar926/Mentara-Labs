@@ -51,6 +51,20 @@ const useAuthStore = create((set, get) => ({
     set({ user: null, error: null });
   },
 
+  onboard: async (payload) => {
+    set({ loading: true, error: null });
+    try {
+      const { data } = await authApi.onboard(payload);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      set({ user: data.user, loading: false });
+      return data.user;
+    } catch (err) {
+      const msg = err.response?.data?.message ?? 'Onboarding failed';
+      set({ error: msg, loading: false });
+      throw new Error(msg);
+    }
+  },
+
   // Called on app boot to restore a session from a stored token — also the
   // place we reconnect the notification socket after a page refresh.
   fetchMe: async () => {

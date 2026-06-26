@@ -9,18 +9,26 @@ exports.startExam = async (req, res) => {
     const { examId } = req.params;
     const studentId = req.user.id;
 
-    // 1. Verify exam exists, is live, and student's batch is linked
+    if (!req.user.class_id)
+      return res.status(403).json({ success: false, message: 'You must complete onboarding to select a curriculum and class before taking exams' });
+
+    // 1. Verify exam exists, is live, and student is eligible (class match + optional batch)
     const { rows: examRows } = await client.query(
       `SELECT e.id, e.title, e.duration_minutes, e.total_marks,
               e.passing_marks, e.is_premium, e.status, e.ends_at
        FROM exams e
-       JOIN batch_students bs ON bs.batch_id = e.batch_id
-       WHERE e.id = $1 AND bs.student_id = $2`,
-      [examId, studentId]
+       JOIN subjects s ON s.id = e.subject_id
+       WHERE e.id = $1 
+         AND s.class_id = $3
+         AND (e.batch_id IS NULL OR EXISTS (
+           SELECT 1 FROM batch_students bs
+           WHERE bs.batch_id = e.batch_id AND bs.student_id = $2
+         ))`,
+      [examId, studentId, req.user.class_id]
     );
 
     if (!examRows[0])
-      return res.status(404).json({ success: false, message: 'Exam not found or you are not enrolled in this batch' });
+      return res.status(404).json({ success: false, message: 'Exam not found or you are not enrolled/eligible for this exam' });
 
     const exam = examRows[0];
 
@@ -49,11 +57,6 @@ exports.startExam = async (req, res) => {
       Date.now() + exam.duration_minutes * 60 * 1000
     ).toISOString();
 
-    // Cap at exam ends_at if that comes sooner
-    const effectiveDeadline = exam.ends_at && new Date(exam.ends_at) < new Date(deadline)
-      ? exam.ends_at
-      : deadline;
-
     const { rows: submissionRows } = await client.query(
       `INSERT INTO exam_submissions
          (exam_id, student_id, status, started_at, deadline_at)
@@ -61,7 +64,7 @@ exports.startExam = async (req, res) => {
        ON CONFLICT (exam_id, student_id) DO UPDATE
          SET started_at = exam_submissions.started_at
        RETURNING id, started_at, deadline_at, status`,
-      [examId, studentId, effectiveDeadline]
+      [examId, studentId, deadline]
     );
 
     await client.query('COMMIT');

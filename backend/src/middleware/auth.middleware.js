@@ -23,7 +23,7 @@ exports.protect = async (req, res, next) => {
 
     // 3. Check user still exists
     const { rows } = await db.query(
-      `SELECT id, email, role, is_premium, premium_expires_at
+      `SELECT id, email, role, is_premium, premium_expires_at, curriculum_id, class_id
        FROM users WHERE id = $1`,
       [decoded.id]
     );

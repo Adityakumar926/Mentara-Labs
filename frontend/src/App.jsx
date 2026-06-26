@@ -30,8 +30,10 @@ import BatchDetail      from '@/features/admin/batches/BatchDetail';
 import StudentsPage     from '@/features/admin/students/StudentsPage';
 
 // Student pages
+import OnboardingPage       from '@/features/auth/OnboardingPage';
 import SubjectsListPage     from '@/features/student/courses/SubjectsListPage';
 import CoursesPage          from '@/features/student/courses/CoursesPage';
+import TopicsPage           from '@/features/student/courses/TopicsPage';
 import SubjectPage          from '@/features/student/courses/SubjectPage';
 import ExamsStudentPage     from '@/features/student/exams/ExamsPage';
 import ExamTakePage         from '@/features/student/exams/ExamTakePage';
@@ -80,12 +82,18 @@ export default function App() {
           </Route>
         </Route>
 
-        {/* ── Student ───────────────────────────────────────────────────── */}
+        {/* ── Student Onboarding (no layout) ───────────────────────────────── */}
+        <Route element={<ProtectedRoute role="student" />}>
+          <Route path="/onboarding" element={<OnboardingPage />} />
+        </Route>
+
+        {/* ── Student Dashboard & Learning ────────────────────────────────── */}
         <Route element={<ProtectedRoute role="student" />}>
           <Route element={<StudentLayout />}>
             <Route path="/courses/:curriculumId/subjects"                    element={<SubjectsListPage />} />
             <Route path="/courses"                                           element={<CoursesPage />} />
-            <Route path="/courses/:curriculumId/subjects/:subjectId"         element={<SubjectPage />} />
+            <Route path="/courses/:curriculumId/subjects/:subjectId"         element={<TopicsPage />} />
+            <Route path="/courses/:curriculumId/subjects/:subjectId/topics/:topicId" element={<SubjectPage />} />
             <Route path="/questions"                                         element={<StudentQuestionsPage />} />
             <Route path="/exams"                                             element={<ExamsStudentPage />} />
             <Route path="/exams/:id/take"                                    element={<ExamTakePage />} />

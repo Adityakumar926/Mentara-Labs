@@ -1,9 +1,10 @@
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { BookOpen, ChevronRight, Calendar, Layers } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PageWrapper, Skeleton, EmptyState } from '@/components/ui';
 import { useApi } from '@/hooks/useApi';
 import { studentApi } from '@/api/services';
+import useAuthStore from '@/store/authStore';
 
 /* ─── Design tokens (mirror ProfilePage / LandingPage) ─── */
 const CSS = `
@@ -290,8 +291,13 @@ function CourseCard({ c, index }) {
 }
 
 export default function CoursesPage() {
+  const user = useAuthStore((s) => s.user);
   const { data: curriculums, loading } = useApi(studentApi.getCurriculums);
   const list = curriculums ?? [];
+
+  if (user && user.role === 'student' && user.curriculum_id) {
+    return <Navigate to={`/courses/${user.curriculum_id}/subjects`} replace />;
+  }
 
   return (
     <PageWrapper className="p-6">

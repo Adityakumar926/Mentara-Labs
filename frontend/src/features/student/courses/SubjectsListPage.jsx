@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { PageWrapper, Skeleton, EmptyState } from '@/components/ui';
 import { useApi } from '@/hooks/useApi';
 import { studentApi } from '@/api/services';
+import useAuthStore from '@/store/authStore';
 
 /* ─── CSS ─── */
 const CSS = `
@@ -212,6 +213,7 @@ const cardVariant = {
 export default function SubjectsListPage() {
   const { curriculumId } = useParams();
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
 
   const { data: subjects, loading } = useApi(
     () => studentApi.getCurriculumSubjects(curriculumId),
@@ -221,6 +223,7 @@ export default function SubjectsListPage() {
 
   const list = subjects ?? [];
   const curriculumName = list[0]?.curriculum_name ?? 'Subjects';
+  const className = list[0]?.class_name;
 
   return (
     <PageWrapper className="p-6">
@@ -237,16 +240,18 @@ export default function SubjectsListPage() {
           <div className="subj-blob subj-blob-1" />
           <div className="subj-blob subj-blob-2" />
 
-          <button className="subj-back-btn" onClick={() => navigate('/courses')}>
-            <ArrowLeft size={16} />
-          </button>
+          {user?.role !== 'student' && (
+            <button className="subj-back-btn" onClick={() => navigate('/courses')}>
+              <ArrowLeft size={16} />
+            </button>
+          )}
 
           <div className="subj-header-text">
             <div className="subj-eyebrow">
               <span className="subj-eyebrow-dot" />
-              Curriculum
+              {className ? `${curriculumName} • ${className}` : curriculumName}
             </div>
-            <h1 className="subj-title">{loading ? 'Loading…' : curriculumName}</h1>
+            <h1 className="subj-title">{loading ? 'Loading…' : className ? `${className} Subjects` : curriculumName}</h1>
             <p className="subj-subtitle">
               {loading ? '' : `${list.length} subject${list.length !== 1 ? 's' : ''}`}
             </p>

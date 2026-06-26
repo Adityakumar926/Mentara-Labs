@@ -6,14 +6,17 @@ const { emitToStudents } = require('../../sockets');
 
 exports.getAll = async (req, res) => {
   try {
-    const { status, subject_id, batch_id, page = 1, limit = 20 } = req.query;
+    const { status, subject_id, topic_id, class_id, curriculum_id, batch_id, page = 1, limit = 20 } = req.query;
     const offset = (page - 1) * limit;
     const conditions = [];
     const params = [];
 
-    if (status)     { params.push(status);     conditions.push(`e.status = $${params.length}`); }
-    if (subject_id) { params.push(subject_id); conditions.push(`e.subject_id = $${params.length}`); }
-    if (batch_id)   { params.push(batch_id);   conditions.push(`e.batch_id = $${params.length}`); }
+    if (status)        { params.push(status);        conditions.push(`e.status = $${params.length}`); }
+    if (subject_id)    { params.push(subject_id);    conditions.push(`e.subject_id = $${params.length}`); }
+    if (topic_id)      { params.push(topic_id);      conditions.push(`e.topic_id = $${params.length}`); }
+    if (class_id)      { params.push(class_id);      conditions.push(`s.class_id = $${params.length}`); }
+    if (curriculum_id) { params.push(curriculum_id); conditions.push(`cl.curriculum_id = $${params.length}`); }
+    if (batch_id)      { params.push(batch_id);      conditions.push(`e.batch_id = $${params.length}`); }
 
     const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
     params.push(limit, offset);
@@ -22,17 +25,23 @@ exports.getAll = async (req, res) => {
       `SELECT
          e.*,
          s.name  AS subject_name,
+         cl.name AS class_name,
+         c.name  AS curriculum_name,
+         t.name  AS topic_name,
          b.name  AS batch_name,
          COUNT(DISTINCT eq.question_id) AS question_count,
          COUNT(DISTINCT es.id)          AS submission_count,
          ROUND(AVG(es.percentage), 2)   AS avg_score
        FROM exams e
        LEFT JOIN subjects s          ON s.id = e.subject_id
+       LEFT JOIN public.classes cl   ON cl.id = s.class_id
+       LEFT JOIN public.curriculums c ON c.id = cl.curriculum_id
+       LEFT JOIN public.topics t     ON t.id = e.topic_id
        LEFT JOIN batches  b          ON b.id = e.batch_id
        LEFT JOIN exam_questions eq   ON eq.exam_id = e.id
        LEFT JOIN exam_submissions es ON es.exam_id = e.id
        ${where}
-       GROUP BY e.id, s.name, b.name
+       GROUP BY e.id, s.name, cl.name, c.name, t.name, b.name
        ORDER BY e.created_at DESC
        LIMIT $${params.length - 1} OFFSET $${params.length}`,
       params
@@ -49,6 +58,11 @@ exports.getOne = async (req, res) => {
       `SELECT
          e.*,
          s.name AS subject_name,
+         cl.name AS class_name,
+         cl.id AS class_id,
+         c.name AS curriculum_name,
+         c.id AS curriculum_id,
+         t.name AS topic_name,
          b.name AS batch_name,
          COALESCE(
            json_agg(
@@ -66,11 +80,14 @@ exports.getOne = async (req, res) => {
          ) AS questions
        FROM exams e
        LEFT JOIN subjects s        ON s.id = e.subject_id
+       LEFT JOIN public.classes cl ON cl.id = s.class_id
+       LEFT JOIN public.curriculums c ON c.id = cl.curriculum_id
+       LEFT JOIN public.topics t   ON t.id = e.topic_id
        LEFT JOIN batches  b        ON b.id = e.batch_id
        LEFT JOIN exam_questions eq ON eq.exam_id = e.id
        LEFT JOIN questions q       ON q.id = eq.question_id
        WHERE e.id = $1
-       GROUP BY e.id, s.name, b.name`,
+       GROUP BY e.id, s.name, cl.name, cl.id, c.name, c.id, t.name, b.name`,
       [req.params.id]
     );
     if (!rows[0]) return res.status(404).json({ success: false, message: 'Exam not found' });
@@ -83,7 +100,7 @@ exports.getOne = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const {
-      title, description, subject_id, batch_id,
+      title, description, subject_id, topic_id, batch_id,
       duration_minutes, total_marks, passing_marks, is_premium
     } = req.body;
 
@@ -92,13 +109,14 @@ exports.create = async (req, res) => {
 
     const { rows } = await db.query(
       `INSERT INTO exams
-       (title, description, subject_id, batch_id,
+       (title, description, subject_id, topic_id, batch_id,
         duration_minutes, total_marks, passing_marks, is_premium, created_by)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
       [
         title,
         description        || null,
         subject_id         || null,
+        topic_id           || null,
         batch_id           || null,
         duration_minutes,
         total_marks,
@@ -116,7 +134,7 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const {
-      title, description, subject_id, batch_id,
+      title, description, subject_id, topic_id, batch_id,
       duration_minutes, total_marks, passing_marks, is_premium
     } = req.body;
 
@@ -125,17 +143,19 @@ exports.update = async (req, res) => {
          title            = COALESCE($1,  title),
          description      = COALESCE($2,  description),
          subject_id       = COALESCE($3,  subject_id),
-         batch_id         = COALESCE($4,  batch_id),
-         duration_minutes = COALESCE($5,  duration_minutes),
-         total_marks      = COALESCE($6,  total_marks),
-         passing_marks    = COALESCE($7,  passing_marks),
-         is_premium       = COALESCE($8,  is_premium)
-       WHERE id = $9 AND status = 'draft'
+         topic_id         = COALESCE($4,  topic_id),
+         batch_id         = COALESCE($5,  batch_id),
+         duration_minutes = COALESCE($6,  duration_minutes),
+         total_marks      = COALESCE($7,  total_marks),
+         passing_marks    = COALESCE($8,  passing_marks),
+         is_premium       = COALESCE($9,  is_premium)
+       WHERE id = $10 AND status = 'draft'
        RETURNING *`,
       [
         title        || null,
         description  || null,
         subject_id   || null,
+        topic_id     || null,
         batch_id     || null,
         duration_minutes || null,
         total_marks  || null,
@@ -229,38 +249,62 @@ exports.removeQuestion = async (req, res) => {
 // ─── SCHEDULING ──────────────────────────────────────────────────────────────
 
 exports.schedule = async (req, res) => {
+  const client = await db.pool.connect();
   try {
     const { scheduled_at } = req.body;
 
     if (!scheduled_at)
       return res.status(400).json({ success: false, message: 'scheduled_at is required' });
 
-    const { rows: qCount } = await db.query(
-      `SELECT COUNT(*), e.duration_minutes
-       FROM exam_questions eq
-       JOIN exams e ON e.id = eq.exam_id
-       WHERE eq.exam_id = $1
-       GROUP BY e.duration_minutes`,
+    await client.query('BEGIN');
+
+    // Get question count, duration, and status
+    const { rows: qCount } = await client.query(
+      `SELECT COUNT(eq.question_id) AS q_count, e.duration_minutes, e.status
+       FROM exams e
+       LEFT JOIN exam_questions eq ON e.id = eq.exam_id
+       WHERE e.id = $1
+       GROUP BY e.id, e.duration_minutes, e.status`,
       [req.params.id]
     );
-    if (!qCount[0] || parseInt(qCount[0].count) === 0)
+
+    if (!qCount[0]) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ success: false, message: 'Exam not found' });
+    }
+
+    if (parseInt(qCount[0].q_count) === 0) {
+      await client.query('ROLLBACK');
       return res.status(400).json({ success: false, message: 'Add at least one question before scheduling' });
+    }
+
+    const currentStatus = qCount[0].status;
+    if (currentStatus !== 'draft' && currentStatus !== 'ended') {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ success: false, message: 'Only draft or ended exams can be scheduled' });
+    }
 
     // Auto-calculate ends_at from scheduled_at + duration_minutes
     const duration = parseInt(qCount[0].duration_minutes);
     const ends_at  = new Date(new Date(scheduled_at).getTime() + duration * 60 * 1000).toISOString();
 
-    const { rows } = await db.query(
+    // If it was ended, clear previous submissions
+    if (currentStatus === 'ended') {
+      await client.query(`DELETE FROM exam_submissions WHERE exam_id = $1`, [req.params.id]);
+    }
+
+    const { rows } = await client.query(
       `UPDATE exams
        SET status = 'scheduled', scheduled_at = $1, ends_at = $2
-       WHERE id = $3 AND status = 'draft'
+       WHERE id = $3
        RETURNING *`,
       [scheduled_at, ends_at, req.params.id]
     );
-    if (!rows[0])
-      return res.status(400).json({ success: false, message: 'Exam not found or already scheduled' });
-
     const exam = rows[0];
+
+    await client.query('COMMIT');
+
+    // Send notifications outside transaction
     try {
       const studentIds = await Notification.getTargetStudentIds(exam.id);
       const title = 'New exam scheduled';
@@ -273,22 +317,64 @@ exports.schedule = async (req, res) => {
 
     res.json({ success: true, data: exam });
   } catch (err) {
+    await client.query('ROLLBACK');
     res.status(500).json({ success: false, message: err.message });
+  } finally {
+    client.release();
   }
 };
 
 exports.goLive = async (req, res) => {
+  const client = await db.pool.connect();
   try {
-    const { rows } = await db.query(
-      `UPDATE exams SET status = 'live'
-       WHERE id = $1 AND status = 'scheduled'
-       RETURNING *`,
+    await client.query('BEGIN');
+
+    // Get question count, duration, and status
+    const { rows: qCount } = await client.query(
+      `SELECT COUNT(eq.question_id) AS q_count, e.duration_minutes, e.status
+       FROM exams e
+       LEFT JOIN exam_questions eq ON e.id = eq.exam_id
+       WHERE e.id = $1
+       GROUP BY e.id, e.duration_minutes, e.status`,
       [req.params.id]
     );
-    if (!rows[0])
-      return res.status(400).json({ success: false, message: 'Exam must be scheduled before going live' });
 
+    if (!qCount[0]) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ success: false, message: 'Exam not found' });
+    }
+
+    if (parseInt(qCount[0].q_count) === 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ success: false, message: 'Add at least one question before making live' });
+    }
+
+    const currentStatus = qCount[0].status;
+    if (currentStatus !== 'draft' && currentStatus !== 'scheduled' && currentStatus !== 'ended') {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ success: false, message: 'Exam must be draft, scheduled, or ended to go live' });
+    }
+
+    const duration = parseInt(qCount[0].duration_minutes);
+    const scheduled_at = new Date().toISOString();
+    const ends_at  = new Date(new Date().getTime() + duration * 60 * 1000).toISOString();
+
+    // If it was ended, clear previous submissions
+    if (currentStatus === 'ended') {
+      await client.query(`DELETE FROM exam_submissions WHERE exam_id = $1`, [req.params.id]);
+    }
+
+    const { rows } = await client.query(
+      `UPDATE exams SET status = 'live', scheduled_at = $1, ends_at = $2
+       WHERE id = $3
+       RETURNING *`,
+      [scheduled_at, ends_at, req.params.id]
+    );
     const exam = rows[0];
+
+    await client.query('COMMIT');
+
+    // Send notifications outside transaction
     try {
       const studentIds = await Notification.getTargetStudentIds(exam.id);
       const title = 'Exam is live';
@@ -301,7 +387,10 @@ exports.goLive = async (req, res) => {
 
     res.json({ success: true, data: exam });
   } catch (err) {
+    await client.query('ROLLBACK');
     res.status(500).json({ success: false, message: err.message });
+  } finally {
+    client.release();
   }
 };
 

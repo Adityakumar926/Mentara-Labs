@@ -10,10 +10,11 @@ const examsubmitCtrl  = require('../controllers/student/examsubmit.controller');
 const streakCtrl      = require('../controllers/student/streak.controller');
 const profileCtrl     = require('../controllers/student/profile.controller');
 const batchEnrollCtrl = require('../controllers/student/batch.enrollment.controller');
+const progressCtrl = require('../controllers/student/progress.controller');
 const notificationController = require('../controllers/student/notification.controller');
 
 // Guard: ensure controllers loaded
-const controllers = { courseCtrl, examsubmitCtrl, streakCtrl, profileCtrl, batchEnrollCtrl, notificationController };
+const controllers = { courseCtrl, examsubmitCtrl, streakCtrl, profileCtrl, batchEnrollCtrl, progressCtrl, notificationController };
 for (const [name, ctrl] of Object.entries(controllers)) {
   if (!ctrl || (typeof ctrl !== 'object' && typeof ctrl !== 'function')) {
     throw new Error(`Controller "${name}" failed to load. Check file path and exports.`);
@@ -27,6 +28,11 @@ if (typeof profileCtrl.getProfile     === 'function') router.get('/profile',    
 if (typeof profileCtrl.updateProfile  === 'function') router.put('/profile',           profileCtrl.updateProfile);
 if (typeof profileCtrl.changePassword === 'function') router.patch('/change-password', profileCtrl.changePassword);
 if (typeof profileCtrl.getProgress    === 'function') router.get('/progress',          profileCtrl.getProgress);
+
+// ─── PROGRESS TRACKING ────────────────────────────────────────────────────────
+router.post('/progress/resource', progressCtrl.trackResourceCompletion);
+router.post('/progress/video',    progressCtrl.trackVideoProgress);
+router.get('/progress/summary',   progressCtrl.getProgressSummary);
 
 // Avatar upload → Cloudinary (multipart)
 if (typeof profileCtrl.uploadAvatar === 'function') {
@@ -57,8 +63,11 @@ router.get('/exams',                batchEnrollCtrl.getLiveExams);
 
 // ─── CURRICULUMS ──────────────────────────────────────────────────────────────
 if (typeof courseCtrl.getMyCurriculums      === 'function') router.get('/curriculums',                        courseCtrl.getMyCurriculums);
+router.get('/all-curriculums',                                                    courseCtrl.getAllCurriculums);
+router.get('/curriculums/:curriculumId/classes',                                  courseCtrl.getCurriculumClasses);
 if (typeof courseCtrl.getCurriculumSubjects === 'function') router.get('/curriculums/:curriculumId/subjects', courseCtrl.getCurriculumSubjects);
-if (typeof courseCtrl.getSubjectContent     === 'function') router.get('/subjects/:subjectId/content',        courseCtrl.getSubjectContent);
+if (typeof courseCtrl.getSubjectTopics      === 'function') router.get('/subjects/:subjectId/topics',        courseCtrl.getSubjectTopics);
+if (typeof courseCtrl.getTopicContent       === 'function') router.get('/topics/:topicId/content',          courseCtrl.getTopicContent);
 
 // ─── CONTENT ACCESS ───────────────────────────────────────────────────────────
 if (typeof courseCtrl.getNoteUrl    === 'function') router.get('/content/:contentId/note-url',    courseCtrl.getNoteUrl);

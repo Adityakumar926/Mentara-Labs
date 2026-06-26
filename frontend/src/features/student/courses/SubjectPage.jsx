@@ -11,6 +11,8 @@ import { useApi, useMutation } from '@/hooks/useApi';
 import { studentApi } from '@/api/services';
 import useAuthStore from '@/store/authStore';
 import clsx from 'clsx';
+import MuxPlayer from '@mux/mux-player-react';
+import toast from 'react-hot-toast';
 
 /* ─── CSS ─── */
 const CSS = `
@@ -66,6 +68,17 @@ const CSS = `
     color: var(--lavender); transform: translateX(-2px);
   }
   .sp-header-text { position: relative; z-index: 1; }
+  .sp-eyebrow {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3);
+    padding: 0.22rem 0.75rem; border-radius: 50px;
+    font-size: 0.67rem; font-weight: 700; color: var(--lavender);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.45rem;
+  }
+  .sp-eyebrow-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--cyan); box-shadow: 0 0 7px var(--cyan);
+  }
   .sp-title {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em;
@@ -133,6 +146,7 @@ const CSS = `
   .sp-icon-video     { background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.2); }
   .sp-icon-anim      { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); }
   .sp-icon-worksheet { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); }
+  .sp-icon-exam      { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); }
   .sp-icon-locked    { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); }
 
   .sp-item-info { flex: 1; min-width: 0; }
@@ -153,6 +167,7 @@ const CSS = `
   .sp-badge-video     { background: rgba(124,58,237,0.12); border-color: rgba(124,58,237,0.25); color: var(--lavender); }
   .sp-badge-anim      { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); color: #6EE7B7; }
   .sp-badge-worksheet { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); color: #FCD34D; }
+  .sp-badge-danger    { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.25); color: #F87171; }
   .sp-badge-premium   { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); color: #FCD34D; }
 
   .sp-item-arrow {
@@ -337,6 +352,7 @@ const TYPE_CONFIG = {
   video:     { icon: Video,    iconCls: 'sp-icon-video',     badge: 'sp-badge-video',     label: 'Video',     color: 'var(--violet-l)' },
   animation: { icon: Sparkles, iconCls: 'sp-icon-anim',      badge: 'sp-badge-anim',      label: 'Animation', color: '#6EE7B7' },
   worksheet: { icon: Image,    iconCls: 'sp-icon-worksheet', badge: 'sp-badge-worksheet', label: 'Worksheet', color: '#FCD34D' },
+  exam:      { icon: CheckCircle2, iconCls: 'sp-icon-exam',  badge: 'sp-badge-danger',    label: 'Exam',      color: '#EF4444' },
 };
 
 // ── Worksheet palette ──────────────────────────────────────────────────────────
@@ -353,7 +369,7 @@ const PALETTE = [
 ];
 
 export default function SubjectPage() {
-  const { curriculumId, subjectId } = useParams();
+  const { curriculumId, subjectId, topicId } = useParams();
   const navigate  = useNavigate();
   const isPremium = useAuthStore((s) => s.isPremium());
 
@@ -361,9 +377,13 @@ export default function SubjectPage() {
   const [pdfUrl, setPdfUrl]           = useState(null);
   const [videoId, setVideoId]         = useState(null);
   const [worksheetUrl, setWorksheetUrl] = useState(null); // triggers the worksheet modal
+  const [activeWorksheetId, setActiveWorksheetId] = useState(null);
+  const [activeVideoContentId, setActiveVideoContentId] = useState(null);
 
-  const { data: content, loading } = useApi(
-    () => studentApi.getSubjectContent(subjectId), null, [subjectId]
+  const lastProgressRef = useRef(0);
+
+  const { data: content, loading, refetch } = useApi(
+    () => studentApi.getTopicContent(topicId), null, [topicId]
   );
   const { mutate: logActivity } = useMutation(studentApi.logActivity);
   const { mutate: getNoteUrl, loading: loadingNote } = useMutation(
@@ -376,19 +396,86 @@ export default function SubjectPage() {
     studentApi.getWorksheetUrl, { onSuccess: (res) => setWorksheetUrl(res.url) }
   );
 
+  // Setup popup window callback for worksheet drawing submission
+  useEffect(() => {
+    window.onWorksheetSubmit = (contentId) => {
+      studentApi.trackResource({ contentId, completed: true })
+        .then(() => {
+          refetch();
+        })
+        .catch(err => console.error('Failed to submit worksheet progress:', err));
+    };
+    return () => {
+      window.onWorksheetSubmit = null;
+    };
+  }, [refetch]);
+
+  const handleVideoProgress = (progress, isCompleted) => {
+    if (!activeVideoContentId) return;
+    // Throttle progress updates to at least 5% jumps, or on completion
+    if (progress - lastProgressRef.current >= 5 || (isCompleted && lastProgressRef.current < 90)) {
+      lastProgressRef.current = progress;
+      studentApi.trackVideo({
+        contentId: activeVideoContentId,
+        progress,
+        completed: isCompleted
+      })
+      .then(() => {
+        if (isCompleted) {
+          refetch();
+        }
+      })
+      .catch(err => console.error('Failed to track video progress:', err));
+    }
+  };
+  const handleWorksheetSubmit = (contentId) => {
+    studentApi.trackResource({ contentId, completed: true })
+      .then(() => refetch())
+      .catch(err => console.error('Failed to submit worksheet progress:', err));
+  };
+
   const handleOpen = (item) => {
     if (item.is_premium && !isPremium) return;
+    if (item.content_type === 'exam') {
+      if (item.status === 'live') {
+        if (item.submission_status === 'submitted') {
+          navigate(`/exams/${item.id}/result`);
+        } else {
+          navigate(`/exams/${item.id}/take`);
+        }
+      } else if (item.status === 'ended') {
+        if (item.submission_status === 'submitted') {
+          navigate(`/exams/${item.id}/result`);
+        } else {
+          toast.error('This exam has ended and is no longer available to start.');
+        }
+      } else if (item.status === 'scheduled') {
+        toast.error(`This exam is scheduled to start on ${new Date(item.scheduled_at).toLocaleString()}`);
+      }
+      return;
+    }
     if (item.content_type === 'note') {
       logActivity({ activity_type: 'study', content_id: item.id });
       getNoteUrl(item.id);
+      // Automatically track note completion on open
+      studentApi.trackResource({ contentId: item.id, completed: true })
+        .then(() => refetch())
+        .catch(err => console.error('Failed to track note progress:', err));
     } else if (item.content_type === 'video') {
       logActivity({ activity_type: 'video', content_id: item.id });
+      setActiveVideoContentId(item.id);
+      lastProgressRef.current = item.video_progress || 0;
       setVideoId(item.mux_playback_id);
     } else if (item.content_type === 'animation') {
       logActivity({ activity_type: 'animation', content_id: item.id });
       getAnimation(item.animation_id);
+      // Automatically track animation completion on open
+      studentApi.trackResource({ contentId: item.id, completed: true })
+        .then(() => refetch())
+        .catch(err => console.error('Failed to track animation progress:', err));
     } else if (item.content_type === 'worksheet') {
       logActivity({ activity_type: 'study', content_id: item.id });
+      setActiveWorksheetId(item.id);
       // If the file_url is already on the content item, use it directly to skip an extra round-trip.
       // Falls back to a premium-gated fetch for locked items (already blocked above).
       if (item.file_url) {
@@ -554,8 +641,17 @@ export default function SubjectPage() {
   overlay.addEventListener('touchstart', start, { passive: false });
   overlay.addEventListener('touchmove', move, { passive: false });
   overlay.addEventListener('touchend', stop);
-
-  submitBtn.onclick = () => { subOver.classList.add('show'); overlay.style.opacity = '0.4'; };
+  submitBtn.onclick = () => {
+    subOver.classList.add('show');
+    overlay.style.opacity = '0.4';
+    try {
+      if (window.opener && typeof window.opener.onWorksheetSubmit === 'function') {
+        window.opener.onWorksheetSubmit('${activeWorksheetId}');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
   document.getElementById('btnRetry').onclick = () => {
     subOver.classList.remove('show'); overlay.style.opacity = '1';
     ctx.clearRect(0, 0, overlay.width, overlay.height);
@@ -571,14 +667,20 @@ export default function SubjectPage() {
   };
 
 
-  const items = content ?? [];
+  const items = content?.items ?? [];
+  const exams = content?.exams ?? [];
+  const topicName = content?.topic_name;
+  const subjectName = content?.subject_name;
 
   const groups = [
     { key: 'video',     label: 'Videos',     dot: 'var(--violet-l)',              items: items.filter(i => i.content_type === 'video') },
     { key: 'note',      label: 'Notes',      dot: 'rgba(245,240,232,0.5)',        items: items.filter(i => i.content_type === 'note') },
     { key: 'animation', label: 'Animations', dot: '#6EE7B7',                      items: items.filter(i => i.content_type === 'animation') },
     { key: 'worksheet', label: 'Worksheets', dot: '#FCD34D',                      items: items.filter(i => i.content_type === 'worksheet') },
+    { key: 'exam',      label: 'Exams',      dot: '#EF4444',                      items: exams.map(e => ({ ...e, content_type: 'exam' })) },
   ].filter(g => g.items.length > 0);
+
+  const totalItemsCount = items.length + exams.length;
 
   let globalIdx = 0;
 
@@ -595,13 +697,19 @@ export default function SubjectPage() {
           transition={{ duration: 0.35 }}
         >
           <div className="sp-header-blob" />
-          <button className="sp-back-btn" onClick={() => navigate(-1)}>
+          <button className="sp-back-btn" onClick={() => navigate(`/courses/${curriculumId}/subjects/${subjectId}`)}>
             <ArrowLeft size={16} />
           </button>
           <div className="sp-header-text">
-            <h1 className="sp-title">Subject Content</h1>
+            {subjectName && (
+              <div className="sp-eyebrow">
+                <span className="sp-eyebrow-dot" />
+                {subjectName}
+              </div>
+            )}
+            <h1 className="sp-title">{loading ? 'Loading…' : (topicName || 'Topic Resources')}</h1>
             <p className="sp-count">
-              {loading ? 'Loading…' : `${items.length} item${items.length !== 1 ? 's' : ''} available`}
+              {loading ? '' : `${totalItemsCount} item${totalItemsCount !== 1 ? 's' : ''} available`}
             </p>
           </div>
         </motion.div>
@@ -636,7 +744,7 @@ export default function SubjectPage() {
               </div>
             ))}
           </div>
-        ) : items.length === 0 ? (
+        ) : totalItemsCount === 0 ? (
           <EmptyState
             icon={FileText}
             title="No content yet"
@@ -689,6 +797,31 @@ export default function SubjectPage() {
                                   <Lock size={8} /> Premium
                                 </span>
                               )}
+                              {item.content_type === 'exam' && (
+                                <>
+                                  <span className={clsx(
+                                    'sp-type-badge',
+                                    item.status === 'live' && 'sp-badge-video',
+                                    item.status === 'scheduled' && 'sp-badge-worksheet',
+                                    item.status === 'ended' && 'sp-badge-note'
+                                  )}>
+                                    {item.status}
+                                  </span>
+                                  {item.submission_status && (
+                                    <span className={clsx(
+                                      'sp-type-badge',
+                                      item.submission_status === 'submitted' ? 'sp-badge-anim' : 'sp-badge-worksheet'
+                                    )}>
+                                      {item.submission_status === 'submitted' ? 'Submitted' : 'In Progress'}
+                                    </span>
+                                  )}
+                                  {item.status === 'ended' && !item.submission_status && (
+                                    <span className="sp-type-badge sp-badge-note">
+                                      Missed
+                                    </span>
+                                  )}
+                                </>
+                              )}
                             </div>
                           </div>
 
@@ -723,12 +856,20 @@ export default function SubjectPage() {
         <Modal open={!!videoId} onClose={() => setVideoId(null)} title="Video" size="xl">
           <div style={{ borderRadius: 16, overflow: 'hidden', background: '#000', aspectRatio: '16/9' }}>
             {videoId && (
-              <iframe
-                src={`https://stream.mux.com/${videoId}.m3u8`}
-                title="Video"
-                style={{ width: '100%', height: '100%', border: 'none' }}
-                allow="autoplay; fullscreen"
-                allowFullScreen
+              <MuxPlayer
+                playbackId={videoId}
+                streamType="on-demand"
+                style={{ width: '100%', height: '100%', display: 'block' }}
+                onTimeUpdate={(e) => {
+                  const player = e.target;
+                  const currentTime = player.currentTime;
+                  const duration = player.duration;
+                  if (duration > 0) {
+                    const percent = Math.round((currentTime / duration) * 100);
+                    const isCompleted = percent >= 90;
+                    handleVideoProgress(percent, isCompleted);
+                  }
+                }}
               />
             )}
           </div>
@@ -772,7 +913,12 @@ export default function SubjectPage() {
                   Open in new tab <ExternalLink size={12} />
                 </button>
               </div>
-              <WorksheetCanvas imageUrl={worksheetUrl} onClose={() => setWorksheetUrl(null)} />
+              <WorksheetCanvas
+                imageUrl={worksheetUrl}
+                contentId={activeWorksheetId}
+                onSubmit={handleWorksheetSubmit}
+                onClose={() => setWorksheetUrl(null)}
+              />
             </>
           )}
         </Modal>
@@ -783,7 +929,7 @@ export default function SubjectPage() {
 }
 
 // ─── Worksheet Canvas Component ────────────────────────────────────────────────
-function WorksheetCanvas({ imageUrl, onClose }) {
+function WorksheetCanvas({ imageUrl, contentId, onSubmit, onClose }) {
   const canvasRef    = useRef(null);
   const overlayRef   = useRef(null); // drawing canvas layered on top
   const isDrawing    = useRef(false);
@@ -875,8 +1021,9 @@ function WorksheetCanvas({ imageUrl, onClose }) {
 
   const handleSubmit = () => {
     setSubmitted(true);
-    // Drawings are intentionally not saved anywhere — this is a practice-only worksheet.
-    // The submitted state just shows a confirmation overlay.
+    if (onSubmit) {
+      onSubmit(contentId);
+    }
   };
 
   const handleRedo = () => {

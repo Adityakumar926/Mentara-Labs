@@ -3,18 +3,21 @@ const cloudinaryService = require('../../services/cloudinary.service');
 
 // Whitelist of columns that can be updated via the API
 const UPDATABLE_FIELDS = new Set([
-  'subject_id', 'question_type', 'question_text', 'options',
+  'subject_id', 'topic_id', 'question_type', 'question_text', 'options',
   'correct_answer', 'explanation', 'difficulty', 'tags', 'is_premium', 'image_url'
 ]);
 
 exports.getAll = async (req, res) => {
   try {
-    const { subject_id, type, is_premium, is_starred, search, page = 1, limit = 20 } = req.query;
+    const { subject_id, topic_id, class_id, curriculum_id, type, is_premium, is_starred, search, page = 1, limit = 20 } = req.query;
     const offset = (page - 1) * limit;
     const conditions = [];
     const params = [];
 
     if (subject_id)          { params.push(subject_id);           conditions.push(`q.subject_id = $${params.length}`); }
+    if (topic_id)            { params.push(topic_id);             conditions.push(`q.topic_id = $${params.length}`); }
+    if (class_id)            { params.push(class_id);             conditions.push(`s.class_id = $${params.length}`); }
+    if (curriculum_id)       { params.push(curriculum_id);        conditions.push(`cl.curriculum_id = $${params.length}`); }
     if (type)                { params.push(type);                  conditions.push(`q.question_type = $${params.length}`); }
     if (is_premium !== undefined) { params.push(is_premium === 'true'); conditions.push(`q.is_premium = $${params.length}`); }
     if (is_starred !== undefined) { params.push(is_starred === 'true'); conditions.push(`q.is_starred = $${params.length}`); }
@@ -24,8 +27,16 @@ exports.getAll = async (req, res) => {
     params.push(limit, offset);
 
     const { rows } = await db.query(
-      `SELECT q.*, s.name AS subject_name FROM questions q
+      `SELECT q.*, 
+              s.name AS subject_name,
+              cl.name AS class_name,
+              c.name AS curriculum_name,
+              t.name AS topic_name
+       FROM questions q
        LEFT JOIN subjects s ON q.subject_id = s.id
+       LEFT JOIN classes cl ON s.class_id = cl.id
+       LEFT JOIN curriculums c ON cl.curriculum_id = c.id
+       LEFT JOIN topics t ON q.topic_id = t.id
        ${where}
        ORDER BY q.created_at DESC
        LIMIT $${params.length - 1} OFFSET $${params.length}`,
@@ -40,7 +51,7 @@ exports.getAll = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const {
-      subject_id, question_type, question_text, options,
+      subject_id, topic_id, question_type, question_text, options,
       correct_answer, explanation, difficulty, tags, is_premium, image_url
     } = req.body;
 
@@ -49,11 +60,11 @@ exports.create = async (req, res) => {
 
     const { rows } = await db.query(
       `INSERT INTO questions
-       (subject_id, question_type, question_text, options, correct_answer,
+       (subject_id, topic_id, question_type, question_text, options, correct_answer,
         explanation, difficulty, tags, is_premium, image_url, created_by)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
       [
-        subject_id, question_type, question_text,
+        subject_id, topic_id || null, question_type, question_text,
         JSON.stringify(options ?? []),
         correct_answer, explanation, difficulty, tags,
         is_premium ?? false, image_url ?? null, req.user.id

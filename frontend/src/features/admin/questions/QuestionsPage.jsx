@@ -8,6 +8,7 @@ import {
 import { useApi, useMutation } from '@/hooks/useApi';
 import { adminApi } from '@/api/services';
 import clsx from 'clsx';
+import HierarchySidebar from '@/components/shared/HierarchySidebar';
 
 /* ─── unchanged constants ─── */
 const TYPES        = ['mcq', 'fill_blank', 'photo'];
@@ -15,7 +16,7 @@ const DIFFICULTIES = ['easy', 'medium', 'hard'];
 const BLANK_Q = {
   question_text: '', question_type: 'mcq', difficulty: 'medium',
   options: [{ id: 'a', text: '' }, { id: 'b', text: '' }, { id: 'c', text: '' }, { id: 'd', text: '' }],
-  correct_answer: '', explanation: '', subject_id: '', curriculum_id: '', is_premium: false,
+  correct_answer: '', explanation: '', subject_id: '', curriculum_id: '', class_id: '', is_premium: false,
   photoAnswerFormat: 'mcq', // UI-only: for question_type 'photo', toggles between MCQ options and a text answer
   image_url: '', // for question_type 'photo': the uploaded question image
 };
@@ -294,8 +295,22 @@ const fadeUp = (delay = 0) => ({
 const typeClass = (t) => t === 'fill_blank' ? 'qp-type-fill' : t === 'photo' ? 'qp-type-photo' : '';
 const diffClass = (d) => `qp-diff qp-diff-${d}`;
 
+function findTopicPath(topics, targetId, currentPath = []) {
+  if (!topics || !targetId) return null;
+  for (const topic of topics) {
+    if (topic.id === targetId) {
+      return [...currentPath, topic];
+    }
+    if (topic.children && topic.children.length > 0) {
+      const path = findTopicPath(topic.children, targetId, [...currentPath, topic]);
+      if (path) return path;
+    }
+  }
+  return null;
+}
+
 export default function QuestionsPage() {
-  /* ─── unchanged logic ─── */
+  const [selectedNode, setSelectedNode] = useState(null);
   const [filters, setFilters]   = useState({ search: '', type: '', is_premium: '' });
   const [modal, setModal]       = useState(false);
   const [editing, setEditing]   = useState(null);
@@ -306,17 +321,66 @@ export default function QuestionsPage() {
 
   const { data: questions, loading, refetch } = useApi(
     adminApi.getQuestions,
-    { type: filters.type || undefined, is_premium: filters.is_premium || undefined },
-    [filters.type, filters.is_premium]
+    useMemo(() => {
+      const params = {
+        type: filters.type || undefined,
+        is_premium: filters.is_premium || undefined,
+      };
+      if (selectedNode) {
+        if (selectedNode.type === 'curriculum') params.curriculum_id = selectedNode.id;
+        else if (selectedNode.type === 'class') params.class_id = selectedNode.id;
+        else if (selectedNode.type === 'subject') params.subject_id = selectedNode.id;
+        else if (selectedNode.type === 'topic') params.topic_id = selectedNode.id;
+      }
+      return params;
+    }, [filters.type, filters.is_premium, selectedNode]),
+    [filters.type, filters.is_premium, selectedNode]
   );
+  
   const { data: curriculums } = useApi(adminApi.getCurriculums);
   const { data: allSubjects  } = useApi(adminApi.getSubjects);
+  const { data: hierarchy } = useApi(adminApi.getHierarchy);
+
+  const subjectNode = useMemo(() => {
+    if (!form.subject_id || !hierarchy) return null;
+    for (const curr of hierarchy) {
+      for (const cls of curr.classes) {
+        for (const subj of cls.subjects) {
+          if (subj.id === form.subject_id) {
+            return subj;
+          }
+        }
+      }
+    }
+    return null;
+  }, [hierarchy, form.subject_id]);
+
+  const selectedTopicPath = useMemo(() => {
+    if (!subjectNode || !form.topic_id) return [];
+    return findTopicPath(subjectNode.topics, form.topic_id) || [];
+  }, [subjectNode, form.topic_id]);
+
+  const filteredClasses = useMemo(() => {
+    const list = allSubjects ?? [];
+    if (!form.curriculum_id) return [];
+    const seen = new Set();
+    const result = [];
+    list.forEach((s) => {
+      if (String(s.curriculum_id) === String(form.curriculum_id) && s.class_id) {
+        if (!seen.has(s.class_id)) {
+          seen.add(s.class_id);
+          result.push({ id: s.class_id, name: s.class_name });
+        }
+      }
+    });
+    return result;
+  }, [allSubjects, form.curriculum_id]);
 
   const filteredSubjects = useMemo(() => {
     const list = allSubjects ?? [];
-    if (!form.curriculum_id) return list;
-    return list.filter((s) => String(s.curriculum_id) === String(form.curriculum_id));
-  }, [allSubjects, form.curriculum_id]);
+    if (!form.class_id) return [];
+    return list.filter((s) => String(s.class_id) === String(form.class_id));
+  }, [allSubjects, form.class_id]);
 
   const { mutate: saveQ, loading: saving } = useMutation(
     (data) => editing ? adminApi.updateQuestion(editing.id, data) : adminApi.createQuestion(data),
@@ -326,15 +390,35 @@ export default function QuestionsPage() {
   const { mutate: toggleStar } = useMutation(adminApi.toggleQuestionStar,    { onSuccess: refetch });
   const { mutate: togglePrem } = useMutation(adminApi.toggleQuestionPremium, { onSuccess: refetch });
 
-  const openCreate = () => { setEditing(null); setForm(BLANK_Q); setImageError(''); setModal(true); };
+  const openCreate = () => {
+    setEditing(null);
+    if (selectedNode) {
+      setForm({
+        ...BLANK_Q,
+        curriculum_id: selectedNode.pathIds.curriculum_id ?? '',
+        class_id: selectedNode.pathIds.class_id ?? '',
+        subject_id: selectedNode.pathIds.subject_id ?? '',
+        topic_id: selectedNode.pathIds.topic_id ?? '',
+      });
+    } else {
+      setForm(BLANK_Q);
+    }
+    setImageError('');
+    setModal(true);
+  };
+
   const openEdit   = (q) => {
     const subj = (allSubjects ?? []).find((s) => String(s.id) === String(q.subject_id));
     setEditing(q);
     const options = q.options ?? BLANK_Q.options;
-    // Photo questions reuse the mcq/fill_blank columns — infer which format
-    // was used from whether any option text was actually filled in.
     const photoAnswerFormat = options.some((o) => o.text?.trim()) ? 'mcq' : 'text';
-    setForm({ ...q, options, curriculum_id: subj?.curriculum_id ?? '', photoAnswerFormat });
+    setForm({
+      ...q,
+      options,
+      curriculum_id: subj?.curriculum_id ?? '',
+      class_id: subj?.class_id ?? '',
+      photoAnswerFormat
+    });
     setImageError('');
     setModal(true);
   };
@@ -345,7 +429,21 @@ export default function QuestionsPage() {
     opts[i] = { ...opts[i], text: val };
     setForm((p) => ({ ...p, options: opts }));
   };
-  const handleCurriculumChange = (currId) => setForm((p) => ({ ...p, curriculum_id: currId, subject_id: '' }));
+  const handleCurriculumChange = (currId) => setForm((p) => ({ ...p, curriculum_id: currId, class_id: '', subject_id: '', topic_id: '' }));
+  const handleClassChange = (classId) => setForm((p) => ({ ...p, class_id: classId, subject_id: '', topic_id: '' }));
+  const handleSubjectChange = (subjectId) => setForm((p) => ({ ...p, subject_id: subjectId, topic_id: '' }));
+
+  const handleTopicDropdownChange = (index, value) => {
+    if (!value) {
+      if (index === 0) {
+        set('topic_id', '');
+      } else {
+        set('topic_id', selectedTopicPath[index - 1].id);
+      }
+    } else {
+      set('topic_id', value);
+    }
+  };
 
   const handleImageSelect = async (e) => {
     const file = e.target.files?.[0];
@@ -369,134 +467,189 @@ export default function QuestionsPage() {
   );
 
   return (
-    <PageWrapper className="p-6">
+    <PageWrapper className="p-0">
       <style>{CSS}</style>
-      <div className="qp-root">
-
-        {/* ── Header ── */}
-        <motion.div className="qp-header" {...fadeUp(0)}>
-          <div className="qp-hblob qp-hblob-1" />
-          <div className="qp-hblob qp-hblob-2" />
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <div className="qp-eyebrow"><span className="qp-eyebrow-dot" />Admin · Questions</div>
-            <h1 className="qp-title">Question Bank</h1>
-            <p className="qp-subtitle">{filtered.length} question{filtered.length !== 1 ? 's' : ''} · build and manage your question library</p>
-          </div>
-          <button className="qp-add-btn" onClick={openCreate}><Plus size={15} /> Add Question</button>
-        </motion.div>
-
-        {/* ── Filters ── */}
-        <motion.div className="qp-filters" {...fadeUp(0.08)}>
-          <div className="qp-search-wrap">
-            <Search size={14} className="qp-search-icon" />
-            <input
-              className="qp-search-input"
-              placeholder="Search questions…"
-              value={filters.search}
-              onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-            />
-          </div>
-          <select className="qp-select" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
-            <option value="">All Types</option>
-            {TYPES.map((t) => <option key={t} value={t}>{t.replace('_', ' ')}</option>)}
-          </select>
-          <select className="qp-select" value={filters.is_premium} onChange={(e) => setFilters({ ...filters, is_premium: e.target.value })}>
-            <option value="">All Access</option>
-            <option value="true">Premium only</option>
-            <option value="false">Free only</option>
-          </select>
-        </motion.div>
-
-        {/* ── List ── */}
-        {loading ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-            {Array(6).fill(0).map((_, i) => (
-              <div key={i} className="qp-skel" style={{ height: 76 }} />
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
-          <motion.div {...fadeUp(0.1)}>
-            <EmptyState icon={Filter} title="No questions found"
-              description="Try adjusting your filters or add a new question."
-              action={<button className="qp-add-btn" onClick={openCreate}><Plus size={14} /> Add Question</button>} />
+      <div className="qp-root" style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+        <HierarchySidebar
+          selectedNodeId={selectedNode?.id}
+          selectedNodeType={selectedNode?.type}
+          onSelectNode={setSelectedNode}
+        />
+        
+        <div style={{ flex: 1, overflowY: 'auto', padding: '2rem 2.5rem' }}>
+          {/* ── Header ── */}
+          <motion.div className="qp-header" {...fadeUp(0)}>
+            <div className="qp-hblob qp-hblob-1" />
+            <div className="qp-hblob qp-hblob-2" />
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div className="qp-eyebrow">
+                <span className="qp-eyebrow-dot" />
+                {selectedNode?.pathNames ? selectedNode.pathNames.join(' > ') : 'Admin · Questions'}
+              </div>
+              <h1 className="qp-title">Question Bank</h1>
+              <p className="qp-subtitle">{filtered.length} question{filtered.length !== 1 ? 's' : ''} · build and manage your question library</p>
+            </div>
+            <button className="qp-add-btn" onClick={openCreate}><Plus size={15} /> Add Question</button>
           </motion.div>
-        ) : (
-          <motion.div initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.05 } } }}>
-            <AnimatePresence>
-              {filtered.map((q, idx) => (
-                <motion.div
-                  key={q.id}
-                  className="qp-row"
-                  layout
-                  variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 280, damping: 24 } } }}
-                >
-                  {/* Type pill */}
-                  <span className={`qp-type-pill ${typeClass(q.question_type)}`}>
-                    {q.question_type.replace('_', ' ')}
-                  </span>
 
-                  {/* Body */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p className="qp-q-text qp-q-text-clamp">{q.question_text}</p>
-                    <div className="qp-q-meta">
-                      {q.subject_name && <span className="qp-subject-tag">{q.subject_name}</span>}
-                      {q.difficulty   && <span className={diffClass(q.difficulty)}>{q.difficulty}</span>}
-                      {q.is_premium   && (
-                        <span className="qp-prem-pill">
-                          <Lock size={9} /> Premium
-                        </span>
-                      )}
-                    </div>
-                  </div>
+          {/* ── Filters ── */}
+          <motion.div className="qp-filters" {...fadeUp(0.08)}>
+            <div className="qp-search-wrap">
+              <Search size={14} className="qp-search-icon" />
+              <input
+                className="qp-search-input"
+                placeholder="Search questions…"
+                value={filters.search}
+                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+              />
+            </div>
+            <select className="qp-select" value={filters.type} onChange={(e) => setFilters({ ...filters, type: e.target.value })}>
+              <option value="">All Types</option>
+              {TYPES.map((t) => <option key={t} value={t}>{t.replace('_', ' ')}</option>)}
+            </select>
+            <select className="qp-select" value={filters.is_premium} onChange={(e) => setFilters({ ...filters, is_premium: e.target.value })}>
+              <option value="">All Access</option>
+              <option value="true">Premium only</option>
+              <option value="false">Free only</option>
+            </select>
+          </motion.div>
 
-                  {/* Actions */}
-                  <div className="qp-actions">
-                    <button
-                      className={clsx('qp-icon-btn star', q.is_starred && 'star-on')}
-                      onClick={() => toggleStar(q.id)}
-                      title="Star"
-                    >
-                      <Star size={14} fill={q.is_starred ? 'currentColor' : 'none'} />
-                    </button>
-                    <button
-                      className={clsx('qp-icon-btn lock', q.is_premium && 'lock-on')}
-                      onClick={() => togglePrem(q.id)}
-                      title="Toggle premium"
-                    >
-                      <Lock size={14} />
-                    </button>
-                    <button className="qp-icon-btn edit" onClick={() => openEdit(q)} title="Edit">
-                      <Edit2 size={14} />
-                    </button>
-                    <button className="qp-icon-btn trash" onClick={() => setDeleteId(q.id)} title="Delete">
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </motion.div>
+          {/* ── List ── */}
+          {loading ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+              {Array(6).fill(0).map((_, i) => (
+                <div key={i} className="qp-skel" style={{ height: 76 }} />
               ))}
-            </AnimatePresence>
-          </motion.div>
-        )}
+            </div>
+          ) : filtered.length === 0 ? (
+            <motion.div {...fadeUp(0.1)}>
+              <EmptyState icon={Filter} title="No questions found"
+                description="Try adjusting your filters or add a new question."
+                action={<button className="qp-add-btn" onClick={openCreate}><Plus size={14} /> Add Question</button>} />
+            </motion.div>
+          ) : (
+            <motion.div initial="hidden" animate="show" variants={{ hidden: {}, show: { transition: { staggerChildren: 0.05 } } }}>
+              <AnimatePresence>
+                {filtered.map((q, idx) => (
+                  <motion.div
+                    key={q.id}
+                    className="qp-row"
+                    layout
+                    variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 280, damping: 24 } } }}
+                  >
+                    {/* Type pill */}
+                    <span className={`qp-type-pill ${typeClass(q.question_type)}`}>
+                      {q.question_type.replace('_', ' ')}
+                    </span>
+
+                    {/* Body */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p className="qp-q-text qp-q-text-clamp">{q.question_text}</p>
+                      <div className="qp-q-meta">
+                        {(q.curriculum_name || q.class_name || q.subject_name) && (
+                          <span className="qp-subject-tag font-medium">
+                            {q.curriculum_name && `${q.curriculum_name} • `}
+                            {q.class_name && `${q.class_name} • `}
+                            {q.subject_name}
+                            {q.topic_name && ` • ${q.topic_name}`}
+                          </span>
+                        )}
+                        {q.difficulty   && <span className={diffClass(q.difficulty)}>{q.difficulty}</span>}
+                        {q.is_premium   && (
+                          <span className="qp-prem-pill">
+                            <Lock size={9} /> Premium
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="qp-actions">
+                      <button
+                        className={clsx('qp-icon-btn star', q.is_starred && 'star-on')}
+                        onClick={() => toggleStar(q.id)}
+                        title="Star"
+                      >
+                        <Star size={14} fill={q.is_starred ? 'currentColor' : 'none'} />
+                      </button>
+                      <button
+                        className={clsx('qp-icon-btn lock', q.is_premium && 'lock-on')}
+                        onClick={() => togglePrem(q.id)}
+                        title="Toggle premium"
+                      >
+                        <Lock size={14} />
+                      </button>
+                      <button className="qp-icon-btn edit" onClick={() => openEdit(q)} title="Edit">
+                        <Edit2 size={14} />
+                      </button>
+                      <button className="qp-icon-btn trash" onClick={() => setDeleteId(q.id)} title="Delete">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          )}
+        </div>
 
         {/* ── Create / Edit Modal ── */}
-        <Modal open={modal} onClose={() => setModal(false)} title={editing ? 'Edit Question' : 'New Question'} size="lg">
-          <div style={{ maxHeight: '70vh', overflowY: 'auto', paddingRight: 4, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <Modal open={modal} onClose={() => setModal(false)} title={editing ? 'Edit Question' : 'New Question'} size="lg" preventOutsideClickClose={true}>
+          <div className="qp-root" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', minHeight: 'auto' }}>
 
             <Textarea label="Question Text" value={form.question_text}
               onChange={(e) => set('question_text', e.target.value)} />
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
               <Select label="Curriculum" value={form.curriculum_id}
                 onChange={(e) => handleCurriculumChange(e.target.value)}>
                 <option value="">Select curriculum…</option>
                 {(curriculums ?? []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </Select>
+              <Select label="Class" value={form.class_id}
+                onChange={(e) => handleClassChange(e.target.value)}>
+                <option value="">{form.curriculum_id ? 'Select class…' : 'Select curriculum first'}</option>
+                {filteredClasses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </Select>
               <Select label="Subject" value={form.subject_id}
-                onChange={(e) => set('subject_id', e.target.value)}>
-                <option value="">{form.curriculum_id ? 'Select subject…' : 'Select curriculum first'}</option>
+                onChange={(e) => handleSubjectChange(e.target.value)}>
+                <option value="">{form.class_id ? 'Select subject…' : 'Select class first'}</option>
                 {filteredSubjects.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </Select>
             </div>
+
+            {subjectNode && subjectNode.topics && subjectNode.topics.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <Select
+                  label="Topic (Optional)"
+                  value={selectedTopicPath[0]?.id ?? ''}
+                  onChange={(e) => handleTopicDropdownChange(0, e.target.value)}
+                >
+                  <option value="">Select topic…</option>
+                  {subjectNode.topics.map(t => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </Select>
+
+                {selectedTopicPath.map((topicNode, idx) => {
+                  if (!topicNode.children || topicNode.children.length === 0) return null;
+                  const nextIdx = idx + 1;
+                  return (
+                    <Select
+                      key={topicNode.id}
+                      label="Sub-topic (Optional)"
+                      value={selectedTopicPath[nextIdx]?.id ?? ''}
+                      onChange={(e) => handleTopicDropdownChange(nextIdx, e.target.value)}
+                    >
+                      <option value="">Select sub-topic…</option>
+                      {topicNode.children.map(child => (
+                        <option key={child.id} value={child.id}>{child.name}</option>
+                      ))}
+                    </Select>
+                  );
+                })}
+              </div>
+            )}
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
               <Select label="Type" value={form.question_type} onChange={(e) => set('question_type', e.target.value)}>

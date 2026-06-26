@@ -1,10 +1,10 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Plus, Trash2, Edit2, GripVertical,
   FileText, Video, Sparkles, ChevronDown, Lock,
   Eye, Code2, UploadCloud, CheckCircle2, Loader2,
-  FilePlus, X, Image,
+  FilePlus, X, Image, FolderPlus, Layers, BookOpen,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -106,11 +106,37 @@ const CSS = `
   .cd-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 7px 24px rgba(124,58,237,0.5); }
   .cd-btn-primary:active { transform: translateY(0); }
 
-  /* ── SUBJECT CARDS ── */
+  /* ── SECTION CARDS ── */
   .cd-subject-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  
+  .cd-class-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 20px; overflow: hidden;
+    margin-bottom: 0.75rem;
+  }
+  .cd-class-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.1rem 1.35rem; cursor: pointer;
+    background: rgba(255,255,255,0.01);
+    transition: background 0.2s;
+  }
+  .cd-class-header:hover {
+    background: rgba(255,255,255,0.03);
+  }
+
+  .cd-class-title-sec {
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .cd-class-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700; font-size: 1.05rem; color: var(--cream);
+  }
+  
   .cd-subject {
-    background: var(--card-bg); border: 1px solid var(--card-bdr);
-    border-radius: 20px; overflow: hidden; backdrop-filter: blur(12px);
+    background: rgba(255,255,255,0.02); border: 1px solid var(--card-bdr);
+    border-radius: 16px; overflow: hidden; backdrop-filter: blur(12px);
+    margin-bottom: 0.5rem;
     transition: border-color 0.3s;
   }
   .cd-subject:hover { border-color: rgba(124,58,237,0.2); }
@@ -118,7 +144,7 @@ const CSS = `
 
   .cd-subject-header {
     display: flex; align-items: center; gap: 0.75rem;
-    padding: 0.95rem 1.15rem; cursor: pointer; transition: background 0.2s;
+    padding: 0.85rem 1rem; cursor: pointer; transition: background 0.2s;
   }
   .cd-subject-header:hover { background: rgba(255,255,255,0.025); }
 
@@ -153,6 +179,41 @@ const CSS = `
     padding: 0.85rem 1.15rem 1rem;
     display: flex; flex-direction: column; gap: 0.5rem;
   }
+  
+  .cd-topics-container {
+    padding: 0.75rem 1rem;
+    background: rgba(10,14,26,0.3);
+    border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .cd-topic-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 0.4rem;
+  }
+  .cd-topic-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .cd-topic-header:hover {
+    background: rgba(255,255,255,0.03);
+  }
+  .cd-topic-name {
+    font-size: 0.82rem; font-weight: 600; color: var(--cream);
+  }
+  .cd-topic-desc {
+    font-size: 0.7rem; color: var(--muted);
+  }
+
   .cd-content-item {
     display: flex; align-items: center; gap: 0.75rem;
     padding: 0.65rem 0.85rem; border-radius: 14px;
@@ -179,12 +240,14 @@ const CSS = `
   .cd-type-badge.animation { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); color: #6EE7B7; }
   .cd-type-badge.worksheet { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); color: #FCD34D; }
   .cd-premium-tag { color: #FCD34D; flex-shrink: 0; }
+  
   .cd-add-content-btn {
     display: flex; align-items: center; justify-content: center; gap: 0.5rem;
     padding: 0.6rem; border-radius: 14px;
     border: 1px dashed rgba(124,58,237,0.25);
     background: transparent; color: var(--muted);
     font-size: 0.75rem; font-weight: 600; cursor: pointer;
+    width: 100%;
     transition: border-color 0.2s, color 0.2s, background 0.2s; margin-top: 0.25rem;
   }
   .cd-add-content-btn:hover { border-color: rgba(124,58,237,0.5); color: var(--violet-l); background: rgba(124,58,237,0.05); }
@@ -327,25 +390,73 @@ const CSS = `
   }
   .cd-empty-title { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--cream); }
   .cd-empty-desc  { font-size: 0.78rem; color: var(--muted); max-width: 260px; line-height: 1.55; }
+
+  /* ── TOPIC OPTIONS ROW ── */
+  .cd-topic-actions-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.75rem 0.85rem;
+    border-top: 1px dashed rgba(255,255,255,0.06);
+    background: rgba(10,14,26,0.15);
+  }
+  .cd-action-choice-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    color: var(--muted);
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+  }
+  .cd-action-choice-btn:hover {
+    color: var(--cream);
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.15);
+  }
+  .cd-action-choice-btn.subtopic {
+    color: var(--cyan);
+    background: rgba(0,212,255,0.03);
+    border-color: rgba(0,212,255,0.15);
+  }
+  .cd-action-choice-btn.subtopic:hover {
+    background: rgba(0,212,255,0.06);
+    border-color: rgba(0,212,255,0.35);
+  }
+  .cd-action-choice-btn.material {
+    color: var(--lavender);
+    background: rgba(196,181,253,0.03);
+    border-color: rgba(196,181,253,0.15);
+  }
+  .cd-action-choice-btn.material:hover {
+    background: rgba(196,181,253,0.06);
+    border-color: rgba(196,181,253,0.35);
+    color: var(--cream);
+  }
 `;
 
 const CONTENT_ICON = { note: FileText, video: Video, animation: Sparkles, worksheet: Image };
 
+const BLANK_CLASS = { name: '', description: '' };
 const BLANK_SUBJECT = { name: '', description: '' };
+const BLANK_TOPIC = { name: '', description: '', parent_topic_id: '' };
 const BLANK_CONTENT = {
   title: '', content_type: 'note',
-  // note
   noteFile: null,
-  // video – tracked across 3 stages: idle → uploading → confirming → done
   videoStage: 'idle',
   videoFile: null,
   videoProgress: 0,
   videoContentId: null,
   videoUploadId: null,
   videoPlaybackId: null,
-  // animation
   html_content: '',
-  // worksheet
   worksheetFile: null,
   worksheetPreviewUrl: null,
   is_premium: false,
@@ -355,7 +466,7 @@ const ANIM_PLACEHOLDER = `<!DOCTYPE html>
 <html>
 <head>
   <style>
-    body { margin: 0; background: #0A0E1A; display: flex; align-items: center; justify-content: height: 100vh; }
+    body { margin: 0; background: #0A0E1A; display: flex; align-items: center; justify-content: center; height: 100vh; }
   </style>
 </head>
 <body>
@@ -368,58 +479,119 @@ const ANIM_PLACEHOLDER = `<!DOCTYPE html>
 
 const listContainer = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 const subjectVariant = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.25, 0.46, 0.45, 0.94] } },
+  hidden: { opacity: 0, y: 15 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] } },
 };
 
 export default function CurriculumDetail() {
-  const { id } = useParams();
+  const { id } = useParams(); // curriculumId
   const navigate = useNavigate();
 
+  const [expandedClass, setExpandedClass] = useState(null);
   const [expandedSubject, setExpandedSubject] = useState(null);
-  const [subjectModal, setSubjectModal] = useState(false);
+  const [expandedTopic, setExpandedTopic] = useState(null);
+
+  // Modals & Forms
+  const [classModal, setClassModal] = useState(false);
+  const [editingClass, setEditingClass] = useState(null);
+  const [classForm, setClassForm] = useState(BLANK_CLASS);
+  const [deleteClassId, setDeleteClassId] = useState(null);
+
+  const [subjectModal, setSubjectModal] = useState(null); // holds classId when creating
   const [editingSubject, setEditingSubject] = useState(null);
   const [subjectForm, setSubjectForm] = useState(BLANK_SUBJECT);
   const [deleteSubjectId, setDeleteSubjectId] = useState(null);
 
-  const [contentModal, setContentModal] = useState(null); // holds subjectId
+  const [topicModal, setTopicModal] = useState(null); // holds subjectId when creating
+  const [editingTopic, setEditingTopic] = useState(null);
+  const [topicForm, setTopicForm] = useState(BLANK_TOPIC);
+  const [deleteTopicId, setDeleteTopicId] = useState(null);
+
+  const [contentModal, setContentModal] = useState(null); // holds topicId when creating
   const [editingContent, setEditingContent] = useState(null);
   const [contentForm, setContentForm] = useState(BLANK_CONTENT);
   const [deleteContentId, setDeleteContentId] = useState(null);
+  
   const [previewHtml, setPreviewHtml] = useState(null);
 
+  // Auto-refresh states for localized components
+  const [topicsRefreshKey, setTopicsRefreshKey] = useState(0);
+  const [contentRefreshKey, setContentRefreshKey] = useState(0);
+
+  const triggerTopicsRefetch = () => setTopicsRefreshKey(k => k + 1);
+  const triggerContentRefetch = () => setContentRefreshKey(k => k + 1);
+
+  // Fetch curriculum & pre-load all subjects globally
   const { data: curriculum, loading, refetch } = useApi(
     () => adminApi.getCurriculum(id), null, [id]
   );
+  const { data: allSubjects, refetch: refetchSubjects } = useApi(
+    adminApi.getSubjects
+  );
+
+  const classes = curriculum?.classes ?? [];
+  const subjects = allSubjects ?? [];
+
+  // ── Class mutations ──────────────────────────────────────────────────────────
+  const { mutate: saveClass, loading: savingClass } = useMutation(
+    (data) => editingClass
+      ? adminApi.updateClass(editingClass.id, data)
+      : adminApi.createClass(id, data),
+    {
+      onSuccess: () => { setClassModal(false); setEditingClass(null); refetch(); },
+      successMsg: editingClass ? 'Class updated' : 'Class created',
+    }
+  );
+  const { mutate: deleteClass } = useMutation(adminApi.deleteClass, {
+    onSuccess: () => { setDeleteClassId(null); refetch(); },
+    successMsg: 'Class deleted',
+  });
 
   // ── Subject mutations ────────────────────────────────────────────────────────
   const { mutate: saveSubject, loading: savingSubject } = useMutation(
     (data) => editingSubject
       ? adminApi.updateSubject(editingSubject.id, data)
-      : adminApi.createSubject(id, data),
+      : adminApi.createSubject(subjectModal, data),
     {
-      onSuccess: () => { setSubjectModal(false); setEditingSubject(null); refetch(); },
+      onSuccess: () => { setSubjectModal(null); setEditingSubject(null); refetchSubjects(); },
       successMsg: editingSubject ? 'Subject updated' : 'Subject created',
     }
   );
-
   const { mutate: deleteSubject } = useMutation(adminApi.deleteSubject, {
-    onSuccess: () => { setDeleteSubjectId(null); refetch(); },
+    onSuccess: () => { setDeleteSubjectId(null); refetchSubjects(); },
     successMsg: 'Subject deleted',
   });
 
-  // ── Content save ─────────────────────────────────────────────────────────────
+  // ── Topic mutations ──────────────────────────────────────────────────────────
+  const { mutate: saveTopic, loading: savingTopic } = useMutation(
+    (data) => editingTopic
+      ? adminApi.updateTopic(editingTopic.id, data)
+      : adminApi.createTopic(topicModal, data),
+    {
+      onSuccess: () => { setTopicModal(null); setEditingTopic(null); triggerTopicsRefetch(); },
+      successMsg: editingTopic ? 'Topic updated' : 'Topic created',
+    }
+  );
+  const { mutate: deleteTopic } = useMutation(adminApi.deleteTopic, {
+    onSuccess: () => { setDeleteTopicId(null); triggerTopicsRefetch(); },
+    successMsg: 'Topic deleted',
+  });
+
+  // ── Content mutations ────────────────────────────────────────────────────────
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+
+  const { mutate: deleteContent } = useMutation(adminApi.deleteContent, {
+    onSuccess: () => { setDeleteContentId(null); triggerContentRefetch(); },
+    successMsg: 'Content deleted',
+  });
 
   const handleSaveContent = async () => {
     setSaveError('');
     setSaving(true);
     try {
       const f = contentForm;
-
       if (f.content_type === 'note') {
-        // ── NOTE ──────────────────────────────────────────────────────────────
         if (editingContent) {
           const fd = new FormData();
           fd.append('title', f.title);
@@ -434,9 +606,7 @@ export default function CurriculumDetail() {
           fd.append('file', f.noteFile);
           await adminApi.uploadNote(contentModal, fd);
         }
-
       } else if (f.content_type === 'video') {
-        // ── VIDEO ─────────────────────────────────────────────────────────────
         if (editingContent) {
           await adminApi.updateContent(editingContent.id, { title: f.title, is_premium: f.is_premium });
         } else {
@@ -447,36 +617,27 @@ export default function CurriculumDetail() {
           }
           await adminApi.updateContent(f.videoContentId, { title: f.title, is_premium: f.is_premium });
         }
-
       } else if (f.content_type === 'animation') {
-        // ── ANIMATION ─────────────────────────────────────────────────────────
-        if (!f.html_content.trim()) { setSaveError('Paste the animation HTML/CSS/JS code.'); setSaving(false); return; }
-        const animRes = await adminApi.upsertAnimation({
+        const body = {
           title: f.title,
+          content_type: 'animation',
           html_content: f.html_content,
-          subject_id: contentModal,
-          animation_id: editingContent?.animation_id ?? null,
           is_premium: f.is_premium,
-        });
-        const animationId = animRes.data?.data?.id ?? animRes.data?.id;
-        const payload = { title: f.title, content_type: 'animation', animation_id: animationId, is_premium: f.is_premium };
+        };
         if (editingContent) {
-          await adminApi.updateContent(editingContent.id, payload);
+          await adminApi.updateContent(editingContent.id, body);
         } else {
-          await adminApi.addContent(contentModal, payload);
+          await adminApi.addContent(contentModal, body);
         }
-
       } else if (f.content_type === 'worksheet') {
-        // ── WORKSHEET ─────────────────────────────────────────────────────────
         if (editingContent) {
-          // Edit: new image is optional — keep existing if none selected
           const fd = new FormData();
           fd.append('title', f.title);
           fd.append('is_premium', String(f.is_premium));
           if (f.worksheetFile) fd.append('file', f.worksheetFile);
           await adminApi.replaceWorksheet(editingContent.id, fd);
         } else {
-          if (!f.worksheetFile) { setSaveError('Please select an image file for the worksheet.'); setSaving(false); return; }
+          if (!f.worksheetFile) { setSaveError('Please select a worksheet image.'); setSaving(false); return; }
           const fd = new FormData();
           fd.append('title', f.title);
           fd.append('is_premium', String(f.is_premium));
@@ -488,20 +649,15 @@ export default function CurriculumDetail() {
       setContentModal(null);
       setEditingContent(null);
       setContentForm(BLANK_CONTENT);
-      refetch();
+      triggerContentRefetch();
     } catch (err) {
-      setSaveError(err?.response?.data?.message ?? err?.message ?? 'Something went wrong.');
+      setSaveError(err.response?.data?.message ?? err.message ?? 'Failed to save content');
     } finally {
       setSaving(false);
     }
   };
 
-  const { mutate: deleteContent } = useMutation(adminApi.deleteContent, {
-    onSuccess: () => { setDeleteContentId(null); refetch(); },
-    successMsg: 'Content deleted',
-  });
-
-  // ── Mux direct upload ────────────────────────────────────────────────────────
+  // ── Mux direct video upload ──────────────────────────────────────────────────
   const handleVideoUpload = async (file) => {
     if (!contentForm.title.trim()) {
       setSaveError('Enter a title before uploading the video.');
@@ -551,20 +707,40 @@ export default function CurriculumDetail() {
     }
   };
 
-  // ── Helpers ──────────────────────────────────────────────────────────────────
-  const openCreateSubject = () => { setEditingSubject(null); setSubjectForm(BLANK_SUBJECT); setSubjectModal(true); };
+  // ── Open Helpers ─────────────────────────────────────────────────────────────
+  const openCreateClass = () => { setEditingClass(null); setClassForm(BLANK_CLASS); setClassModal(true); };
+  const openEditClass = (c) => {
+    setEditingClass(c);
+    setClassForm({ name: c.name, description: c.description ?? '' });
+    setClassModal(true);
+  };
+
+  const openCreateSubject = (classId) => { setEditingSubject(null); setSubjectForm(BLANK_SUBJECT); setSubjectModal(classId); };
   const openEditSubject = (s) => {
     setEditingSubject(s);
     setSubjectForm({ name: s.name, description: s.description ?? '' });
-    setSubjectModal(true);
+    setSubjectModal(s.class_id);
   };
-  const openAddContent = (subjectId) => {
+
+  const openCreateTopic = (subjectId) => { setEditingTopic(null); setTopicForm(BLANK_TOPIC); setTopicModal(subjectId); };
+  const openCreateSubtopic = (parentTopic) => {
+    setEditingTopic(null);
+    setTopicForm({ name: '', description: '', parent_topic_id: parentTopic.id });
+    setTopicModal(parentTopic.subject_id);
+  };
+  const openEditTopic = (t) => {
+    setEditingTopic(t);
+    setTopicForm({ name: t.name, description: t.description ?? '', parent_topic_id: t.parent_topic_id ?? '' });
+    setTopicModal(t.subject_id);
+  };
+
+  const openAddContent = (topicId) => {
     setEditingContent(null);
     setContentForm(BLANK_CONTENT);
     setSaveError('');
-    setContentModal(subjectId);
+    setContentModal(topicId);
   };
-  const openEditContent = (subjectId, c) => {
+  const openEditContent = (topicId, c) => {
     setEditingContent(c);
     setSaveError('');
     setContentForm({
@@ -575,13 +751,10 @@ export default function CurriculumDetail() {
       is_premium: c.is_premium,
       videoStage: c.content_type === 'video' ? 'done' : 'idle',
       videoPlaybackId: c.mux_playback_id ?? null,
-      // For worksheet editing show the existing image URL as preview
       worksheetPreviewUrl: c.content_type === 'worksheet' ? (c.file_url ?? null) : null,
     });
-    setContentModal(subjectId);
+    setContentModal(topicId);
   };
-
-  const subjects = curriculum?.subjects ?? [];
 
   if (loading) {
     return (
@@ -630,197 +803,225 @@ export default function CurriculumDetail() {
             <div>
               <div className="cd-eyebrow"><span className="cd-eyebrow-dot" /> Curriculum</div>
               <h1 className="cd-title">{curriculum.name}</h1>
-              <p className="cd-subtitle">{subjects.length} subject{subjects.length !== 1 ? 's' : ''}</p>
+              <p className="cd-subtitle">{classes.length} Class{classes.length !== 1 ? 'es' : ''} assigned</p>
             </div>
           </div>
-          <button className="cd-btn-primary" onClick={openCreateSubject}>
-            <Plus size={14} /> Add Subject
+          <button className="cd-btn-primary" onClick={openCreateClass}>
+            <FolderPlus size={14} /> Add Class
           </button>
         </motion.div>
 
-        {/* ── Subjects ── */}
-        {subjects.length === 0 ? (
+        {/* ── Classes ACCORDION ── */}
+        {classes.length === 0 ? (
           <motion.div className="cd-empty" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.35 }}>
-            <div className="cd-empty-icon"><Plus size={22} style={{ color: 'var(--violet-l)' }} /></div>
-            <p className="cd-empty-title">No subjects yet</p>
-            <p className="cd-empty-desc">Add your first subject to organize this curriculum.</p>
-            <button className="cd-btn-primary" onClick={openCreateSubject}><Plus size={14} /> Add Subject</button>
+            <div className="cd-empty-icon"><FolderPlus size={22} style={{ color: 'var(--violet-l)' }} /></div>
+            <p className="cd-empty-title">No classes yet</p>
+            <p className="cd-empty-desc">Create classes (e.g. CBSE Class 10) under this curriculum.</p>
+            <button className="cd-btn-primary" onClick={openCreateClass}><Plus size={14} /> Add Class</button>
           </motion.div>
         ) : (
-          <motion.div className="cd-subject-list" variants={listContainer} initial="hidden" animate="show">
-            {subjects.map((subject, idx) => {
-              const isOpen = expandedSubject === subject.id;
+          <div className="cd-subject-list">
+            {classes.map((cls, idx) => {
+              const isClassOpen = expandedClass === cls.id;
+              const classSubjects = subjects.filter(sub => sub.class_id === cls.id);
               return (
-                <motion.div key={subject.id} className={`cd-subject ${isOpen ? 'is-open' : ''}`} variants={subjectVariant} layout>
-                  <div className="cd-subject-header" onClick={() => setExpandedSubject(isOpen ? null : subject.id)}>
-                    <GripVertical size={13} className="cd-grip" />
-                    <span className="cd-subject-idx">{String(idx + 1).padStart(2, '0')}</span>
-                    <div className="cd-subject-info">
-                      <p className="cd-subject-name">{subject.name}</p>
-                      {subject.description && <p className="cd-subject-desc">{subject.description}</p>}
+                <div key={cls.id} className="cd-class-card">
+                  <div className="cd-class-header" onClick={() => setExpandedClass(isClassOpen ? null : cls.id)}>
+                    <div className="cd-class-title-sec">
+                      <ChevronDown size={16} className={`cd-chevron ${isClassOpen ? 'open' : ''}`} />
+                      <div>
+                        <span className="cd-class-title">{cls.name}</span>
+                        {cls.description && <p style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: 2 }}>{cls.description}</p>}
+                      </div>
                     </div>
-                    <div className="cd-subject-actions">
-                      <button onClick={(e) => { e.stopPropagation(); openEditSubject(subject); }} className="cd-icon-btn edit" title="Edit subject"><Edit2 size={12} /></button>
-                      <button onClick={(e) => { e.stopPropagation(); setDeleteSubjectId(subject.id); }} className="cd-icon-btn delete" title="Delete subject"><Trash2 size={12} /></button>
-                      <ChevronDown size={14} className={`cd-chevron ${isOpen ? 'open' : ''}`} />
+                    <div className="cd-subject-actions" onClick={e => e.stopPropagation()}>
+                      <button onClick={() => openEditClass(cls)} className="cd-icon-btn edit" title="Edit Class"><Edit2 size={12} /></button>
+                      <button onClick={() => setDeleteClassId(cls.id)} className="cd-icon-btn delete" title="Delete Class"><Trash2 size={12} /></button>
                     </div>
                   </div>
+
                   <AnimatePresence>
-                    {isOpen && (
-                      <motion.div key="panel" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }} style={{ overflow: 'hidden' }}>
-                        <SubjectContentPanel
-                          subjectId={subject.id}
-                          onAddContent={() => openAddContent(subject.id)}
-                          onEditContent={(c) => openEditContent(subject.id, c)}
-                          onDeleteContent={(cId) => setDeleteContentId(cId)}
-                        />
+                    {isClassOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25 }}
+                        style={{ overflow: 'hidden', padding: '1rem 1.25rem' }}
+                      >
+                        {/* Subjects Inside Class */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
+                          <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--lavender)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Subjects List</span>
+                          <button className="cd-btn-primary" style={{ padding: '0.45rem 0.85rem', fontSize: '0.72rem' }} onClick={() => openCreateSubject(cls.id)}>
+                            <Plus size={12} /> Add Subject
+                          </button>
+                        </div>
+
+                        {classSubjects.length === 0 ? (
+                          <p style={{ fontSize: '0.75rem', color: 'var(--muted)', padding: '1rem 0', textAlign: 'center' }}>No subjects added to this class yet.</p>
+                        ) : (
+                          <div className="cd-subject-list">
+                            {classSubjects.map((subject, subIdx) => {
+                              const isSubOpen = expandedSubject === subject.id;
+                              return (
+                                <div key={subject.id} className={`cd-subject ${isSubOpen ? 'is-open' : ''}`}>
+                                  <div className="cd-subject-header" onClick={() => setExpandedSubject(isSubOpen ? null : subject.id)}>
+                                    <GripVertical size={13} className="cd-grip" />
+                                    <span className="cd-subject-idx">{String(subIdx + 1).padStart(2, '0')}</span>
+                                    <div className="cd-subject-info">
+                                      <p className="cd-subject-name">{subject.name}</p>
+                                      {subject.description && <p className="cd-subject-desc">{subject.description}</p>}
+                                    </div>
+                                    <div className="cd-subject-actions" onClick={e => e.stopPropagation()}>
+                                      <button onClick={() => openEditSubject(subject)} className="cd-icon-btn edit" title="Edit Subject"><Edit2 size={12} /></button>
+                                      <button onClick={() => setDeleteSubjectId(subject.id)} className="cd-icon-btn delete" title="Delete Subject"><Trash2 size={12} /></button>
+                                      <ChevronDown size={14} className={`cd-chevron ${isSubOpen ? 'open' : ''}`} onClick={() => setExpandedSubject(isSubOpen ? null : subject.id)} />
+                                    </div>
+                                  </div>
+
+                                  <AnimatePresence>
+                                    {isSubOpen && (
+                                      <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{ duration: 0.25 }}
+                                        style={{ overflow: 'hidden' }}
+                                      >
+                                        <SubjectTopicsPanel
+                                          subjectId={subject.id}
+                                          topicsRefreshKey={topicsRefreshKey}
+                                          onAddTopic={() => openCreateTopic(subject.id)}
+                                          onAddSubtopic={openCreateSubtopic}
+                                          onEditTopic={openEditTopic}
+                                          onDeleteTopic={(tId) => setDeleteTopicId(tId)}
+                                          onAddContent={openAddContent}
+                                          onEditContent={openEditContent}
+                                          onDeleteContent={(cId) => setDeleteContentId(cId)}
+                                          expandedTopic={expandedTopic}
+                                          setExpandedTopic={setExpandedTopic}
+                                          contentRefreshKey={contentRefreshKey}
+                                        />
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </motion.div>
+                </div>
               );
             })}
-          </motion.div>
+          </div>
         )}
+
       </div>
 
-      {/* ── Subject modal ── */}
-      <Modal open={subjectModal} onClose={() => { setSubjectModal(false); setEditingSubject(null); }} title={editingSubject ? 'Edit Subject' : 'New Subject'} size="sm">
+      {/* ── Class Modal ── */}
+      <Modal open={classModal} onClose={() => { setClassModal(false); setEditingClass(null); }} title={editingClass ? 'Edit Class' : 'New Class'} size="sm" preventOutsideClickClose={true}>
         <div className="space-y-4">
-          <Input label="Subject Name" placeholder="e.g. Physics — Kinematics" value={subjectForm.name} onChange={(e) => setSubjectForm({ ...subjectForm, name: e.target.value })} />
+          <Input label="Class Name" placeholder="e.g. CBSE Class 10" value={classForm.name} onChange={(e) => setClassForm({ ...classForm, name: e.target.value })} />
+          <Textarea label="Description (optional)" rows={3} value={classForm.description} onChange={(e) => setClassForm({ ...classForm, description: e.target.value })} />
+        </div>
+        <div className="flex justify-end gap-2 mt-5 pt-4 border-t border-surface-border">
+          <Button variant="ghost" onClick={() => setClassModal(false)}>Cancel</Button>
+          <Button variant="primary" loading={savingClass} onClick={() => saveClass(classForm)}>
+            {editingClass ? 'Save Changes' : 'Create Class'}
+          </Button>
+        </div>
+      </Modal>
+
+      {/* ── Subject Modal ── */}
+      <Modal open={!!subjectModal} onClose={() => { setSubjectModal(null); setEditingSubject(null); }} title={editingSubject ? 'Edit Subject' : 'New Subject'} size="sm" preventOutsideClickClose={true}>
+        <div className="space-y-4">
+          <Input label="Subject Name" placeholder="e.g. Science" value={subjectForm.name} onChange={(e) => setSubjectForm({ ...subjectForm, name: e.target.value })} />
           <Textarea label="Description (optional)" rows={3} value={subjectForm.description} onChange={(e) => setSubjectForm({ ...subjectForm, description: e.target.value })} />
         </div>
         <div className="flex justify-end gap-2 mt-5 pt-4 border-t border-surface-border">
-          <Button variant="ghost" onClick={() => setSubjectModal(false)}>Cancel</Button>
+          <Button variant="ghost" onClick={() => setSubjectModal(null)}>Cancel</Button>
           <Button variant="primary" loading={savingSubject} onClick={() => saveSubject(subjectForm)}>
             {editingSubject ? 'Save Changes' : 'Create Subject'}
           </Button>
         </div>
       </Modal>
 
-      {/* ── Content modal ── */}
+      {/* ── Topic Modal ── */}
+      <Modal open={!!topicModal} onClose={() => { setTopicModal(null); setEditingTopic(null); }} title={editingTopic ? 'Edit Topic' : 'New Topic'} size="sm" preventOutsideClickClose={true}>
+        <div className="space-y-4">
+          {topicForm.parent_topic_id && (
+            <div style={{ padding: '0.5rem 0.75rem', background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.2)', borderRadius: 10, fontSize: '0.75rem', color: 'var(--cyan)', fontWeight: 600 }}>
+              Creating subtopic under parent topic
+            </div>
+          )}
+          <Input label="Topic Name" placeholder="e.g. Chapter 1: Chemical Reactions" value={topicForm.name} onChange={(e) => setTopicForm({ ...topicForm, name: e.target.value })} />
+          <Textarea label="Description (optional)" rows={3} value={topicForm.description} onChange={(e) => setTopicForm({ ...topicForm, description: e.target.value })} />
+        </div>
+        <div className="flex justify-end gap-2 mt-5 pt-4 border-t border-surface-border">
+          <Button variant="ghost" onClick={() => setTopicModal(null)}>Cancel</Button>
+          <Button variant="primary" loading={savingTopic} onClick={() => saveTopic(topicForm)}>
+            {editingTopic ? 'Save Changes' : 'Create Topic'}
+          </Button>
+        </div>
+      </Modal>
+
+      {/* ── Content Modal ── */}
       <Modal
         open={!!contentModal}
         onClose={() => { setContentModal(null); setEditingContent(null); setContentForm(BLANK_CONTENT); setSaveError(''); }}
         title={editingContent ? 'Edit Content' : 'Add Content'}
         size="md"
+        preventOutsideClickClose={true}
       >
         <style>{CSS}</style>
         <div className="cd-root">
           <div className="space-y-4">
-
-            {/* Title */}
-            <Input
-              label="Title"
-              placeholder="e.g. Introduction to Motion"
-              value={contentForm.title}
-              onChange={(e) => setContentForm({ ...contentForm, title: e.target.value })}
-            />
-
-            {/* Type selector (disabled when editing — type can't change) */}
-            <Select
-              label="Content Type"
-              value={contentForm.content_type}
-              onChange={(e) => setContentForm({ ...contentForm, content_type: e.target.value, videoStage: 'idle', noteFile: null, worksheetFile: null, worksheetPreviewUrl: null })}
-              disabled={!!editingContent}
-            >
+            <Input label="Title" placeholder="e.g. Introduction to Motion" value={contentForm.title} onChange={(e) => setContentForm({ ...contentForm, title: e.target.value })} />
+            <Select label="Content Type" value={contentForm.content_type} onChange={(e) => setContentForm({ ...contentForm, content_type: e.target.value, videoStage: 'idle', noteFile: null, worksheetFile: null, worksheetPreviewUrl: null })} disabled={!!editingContent}>
               <option value="note">Note / PDF</option>
               <option value="video">Video</option>
               <option value="animation">Animation</option>
               <option value="worksheet">Worksheet (Image)</option>
             </Select>
 
-            {/* ── NOTE: file picker ── */}
             {contentForm.content_type === 'note' && (
               <div>
-                <p style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--muted)', marginBottom: '0.5rem' }}>
-                  {editingContent ? 'Replace PDF (optional — leave empty to keep existing)' : 'Upload PDF'}
-                </p>
-                <NoteDropzone
-                  file={contentForm.noteFile}
-                  onChange={(f) => setContentForm({ ...contentForm, noteFile: f })}
-                  existingName={editingContent?.title}
-                />
+                <p style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--muted)', marginBottom: '0.5rem' }}>{editingContent ? 'Replace PDF (optional)' : 'Upload PDF'}</p>
+                <NoteDropzone file={contentForm.noteFile} onChange={(f) => setContentForm({ ...contentForm, noteFile: f })} existingName={editingContent?.title} />
               </div>
             )}
 
-            {/* ── VIDEO: Mux direct upload ── */}
             {contentForm.content_type === 'video' && (
-              <VideoUploader
-                editingContent={editingContent}
-                stage={contentForm.videoStage}
-                progress={contentForm.videoProgress}
-                playbackId={contentForm.videoPlaybackId}
-                titleReady={!!contentForm.title.trim()}
-                onFileSelected={handleVideoUpload}
-              />
+              <VideoUploader editingContent={editingContent} stage={contentForm.videoStage} progress={contentForm.videoProgress} playbackId={contentForm.videoPlaybackId} titleReady={!!contentForm.title.trim()} onFileSelected={handleVideoUpload} />
             )}
 
-            {/* ── ANIMATION: code editor ── */}
             {contentForm.content_type === 'animation' && (
-              <div>
-                <div className="cd-anim-editor-wrap">
-                  <div className="cd-anim-editor-toolbar">
-                    <span className="cd-anim-editor-label"><Code2 size={12} /> HTML · CSS · JS</span>
-                    <button className="cd-anim-preview-btn" onClick={() => setPreviewHtml(contentForm.html_content || ANIM_PLACEHOLDER)}>
-                      <Eye size={11} /> Preview
-                    </button>
-                  </div>
-                  <textarea
-                    className="cd-anim-textarea"
-                    placeholder={ANIM_PLACEHOLDER}
-                    value={contentForm.html_content}
-                    onChange={(e) => setContentForm({ ...contentForm, html_content: e.target.value })}
-                    spellCheck={false}
-                    rows={12}
-                  />
+              <div className="cd-anim-editor-wrap">
+                <div className="cd-anim-editor-toolbar">
+                  <span className="cd-anim-editor-label"><Code2 size={12} /> Interactive Animation HTML</span>
+                  <button className="cd-anim-preview-btn" onClick={() => setPreviewHtml(contentForm.html_content || ANIM_PLACEHOLDER)}><Eye size={11} /> Live Preview</button>
                 </div>
-                <p style={{ fontSize: '0.68rem', color: 'var(--muted)', marginTop: '0.4rem', paddingLeft: '0.25rem' }}>
-                  Paste a complete single-page HTML document. Inline CSS &amp; JS are supported.
-                </p>
+                <textarea className="cd-anim-textarea" placeholder={ANIM_PLACEHOLDER} value={contentForm.html_content} onChange={(e) => setContentForm({ ...contentForm, html_content: e.target.value })} />
               </div>
             )}
 
-            {/* ── WORKSHEET: image uploader ── */}
             {contentForm.content_type === 'worksheet' && (
               <div>
-                <p style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--muted)', marginBottom: '0.5rem' }}>
-                  {editingContent ? 'Replace Image (optional — leave empty to keep existing)' : 'Upload Worksheet Image'}
-                </p>
-                <WorksheetDropzone
-                  file={contentForm.worksheetFile}
-                  previewUrl={contentForm.worksheetPreviewUrl}
-                  onChange={(f) => {
-                    const url = URL.createObjectURL(f);
-                    setContentForm({ ...contentForm, worksheetFile: f, worksheetPreviewUrl: url });
-                  }}
-                />
-                <p style={{ fontSize: '0.68rem', color: 'var(--muted)', marginTop: '0.4rem', paddingLeft: '0.25rem' }}>
-                  Students will see this image on a drawable canvas. Submissions are not saved — it's practice only.
-                </p>
+                <p style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--muted)', marginBottom: '0.5rem' }}>{editingContent ? 'Replace Image (optional)' : 'Upload image worksheet'}</p>
+                <WorksheetDropzone file={contentForm.worksheetFile} previewUrl={contentForm.worksheetPreviewUrl} onChange={(f) => setContentForm({ ...contentForm, worksheetFile: f, worksheetPreviewUrl: URL.createObjectURL(f) })} />
               </div>
             )}
 
-            <Toggle
-              label="Premium content (requires paid plan)"
-              checked={contentForm.is_premium}
-              onChange={(v) => setContentForm({ ...contentForm, is_premium: v })}
-            />
-
-            {saveError && (
-              <p style={{ fontSize: '0.74rem', color: '#F87171', padding: '0.5rem 0.75rem', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10 }}>
-                {saveError}
-              </p>
-            )}
+            <Toggle label="Premium content (requires paid plan)" checked={contentForm.is_premium} onChange={(v) => setContentForm({ ...contentForm, is_premium: v })} />
+            {saveError && <p style={{ fontSize: '0.74rem', color: '#F87171', padding: '0.5rem 0.75rem', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10 }}>{saveError}</p>}
           </div>
         </div>
         <div className="flex justify-end gap-2 mt-5 pt-4 border-t border-surface-border">
-          <Button variant="ghost" onClick={() => { setContentModal(null); setEditingContent(null); setContentForm(BLANK_CONTENT); setSaveError(''); }}>
-            Cancel
-          </Button>
-          <Button variant="primary" loading={saving} onClick={handleSaveContent}>
-            {editingContent ? 'Save Changes' : 'Add Content'}
-          </Button>
+          <Button variant="ghost" onClick={() => { setContentModal(null); setEditingContent(null); setContentForm(BLANK_CONTENT); setSaveError(''); }}>Cancel</Button>
+          <Button variant="primary" loading={saving} onClick={handleSaveContent}>{editingContent ? 'Save Changes' : 'Add Content'}</Button>
         </div>
       </Modal>
 
@@ -833,47 +1034,188 @@ export default function CurriculumDetail() {
         </div>
       </Modal>
 
-      {/* ── Delete subject ── */}
-      <ConfirmDialog open={!!deleteSubjectId} onClose={() => setDeleteSubjectId(null)} onConfirm={() => deleteSubject(deleteSubjectId)} title="Delete Subject" description="This will permanently delete the subject and all its content items." danger />
-
-      {/* ── Delete content ── */}
+      {/* ── Delete Confirm Dialogs ── */}
+      <ConfirmDialog open={!!deleteClassId} onClose={() => setDeleteClassId(null)} onConfirm={() => deleteClass(deleteClassId)} title="Delete Class" description="All subjects, topics, and contents under this class will be permanently deleted." danger />
+      <ConfirmDialog open={!!deleteSubjectId} onClose={() => setDeleteSubjectId(null)} onConfirm={() => deleteSubject(deleteSubjectId)} title="Delete Subject" description="This subject and all its topics and contents will be permanently deleted." danger />
+      <ConfirmDialog open={!!deleteTopicId} onClose={() => setDeleteTopicId(null)} onConfirm={() => deleteTopic(deleteTopicId)} title="Delete Topic" description="This topic and all its contents will be permanently deleted." danger />
       <ConfirmDialog open={!!deleteContentId} onClose={() => setDeleteContentId(null)} onConfirm={() => deleteContent(deleteContentId)} title="Delete Content" description="This content item will be permanently removed." danger />
     </PageWrapper>
   );
 }
 
-// ── Sub-component: content list inside expanded subject ───────────────────────
-function SubjectContentPanel({ subjectId, onAddContent, onEditContent, onDeleteContent }) {
-  const { data: content, loading } = useApi(
-    () => adminApi.getSubjectContent(subjectId), null, [subjectId]
+// ── Sub-component: Topics list inside expanded subject ────────────────────────
+function SubjectTopicsPanel({
+  subjectId,
+  topicsRefreshKey,
+  onAddTopic,
+  onAddSubtopic,
+  onEditTopic,
+  onDeleteTopic,
+  onAddContent,
+  onEditContent,
+  onDeleteContent,
+  contentRefreshKey
+}) {
+  const { data: topics, loading } = useApi(
+    () => adminApi.getTopics(subjectId), null, [subjectId, topicsRefreshKey]
   );
-  const items = content ?? [];
+
+  const list = topics ?? [];
+  const rootTopics = list.filter(t => !t.parent_topic_id);
+
   return (
-    <div className="cd-panel">
+    <div className="cd-topics-container">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Topics & Chapters</span>
+        <button className="cd-add-content-btn" style={{ width: 'auto', padding: '0.35rem 0.75rem', marginTop: 0 }} onClick={onAddTopic}>
+          <Plus size={11} /> Add Root Topic
+        </button>
+      </div>
+
       {loading ? (
         <>{Array(2).fill(0).map((_, i) => <div key={i} className="cd-skel" style={{ height: 46 }} />)}</>
-      ) : items.length === 0 ? (
-        <p style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--muted)', padding: '1rem 0' }}>
-          No content yet — add notes, videos, animations, or worksheets.
-        </p>
+      ) : rootTopics.length === 0 ? (
+        <p style={{ textAlign: 'center', fontSize: '0.72rem', color: 'var(--muted)', padding: '0.75rem 0' }}>No topics added yet.</p>
       ) : (
-        <AnimatePresence>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {rootTopics.map(rt => (
+            <TopicNode
+              key={rt.id}
+              topic={rt}
+              allTopics={list}
+              onAddSubtopic={onAddSubtopic}
+              onEditTopic={onEditTopic}
+              onDeleteTopic={onDeleteTopic}
+              onAddContent={onAddContent}
+              onEditContent={onEditContent}
+              onDeleteContent={onDeleteContent}
+              contentRefreshKey={contentRefreshKey}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Recursive Node Component for unlimited nested subtopics ───────────────────
+function TopicNode({
+  topic,
+  allTopics,
+  onAddSubtopic,
+  onEditTopic,
+  onDeleteTopic,
+  onAddContent,
+  onEditContent,
+  onDeleteContent,
+  contentRefreshKey
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const childTopics = allTopics.filter(t => t.parent_topic_id === topic.id);
+
+  return (
+    <div className="cd-topic-card" style={{ marginLeft: topic.parent_topic_id ? '0.75rem' : '0' }}>
+      <div className="cd-topic-header" onClick={() => setIsOpen(!isOpen)}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+          <ChevronDown size={12} className={`cd-chevron ${isOpen ? 'open' : ''}`} style={{ opacity: childTopics.length > 0 ? 1 : 0.2 }} />
+          <div>
+            <span className="cd-topic-name">{topic.name}</span>
+            {topic.description && <p className="cd-topic-desc">{topic.description}</p>}
+          </div>
+        </div>
+        <div className="cd-subject-actions" onClick={e => e.stopPropagation()}>
+          <button onClick={() => onAddSubtopic(topic)} className="cd-icon-btn edit" style={{ color: 'var(--cyan)' }} title="Add Subtopic"><FolderPlus size={11} /></button>
+          <button onClick={() => onEditTopic(topic)} className="cd-icon-btn edit" title="Edit Topic"><Edit2 size={11} /></button>
+          <button onClick={() => onDeleteTopic(topic.id)} className="cd-icon-btn delete" title="Delete Topic"><Trash2 size={11} /></button>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            style={{ overflow: 'hidden', borderLeft: '1px dashed rgba(255,255,255,0.06)' }}
+          >
+            {/* Child Topics (Recursive) */}
+            {childTopics.length > 0 && (
+              <div style={{ padding: '0.25rem 0 0.25rem 0.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                {childTopics.map(ct => (
+                  <TopicNode
+                    key={ct.id}
+                    topic={ct}
+                    allTopics={allTopics}
+                    onAddSubtopic={onAddSubtopic}
+                    onEditTopic={onEditTopic}
+                    onDeleteTopic={onDeleteTopic}
+                    onAddContent={onAddContent}
+                    onEditContent={onEditContent}
+                    onDeleteContent={onDeleteContent}
+                    contentRefreshKey={contentRefreshKey}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Topic Resources */}
+            <TopicContentPanel
+              topicId={topic.id}
+              contentRefreshKey={contentRefreshKey}
+              onEditContent={(c) => onEditContent(topic.id, c)}
+              onDeleteContent={onDeleteContent}
+            />
+
+            {/* Two choice actions row */}
+            <div className="cd-topic-actions-row">
+              <button className="cd-action-choice-btn subtopic" onClick={() => onAddSubtopic(topic)}>
+                <FolderPlus size={12} /> Add Subtopic
+              </button>
+              <button className="cd-action-choice-btn material" onClick={() => onAddContent(topic.id)}>
+                <Plus size={12} /> Add Material
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ── Sub-component: Content list inside expanded Topic ─────────────────────────
+function TopicContentPanel({ topicId, contentRefreshKey, onEditContent, onDeleteContent }) {
+  const { data: content, loading } = useApi(
+    () => adminApi.getSubjectContent(topicId), null, [topicId, contentRefreshKey]
+  );
+  const items = content ?? [];
+
+  if (!loading && items.length === 0) {
+    return null; // hide completely when empty to keep UI clean and compact
+  }
+
+  return (
+    <div className="cd-panel" style={{ borderBottom: 'none' }}>
+      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--lavender)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.25rem' }}>Topic Resources</span>
+      {loading ? (
+        <>{Array(2).fill(0).map((_, i) => <div key={i} className="cd-skel" style={{ height: 46 }} />)}</>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
           {items.map((c, i) => {
             const Icon = CONTENT_ICON[c.content_type] ?? FileText;
             return (
-              <motion.div key={c.id} className="cd-content-item" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.04, duration: 0.25 }}>
+              <div key={c.id} className="cd-content-item">
                 <div className={`cd-content-icon ${c.content_type}`}><Icon size={12} /></div>
                 <p className="cd-content-title">{c.title}</p>
                 <span className={`cd-type-badge ${c.content_type}`}>{c.content_type}</span>
                 {c.is_premium && <span className="cd-premium-tag" title="Premium"><Lock size={11} /></span>}
                 <button onClick={() => onEditContent(c)} className="cd-icon-btn edit" style={{ width: 26, height: 26 }}><Edit2 size={11} /></button>
                 <button onClick={() => onDeleteContent(c.id)} className="cd-icon-btn delete" style={{ width: 26, height: 26 }}><Trash2 size={11} /></button>
-              </motion.div>
+              </div>
             );
           })}
-        </AnimatePresence>
+        </div>
       )}
-      <button className="cd-add-content-btn" onClick={onAddContent}><Plus size={12} /> Add content</button>
     </div>
   );
 }

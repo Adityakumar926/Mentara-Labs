@@ -6,6 +6,7 @@ export const authApi = {
   login:        (data)  => api.post('/auth/login', data),
   logout:       ()      => api.post('/auth/logout'),
   me:           ()      => api.get('/auth/me'),
+  onboard:      (data)  => api.post('/auth/onboarding', data),
   refreshToken: (token) => api.post('/auth/refresh-token', { refreshToken: token }),
 };
 
@@ -16,34 +17,50 @@ export const adminApi = {
 
   // Curriculums
   getCurriculums:   ()         => api.get('/admin/curriculums'),
+  getHierarchy:     ()         => api.get('/admin/hierarchy'),
   getCurriculum:    (id)       => api.get(`/admin/curriculums/${id}`),
   createCurriculum: (data)     => api.post('/admin/curriculums', data),
   updateCurriculum: (id, data) => api.put(`/admin/curriculums/${id}`, data),
   deleteCurriculum: (id)       => api.delete(`/admin/curriculums/${id}`),
 
+  // Classes
+  getClasses:       (currId)   => api.get(`/admin/curriculums/${currId}/classes`),
+  getClass:         (id)       => api.get(`/admin/classes/${id}`),
+  createClass:      (currId, data) => api.post(`/admin/curriculums/${currId}/classes`, data),
+  updateClass:      (id, data) => api.put(`/admin/classes/${id}`, data),
+  deleteClass:      (id)       => api.delete(`/admin/classes/${id}`),
+
   // Subjects
-  getSubjects:     ()                    => api.get('/admin/subjects'),
-  createSubject:   (currId, data)        => api.post(`/admin/curriculums/${currId}/subjects`, data),
-  updateSubject:   (id, data)            => api.put(`/admin/subjects/${id}`, data),
-  deleteSubject:   (id)                  => api.delete(`/admin/subjects/${id}`),
-  reorderSubjects: (currId, order)       => api.put(`/admin/curriculums/${currId}/subjects/reorder`, { order }),
+  getSubjects:     ()                  => api.get('/admin/subjects'),
+  createSubject:   (classId, data)     => api.post(`/admin/classes/${classId}/subjects`, data),
+  updateSubject:   (id, data)          => api.put(`/admin/subjects/${id}`, data),
+  deleteSubject:   (id)                => api.delete(`/admin/subjects/${id}`),
+  reorderSubjects: (classId, order)    => api.put(`/admin/classes/${classId}/subjects/reorder`, { order }),
+
+  // Topics
+  getTopics:       (subId)   => api.get(`/admin/subjects/${subId}/topics`),
+  getTopic:         (id)      => api.get(`/admin/topics/${id}`),
+  createTopic:      (subId, data) => api.post(`/admin/subjects/${subId}/topics`, data),
+  updateTopic:      (id, data) => api.put(`/admin/topics/${id}`, data),
+  deleteTopic:      (id)       => api.delete(`/admin/topics/${id}`),
+  reorderTopics:    (subId, order) => api.put(`/admin/subjects/${subId}/topics/reorder`, { order }),
 
   // Content
-  getSubjectContent: (subjectId)       => api.get(`/admin/subjects/${subjectId}/content`),
-  addContent:        (subjectId, data) => api.post(`/admin/subjects/${subjectId}/content`, data),
+  getSubjectContent: (topicId)       => api.get(`/admin/topics/${topicId}/content`),
+  addContent:        (topicId, data) => api.post(`/admin/topics/${topicId}/content`, data),
   updateContent:     (id, data)        => api.put(`/admin/content/${id}`, data),
   deleteContent:     (id)              => api.delete(`/admin/content/${id}`),
 
   // Content — Notes (PDF upload to Cloudinary)
-  uploadNote:  (subjectId, formData) => api.post(`/admin/subjects/${subjectId}/content/note`, formData),
+  uploadNote:  (topicId, formData) => api.post(`/admin/topics/${topicId}/content/note`, formData),
   replaceNote: (contentId, formData) => api.put(`/admin/content/${contentId}/note`, formData),
 
   // Content — Worksheets (image upload to Cloudinary)
-  uploadWorksheet:  (subjectId, formData) => api.post(`/admin/subjects/${subjectId}/content/worksheet`, formData),
+  uploadWorksheet:  (topicId, formData) => api.post(`/admin/topics/${topicId}/content/worksheet`, formData),
   replaceWorksheet: (contentId, formData) => api.put(`/admin/content/${contentId}/worksheet`, formData),
 
   // Content — Videos (Mux direct upload flow)
-  createMuxUpload:  (subjectId, data) => api.post(`/admin/subjects/${subjectId}/content/video/upload-url`, data),
+  createMuxUpload:  (topicId, data) => api.post(`/admin/topics/${topicId}/content/video/upload-url`, data),
   confirmMuxUpload: (contentId, data) => api.post(`/admin/content/${contentId}/video/confirm`, data),
 
   // Questions
@@ -128,8 +145,11 @@ export const studentApi = {
 
   // Courses
   getCurriculums:        ()          => api.get('/student/curriculums'),
+  getAllCurriculums:     ()          => api.get('/student/all-curriculums'),
+  getCurriculumClasses:  (currId)    => api.get(`/student/curriculums/${currId}/classes`),
   getCurriculumSubjects: (currId)    => api.get(`/student/curriculums/${currId}/subjects`),
-  getSubjectContent:     (subjectId) => api.get(`/student/subjects/${subjectId}/content`),
+  getSubjectTopics:      (subjectId) => api.get(`/student/subjects/${subjectId}/topics`),
+  getTopicContent:       (topicId)   => api.get(`/student/topics/${topicId}/content`),
   getNoteUrl:            (contentId) => api.get(`/student/content/${contentId}/note-url`),
   getVideoToken:         (contentId) => api.get(`/student/content/${contentId}/video-token`),
   getAnimation:          (animId)    => api.get(`/student/animations/${animId}`),
@@ -137,6 +157,11 @@ export const studentApi = {
   // The file_url is returned as part of getSubjectContent; this helper is kept for
   // premium-gate enforcement (mirrors the note-url pattern).
   getWorksheetUrl:       (contentId) => api.get(`/student/content/${contentId}/worksheet-url`),
+
+  // Progress
+  trackResource:         (data)      => api.post('/student/progress/resource', data),
+  trackVideo:            (data)      => api.post('/student/progress/video', data),
+  getProgressSummary:    ()          => api.get('/student/progress/summary'),
 
   // Questions
   getMyQuestions: (params) => api.get('/student/questions', { params }),
