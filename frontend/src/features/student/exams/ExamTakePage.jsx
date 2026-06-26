@@ -532,26 +532,18 @@ const redraw = (ctx, width, height, strokeList) => {
   });
 };
 
-function StructureCanvas({ imageUrl, savedAnswerUrl, onSave, saving }) {
+function StructureCanvas({ imageUrl, strokes = [], onChange }) {
   const containerRef = useRef(null);
   const imgRef = useRef(null);
   const canvasRef = useRef(null);
 
-  const [baseImage, setBaseImage] = useState(savedAnswerUrl || imageUrl);
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const [tool, setTool] = useState('draw'); // 'draw', 'line', 'erase'
   const [color, setColor] = useState('#EF4444'); // default red
   const [brushSize, setBrushSize] = useState(4);
-  const [strokes, setStrokes] = useState([]);
   const [redoList, setRedoList] = useState([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentStroke, setCurrentStroke] = useState(null);
-
-  useEffect(() => {
-    setBaseImage(savedAnswerUrl || imageUrl);
-    setStrokes([]);
-    setRedoList([]);
-  }, [imageUrl, savedAnswerUrl]);
 
   const handleImageLoad = () => {
     if (!imgRef.current) return;
@@ -570,14 +562,21 @@ function StructureCanvas({ imageUrl, savedAnswerUrl, onSave, saving }) {
   }, []);
 
   useEffect(() => {
+    if (imgRef.current && imgRef.current.complete) {
+      handleImageLoad();
+    }
+  }, [imageUrl]);
+
+  useEffect(() => {
     if (!canvasRef.current || canvasSize.width === 0) return;
     const canvas = canvasRef.current;
-    canvas.width = canvasSize.width;
-    canvas.height = canvasSize.height;
+    if (canvas.width !== canvasSize.width) canvas.width = canvasSize.width;
+    if (canvas.height !== canvasSize.height) canvas.height = canvasSize.height;
     
     const ctx = canvas.getContext('2d');
-    redraw(ctx, canvasSize.width, canvasSize.height, strokes);
-  }, [canvasSize, strokes]);
+    const allStrokes = currentStroke ? [...strokes, currentStroke] : strokes;
+    redraw(ctx, canvasSize.width, canvasSize.height, allStrokes);
+  }, [canvasSize, strokes, currentStroke]);
 
   const getCoordinates = (e) => {
     if (!canvasRef.current) return { x: 0, y: 0 };
@@ -620,10 +619,6 @@ function StructureCanvas({ imageUrl, savedAnswerUrl, onSave, saving }) {
     
     const updatedStroke = { ...currentStroke, points: updatedPoints };
     setCurrentStroke(updatedStroke);
-
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    redraw(ctx, canvas.width, canvas.height, [...strokes, updatedStroke]);
   };
 
   const handleEnd = () => {
@@ -631,83 +626,30 @@ function StructureCanvas({ imageUrl, savedAnswerUrl, onSave, saving }) {
     setIsDrawing(false);
     
     const finalStrokes = [...strokes, currentStroke];
-    setStrokes(finalStrokes);
+    onChange(finalStrokes);
     setCurrentStroke(null);
     setRedoList([]);
-
-    triggerSave(finalStrokes);
-  };
-
-  const triggerSave = (currentStrokes) => {
-    if (!imgRef.current || !canvasRef.current) return;
-    
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = imgRef.current.naturalWidth;
-    tempCanvas.height = imgRef.current.naturalHeight;
-    const tempCtx = tempCanvas.getContext('2d');
-
-    tempCtx.drawImage(imgRef.current, 0, 0, tempCanvas.width, tempCanvas.height);
-
-    const scaleX = tempCanvas.width / canvasSize.width;
-    const scaleY = tempCanvas.height / canvasSize.height;
-
-    const scaledStrokes = currentStrokes.map(stroke => ({
-      ...stroke,
-      size: stroke.size * scaleX,
-      points: stroke.points.map(pt => ({
-        x: pt.x * scaleX,
-        y: pt.y * scaleY
-      }))
-    }));
-
-    redraw(tempCtx, tempCanvas.width, tempCanvas.height, scaledStrokes);
-    onSave(tempCanvas);
   };
 
   const handleUndo = () => {
     if (strokes.length === 0) return;
     const undone = strokes[strokes.length - 1];
     const newStrokes = strokes.slice(0, -1);
-    setStrokes(newStrokes);
+    onChange(newStrokes);
     setRedoList([...redoList, undone]);
-    triggerSave(newStrokes);
   };
 
   const handleRedo = () => {
     if (redoList.length === 0) return;
     const redone = redoList[redoList.length - 1];
     const newStrokes = [...strokes, redone];
-    setStrokes(newStrokes);
+    onChange(newStrokes);
     setRedoList(redoList.slice(0, -1));
-    triggerSave(newStrokes);
   };
 
   const handleClear = () => {
-    if (strokes.length === 0) return;
-    setStrokes([]);
+    onChange([]);
     setRedoList([]);
-    triggerSave([]);
-  };
-
-  const handleResetToOriginal = () => {
-    setBaseImage(imageUrl);
-    setStrokes([]);
-    setRedoList([]);
-    
-    if (imgRef.current) {
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = imgRef.current.naturalWidth;
-      tempCanvas.height = imgRef.current.naturalHeight;
-      const tempCtx = tempCanvas.getContext('2d');
-      
-      const tempImg = new Image();
-      tempImg.crossOrigin = 'anonymous';
-      tempImg.onload = () => {
-        tempCtx.drawImage(tempImg, 0, 0, tempCanvas.width, tempCanvas.height);
-        onSave(tempCanvas);
-      };
-      tempImg.src = imageUrl;
-    }
   };
 
   const COLORS = [
@@ -733,11 +675,10 @@ function StructureCanvas({ imageUrl, savedAnswerUrl, onSave, saving }) {
       >
         <img
           ref={imgRef}
-          src={baseImage}
+          src={imageUrl}
           alt="Structure diagram"
           onLoad={handleImageLoad}
           style={{ width: '100%', maxHeight: '550px', objectFit: 'contain', borderRadius: '12px', display: 'block' }}
-          crossOrigin="anonymous"
         />
         
         {canvasSize.width > 0 && (
@@ -857,25 +798,7 @@ function StructureCanvas({ imageUrl, savedAnswerUrl, onSave, saving }) {
           >
             Clear
           </button>
-          {baseImage !== imageUrl && (
-            <button 
-              type="button"
-              className="toolbox-btn" 
-              style={{ color: '#EF4444' }}
-              onClick={handleResetToOriginal}
-              title="Reset to clean original illustration"
-            >
-              Reset Original
-            </button>
-          )}
         </div>
-
-        {saving && (
-          <div className="saving-indicator">
-            <Loader2 size={12} className="saving-spinner" />
-            <span>Saving...</span>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -896,9 +819,7 @@ export default function ExamTakePage() {
   const saveTimer = useRef(null);
 
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [savingDrawing, setSavingDrawing] = useState(false);
-  const drawingSaveTimeout = useRef(null);
-  const pendingCanvasRef = useRef(null);
+  const [canvasStrokes, setCanvasStrokes] = useState({});
 
   const { remaining, label: timerLabel, expired } = useCountdown(deadline);
 
@@ -979,48 +900,7 @@ export default function ExamTakePage() {
     saveTimer.current = setTimeout(() => saveAnswer(questionId, answer), 800);
   };
 
-  const uploadDrawing = async (canvas, questionId) => {
-    if (!submissionId || !canvas) return;
-    setSavingDrawing(true);
-    try {
-      const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
-      const file = new File([blob], `answer_${questionId}.png`, { type: 'image/png' });
-      
-      const res = await studentApi.savePhotoAnswer(examId, submissionId, questionId, file);
-      const uploadedUrl = res.data.data.url;
-      
-      setAnswers((p) => ({ ...p, [questionId]: uploadedUrl }));
-    } catch (err) {
-      console.error('Error auto-saving drawing:', err);
-      toast.error('Failed to auto-save drawing');
-    } finally {
-      setSavingDrawing(false);
-    }
-  };
 
-  const triggerPendingSave = async () => {
-    if (!pendingCanvasRef.current) return;
-    if (drawingSaveTimeout.current) {
-      clearTimeout(drawingSaveTimeout.current);
-      drawingSaveTimeout.current = null;
-    }
-    const canvas = pendingCanvasRef.current;
-    pendingCanvasRef.current = null;
-    const currentQuestionId = questions[current]?.id;
-    if (currentQuestionId) {
-      await uploadDrawing(canvas, currentQuestionId);
-    }
-  };
-
-  const handleDrawingSave = (canvas) => {
-    pendingCanvasRef.current = canvas;
-    if (drawingSaveTimeout.current) {
-      clearTimeout(drawingSaveTimeout.current);
-    }
-    drawingSaveTimeout.current = setTimeout(() => {
-      triggerPendingSave();
-    }, 2000);
-  };
 
   const handleSubmit = async (auto = false) => {
     if (submitting) return;
@@ -1113,10 +993,7 @@ export default function ExamTakePage() {
           </div>
 
           {/* Submit */}
-          <button className="take-submit-btn" disabled={submitting} onClick={async () => {
-            if (pendingCanvasRef.current) await triggerPendingSave();
-            setConfirmSubmit(true);
-          }}>
+          <button className="take-submit-btn" disabled={submitting} onClick={() => setConfirmSubmit(true)}>
             <Send size={13} /> Submit
           </button>
         </div>
@@ -1146,9 +1023,8 @@ export default function ExamTakePage() {
                   {q.question_type === 'photo' && q.image_url && (
                     <StructureCanvas
                       imageUrl={q.image_url}
-                      savedAnswerUrl={answers[q.id]}
-                      onSave={handleDrawingSave}
-                      saving={savingDrawing}
+                      strokes={canvasStrokes[q.id] || []}
+                      onChange={(newStrokes) => setCanvasStrokes(p => ({ ...p, [q.id]: newStrokes }))}
                     />
                   )}
                 </div>
@@ -1198,24 +1074,14 @@ export default function ExamTakePage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <button
                     className="take-nav-btn ghost"
-                    onClick={async () => {
-                      if (pendingCanvasRef.current) await triggerPendingSave();
-                      setCurrent((p) => Math.max(0, p - 1));
-                    }}
+                    onClick={() => setCurrent((p) => Math.max(0, p - 1))}
                     disabled={current === 0}
                   >
                     <ChevronLeft size={15} /> Previous
                   </button>
                   <button
                     className={clsx('take-nav-btn', current < total - 1 ? 'outline' : 'primary')}
-                    onClick={async () => {
-                      if (pendingCanvasRef.current) await triggerPendingSave();
-                      if (current < total - 1) {
-                        setCurrent((p) => p + 1);
-                      } else {
-                        setConfirmSubmit(true);
-                      }
-                    }}
+                    onClick={() => current < total - 1 ? setCurrent((p) => p + 1) : setConfirmSubmit(true)}
                   >
                     {current < total - 1 ? <><span>Next</span><ChevronRight size={15} /></> : <><Send size={13} /><span>Submit</span></>}
                   </button>
@@ -1234,10 +1100,7 @@ export default function ExamTakePage() {
                 return (
                   <button
                     key={i}
-                    onClick={async () => {
-                      if (pendingCanvasRef.current) await triggerPendingSave();
-                      setCurrent(i);
-                    }}
+                    onClick={() => setCurrent(i)}
                     className={clsx(
                       'take-qnum-btn',
                       isCur ? 'cur' : isAns ? 'answered' : 'unanswered'
