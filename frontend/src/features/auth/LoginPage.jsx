@@ -133,7 +133,7 @@ export default function LoginPage() {
 
         {/* LEFT — brand panel */}
         <aside className="auth-panel">
-          <Link to="/" className="panel-logo">Mentera</Link>
+          <Link to="/" className="panel-logo">Mentara Labs</Link>
 
           <div className="panel-mid">
             <div className="panel-tag"><span className="panel-tag-dot" />Intelligent Learning</div>

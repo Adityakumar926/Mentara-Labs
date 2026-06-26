@@ -280,7 +280,7 @@ export default function StudentLayout() {
               <div className="sl-logo-mark">
                 <img src="/mentara-new.png" alt="" style={{ width: '22px', height: '22px', display: 'block' }} />
               </div>
-              <span className="sl-logo-text">Mentera</span>
+              <span className="sl-logo-text">Mentara Labs</span>
             </div>
             <NotificationBell variant="desktop" />
           </div>

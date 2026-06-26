@@ -95,7 +95,7 @@ export default function AuthLayout() {
           <div className="auth-logo-mark">
             <img src="/mentara-new.png" alt="" style={{ width: '20px', height: '20px', display: 'block' }} />
           </div>
-          <span className="auth-logo-text">Mentera</span>
+          <span className="auth-logo-text">Mentara Labs</span>
         </div>
 
         {/* Auth form slot */}

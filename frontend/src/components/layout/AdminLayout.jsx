@@ -210,7 +210,7 @@ export default function AdminLayout() {
               <img src="/mentara-new.png" alt="" style={{ width: '22px', height: '22px', display: 'block' }} />
             </div>
             <div>
-              <div className="al-logo-text">Mentera</div>
+              <div className="al-logo-text">Mentara Labs</div>
               <div className="al-logo-sub">Admin Panel</div>
             </div>
           </div>

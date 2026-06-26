@@ -313,7 +313,7 @@ export default function LandingPage() {
         <nav id="main-nav">
           <span className="nav-logo">
             <img src="/mentara-new.png" alt="" style={{ width: '26px', height: '26px', display: 'block' }} />
-            <span className="nav-logo-text">Mentera</span>
+            <span className="nav-logo-text">Mentara Labs</span>
           </span>
           <ul className="nav-links">
             <li><a href="#features">Features</a></li>
@@ -335,7 +335,7 @@ export default function LandingPage() {
               <h1 className="hero-headline">
                 Master Every<br /><span className="headline-gradient">Subject. Every</span><br />Exam. Every Day.
               </h1>
-              <p className="hero-sub">Mentera connects you to structured courses, adaptive exams, and a streak system that turns consistency into your superpower.</p>
+              <p className="hero-sub">Mentara Labs connects you to structured courses, adaptive exams, and a streak system that turns consistency into your superpower.</p>
               <div className="hero-actions">
                 <Link to="/register" className="btn-primary">
                   Start Learning Free
@@ -391,7 +391,7 @@ export default function LandingPage() {
             <div className="bento-card bc-1 reveal">
               <div className="bento-icon icon-violet">📈</div>
               <div className="bento-title">Real-time Progress Tracking</div>
-              <p className="bento-desc">Watch your understanding grow chapter by chapter. Mentera maps your knowledge gaps so every minute of study counts.</p>
+              <p className="bento-desc">Watch your understanding grow chapter by chapter. Mentara Labs maps your knowledge gaps so every minute of study counts.</p>
               <div className="progress-bars">
                 {[['Mathematics','82%',82],['Physics','67%',67],['Chemistry','91%',91],['English','54%',54]].map(([s,l,w]) => (
                   <div className="pb-row" key={s}>
@@ -468,7 +468,7 @@ export default function LandingPage() {
         <section className="lp-section" id="how" style={{background:'linear-gradient(180deg,transparent 0%,rgba(124,58,237,0.05) 50%,transparent 100%)'}}>
           <div className="section-eyebrow reveal">Simple process</div>
           <h2 className="section-title reveal">Up and running in minutes</h2>
-          <p className="section-sub reveal">Whether you're a student joining a batch or an admin building a curriculum — Mentera gets out of your way.</p>
+          <p className="section-sub reveal">Whether you're a student joining a batch or an admin building a curriculum — Mentara Labs gets out of your way.</p>
           <div className="how-grid">
             {[
               ['1','Create your account','Sign up in under 30 seconds. Students join a batch; admins get their full dashboard instantly.'],
@@ -493,7 +493,7 @@ export default function LandingPage() {
           <div className="t-grid">
             {[
               ['A','Arjun Mehta','Class 12 · JEE Aspirant','"The streak system completely changed how I study. I haven\'t missed a day in three weeks and my Physics score jumped from 54% to 87%."'],
-              ['P','Priya Sharma','Science Teacher · 8 yrs experience','"As a teacher managing 4 batches, Mentera\'s admin panel saved me hours every week. I can assign exams and check results in minutes."'],
+              ['P','Priya Sharma','Science Teacher · 8 yrs experience','"As a teacher managing 4 batches, Mentara Labs\' admin panel saved me hours every week. I can assign exams and check results in minutes."'],
               ['R','Ritika Joshi','Class 11 · NEET Prep','"The animated lessons are so clear — way better than watching a 1-hour YouTube video. I finally understand Organic Chemistry."'],
             ].map(([av,name,role,quote]) => (
               <div className="t-card reveal" key={name}>
@@ -512,7 +512,7 @@ export default function LandingPage() {
         <section className="cta-section reveal">
           <div className="cta-inner">
             <h2 className="cta-title">Ready to transform how you learn?</h2>
-            <p className="cta-sub">Join thousands of students already using Mentera to ace their exams.</p>
+            <p className="cta-sub">Join thousands of students already using Mentara Labs to ace their exams.</p>
             <div className="cta-actions">
               <Link to="/register" className="btn-primary">
                 Get started — it's free
@@ -526,14 +526,14 @@ export default function LandingPage() {
         {/* ── FOOTER ── */}
         <footer className="lp-footer">
           <div className="footer-inner">
-            <div className="footer-logo">Mentera</div>
+            <div className="footer-logo">Mentara Labs</div>
             <ul className="footer-links">
               <li><a href="#features">Features</a></li>
               <li><a href="#how">How it works</a></li>
               <li><Link to="/login" style={{color:'rgba(245,240,232,0.4)',textDecoration:'none',fontSize:'0.85rem'}}>Login</Link></li>
               <li><Link to="/register" style={{color:'rgba(245,240,232,0.4)',textDecoration:'none',fontSize:'0.85rem'}}>Register</Link></li>
             </ul>
-            <div className="footer-copy">© 2025 Mentera. All rights reserved.</div>
+            <div className="footer-copy">© 2025 Mentara Labs. All rights reserved.</div>
           </div>
         </footer>
       </div>
