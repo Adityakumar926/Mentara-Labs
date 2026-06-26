@@ -206,7 +206,9 @@ export default function AdminLayout() {
         >
           {/* Logo */}
           <div className="al-logo">
-            <div className="al-logo-mark">M</div>
+            <div className="al-logo-mark">
+              <img src="/mentara-new.png" alt="" style={{ width: '22px', height: '22px', display: 'block' }} />
+            </div>
             <div>
               <div className="al-logo-text">Mentera</div>
               <div className="al-logo-sub">Admin Panel</div>

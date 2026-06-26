@@ -92,7 +92,9 @@ export default function AuthLayout() {
 
         {/* Logo */}
         <div className="auth-logo">
-          <div className="auth-logo-mark">M</div>
+          <div className="auth-logo-mark">
+            <img src="/mentara-new.png" alt="" style={{ width: '20px', height: '20px', display: 'block' }} />
+          </div>
           <span className="auth-logo-text">Mentera</span>
         </div>
 

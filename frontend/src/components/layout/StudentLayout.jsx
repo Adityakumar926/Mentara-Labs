@@ -277,7 +277,9 @@ export default function StudentLayout() {
           {/* Logo */}
           <div className="sl-logo">
             <div className="sl-logo-left">
-              <div className="sl-logo-mark">M</div>
+              <div className="sl-logo-mark">
+                <img src="/mentara-new.png" alt="" style={{ width: '22px', height: '22px', display: 'block' }} />
+              </div>
               <span className="sl-logo-text">Mentera</span>
             </div>
             <NotificationBell variant="desktop" />

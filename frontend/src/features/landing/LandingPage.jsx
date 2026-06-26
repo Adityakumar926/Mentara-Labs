@@ -90,11 +90,15 @@ export default function LandingPage() {
           transition: background 0.3s;
         }
         .nav-logo {
+          display: flex; align-items: center; gap: 0.5rem;
           font-family: 'Space Grotesk', sans-serif;
-          font-size: 1.5rem; font-weight: 700;
+          font-size: 1.35rem; font-weight: 700;
+          text-decoration: none;
+        }
+        .nav-logo-text {
           background: linear-gradient(135deg, var(--cyan), var(--violet-l));
           -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-          letter-spacing: -0.02em; text-decoration: none;
+          letter-spacing: -0.02em;
         }
         .nav-links { display: flex; gap: 2rem; list-style: none; }
         .nav-links a { color: rgba(245,240,232,0.6); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
@@ -307,7 +311,10 @@ export default function LandingPage() {
       <div className="lp-root">
         {/* ── NAV ── */}
         <nav id="main-nav">
-          <span className="nav-logo">Mentera</span>
+          <span className="nav-logo">
+            <img src="/mentara-new.png" alt="" style={{ width: '26px', height: '26px', display: 'block' }} />
+            <span className="nav-logo-text">Mentera</span>
+          </span>
           <ul className="nav-links">
             <li><a href="#features">Features</a></li>
             <li><a href="#how">How it works</a></li>

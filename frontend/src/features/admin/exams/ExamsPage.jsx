@@ -227,11 +227,30 @@ const CSS = `
   }
   .ep-card-foot span { display: flex; align-items: center; gap: 0.3rem; }
   .ep-card-foot .ep-manage {
-    margin-left: auto; display: flex; align-items: center; gap: 0.25rem;
+    display: flex; align-items: center; gap: 0.25rem;
     font-size: 0.73rem; font-weight: 600; color: var(--violet-l);
     transition: color 0.2s;
   }
   .ep-card:hover .ep-manage { color: var(--cyan); }
+
+  .ep-duplicate-btn {
+    margin-left: auto;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--card-bdr);
+    color: var(--muted);
+    border-radius: 50px;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .ep-duplicate-btn:hover {
+    border-color: rgba(124,58,237,0.35);
+    background: rgba(124,58,237,0.15);
+    color: var(--cream);
+  }
 
   /* ── SKELETON ── */
   .ep-skel {
@@ -305,6 +324,11 @@ export default function ExamsPage() {
   const { mutate: create, loading: creating } = useMutation(adminApi.createExam, {
     onSuccess: () => { setModal(false); setForm(BLANK); refetch(); },
     successMsg: 'Exam created',
+  });
+
+  const { mutate: duplicateExam, loading: duplicating } = useMutation(adminApi.duplicateExam, {
+    onSuccess: () => { refetch(); },
+    successMsg: 'Exam duplicated',
   });
 
   const subjectNode = useMemo(() => {
@@ -486,6 +510,19 @@ export default function ExamsPage() {
                         <span><Clock size={11} style={{ color: 'var(--cyan)' }} />{e.duration_minutes}m</span>
                         <span><Users size={11} style={{ color: 'var(--violet-l)' }} />{e.submission_count ?? 0} submitted</span>
                         {e.question_count > 0 && <span>{e.question_count} Qs</span>}
+                        <button
+                          type="button"
+                          onClick={(evt) => {
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            duplicateExam(e.id);
+                          }}
+                          className="ep-duplicate-btn"
+                          title="Duplicate this exam"
+                          disabled={duplicating}
+                        >
+                          Duplicate
+                        </button>
                         <span className="ep-manage">View <ChevronRight size={12} /></span>
                       </div>
                     </Link>

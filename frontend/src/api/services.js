@@ -82,6 +82,7 @@ export const adminApi = {
   createExam:         (data)     => api.post('/admin/exams', data),
   updateExam:         (id, data) => api.put(`/admin/exams/${id}`, data),
   deleteExam:         (id)       => api.delete(`/admin/exams/${id}`),
+  duplicateExam:      (id)       => api.post(`/admin/exams/${id}/duplicate`),
   addExamQuestions:   (id, data) => api.post(`/admin/exams/${id}/questions`, data),
   removeExamQuestion: (id, qId)  => api.delete(`/admin/exams/${id}/questions/${qId}`),
   scheduleExam:       (id, data) => api.post(`/admin/exams/${id}/schedule`, data),

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Calendar, Radio, CheckCircle, Clock, Users, TrendingUp, Award } from 'lucide-react';
-import { PageWrapper, Button, Badge, Skeleton, Modal, EmptyState, ConfirmDialog, Select, Input } from '@/components/ui';
+import { PageWrapper, Button, Badge, Skeleton, Modal, EmptyState, ConfirmDialog, Select, Input, Textarea, Toggle } from '@/components/ui';
 import { useApi, useMutation } from '@/hooks/useApi';
 import { adminApi } from '@/api/services';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -381,6 +381,14 @@ function getDescendantTopicIds(topic) {
   return ids;
 }
 
+const BLANK = {
+  title: '', description: '',
+  duration_minutes: 60, total_marks: 100, passing_marks: 40,
+  is_premium: false,
+  subject_id: '', batch_id: '',
+  curriculum_id: '', class_id: '', topic_id: '',
+};
+
 export default function ExamDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -393,7 +401,13 @@ export default function ExamDetail() {
   const [confirmPublishOpen, setConfirmPublishOpen] = useState(false);
   const [confirmRescheduleOpen, setConfirmRescheduleOpen] = useState(false);
 
+  const [editModal, setEditModal] = useState(false);
+  const [editForm, setEditForm]   = useState(BLANK);
+
   const { data: exam, loading, refetch } = useApi(() => adminApi.getExam(id), null, [id]);
+  const { data: curriculums } = useApi(adminApi.getCurriculums);
+  const { data: batches } = useApi(adminApi.getBatches);
+  const { data: subjects } = useApi(adminApi.getSubjects);
   
   const { data: allQuestions } = useApi(
     adminApi.getQuestions,
@@ -422,6 +436,103 @@ export default function ExamDetail() {
   );
   const { mutate: goLive  } = useMutation(() => adminApi.goLiveExam(id), { onSuccess: refetch, successMsg: 'Exam is now live!' });
   const { mutate: endExam } = useMutation(() => adminApi.endExam(id),    { onSuccess: refetch, successMsg: 'Exam ended' });
+
+  const { mutate: duplicateExam, loading: duplicating } = useMutation(
+    () => adminApi.duplicateExam(id),
+    {
+      onSuccess: (res) => {
+        navigate(`/admin/exams/${res.data?.id || res.data?.data?.id || res.data}`);
+      },
+      successMsg: 'Exam duplicated'
+    }
+  );
+
+  const { mutate: updateExam, loading: updatingExam } = useMutation(
+    (formData) => adminApi.updateExam(id, formData),
+    {
+      onSuccess: () => {
+        setEditModal(false);
+        refetch();
+      },
+      successMsg: 'Exam details updated'
+    }
+  );
+
+  const editSubjectNode = useMemo(() => {
+    if (!editForm.subject_id || !hierarchy) return null;
+    for (const curr of hierarchy) {
+      for (const cls of curr.classes) {
+        for (const subj of cls.subjects) {
+          if (subj.id === editForm.subject_id) {
+            return subj;
+          }
+        }
+      }
+    }
+    return null;
+  }, [hierarchy, editForm.subject_id]);
+
+  const editSelectedTopicPath = useMemo(() => {
+    if (!editSubjectNode || !editForm.topic_id) return [];
+    return findTopicPath(editSubjectNode.topics, editForm.topic_id) || [];
+  }, [editSubjectNode, editForm.topic_id]);
+
+  const editFilteredClasses = useMemo(() => {
+    const list = subjects ?? [];
+    if (!editForm.curriculum_id) return [];
+    const seen = new Set();
+    const result = [];
+    list.forEach((s) => {
+      if (String(s.curriculum_id) === String(editForm.curriculum_id) && s.class_id) {
+        if (!seen.has(s.class_id)) {
+          seen.add(s.class_id);
+          result.push({ id: s.class_id, name: s.class_name });
+        }
+      }
+    });
+    return result;
+  }, [subjects, editForm.curriculum_id]);
+
+  const editFilteredSubjects = useMemo(() => {
+    const list = subjects ?? [];
+    if (!editForm.class_id) return [];
+    return list.filter((s) => String(s.class_id) === String(editForm.class_id));
+  }, [subjects, editForm.class_id]);
+
+  const setEdit = (k, v) => setEditForm((p) => ({ ...p, [k]: v }));
+
+  const handleEditCurriculumChange = (currId) => setEditForm((p) => ({ ...p, curriculum_id: currId, class_id: '', subject_id: '', topic_id: '' }));
+  const handleEditClassChange = (classId) => setEditForm((p) => ({ ...p, class_id: classId, subject_id: '', topic_id: '' }));
+  const handleEditSubjectChange = (subjectId) => setEditForm((p) => ({ ...p, subject_id: subjectId, topic_id: '' }));
+
+  const handleEditTopicDropdownChange = (index, value) => {
+    if (!value) {
+      if (index === 0) {
+        setEdit('topic_id', '');
+      } else {
+        setEdit('topic_id', editSelectedTopicPath[index - 1].id);
+      }
+    } else {
+      setEdit('topic_id', value);
+    }
+  };
+
+  const openEdit = () => {
+    setEditForm({
+      title: exam.title || '',
+      description: exam.description || '',
+      duration_minutes: exam.duration_minutes || 60,
+      total_marks: exam.total_marks || 0,
+      passing_marks: exam.passing_marks || '',
+      is_premium: exam.is_premium || false,
+      subject_id: exam.subject_id || '',
+      batch_id: exam.batch_id || '',
+      curriculum_id: exam.curriculum_id || '',
+      class_id: exam.class_id || '',
+      topic_id: exam.topic_id || '',
+    });
+    setEditModal(true);
+  };
 
   const subjectNode = useMemo(() => {
     if (!exam?.subject_id || !hierarchy) return null;
@@ -485,6 +596,7 @@ export default function ExamDetail() {
   const isDraft     = exam?.status === 'draft';
   const isScheduled = exam?.status === 'scheduled';
   const isLive      = exam?.status === 'live';
+  const canEdit     = isDraft || isScheduled;
 
   const RESULT_STATS = results?.stats ? [
     { label: 'Submissions', value: results.stats.total_submissions, variant: 'ed-stat-violet' },
@@ -549,6 +661,16 @@ export default function ExamDetail() {
           </div>
 
           <div className="ed-header-actions">
+            <button className="ed-btn-outline" onClick={() => duplicateExam()} disabled={duplicating}>
+              Duplicate
+            </button>
+
+            {canEdit && (
+              <button className="ed-btn-outline" onClick={openEdit}>
+                Edit Details
+              </button>
+            )}
+
             {isDraft && (
               <>
                 <button className="ed-btn-golive" onClick={() => goLive()}>
@@ -563,9 +685,17 @@ export default function ExamDetail() {
               </>
             )}
             {isScheduled && (
-              <button className="ed-btn-golive" onClick={() => goLive()}>
-                <Radio size={13} /> Go Live
-              </button>
+              <>
+                <button className="ed-btn-outline" onClick={() => setSchedModal(true)}>
+                  <Calendar size={14} /> Reschedule
+                </button>
+                <button className="ed-btn-primary" onClick={() => setAddQModal(true)}>
+                  <Plus size={14} /> Add Questions
+                </button>
+                <button className="ed-btn-golive" onClick={() => goLive()}>
+                  <Radio size={13} /> Go Live
+                </button>
+              </>
             )}
             {isLive && (
               <button className="ed-btn-danger" onClick={() => endExam()}>
@@ -612,7 +742,7 @@ export default function ExamDetail() {
                   icon={Plus}
                   title="No questions yet"
                   description="Add questions from the question bank to this exam."
-                  action={isDraft && (
+                  action={canEdit && (
                     <button className="ed-btn-primary" onClick={() => setAddQModal(true)}>
                       <Plus size={14} /> Add Questions
                     </button>
@@ -636,7 +766,7 @@ export default function ExamDetail() {
                           <span className="ed-q-marks-pill">{q.marks} mark{q.marks !== 1 ? 's' : ''}</span>
                         </div>
                       </div>
-                      {isDraft && (
+                      {canEdit && (
                         <button className="ed-q-remove" onClick={() => removeQ(q.id)}>
                           <Trash2 size={13} />
                         </button>
@@ -821,6 +951,79 @@ export default function ExamDetail() {
             <Button variant="primary" loading={scheduling} onClick={schedule}>
               {exam.status === 'ended' ? 'Reschedule' : 'Schedule'}
             </Button>
+          </div>
+        </Modal>
+
+        {/* ── Edit Details Modal ── */}
+        <Modal open={editModal} onClose={() => { setEditModal(false); }} title="Edit Exam Details" size="lg" preventOutsideClickClose={true}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <Input label="Title" placeholder="e.g. Mid-term Exam" value={editForm.title} onChange={(e) => setEdit('title', e.target.value)} />
+            <Textarea label="Description" rows={2} value={editForm.description} onChange={(e) => setEdit('description', e.target.value)} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '0.75rem' }}>
+              <Select label="Batch" value={editForm.batch_id} onChange={(e) => setEdit('batch_id', e.target.value)}>
+                <option value="">No batch</option>
+                {(batches?.data || batches || []).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+              </Select>
+              <Select label="Curriculum" value={editForm.curriculum_id} onChange={(e) => handleEditCurriculumChange(e.target.value)}>
+                <option value="">No curriculum</option>
+                {(curriculums ?? []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </Select>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+              <Select label="Class" value={editForm.class_id} onChange={(e) => handleEditClassChange(e.target.value)}>
+                <option value="">{editForm.curriculum_id ? 'No class' : 'Select curriculum first'}</option>
+                {editFilteredClasses.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </Select>
+              <Select label="Subject" value={editForm.subject_id} onChange={(e) => handleEditSubjectChange(e.target.value)}>
+                <option value="">{editForm.class_id ? 'No subject' : 'Select class first'}</option>
+                {editFilteredSubjects.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+              </Select>
+            </div>
+
+            {editSubjectNode && editSubjectNode.topics && editSubjectNode.topics.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                <Select
+                  label="Topic (Optional)"
+                  value={editSelectedTopicPath[0]?.id ?? ''}
+                  onChange={(e) => handleEditTopicDropdownChange(0, e.target.value)}
+                >
+                  <option value="">Select topic…</option>
+                  {editSubjectNode.topics.map(t => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </Select>
+
+                {editSelectedTopicPath.map((topicNode, idx) => {
+                  if (!topicNode.children || topicNode.children.length === 0) return null;
+                  const nextIdx = idx + 1;
+                  return (
+                    <Select
+                      key={topicNode.id}
+                      label="Sub-topic (Optional)"
+                      value={editSelectedTopicPath[nextIdx]?.id ?? ''}
+                      onChange={(e) => handleEditTopicDropdownChange(nextIdx, e.target.value)}
+                    >
+                      <option value="">Select sub-topic…</option>
+                      {topicNode.children.map(child => (
+                        <option key={child.id} value={child.id}>{child.name}</option>
+                      ))}
+                    </Select>
+                  );
+                })}
+              </div>
+            )}
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
+              <Input label="Duration (min)" type="number" value={editForm.duration_minutes} onChange={(e) => setEdit('duration_minutes', +e.target.value)} />
+              <Input label="Total Marks"    type="number" value={editForm.total_marks}       onChange={(e) => setEdit('total_marks',       +e.target.value)} />
+              <Input label="Passing Marks"  type="number" value={editForm.passing_marks}     onChange={(e) => setEdit('passing_marks',     +e.target.value)} />
+            </div>
+            <Toggle label="Premium exam" checked={editForm.is_premium} onChange={(v) => setEdit('is_premium', v)} />
+          </div>
+          <div className="ed-modal-footer-end">
+            <Button variant="ghost" onClick={() => { setEditModal(false); }}>Cancel</Button>
+            <Button variant="primary" loading={updatingExam} onClick={() => updateExam(editForm)}>Save Changes</Button>
           </div>
         </Modal>
 
