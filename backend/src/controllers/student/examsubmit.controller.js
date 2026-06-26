@@ -119,7 +119,7 @@ exports.getExamQuestions = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Time is up — your exam was auto-submitted' });
     }
 
-    // Questions with any previously saved student answers for this submission
+    // Questions without answers
     const { rows } = await db.query(
       `SELECT
          q.id,
@@ -128,14 +128,12 @@ exports.getExamQuestions = async (req, res) => {
          q.options,
          q.image_url,
          eq.marks,
-         eq.order_index,
-         sa.answer AS student_answer
+         eq.order_index
        FROM exam_questions eq
        JOIN questions q ON q.id = eq.question_id
-       LEFT JOIN submission_answers sa ON sa.question_id = q.id AND sa.submission_id = $2
        WHERE eq.exam_id = $1
        ORDER BY eq.order_index`,
-      [examId, session[0].id]
+      [examId]
     );
 
     res.json({
