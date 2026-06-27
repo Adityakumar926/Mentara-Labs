@@ -523,6 +523,7 @@ export default function SubjectPage() {
       }
     } catch (e) {
       console.error('Failed to open worksheet:', e);
+      toast.error('Failed to open worksheet: ' + (e.response?.data?.message || e.message));
       if (wsWindow) wsWindow.close();
     }
   };
@@ -690,7 +691,7 @@ export default function SubjectPage() {
     ctx.clearRect(0, 0, overlay.width, overlay.height);
   };
   document.getElementById('btnClose').onclick = () => window.close();
-<\/script>
+</script>
 </body>
 </html>`;
     if (!wsWindow) return;
