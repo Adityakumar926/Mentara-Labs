@@ -387,7 +387,13 @@ export default function SubjectPage() {
   );
   const { mutate: logActivity } = useMutation(studentApi.logActivity);
   const { mutate: getNoteUrl, loading: loadingNote } = useMutation(
-    studentApi.getNoteUrl, { onSuccess: (res) => setPdfUrl(res.url) }
+    studentApi.getNoteUrl, {
+      onSuccess: (res) => {
+        if (res.url) {
+          window.open(res.url, '_blank');
+        }
+      }
+    }
   );
   const { mutate: getAnimation } = useMutation(
     studentApi.getAnimation, { onSuccess: (res) => openAnimInNewTab(res.data) }
@@ -524,10 +530,10 @@ export default function SubjectPage() {
   .swatch { width: 22px; height: 22px; border-radius: 6px; cursor: pointer; border: 2px solid transparent; transition: transform 0.15s, border-color 0.15s; flex-shrink: 0; }
   .swatch:hover { transform: scale(1.15); }
   .swatch.active { border-color: #fff; transform: scale(1.1); }
-  #canvas-area { flex: 1; overflow: auto; display: flex; justify-content: center; align-items: flex-start; background: #1a1a2e; cursor: crosshair; }
+  #canvas-area { flex: 1; overflow: auto; display: flex; justify-content: center; align-items: flex-start; background: #1a1a2e; cursor: crosshair; padding: 2rem 0; }
   #canvas-area.eraser { cursor: cell; }
-  #sizer { position: relative; display: block; width: 100%; line-height: 0; }
-  #wsImg { display: block; margin: auto; max-width: 70%; height: auto; user-select: none; pointer-events: none; }
+  #sizer { position: relative; display: inline-block; line-height: 0; }
+  #wsImg { display: block; max-width: 85vw; max-height: 85vh; width: auto; height: auto; user-select: none; pointer-events: none; }
   #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; touch-action: none; }
   #submitted-overlay { display: none; position: absolute; inset: 0; background: rgba(10,14,26,0.82); backdrop-filter: blur(4px); flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem; z-index: 10; }
   #submitted-overlay.show { display: flex; }
