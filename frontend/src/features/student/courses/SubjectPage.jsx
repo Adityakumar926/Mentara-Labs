@@ -385,24 +385,7 @@ export default function SubjectPage() {
   const { data: content, loading, refetch } = useApi(
     () => studentApi.getTopicContent(topicId), null, [topicId]
   );
-  const handleOpenNote = async (noteId) => {
-    const pdfWindow = window.open('', '_blank');
-    if (pdfWindow) {
-      pdfWindow.document.write('<div style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;background:#0A0E1A;color:#fff;">Loading Note PDF...</div>');
-    }
-    try {
-      const res = await studentApi.getNoteUrl(noteId);
-      if (res.data.url && pdfWindow) {
-        pdfWindow.location.href = res.data.url;
-      } else if (pdfWindow) {
-        pdfWindow.close();
-      }
-    } catch (e) {
-      console.error(e);
-      if (pdfWindow) pdfWindow.close();
-      toast.error('Failed to open PDF.');
-    }
-  };
+
 
   const handleOpenAnimation = async (animId) => {
     const animWindow = window.open('', '_blank');
@@ -489,7 +472,9 @@ export default function SubjectPage() {
       return;
     }
     if (item.content_type === 'note') {
-      handleOpenNote(item.id);
+      if (item.file_url) {
+        window.open(item.file_url, '_blank');
+      }
       // Automatically track note completion on open
       studentApi.trackResource({ contentId: item.id, completed: true })
         .then(() => refetch())

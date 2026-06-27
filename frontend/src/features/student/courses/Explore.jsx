@@ -329,25 +329,15 @@ export default function Explore() {
   // Open note PDF directly
   const handleOpenNote = async (content) => {
     if (content.is_premium && !isUserPremium) return;
-    
-    const pdfWindow = window.open('', '_blank');
-    if (pdfWindow) {
-      pdfWindow.document.write('<div style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;background:#0A0E1A;color:#fff;">Loading Note PDF...</div>');
+    if (content.file_url) {
+      window.open(content.file_url, '_blank');
     }
-
     setLoadingActionId(content.id);
     try {
-      const res = await studentApi.getNoteUrl(content.id);
-      if (res.data.url && pdfWindow) {
-        pdfWindow.location.href = res.data.url;
-      } else if (pdfWindow) {
-        pdfWindow.close();
-      }
       await studentApi.trackResource({ contentId: content.id, completed: true });
       refetch();
     } catch (e) {
-      console.error('Failed to get note URL:', e);
-      if (pdfWindow) pdfWindow.close();
+      console.error('Failed to track note progress:', e);
     } finally {
       setLoadingActionId(null);
     }
