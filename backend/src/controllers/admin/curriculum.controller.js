@@ -216,7 +216,7 @@ exports.uploadNote = async (req, res) => {
       return res.status(400).json({ success: false, message: 'title is required' });
 
     const cloudinaryService = require('../../services/cloudinary.service');
-    const result = await cloudinaryService.uploadImage(req.file.buffer, 'notes', {
+    const result = await cloudinaryService.uploadImage(req.file.buffer, 'mentara-labs/notes', {
       resource_type: 'raw',
       public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_')}`,
       use_filename: false,
@@ -264,12 +264,20 @@ exports.replaceNote = async (req, res) => {
 
     if (req.file) {
       const cloudinaryService = require('../../services/cloudinary.service');
-      const result = await cloudinaryService.uploadImage(req.file.buffer, 'notes', {
+      const result = await cloudinaryService.uploadImage(req.file.buffer, 'mentara-labs/notes', {
         resource_type: 'raw',
         public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_')}`,
         use_filename: false,
       });
       file_url = result.url;
+
+      // Clean up the old note file on Cloudinary
+      if (existing[0].file_url && existing[0].file_url.includes('cloudinary')) {
+        const match = existing[0].file_url.match(/\/upload\/v\d+\/(.+)\.[a-z]+$/i);
+        if (match) {
+          cloudinaryService.deleteImage(match[1]).catch(() => {});
+        }
+      }
     }
 
     const { rows } = await db.query(
@@ -306,7 +314,7 @@ exports.uploadWorksheet = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Only JPG, PNG, or WebP images are accepted' });
 
     const cloudinaryService = require('../../services/cloudinary.service');
-    const result = await cloudinaryService.uploadImage(req.file.buffer, 'worksheets', {
+    const result = await cloudinaryService.uploadImage(req.file.buffer, 'mentara-labs/worksheets', {
       resource_type: 'image',
       public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_')}`,
       use_filename: false,
@@ -358,12 +366,20 @@ exports.replaceWorksheet = async (req, res) => {
         return res.status(400).json({ success: false, message: 'Only JPG, PNG, or WebP images are accepted' });
 
       const cloudinaryService = require('../../services/cloudinary.service');
-      const result = await cloudinaryService.uploadImage(req.file.buffer, 'worksheets', {
+      const result = await cloudinaryService.uploadImage(req.file.buffer, 'mentara-labs/worksheets', {
         resource_type: 'image',
         public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_')}`,
         use_filename: false,
       });
       file_url = result.url;
+
+      // Clean up the old worksheet file on Cloudinary
+      if (existing[0].file_url && existing[0].file_url.includes('cloudinary')) {
+        const match = existing[0].file_url.match(/\/upload\/v\d+\/(.+)\.[a-z]+$/i);
+        if (match) {
+          cloudinaryService.deleteImage(match[1]).catch(() => {});
+        }
+      }
     }
 
     const { rows } = await db.query(

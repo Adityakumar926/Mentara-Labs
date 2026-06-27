@@ -212,13 +212,15 @@ exports.savePhotoAnswer = async (req, res) => {
 
     // Verify ownership and active status — same checks as the text saveAnswer flow
     const { rows: session } = await db.query(
-      `SELECT id, status, deadline_at FROM exam_submissions
+      `SELECT id, exam_id, status, deadline_at FROM exam_submissions
        WHERE id = $1 AND student_id = $2`,
       [submissionId, studentId]
     );
 
     if (!session[0])
       return res.status(404).json({ success: false, message: 'Submission not found' });
+
+    const examId = session[0].exam_id;
 
     if (session[0].status === 'submitted')
       return res.status(400).json({ success: false, message: 'Cannot modify a submitted exam' });
@@ -236,7 +238,7 @@ exports.savePhotoAnswer = async (req, res) => {
     const cloudinaryService = require('../../services/cloudinary.service');
     const { url, publicId } = await cloudinaryService.uploadImage(
       req.file.buffer,
-      `exam-answers/${submissionId}`,
+      `mentara-labs/student-submissions/${studentId}/exams/${examId}`,
       { tags: [`submission_${submissionId}`, `question_${question_id}`] }
     );
 
@@ -251,9 +253,9 @@ exports.savePhotoAnswer = async (req, res) => {
     );
 
     if (oldUrl && oldUrl.includes('cloudinary')) {
-      const match = oldUrl.match(/exam-answers\/[^./]+\/[^./]+/);
+      const match = oldUrl.match(/\/upload\/v\d+\/(.+)\.[a-z]+$/i);
       if (match) {
-        cloudinaryService.deleteImage(match[0]).catch(() => {});
+        cloudinaryService.deleteImage(match[1]).catch(() => {});
       }
     }
 

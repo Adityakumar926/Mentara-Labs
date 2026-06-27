@@ -72,7 +72,7 @@ exports.uploadAvatar = async (req, res) => {
 
     const { url, publicId } = await cloudinaryService.uploadImage(
       req.file.buffer,
-      'avatars',
+      'mentara-labs/avatars',
       {
         // Auto-crop to a square face thumbnail
         transformation: [{ width: 256, height: 256, crop: 'fill', gravity: 'face' }],
@@ -92,9 +92,9 @@ exports.uploadAvatar = async (req, res) => {
 
     // Best-effort cleanup of the previous Cloudinary asset (non-blocking, won't fail the request)
     if (oldAvatarUrl && oldAvatarUrl.includes('cloudinary')) {
-      const match = oldAvatarUrl.match(/avatars\/[^./]+/);
+      const match = oldAvatarUrl.match(/\/upload\/v\d+\/(.+)\.[a-z]+$/i);
       if (match) {
-        cloudinaryService.deleteImage(match[0]).catch(() => {});
+        cloudinaryService.deleteImage(match[1]).catch(() => {});
       }
     }
 
