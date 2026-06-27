@@ -56,12 +56,8 @@ const CSS = `
     display: flex; align-items: center; gap: 0.6rem; z-index: 2; white-space: nowrap;
   }
   .auth-logo-mark {
-    width: 34px; height: 34px; border-radius: 11px;
-    background: linear-gradient(135deg, #7C3AED, #4F46E5);
+    width: 34px; height: 34px;
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 20px rgba(124,58,237,0.5);
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.9rem; font-weight: 700; color: #fff;
     flex-shrink: 0;
   }
   .auth-logo-text {
@@ -93,7 +89,7 @@ export default function AuthLayout() {
         {/* Logo */}
         <div className="auth-logo">
           <div className="auth-logo-mark">
-            <img src="/mentara-new.png" alt="" style={{ width: '20px', height: '20px', display: 'block' }} />
+            <img src="/mentara-new.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
           </div>
           <span className="auth-logo-text">Mentara Labs</span>
         </div>

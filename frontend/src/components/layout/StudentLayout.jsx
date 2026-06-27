@@ -58,13 +58,9 @@ const CSS = `
   }
   .sl-logo-left { display: flex; align-items: center; gap: 0.7rem; min-width: 0; }
   .sl-logo-mark {
-    width: 34px; height: 34px; border-radius: 11px;
-    background: linear-gradient(135deg, #7C3AED, #4F46E5);
+    width: 34px; height: 34px;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
-    box-shadow: 0 0 18px rgba(124,58,237,0.45);
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.9rem; font-weight: 700; color: #fff;
   }
   .sl-logo-text {
     font-family: 'Space Grotesk', sans-serif;
@@ -278,7 +274,7 @@ export default function StudentLayout() {
           <div className="sl-logo">
             <div className="sl-logo-left">
               <div className="sl-logo-mark">
-                <img src="/mentara-new.png" alt="" style={{ width: '22px', height: '22px', display: 'block' }} />
+                <img src="/mentara-new.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
               </div>
               <span className="sl-logo-text">Mentara Labs</span>
             </div>

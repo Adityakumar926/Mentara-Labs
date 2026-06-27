@@ -549,55 +549,128 @@ export default function QuestionsPage() {
                     className="qp-row"
                     layout
                     variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 280, damping: 24 } } }}
+                    style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', padding: '1.25rem 1.5rem' }}
                   >
-                    {/* Type pill */}
-                    <span className={`qp-type-pill ${typeClass(q.question_type)}`}>
-                      {q.question_type === 'photo' ? 'structure' : q.question_type.replace('_', ' ')}
-                    </span>
-
-                    {/* Body */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p className="qp-q-text qp-q-text-clamp">{q.question_text}</p>
-                      <div className="qp-q-meta">
+                    {/* Header Row */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        <span className={`qp-type-pill ${typeClass(q.question_type)}`}>
+                          {q.question_type === 'photo' ? 'structure' : q.question_type.replace('_', ' ')}
+                        </span>
+                        {q.difficulty && (
+                          <span className={`${diffClass(q.difficulty)} qp-diff`}>
+                            {DIFFICULTY_MAPPING[q.difficulty] || q.difficulty}
+                          </span>
+                        )}
+                        {q.is_premium && (
+                          <span className="qp-prem-pill">
+                            <Lock size={9} /> Premium
+                          </span>
+                        )}
                         {(q.curriculum_name || q.class_name || q.subject_name) && (
-                          <span className="qp-subject-tag font-medium">
+                          <span className="qp-subject-tag font-medium" style={{ marginLeft: '0.25rem' }}>
                             {q.curriculum_name && `${q.curriculum_name} • `}
                             {q.class_name && `${q.class_name} • `}
                             {q.subject_name}
                             {q.topic_name && ` • ${q.topic_name}`}
                           </span>
                         )}
-                        {q.difficulty   && <span className={diffClass(q.difficulty)}>{DIFFICULTY_MAPPING[q.difficulty] || q.difficulty}</span>}
-                        {q.is_premium   && (
-                          <span className="qp-prem-pill">
-                            <Lock size={9} /> Premium
-                          </span>
-                        )}
+                      </div>
+                      
+                      {/* Actions */}
+                      <div className="qp-actions" style={{ margin: 0 }}>
+                        <button
+                          className={clsx('qp-icon-btn star', q.is_starred && 'star-on')}
+                          onClick={() => toggleStar(q.id)}
+                          title="Star"
+                        >
+                          <Star size={14} fill={q.is_starred ? 'currentColor' : 'none'} />
+                        </button>
+                        <button
+                          className={clsx('qp-icon-btn lock', q.is_premium && 'lock-on')}
+                          onClick={() => togglePrem(q.id)}
+                          title="Toggle premium"
+                        >
+                          <Lock size={14} />
+                        </button>
+                        <button className="qp-icon-btn edit" onClick={() => openEdit(q)} title="Edit">
+                          <Edit2 size={14} />
+                        </button>
+                        <button className="qp-icon-btn trash" onClick={() => setDeleteId(q.id)} title="Delete">
+                          <Trash2 size={14} />
+                        </button>
                       </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className="qp-actions">
-                      <button
-                        className={clsx('qp-icon-btn star', q.is_starred && 'star-on')}
-                        onClick={() => toggleStar(q.id)}
-                        title="Star"
-                      >
-                        <Star size={14} fill={q.is_starred ? 'currentColor' : 'none'} />
-                      </button>
-                      <button
-                        className={clsx('qp-icon-btn lock', q.is_premium && 'lock-on')}
-                        onClick={() => togglePrem(q.id)}
-                        title="Toggle premium"
-                      >
-                        <Lock size={14} />
-                      </button>
-                      <button className="qp-icon-btn edit" onClick={() => openEdit(q)} title="Edit">
-                        <Edit2 size={14} />
-                      </button>
-                      <button className="qp-icon-btn trash" onClick={() => setDeleteId(q.id)} title="Delete">
-                        <Trash2 size={14} />
-                      </button>
+                    {/* Question Content Row */}
+                    <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'flex-start', width: '100%', flexWrap: 'wrap' }}>
+                      <div style={{ flex: 1, minWidth: '280px' }}>
+                        <p className="qp-q-text" style={{ fontSize: '0.88rem', fontWeight: 600, color: '#fafafa', marginBottom: '0.75rem', lineHeight: '1.4' }}>
+                          {q.question_text}
+                        </p>
+                        
+                        {/* Options Display */}
+                        {q.options && q.options.length > 0 && (
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '0.5rem', marginTop: '0.65rem' }}>
+                            {q.options.map((opt, oIdx) => {
+                              const isCorrect = String(q.correct_answer).toUpperCase() === String(opt.key || opt.id || String.fromCharCode(65 + oIdx)).toUpperCase();
+                              return (
+                                <div 
+                                  key={oIdx} 
+                                  style={{ 
+                                    fontSize: '0.76rem', 
+                                    padding: '0.5rem 0.75rem', 
+                                    borderRadius: '10px', 
+                                    border: isCorrect ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(255,255,255,0.05)',
+                                    background: isCorrect ? 'rgba(16,185,129,0.06)' : 'rgba(255,255,255,0.01)',
+                                    color: isCorrect ? '#34D399' : 'rgba(250,250,250,0.6)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem'
+                                  }}
+                                >
+                                  <strong style={{ color: isCorrect ? '#34D399' : 'rgba(250,250,250,0.3)' }}>
+                                    {opt.key || String.fromCharCode(65 + oIdx)}.
+                                  </strong>
+                                  <span>{opt.text || opt.value || opt}</span>
+                                  {isCorrect && (
+                                    <span style={{ marginLeft: 'auto', background: 'rgba(16,185,129,0.2)', color: '#34D399', fontSize: '0.55rem', padding: '0.1rem 0.3rem', borderRadius: '4px', textTransform: 'uppercase', fontWeight: 700 }}>
+                                      Correct
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                        
+                        {/* Explanation */}
+                        {q.explanation && (
+                          <div style={{ marginTop: '0.75rem', padding: '0.65rem 0.85rem', borderRadius: '10px', background: 'rgba(99,102,241,0.04)', border: '1px solid rgba(99,102,241,0.12)', fontSize: '0.75rem', color: 'rgba(250,250,250,0.5)', lineHeight: '1.4' }}>
+                            <strong style={{ color: '#818cf8', fontSize: '0.68rem', textTransform: 'uppercase', display: 'block', marginBottom: '0.2rem' }}>Explanation</strong>
+                            {q.explanation}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Question Image (Right side if exists) */}
+                      {q.image_url && (
+                        <div style={{ flexShrink: 0, maxWidth: '140px' }}>
+                          <img 
+                            src={q.image_url} 
+                            alt="Question" 
+                            style={{ 
+                              width: '100%', 
+                              maxHeight: '120px', 
+                              objectFit: 'contain', 
+                              borderRadius: '10px', 
+                              border: '1px solid rgba(255,255,255,0.06)', 
+                              background: 'rgba(0,0,0,0.2)',
+                              padding: '0.25rem'
+                            }} 
+                          />
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 ))}

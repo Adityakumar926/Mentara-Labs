@@ -400,6 +400,8 @@ export default function ExamDetail() {
   const [filterTopicId, setFilterTopicId] = useState('');
   const [confirmPublishOpen, setConfirmPublishOpen] = useState(false);
   const [confirmRescheduleOpen, setConfirmRescheduleOpen] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [viewingQuestion, setViewingQuestion] = useState(null);
 
   const [editModal, setEditModal] = useState(false);
   const [editForm, setEditForm]   = useState(BLANK);
@@ -411,7 +413,7 @@ export default function ExamDetail() {
   
   const { data: allQuestions } = useApi(
     adminApi.getQuestions,
-    useMemo(() => ({ subject_id: exam?.subject_id }), [exam?.subject_id]),
+    useMemo(() => ({ subject_id: exam?.subject_id, limit: 1000 }), [exam?.subject_id]),
     [exam?.subject_id]
   );
   
@@ -444,6 +446,14 @@ export default function ExamDetail() {
         navigate(`/admin/exams/${res.data?.id || res.data?.data?.id || res.data}`);
       },
       successMsg: 'Exam duplicated'
+    }
+  );
+
+  const { mutate: deleteExam, loading: deleting } = useMutation(
+    () => adminApi.deleteExam(id),
+    {
+      onSuccess: () => navigate('/admin/exams'),
+      successMsg: 'Exam deleted successfully'
     }
   );
 
@@ -596,7 +606,7 @@ export default function ExamDetail() {
   const isDraft     = exam?.status === 'draft';
   const isScheduled = exam?.status === 'scheduled';
   const isLive      = exam?.status === 'live';
-  const canEdit     = isDraft || isScheduled;
+  const canEdit     = exam?.status !== 'live';
 
   const RESULT_STATS = results?.stats ? [
     { label: 'Submissions', value: results.stats.total_submissions, variant: 'ed-stat-violet' },
@@ -661,14 +671,25 @@ export default function ExamDetail() {
           </div>
 
           <div className="ed-header-actions">
+            {canEdit && (
+              <button className="ed-btn-outline" style={{ color: 'var(--red)', borderColor: 'rgba(239,68,68,0.2)' }} onClick={() => setConfirmDeleteOpen(true)}>
+                Delete Exam
+              </button>
+            )}
+
             <button className="ed-btn-outline" onClick={() => duplicateExam()} disabled={duplicating}>
               Duplicate
             </button>
 
             {canEdit && (
-              <button className="ed-btn-outline" onClick={openEdit}>
-                Edit Details
-              </button>
+              <>
+                <button className="ed-btn-outline" onClick={openEdit}>
+                  Edit Details
+                </button>
+                <button className="ed-btn-primary" onClick={() => setAddQModal(true)}>
+                  <Plus size={14} /> Add Questions
+                </button>
+              </>
             )}
 
             {isDraft && (
@@ -679,18 +700,12 @@ export default function ExamDetail() {
                 <button className="ed-btn-outline" onClick={() => setSchedModal(true)}>
                   <Calendar size={14} /> Schedule
                 </button>
-                <button className="ed-btn-primary" onClick={() => setAddQModal(true)}>
-                  <Plus size={14} /> Add Questions
-                </button>
               </>
             )}
             {isScheduled && (
               <>
                 <button className="ed-btn-outline" onClick={() => setSchedModal(true)}>
                   <Calendar size={14} /> Reschedule
-                </button>
-                <button className="ed-btn-primary" onClick={() => setAddQModal(true)}>
-                  <Plus size={14} /> Add Questions
                 </button>
                 <button className="ed-btn-golive" onClick={() => goLive()}>
                   <Radio size={13} /> Go Live
@@ -754,6 +769,8 @@ export default function ExamDetail() {
                     <motion.div
                       key={q.id}
                       className="ed-q-row"
+                      onClick={() => setViewingQuestion(q)}
+                      style={{ cursor: 'pointer' }}
                       initial={{ opacity: 0, x: -8 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.04, duration: 0.28 }}
@@ -767,7 +784,7 @@ export default function ExamDetail() {
                         </div>
                       </div>
                       {canEdit && (
-                        <button className="ed-q-remove" onClick={() => removeQ(q.id)}>
+                        <button className="ed-q-remove" onClick={(e) => { e.stopPropagation(); removeQ(q.id); }}>
                           <Trash2 size={13} />
                         </button>
                       )}
@@ -906,16 +923,75 @@ export default function ExamDetail() {
                       onClick={() => toggleSelect(q.id)}
                       className={clsx('ed-modal-q-item', sel && 'ed-modal-q-sel')}
                       whileTap={{ scale: 0.98 }}
+                      style={{ display: 'flex', gap: '0.85rem', alignItems: 'flex-start', padding: '1rem' }}
                     >
-                      <div className={clsx('ed-checkbox', sel && 'ed-checkbox-sel')}>
+                      <div className={clsx('ed-checkbox', sel && 'ed-checkbox-sel')} style={{ marginTop: '3px' }}>
                         {sel && <span className="ed-check-mark">✓</span>}
                       </div>
+                      
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <p className="ed-modal-q-text">{q.question_text}</p>
-                        <p className="ed-modal-q-type">
-                          {q.question_type.replace('_', ' ')}
-                          {q.topic_name && ` • ${q.topic_name}`}
-                        </p>
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                          <div style={{ flex: 1 }}>
+                            <p className="ed-modal-q-text" style={{ fontWeight: '500', fontSize: '0.82rem', margin: 0, color: 'var(--cream)', lineHeight: '1.4' }}>
+                              {q.question_text}
+                            </p>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginTop: '0.35rem', flexWrap: 'wrap' }}>
+                              <span className="ed-q-type-pill" style={{ padding: '0.1rem 0.45rem', fontSize: '0.62rem', letterSpacing: '0.02em', textTransform: 'uppercase', background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', color: 'var(--lavender)', borderRadius: '50px' }}>
+                                {q.question_type === 'photo' ? 'structure' : q.question_type.replace('_', ' ')}
+                              </span>
+                              {q.difficulty && (
+                                <span 
+                                  style={{ 
+                                    padding: '0.1rem 0.45rem', 
+                                    fontSize: '0.62rem', 
+                                    fontWeight: 'bold', 
+                                    borderRadius: '50px',
+                                    background: q.difficulty === 'easy' ? 'rgba(16,185,129,0.12)' : q.difficulty === 'hard' ? 'rgba(239,68,68,0.12)' : 'rgba(245,158,11,0.12)',
+                                    color: q.difficulty === 'easy' ? '#34D399' : q.difficulty === 'hard' ? '#F87171' : '#FCD34D',
+                                    border: q.difficulty === 'easy' ? '1px solid rgba(16,185,129,0.2)' : q.difficulty === 'hard' ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(245,158,11,0.2)',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.04em'
+                                  }}
+                                >
+                                  {q.difficulty}
+                                </span>
+                              )}
+                              {q.topic_name && <span style={{ fontSize: '0.68rem', color: 'var(--muted)' }}>• {q.topic_name}</span>}
+                            </div>
+                          </div>
+                          
+                          {q.image_url && (
+                            <img 
+                              src={q.image_url} 
+                              alt="thumbnail" 
+                              style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.2)' }} 
+                            />
+                          )}
+                        </div>
+                        
+                        {q.options && q.options.length > 0 && (
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.4rem', marginTop: '0.6rem' }}>
+                            {q.options.map((opt, idx) => (
+                              <div 
+                                key={idx} 
+                                style={{ 
+                                  fontSize: '0.72rem', 
+                                  color: 'rgba(250,250,250,0.5)', 
+                                  background: 'rgba(255,255,255,0.02)', 
+                                  padding: '0.3rem 0.6rem', 
+                                  borderRadius: '6px', 
+                                  border: '1px solid rgba(255,255,255,0.04)',
+                                  textOverflow: 'ellipsis',
+                                  overflow: 'hidden',
+                                  whiteSpace: 'nowrap'
+                                }}
+                              >
+                                <strong style={{ marginRight: '0.2rem', color: 'rgba(250,250,250,0.3)' }}>{opt.key || String.fromCharCode(65 + idx)}.</strong>
+                                {opt.text || opt.value || opt}
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </motion.div>
                   );
@@ -1052,6 +1128,100 @@ export default function ExamDetail() {
           description="Warning: Rescheduling this exam will permanently delete all previous student submissions and results for this exam. Students will be able to take the exam again at the newly scheduled time. Do you want to proceed?"
           danger={true}
         />
+
+        {/* ── Confirm Delete Dialog ── */}
+        <ConfirmDialog
+          open={confirmDeleteOpen}
+          onClose={() => setConfirmDeleteOpen(false)}
+          onConfirm={() => {
+            setConfirmDeleteOpen(false);
+            deleteExam();
+          }}
+          title="Delete Exam?"
+          description="Are you sure you want to permanently delete this exam? This action cannot be undone."
+          danger={true}
+        />
+
+        {/* ── Question Details Modal ── */}
+        <Modal
+          open={!!viewingQuestion}
+          onClose={() => setViewingQuestion(null)}
+          title="Question Details"
+          size="md"
+        >
+          {viewingQuestion && (
+            <div className="ed-q-view">
+              <style>{`
+                .ed-q-view-title { font-size: 1rem; font-weight: 600; color: #fafafa; margin-bottom: 1rem; line-height: 1.5; }
+                .ed-q-view-meta { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
+                .ed-q-view-img { max-width: 100%; max-height: 250px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.065); margin-bottom: 1.25rem; display: block; object-fit: contain; background: rgba(0,0,0,0.2); }
+                .ed-q-view-options { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.25rem; }
+                .ed-q-view-option {
+                  padding: 0.75rem 1rem; border-radius: 12px;
+                  border: 1px solid rgba(255,255,255,0.05);
+                  background: rgba(255,255,255,0.02);
+                  font-size: 0.85rem; color: rgba(250,250,250,0.8);
+                  display: flex; align-items: center; gap: 0.75rem;
+                }
+                .ed-q-view-option-correct {
+                  border-color: rgba(16,185,129,0.3) !important;
+                  background: rgba(16,185,129,0.08) !important;
+                  color: #34D399 !important;
+                  font-weight: 600;
+                }
+                .ed-q-view-correct-badge {
+                  background: rgba(16,185,129,0.2); color: #34D399;
+                  font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+                  padding: 0.15rem 0.45rem; border-radius: 4px;
+                }
+                .ed-q-view-explanation {
+                  padding: 1rem; border-radius: 12px;
+                  background: rgba(99,102,241,0.05);
+                  border: 1px solid rgba(99,102,241,0.15);
+                  font-size: 0.8rem; color: rgba(250,250,250,0.7);
+                  line-height: 1.5;
+                }
+              `}</style>
+              <div className="ed-q-view-meta">
+                <span className="ed-q-type-pill">{viewingQuestion.question_type.replace('_', ' ')}</span>
+                <span className="ed-q-marks-pill">{viewingQuestion.marks || 1} mark(s)</span>
+              </div>
+              <div className="ed-q-view-title">{viewingQuestion.question_text}</div>
+              
+              {viewingQuestion.image_url && (
+                <img src={viewingQuestion.image_url} alt="Question" className="ed-q-view-img" />
+              )}
+              
+              {viewingQuestion.options && viewingQuestion.options.length > 0 && (
+                <div className="ed-q-view-options">
+                  {viewingQuestion.options.map((opt, idx) => {
+                    const isCorrect = String(viewingQuestion.correct_answer).toUpperCase() === String(opt.key || opt.id || String.fromCharCode(65 + idx)).toUpperCase();
+                    return (
+                      <div key={idx} className={`ed-q-view-option ${isCorrect ? 'ed-q-view-option-correct' : ''}`}>
+                        <span style={{ fontWeight: 700, color: isCorrect ? '#34D399' : 'rgba(250,250,250,0.3)' }}>
+                          {opt.key || String.fromCharCode(65 + idx)}.
+                        </span>
+                        <span>{opt.text || opt.value || opt}</span>
+                        {isCorrect && <span className="ed-q-view-correct-badge" style={{ marginLeft: 'auto' }}>Correct</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              
+              {viewingQuestion.explanation && (
+                <div className="ed-q-view-explanation">
+                  <div style={{ fontWeight: 700, marginBottom: '0.35rem', color: '#818cf8', fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Explanation</div>
+                  <div>{viewingQuestion.explanation}</div>
+                </div>
+              )}
+              
+              <div className="ed-modal-footer-end">
+                <Button onClick={() => setViewingQuestion(null)}>Close</Button>
+              </div>
+            </div>
+          )}
+        </Modal>
 
       </div>
     </PageWrapper>

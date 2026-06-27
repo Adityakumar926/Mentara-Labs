@@ -63,13 +63,9 @@ const CSS = `
     position: relative; z-index: 1; flex-shrink: 0;
   }
   .al-logo-mark {
-    width: 36px; height: 36px; border-radius: 12px;
-    background: linear-gradient(135deg, #7C3AED, #4F46E5);
+    width: 36px; height: 36px;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
-    box-shadow: 0 0 20px rgba(124,58,237,0.45);
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1rem; font-weight: 700; color: #fff;
   }
   .al-logo-text {
     font-family: 'Space Grotesk', sans-serif;
@@ -207,7 +203,7 @@ export default function AdminLayout() {
           {/* Logo */}
           <div className="al-logo">
             <div className="al-logo-mark">
-              <img src="/mentara-new.png" alt="" style={{ width: '22px', height: '22px', display: 'block' }} />
+              <img src="/mentara-new.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
             </div>
             <div>
               <div className="al-logo-text">Mentara Labs</div>
