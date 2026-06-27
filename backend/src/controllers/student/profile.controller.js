@@ -137,30 +137,47 @@ exports.changePassword = async (req, res) => {
 exports.getProgress = async (req, res) => {
   try {
     const studentId = req.user.id;
+    const curriculumId = req.user.curriculum_id;
+    const classId = req.user.class_id || null;
 
-    const [curriculums, exams, recentActivity] = await Promise.all([
-      db.query(
+    const [curriculumsResult, exams, recentActivity] = await Promise.all([
+      curriculumId ? db.query(
         `SELECT
            c.id, c.name,
-           COUNT(DISTINCT s.id)  AS total_subjects,
-           COUNT(DISTINCT al.content_id) FILTER (
-             WHERE al.activity_type IN ('study','video','animation')
+           (SELECT COUNT(*) FROM subjects WHERE ($3::uuid IS NULL AND curriculum_id = $2) OR (class_id = $3))::integer AS total_subjects,
+           (
+             SELECT COUNT(DISTINCT al.content_id)::integer
+             FROM activity_logs al
+             JOIN content ct ON ct.id = al.content_id
+             JOIN subjects s ON s.id = ct.subject_id
+             WHERE al.student_id = $1 
+               AND (($3::uuid IS NULL AND s.curriculum_id = $2) OR (s.class_id = $3))
+               AND al.activity_type IN ('study', 'video', 'animation')
            ) AS studied_content,
-           COUNT(DISTINCT e.id)  AS total_exams,
-           COUNT(DISTINCT es.id) AS completed_exams,
-           ROUND(AVG(es.percentage), 2) AS avg_exam_score
-         FROM batch_students bs
-         JOIN batches    b  ON b.id = bs.batch_id
-         JOIN curriculums c ON c.id = b.curriculum_id
-         LEFT JOIN subjects s  ON s.curriculum_id = c.id
-         LEFT JOIN content  ct ON ct.subject_id   = s.id
-         LEFT JOIN activity_logs al ON al.student_id = bs.student_id AND al.content_id = ct.id
-         LEFT JOIN exams e  ON e.batch_id = b.id
-         LEFT JOIN exam_submissions es ON es.exam_id = e.id AND es.student_id = bs.student_id
-         WHERE bs.student_id = $1
-         GROUP BY c.id`,
-        [studentId]
-      ),
+           (
+             SELECT COUNT(*)::integer
+             FROM exams e
+             JOIN subjects s ON s.id = e.subject_id
+             WHERE (($3::uuid IS NULL AND s.curriculum_id = $2) OR (s.class_id = $3)) AND e.status = 'live'
+           ) AS total_exams,
+           (
+             SELECT COUNT(DISTINCT es.id)::integer
+             FROM exam_submissions es
+             JOIN exams e ON e.id = es.exam_id
+             JOIN subjects s ON s.id = e.subject_id
+             WHERE es.student_id = $1 AND (($3::uuid IS NULL AND s.curriculum_id = $2) OR (s.class_id = $3))
+           ) AS completed_exams,
+           (
+             SELECT ROUND(AVG(es.percentage), 2)::float
+             FROM exam_submissions es
+             JOIN exams e ON e.id = es.exam_id
+             JOIN subjects s ON s.id = e.subject_id
+             WHERE es.student_id = $1 AND (($3::uuid IS NULL AND s.curriculum_id = $2) OR (s.class_id = $3))
+           ) AS avg_exam_score
+         FROM curriculums c
+         WHERE c.id = $2`,
+        [studentId, curriculumId, classId]
+      ) : Promise.resolve({ rows: [] }),
       db.query(
         `SELECT
            e.title, es.score, es.total_marks,
@@ -187,7 +204,7 @@ exports.getProgress = async (req, res) => {
     res.json({
       success: true,
       data: {
-        curriculums:    curriculums.rows,
+        curriculums:    curriculumsResult.rows,
         recent_exams:   exams.rows,
         last_7_days:    recentActivity.rows,
       },
