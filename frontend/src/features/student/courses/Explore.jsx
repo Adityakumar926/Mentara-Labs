@@ -147,11 +147,11 @@ const CSS = `
   .ex-card {
     position: relative; background: var(--card-bg); border: 1px solid var(--card-bdr);
     border-radius: 20px; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.85rem;
-    transition: transform 0.22s, border-color 0.22s, box-shadow 0.22s;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
   .ex-card:hover {
-    transform: translateY(-2px); border-color: rgba(124,58,237,0.25);
-    box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+    border-color: rgba(124,58,237,0.25);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
   }
   .ex-card-header { display: flex; align-items: start; justify-content: space-between; }
   .ex-card-title { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--cream); }

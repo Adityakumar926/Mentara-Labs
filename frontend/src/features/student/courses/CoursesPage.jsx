@@ -93,23 +93,22 @@ const CSS = `
     border-radius: 24px;
     overflow: hidden;
     backdrop-filter: blur(12px);
-    transition: border-color 0.3s, transform 0.25s, box-shadow 0.3s;
+    transition: border-color 0.2s, box-shadow 0.2s;
     display: flex; flex-direction: column;
     text-decoration: none; color: inherit;
     cursor: pointer;
   }
   .cp-card:hover {
-    border-color: rgba(124,58,237,0.4);
-    transform: translateY(-4px);
-    box-shadow: 0 20px 60px rgba(124,58,237,0.18), 0 0 0 1px rgba(124,58,237,0.15);
+    border-color: rgba(124,58,237,0.35);
+    box-shadow: 0 8px 30px rgba(10,14,26,0.3);
   }
   .cp-card::before {
     content: '';
     position: absolute; inset: 0;
-    background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(124,58,237,0.1) 0%, transparent 60%);
+    background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(124,58,237,0.06) 0%, transparent 60%);
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.3s;
+    transition: opacity 0.2s;
   }
   .cp-card:hover::before { opacity: 1; }
 
@@ -120,9 +119,7 @@ const CSS = `
   }
   .cp-thumb img {
     width: 100%; height: 100%; object-fit: cover;
-    transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
   }
-  .cp-card:hover .cp-thumb img { transform: scale(1.06); }
   .cp-thumb-fallback {
     width: 100%; height: 100%;
     background: linear-gradient(135deg, rgba(124,58,237,0.18) 0%, rgba(10,14,26,0.8) 60%, rgba(0,212,255,0.08) 100%);
@@ -133,9 +130,9 @@ const CSS = `
     background: rgba(124,58,237,0.15);
     border: 1px solid rgba(124,58,237,0.2);
     display: flex; align-items: center; justify-content: center;
-    transition: background 0.3s, transform 0.3s;
+    transition: background 0.2s;
   }
-  .cp-card:hover .cp-thumb-icon { background: rgba(124,58,237,0.25); transform: scale(1.08); }
+  .cp-card:hover .cp-thumb-icon { background: rgba(124,58,237,0.22); }
 
   /* Gradient overlay on thumb */
   .cp-thumb::after {

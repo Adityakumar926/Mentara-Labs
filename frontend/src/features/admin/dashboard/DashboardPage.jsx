@@ -91,12 +91,11 @@ const CSS = `
     border: 1px solid var(--card-bdr);
     border-radius: 22px; padding: 1.25rem 1.25rem 1.1rem;
     overflow: hidden; backdrop-filter: blur(12px);
-    transition: border-color 0.3s, transform 0.25s, box-shadow 0.3s;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
     cursor: default;
   }
   .db-stat:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 14px 44px rgba(0,0,0,0.25);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
   }
   .db-stat-glow {
     position: absolute; border-radius: 50%; filter: blur(40px); pointer-events: none;
@@ -120,19 +119,19 @@ const CSS = `
   /* Stat color variants */
   .db-stat-violet .db-stat-glow { background: radial-gradient(circle, rgba(124,58,237,0.5) 0%, transparent 70%); }
   .db-stat-violet .db-stat-icon-wrap { background: rgba(124,58,237,0.12); border-color: rgba(124,58,237,0.25); }
-  .db-stat-violet:hover { border-color: rgba(124,58,237,0.4); box-shadow: 0 14px 44px rgba(124,58,237,0.15); }
+  .db-stat-violet:hover { border-color: rgba(124,58,237,0.4); box-shadow: 0 8px 32px rgba(124,58,237,0.12); }
 
   .db-stat-amber .db-stat-glow { background: radial-gradient(circle, rgba(245,158,11,0.5) 0%, transparent 70%); }
   .db-stat-amber .db-stat-icon-wrap { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); }
-  .db-stat-amber:hover { border-color: rgba(245,158,11,0.35); box-shadow: 0 14px 44px rgba(245,158,11,0.12); }
+  .db-stat-amber:hover { border-color: rgba(245,158,11,0.35); box-shadow: 0 8px 32px rgba(245,158,11,0.1); }
 
   .db-stat-green .db-stat-glow { background: radial-gradient(circle, rgba(16,185,129,0.5) 0%, transparent 70%); }
   .db-stat-green .db-stat-icon-wrap { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); }
-  .db-stat-green:hover { border-color: rgba(16,185,129,0.35); box-shadow: 0 14px 44px rgba(16,185,129,0.12); }
+  .db-stat-green:hover { border-color: rgba(16,185,129,0.35); box-shadow: 0 8px 32px rgba(16,185,129,0.1); }
 
   .db-stat-cyan .db-stat-glow { background: radial-gradient(circle, rgba(0,212,255,0.4) 0%, transparent 70%); }
   .db-stat-cyan .db-stat-icon-wrap { background: rgba(0,212,255,0.08); border-color: rgba(0,212,255,0.2); }
-  .db-stat-cyan:hover { border-color: rgba(0,212,255,0.3); box-shadow: 0 14px 44px rgba(0,212,255,0.1); }
+  .db-stat-cyan:hover { border-color: rgba(0,212,255,0.3); box-shadow: 0 8px 32px rgba(0,212,255,0.08); }
 
   /* ── GLASS CARD (shared container) ── */
   .db-card {
