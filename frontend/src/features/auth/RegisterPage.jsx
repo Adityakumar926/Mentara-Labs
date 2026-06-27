@@ -35,16 +35,11 @@ const QUOTES = [
 ];
 
 export default function RegisterPage() {
-  const { register, loginWithGoogle, loading } = useAuthStore();
+  const { loginWithGoogle, loading } = useAuthStore();
   const navigate = useNavigate();
 
-  const [form, setForm]             = useState({ full_name: '', email: '', password: '', confirm: '' });
-  const [show, setShow]             = useState(false);
-  const [errors, setErrors]         = useState({});
   const [quoteIdx, setQuoteIdx]     = useState(0);
   const [quoteVisible, setQuoteVisible] = useState(true);
-
-  const set = (k, v) => setForm((p) => ({ ...p, [k]: v }));
 
   const handleGoogleCallback = async (response) => {
     try {
@@ -90,28 +85,6 @@ export default function RegisterPage() {
     }, 4000);
     return () => clearInterval(id);
   }, []);
-
-  const validate = () => {
-    const e = {};
-    if (!form.full_name) e.full_name = 'Name is required';
-    if (!form.email)     e.email     = 'Email is required';
-    if (form.password.length < 8)           e.password = 'At least 8 characters';
-    if (form.password !== form.confirm)     e.confirm  = 'Passwords do not match';
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validate()) return;
-    try {
-      const user = await register({ full_name: form.full_name, email: form.email, password: form.password });
-      toast.success(`Account created! Welcome, ${user.full_name.split(' ')[0]}!`);
-      navigate('/courses');
-    } catch (err) {
-      toast.error(err.message);
-    }
-  };
 
   const q = QUOTES[quoteIdx];
 
@@ -205,81 +178,15 @@ export default function RegisterPage() {
 
         {/* RIGHT — form */}
         <main className="auth-form-side">
-          <div className="auth-form-box">
+          <div className="auth-form-box" style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}>
             <div className="form-eyebrow">Create Account</div>
             <h1 className="form-title">Sign up</h1>
-            <p className="form-sub">Join thousands of learners today.</p>
+            <p className="form-sub" style={{ marginBottom: '2.5rem' }}>Sign up using Google to start learning.</p>
 
-            <form onSubmit={handleSubmit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div id="google-btn-container" style={{ display: 'flex', justifyContent: 'center', width: '100%', minHeight: '50px' }} />
 
-              <Field label="Full Name" error={errors.full_name}>
-                <input
-                  className="auth-input"
-                  style={inputBase(!!errors.full_name)}
-                  type="text"
-                  placeholder="Anand Kumar"
-                  value={form.full_name}
-                  autoComplete="name"
-                  onChange={(e) => { set('full_name', e.target.value); setErrors((x) => ({ ...x, full_name: '' })); }}
-                />
-              </Field>
-
-              <Field label="Email" error={errors.email}>
-                <input
-                  className="auth-input"
-                  style={inputBase(!!errors.email)}
-                  type="email"
-                  placeholder="you@example.com"
-                  value={form.email}
-                  autoComplete="email"
-                  onChange={(e) => { set('email', e.target.value); setErrors((x) => ({ ...x, email: '' })); }}
-                />
-              </Field>
-
-              <Field label="Password" error={errors.password}>
-                <div className="pw-wrap">
-                  <input
-                    className="auth-input"
-                    style={{ ...inputBase(!!errors.password), paddingRight: '2.75rem' }}
-                    type={show ? 'text' : 'password'}
-                    placeholder="Min. 8 characters"
-                    value={form.password}
-                    autoComplete="new-password"
-                    onChange={(e) => { set('password', e.target.value); setErrors((x) => ({ ...x, password: '' })); }}
-                  />
-                  <button type="button" className="pw-toggle" onClick={() => setShow(!show)} tabIndex={-1} aria-label={show ? 'Hide password' : 'Show password'}>
-                    {show
-                      ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                      : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                    }
-                  </button>
-                </div>
-              </Field>
-
-              <Field label="Confirm Password" error={errors.confirm}>
-                <input
-                  className="auth-input"
-                  style={inputBase(!!errors.confirm)}
-                  type="password"
-                  placeholder="Repeat password"
-                  value={form.confirm}
-                  autoComplete="new-password"
-                  onChange={(e) => { set('confirm', e.target.value); setErrors((x) => ({ ...x, confirm: '' })); }}
-                />
-              </Field>
-
-              <button type="submit" className="auth-btn" disabled={loading}>
-                {loading
-                  ? <><div className="auth-btn-spinner" />Creating account…</>
-                  : <><UserPlus size={15} />Create Account</>
-                }
-              </button>
-            </form>
-
-            <div id="google-btn-container" style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'center' }} />
-
-            <div className="auth-divider" />
-            <p className="auth-footer-link">
+            <div className="auth-divider" style={{ margin: '2rem 0' }} />
+            <p className="auth-footer-link" style={{ marginTop: 0 }}>
               Already have an account? <Link to="/login">Sign in</Link>
             </p>
           </div>
