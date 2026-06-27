@@ -44,6 +44,24 @@ const useAuthStore = create((set, get) => ({
     }
   },
 
+  loginWithGoogle: async (credential) => {
+    set({ loading: true, error: null });
+    try {
+      const { data } = await authApi.googleLogin({ credential });
+      localStorage.setItem('accessToken',  data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      set({ user: data.user, loading: false });
+      useNotificationStore.getState().initSocket(data.accessToken);
+      useNotificationStore.getState().fetch();
+      return data.user;
+    } catch (err) {
+      const msg = err.response?.data?.message ?? 'Google Sign-In failed';
+      set({ error: msg, loading: false });
+      throw new Error(msg);
+    }
+  },
+
   logout: async () => {
     try { await authApi.logout(); } catch { /* ignore */ }
     localStorage.clear();

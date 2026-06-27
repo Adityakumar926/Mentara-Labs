@@ -1,6 +1,8 @@
 const bcrypt  = require('bcryptjs');
 const jwt     = require('jsonwebtoken');
 const db      = require('../config/db');
+const { OAuth2Client } = require('google-auth-library');
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 
@@ -184,5 +186,76 @@ exports.onboard = async (req, res) => {
     res.json({ success: true, user: rows[0] });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Google OAuth Sign-In / Sign-Up
+exports.googleLogin = async (req, res) => {
+  try {
+    const { credential } = req.body;
+    if (!credential) {
+      return res.status(400).json({ success: false, message: 'Google credential is required' });
+    }
+
+    let ticket;
+    try {
+      ticket = await googleClient.verifyIdToken({
+        idToken: credential,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+    } catch (err) {
+      // Fallback decode for local testing/dev if GOOGLE_CLIENT_ID is not configured
+      if (!process.env.GOOGLE_CLIENT_ID) {
+        const decoded = jwt.decode(credential);
+        if (decoded) {
+          ticket = { getPayload: () => decoded };
+        } else {
+          throw err;
+        }
+      } else {
+        throw err;
+      }
+    }
+
+    const payload = ticket.getPayload();
+    const email = payload.email.toLowerCase().trim();
+    const full_name = payload.name || 'Google User';
+
+    let { rows } = await db.query(
+      `SELECT id, email, full_name, role, is_premium,
+              premium_expires_at, avatar_url, curriculum_id, class_id, onboarded, created_at 
+       FROM users WHERE email = $1`,
+      [email]
+    );
+
+    let user = rows[0];
+
+    if (!user) {
+      // Register new student user
+      const dummyPassword = Math.random().toString(36).substring(2, 15);
+      const hash = await bcrypt.hash(dummyPassword, 12);
+      
+      const insertRes = await db.query(
+        `INSERT INTO users (email, password_hash, full_name, role, onboarded)
+         VALUES ($1, $2, $3, 'student', false)
+         RETURNING id, email, full_name, role, is_premium, premium_expires_at, avatar_url, curriculum_id, class_id, onboarded, created_at`,
+        [email, hash, full_name]
+      );
+      user = insertRes.rows[0];
+    }
+
+    const cleanUser = stripHash(user);
+    const accessToken = signAccessToken(user.id);
+    const refreshToken = signRefreshToken(user.id);
+
+    await db.query(
+      `UPDATE users SET refresh_token = $1 WHERE id = $2`,
+      [refreshToken, user.id]
+    );
+
+    res.json({ success: true, accessToken, refreshToken, user: cleanUser });
+  } catch (err) {
+    console.error('[googleLogin Error]', err);
+    res.status(401).json({ success: false, message: 'Google authentication failed: ' + err.message });
   }
 };

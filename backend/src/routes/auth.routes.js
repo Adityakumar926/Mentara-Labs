@@ -7,6 +7,7 @@ const authCtrl    = require('../controllers/auth.controller');
 // ─── PUBLIC ───────────────────────────────────────────────────────────────────
 router.post('/register', authCtrl.register);
 router.post('/login',    authCtrl.login);
+router.post('/google',   authCtrl.googleLogin);
 
 // ─── PROTECTED ────────────────────────────────────────────────────────────────
 router.get('/me',             protect, authCtrl.me);

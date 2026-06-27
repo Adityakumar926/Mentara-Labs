@@ -35,7 +35,7 @@ const QUOTES = [
 ];
 
 export default function RegisterPage() {
-  const { register, loading } = useAuthStore();
+  const { register, loginWithGoogle, loading } = useAuthStore();
   const navigate = useNavigate();
 
   const [form, setForm]             = useState({ full_name: '', email: '', password: '', confirm: '' });
@@ -45,6 +45,43 @@ export default function RegisterPage() {
   const [quoteVisible, setQuoteVisible] = useState(true);
 
   const set = (k, v) => setForm((p) => ({ ...p, [k]: v }));
+
+  const handleGoogleCallback = async (response) => {
+    try {
+      const user = await loginWithGoogle(response.credential);
+      toast.success(`Account resolved! Welcome, ${user.full_name.split(' ')[0]}!`);
+      navigate(user.role === 'admin' ? '/admin' : '/courses');
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+
+  useEffect(() => {
+    const initGoogle = () => {
+      if (window.google?.accounts?.id) {
+        window.google.accounts.id.initialize({
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+          callback: handleGoogleCallback,
+        });
+        window.google.accounts.id.renderButton(
+          document.getElementById('google-btn-container'),
+          { theme: 'outline', size: 'large', width: '380', shape: 'rectangular', text: 'signup_with' }
+        );
+      }
+    };
+
+    if (!document.getElementById('google-gsi-client')) {
+      const script = document.createElement('script');
+      script.id = 'google-gsi-client';
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = initGoogle;
+      document.body.appendChild(script);
+    } else {
+      initGoogle();
+    }
+  }, []);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -238,6 +275,8 @@ export default function RegisterPage() {
                 }
               </button>
             </form>
+
+            <div id="google-btn-container" style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'center' }} />
 
             <div className="auth-divider" />
             <p className="auth-footer-link">
