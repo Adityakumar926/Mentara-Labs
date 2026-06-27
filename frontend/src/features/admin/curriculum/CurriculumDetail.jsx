@@ -463,38 +463,52 @@ const BLANK_CONTENT = {
   html_part: '',
   css_part: '',
   js_part: '',
+  json_part: '',
 };
 
 const parseHtmlContent = (fullHtml) => {
-  if (!fullHtml) return { html: '', css: '', js: '' };
+  if (!fullHtml) return { html: '', css: '', js: '', json: '' };
   
+  let json = '';
+  const jsonMatch = fullHtml.match(/<script id="animation-data"[^>]*>([\s\S]*?)<\/script>/i);
+  if (jsonMatch) {
+    json = jsonMatch[1].trim();
+  }
+
+  // Strip the JSON data script and the window.ANIMATION_DATA script from the html
+  const cleanHtml = fullHtml
+    .replace(/<script id="animation-data"[^>]*>([\s\S]*?)<\/script>/gi, '')
+    .replace(/<script>\s*try\s*\{\s*window\.ANIMATION_DATA[\s\S]*?<\/script>/gi, '')
+    .replace(/<script>\s*window\.ANIMATION_DATA\s*=[\s\S]*?<\/script>/gi, '');
+
   let css = '';
-  const styleMatch = fullHtml.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+  const styleMatch = cleanHtml.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
   if (styleMatch) {
     css = styleMatch[1].trim();
   }
   
   let js = '';
-  const scriptMatch = fullHtml.match(/<script[^>]*>([\s\S]*?)<\/script>/i);
+  const scriptMatch = cleanHtml.match(/<script[^>]*>([\s\S]*?)<\/script>/i);
   if (scriptMatch) {
     js = scriptMatch[1].trim();
   }
   
   let html = '';
-  const bodyMatch = fullHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  const bodyMatch = cleanHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
   if (bodyMatch) {
     html = bodyMatch[1].replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, '').trim();
   } else {
-    html = fullHtml
+    html = cleanHtml
       .replace(/<style[^>]*>([\s\S]*?)<\/style>/gi, '')
       .replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, '')
       .trim();
   }
   
-  return { html, css, js };
+  return { html, css, js, json };
 };
 
-const compileHtmlContent = (html, css, js) => {
+const compileHtmlContent = (html, css, js, json) => {
+  const jsonStr = json?.trim() || '{}';
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -502,6 +516,17 @@ const compileHtmlContent = (html, css, js) => {
   <style>
 ${css}
   </style>
+  <script id="animation-data" type="application/json">
+${jsonStr}
+  </script>
+  <script>
+    try {
+      window.ANIMATION_DATA = JSON.parse(document.getElementById('animation-data').textContent);
+    } catch (e) {
+      window.ANIMATION_DATA = {};
+      console.error("Invalid JSON data provided:", e);
+    }
+  </script>
 </head>
 <body>
 ${html}
@@ -669,7 +694,7 @@ export default function CurriculumDetail() {
           await adminApi.updateContent(f.videoContentId, { title: f.title, is_premium: f.is_premium });
         }
       } else if (f.content_type === 'animation') {
-        const compiledHtml = compileHtmlContent(f.html_part, f.css_part, f.js_part);
+        const compiledHtml = compileHtmlContent(f.html_part, f.css_part, f.js_part, f.json_part);
         const body = {
           title: f.title,
           content_type: 'animation',
@@ -807,7 +832,8 @@ export default function CurriculumDetail() {
       worksheetPreviewUrl: c.content_type === 'worksheet' ? (c.file_url ?? null) : null,
       html_part: parsed.html,
       css_part: parsed.css,
-      js_part: parsed.js
+      js_part: parsed.js,
+      json_part: parsed.json
     });
     setContentModal(topicId);
   };
@@ -1058,7 +1084,7 @@ export default function CurriculumDetail() {
               <div className="cd-anim-editor-wrap">
                 <div className="cd-anim-editor-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <div style={{ display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.03)', padding: '2px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    {['html', 'css', 'js', 'output'].map((tab) => (
+                    {['html', 'css', 'js', 'json', 'output'].map((tab) => (
                       <button
                         key={tab}
                         type="button"
@@ -1085,7 +1111,7 @@ export default function CurriculumDetail() {
                     type="button"
                     className="cd-anim-preview-btn" 
                     onClick={() => {
-                      const compiled = compileHtmlContent(contentForm.html_part, contentForm.css_part, contentForm.js_part);
+                      const compiled = compileHtmlContent(contentForm.html_part, contentForm.css_part, contentForm.js_part, contentForm.json_part);
                       setPreviewHtml(compiled || ANIM_PLACEHOLDER);
                     }}
                   >
@@ -1113,15 +1139,23 @@ export default function CurriculumDetail() {
                   {animTab === 'js' && (
                     <textarea 
                       className="cd-anim-textarea" 
-                      placeholder="// Paste your JavaScript interactive logic here (without <script> tags)" 
+                      placeholder="// Paste your JavaScript interactive logic here (without <script> tags). Access JSON data using window.ANIMATION_DATA." 
                       value={contentForm.js_part} 
                       onChange={(e) => setContentForm({ ...contentForm, js_part: e.target.value })} 
+                    />
+                  )}
+                  {animTab === 'json' && (
+                    <textarea 
+                      className="cd-anim-textarea" 
+                      placeholder='{ "key": "value", "list": [1, 2, 3] }' 
+                      value={contentForm.json_part} 
+                      onChange={(e) => setContentForm({ ...contentForm, json_part: e.target.value })} 
                     />
                   )}
                   {animTab === 'output' && (
                     <div style={{ borderRadius: '12px', overflow: 'hidden', background: '#fff', height: '320px', border: '1px solid rgba(255,255,255,0.1)' }}>
                       <iframe
-                        srcDoc={compileHtmlContent(contentForm.html_part, contentForm.css_part, contentForm.js_part) || ANIM_PLACEHOLDER}
+                        srcDoc={compileHtmlContent(contentForm.html_part, contentForm.css_part, contentForm.js_part, contentForm.json_part) || ANIM_PLACEHOLDER}
                         title="Animation Preview"
                         style={{ width: '100%', height: '100%', border: 'none' }}
                         sandbox="allow-scripts"
