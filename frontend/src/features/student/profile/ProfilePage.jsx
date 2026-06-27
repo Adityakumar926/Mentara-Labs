@@ -552,75 +552,110 @@ export default function ProfilePage() {
           <div className="prof-hero-blob" style={{ width: 320, height: 320, background: 'radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%)', top: -80, left: -60 }} />
           <div className="prof-hero-blob" style={{ width: 200, height: 200, background: 'radial-gradient(circle, rgba(0,212,255,0.12) 0%, transparent 70%)', bottom: -40, right: -30, animationDelay: '-5s' }} />
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
-            {/* Avatar */}
-            <div style={{ position: 'relative' }}>
-              <div className="avatar-ring float-anim">
-                <div className="avatar-inner">
-                  {user?.avatar_url ? (
-                    <img src={user.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
-                  ) : (
-                    <span className="avatar-initials">{initials}</span>
-                  )}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '2rem',
+            flexWrap: 'wrap',
+            position: 'relative',
+            zIndex: 1
+          }}>
+            {/* Left side: Avatar & User Info */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', minWidth: 0, flex: '1 1 auto' }}>
+              {/* Avatar */}
+              <div style={{ position: 'relative', flexShrink: 0 }}>
+                <div className="avatar-ring float-anim">
+                  <div className="avatar-inner">
+                    {user?.avatar_url ? (
+                      <img src={user.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                    ) : (
+                      <span className="avatar-initials">{initials}</span>
+                    )}
+                  </div>
                 </div>
-              </div>
-              {user?.is_premium && (
-                <div className="premium-badge">⭐</div>
-              )}
-            </div>
-
-            {/* Name & email */}
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <motion.h1
-                initial={{ opacity: 0, x: -12 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 }}
-                style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 'clamp(1.2rem, 2.5vw, 1.6rem)', fontWeight: 700, letterSpacing: '-0.02em', marginBottom: '0.25rem' }}
-              >
-                {user?.full_name ?? 'Student'}
-              </motion.h1>
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.15 }}
-                style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '0.5rem' }}
-              >
-                {user?.email}
-              </motion.p>
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-                {user?.is_premium ? (
-                  <span style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
-                    background: 'linear-gradient(135deg, rgba(245,158,11,0.2), rgba(249,115,22,0.15))',
-                    border: '1px solid rgba(245,158,11,0.4)',
-                    padding: '0.25rem 0.85rem', borderRadius: '99px',
-                    fontSize: '0.72rem', fontWeight: 700,
-                    color: '#F59E0B', letterSpacing: '0.05em',
-                  }}>
-                    <Star size={10} fill="#F59E0B" /> PREMIUM
-                  </span>
-                ) : (
-                  <span style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    padding: '0.25rem 0.85rem', borderRadius: '99px',
-                    fontSize: '0.72rem', fontWeight: 600,
-                    color: 'var(--muted)', letterSpacing: '0.05em',
-                  }}>
-                    FREE PLAN
-                  </span>
+                {user?.is_premium && (
+                  <div className="premium-badge">⭐</div>
                 )}
-              </motion.div>
+              </div>
+
+              {/* Name & email */}
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <motion.h1
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                  style={{
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontSize: 'clamp(1.2rem, 2.5vw, 1.6rem)',
+                    fontWeight: 700,
+                    letterSpacing: '-0.02em',
+                    marginBottom: '0.25rem',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}
+                  title={user?.full_name}
+                >
+                  {user?.full_name ?? 'Student'}
+                </motion.h1>
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.15 }}
+                  style={{
+                    fontSize: '0.85rem',
+                    color: 'var(--muted)',
+                    marginBottom: '0.5rem',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}
+                  title={user?.email}
+                >
+                  {user?.email}
+                </motion.p>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+                  {user?.is_premium ? (
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                      background: 'linear-gradient(135deg, rgba(245,158,11,0.2), rgba(249,115,22,0.15))',
+                      border: '1px solid rgba(245,158,11,0.4)',
+                      padding: '0.25rem 0.85rem', borderRadius: '99px',
+                      fontSize: '0.72rem', fontWeight: 700,
+                      color: '#F59E0B', letterSpacing: '0.05em',
+                    }}>
+                      <Star size={10} fill="#F59E0B" /> PREMIUM
+                    </span>
+                  ) : (
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      padding: '0.25rem 0.85rem', borderRadius: '99px',
+                      fontSize: '0.72rem', fontWeight: 600,
+                      color: 'var(--muted)', letterSpacing: '0.05em',
+                    }}>
+                      FREE PLAN
+                    </span>
+                  )}
+                </motion.div>
+              </div>
             </div>
 
-            {/* Quick stats */}
+            {/* Right side: Quick stats */}
             {!loadingProfile && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.25 }}
-                style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}
+                style={{
+                  display: 'flex',
+                  gap: '0.75rem',
+                  flexWrap: 'wrap',
+                  justifyContent: 'flex-start',
+                  alignSelf: 'center'
+                }}
               >
                 {headerStats.map((s, i) => (
                   <motion.div
