@@ -385,19 +385,47 @@ export default function SubjectPage() {
   const { data: content, loading, refetch } = useApi(
     () => studentApi.getTopicContent(topicId), null, [topicId]
   );
-  const { mutate: logActivity } = useMutation(studentApi.logActivity);
-  const { mutate: getNoteUrl, loading: loadingNote } = useMutation(
-    studentApi.getNoteUrl, {
-      onSuccess: (res) => {
-        if (res.url) {
-          window.open(res.url, '_blank');
-        }
-      }
+  const handleOpenNote = async (noteId) => {
+    const pdfWindow = window.open('', '_blank');
+    if (pdfWindow) {
+      pdfWindow.document.write('<div style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;background:#0A0E1A;color:#fff;">Loading Note PDF...</div>');
     }
-  );
-  const { mutate: getAnimation } = useMutation(
-    studentApi.getAnimation, { onSuccess: (res) => openAnimInNewTab(res.data) }
-  );
+    try {
+      const res = await studentApi.getNoteUrl(noteId);
+      if (res.data.url && pdfWindow) {
+        pdfWindow.location.href = res.data.url;
+      } else if (pdfWindow) {
+        pdfWindow.close();
+      }
+    } catch (e) {
+      console.error(e);
+      if (pdfWindow) pdfWindow.close();
+      toast.error('Failed to open PDF.');
+    }
+  };
+
+  const handleOpenAnimation = async (animId) => {
+    const animWindow = window.open('', '_blank');
+    if (animWindow) {
+      animWindow.document.write('<div style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;background:#0A0E1A;color:#fff;">Loading Animation...</div>');
+    }
+    try {
+      const res = await studentApi.getAnimation(animId);
+      const anim = res.data.data;
+      if (anim?.html_content && animWindow) {
+        animWindow.document.open();
+        animWindow.document.write(anim.html_content);
+        animWindow.document.close();
+      } else if (animWindow) {
+        animWindow.close();
+      }
+    } catch (e) {
+      console.error(e);
+      if (animWindow) animWindow.close();
+      toast.error('Failed to open animation.');
+    }
+  };
+
   const { mutate: getWorksheetUrl } = useMutation(
     studentApi.getWorksheetUrl, { onSuccess: (res) => setWorksheetUrl(res.url) }
   );
@@ -461,20 +489,17 @@ export default function SubjectPage() {
       return;
     }
     if (item.content_type === 'note') {
-      logActivity({ activity_type: 'study', content_id: item.id });
-      getNoteUrl(item.id);
+      handleOpenNote(item.id);
       // Automatically track note completion on open
       studentApi.trackResource({ contentId: item.id, completed: true })
         .then(() => refetch())
         .catch(err => console.error('Failed to track note progress:', err));
     } else if (item.content_type === 'video') {
-      logActivity({ activity_type: 'video', content_id: item.id });
       setActiveVideoContentId(item.id);
       lastProgressRef.current = item.video_progress || 0;
       setVideoId(item.mux_playback_id);
     } else if (item.content_type === 'animation') {
-      logActivity({ activity_type: 'animation', content_id: item.id });
-      getAnimation(item.animation_id);
+      handleOpenAnimation(item.animation_id);
       // Automatically track animation completion on open
       studentApi.trackResource({ contentId: item.id, completed: true })
         .then(() => refetch())
@@ -666,10 +691,11 @@ export default function SubjectPage() {
 <\/script>
 </body>
 </html>`;
-    const blob = new Blob([html], { type: 'text/html' });
-    const url  = URL.createObjectURL(blob);
-    window.open(url, '_blank');
-    setTimeout(() => URL.revokeObjectURL(url), 15_000);
+    const wsWindow = window.open('', '_blank', 'width=980,height=750,resizable=yes,scrollbars=yes');
+    if (!wsWindow) return;
+    wsWindow.document.open();
+    wsWindow.document.write(html);
+    wsWindow.document.close();
   };
 
 

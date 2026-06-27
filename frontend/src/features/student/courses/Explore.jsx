@@ -298,21 +298,29 @@ export default function Explore() {
   // Launch animation in new tab
   const handleLaunchAnimation = async (content) => {
     if (content.is_premium && !isUserPremium) return;
+    
+    const animWindow = window.open('', '_blank');
+    if (animWindow) {
+      animWindow.document.write('<div style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;background:#0A0E1A;color:#fff;">Loading Animation...</div>');
+    }
+
     setLoadingActionId(content.id);
     try {
       const res = await studentApi.getAnimation(content.animation_id);
       const anim = res.data.data;
-      if (anim?.html_content) {
-        const blob = new Blob([anim.html_content], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
-        setTimeout(() => URL.revokeObjectURL(url), 10_000);
+      if (anim?.html_content && animWindow) {
+        animWindow.document.open();
+        animWindow.document.write(anim.html_content);
+        animWindow.document.close();
+      } else if (animWindow) {
+        animWindow.close();
       }
       // Track completion
       await studentApi.trackResource({ contentId: content.id, completed: true });
       refetch();
     } catch (e) {
       console.error('Failed to open animation:', e);
+      if (animWindow) animWindow.close();
     } finally {
       setLoadingActionId(null);
     }
@@ -321,16 +329,25 @@ export default function Explore() {
   // Open note PDF directly
   const handleOpenNote = async (content) => {
     if (content.is_premium && !isUserPremium) return;
+    
+    const pdfWindow = window.open('', '_blank');
+    if (pdfWindow) {
+      pdfWindow.document.write('<div style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;background:#0A0E1A;color:#fff;">Loading Note PDF...</div>');
+    }
+
     setLoadingActionId(content.id);
     try {
       const res = await studentApi.getNoteUrl(content.id);
-      if (res.data.url) {
-        window.open(res.data.url, '_blank');
+      if (res.data.url && pdfWindow) {
+        pdfWindow.location.href = res.data.url;
+      } else if (pdfWindow) {
+        pdfWindow.close();
       }
       await studentApi.trackResource({ contentId: content.id, completed: true });
       refetch();
     } catch (e) {
       console.error('Failed to get note URL:', e);
+      if (pdfWindow) pdfWindow.close();
     } finally {
       setLoadingActionId(null);
     }
@@ -339,6 +356,12 @@ export default function Explore() {
   // Open Worksheet canvas sandbox in a new popup window
   const handleOpenWorksheet = async (content) => {
     if (content.is_premium && !isUserPremium) return;
+
+    const wsWindow = window.open('', '_blank', 'width=980,height=750,resizable=yes,scrollbars=yes');
+    if (wsWindow) {
+      wsWindow.document.write('<div style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;background:#0A0E1A;color:#fff;">Loading Worksheet...</div>');
+    }
+
     setLoadingActionId(content.id);
     try {
       let wsUrl = content.file_url;
@@ -347,23 +370,26 @@ export default function Explore() {
         wsUrl = res.data.url;
       }
       
-      if (wsUrl) {
+      if (wsUrl && wsWindow) {
         // Setup window callback
         window.onWorksheetSubmit = (cid) => {
           studentApi.trackResource({ contentId: cid, completed: true })
             .then(() => refetch())
             .catch(err => console.error('Failed to update worksheet progress:', err));
         };
-        openWorksheetInNewTab(wsUrl, content.id);
+        openWorksheetInWindow(wsWindow, wsUrl, content.id);
+      } else if (wsWindow) {
+        wsWindow.close();
       }
     } catch (e) {
       console.error('Failed to open worksheet:', e);
+      if (wsWindow) wsWindow.close();
     } finally {
       setLoadingActionId(null);
     }
   };
 
-  const openWorksheetInNewTab = (imageUrl, contentId) => {
+  const openWorksheetInWindow = (win, imageUrl, contentId) => {
     const PALETTE_COLORS = [
       '#1a1a1a','#EF4444','#F97316','#EAB308',
       '#22C55E','#3B82F6','#8B5CF6','#EC4899','#ffffff',
@@ -550,9 +576,9 @@ export default function Explore() {
 </script>
 </body>
 </html>`;
-    const blob = new Blob([html], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank', 'width=980,height=750,resizable=yes,scrollbars=yes');
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
   };
 
   // Open video modal player
