@@ -119,6 +119,7 @@ export const studentApi = {
   // Profile
   getProfile:     ()     => api.get('/student/profile'),
   updateProfile:  (data) => api.put('/student/profile', data),
+  upgradePremium: ()     => api.post('/student/profile/upgrade-premium'),
   uploadAvatar:   (file) => {
     const fd = new FormData();
     fd.append('avatar', file);

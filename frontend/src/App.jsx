@@ -39,6 +39,7 @@ import ResultPage           from '@/features/student/exams/ResultPage';
 import ProfilePage          from '@/features/student/profile/ProfilePage';
 import ExplorePage          from '@/features/student/courses/Explore';
 import StudentQuestionsPage from '@/features/student/questions/QuestionsPage';
+import PremiumPage          from '@/features/student/premium/PremiumPage';
 
 export default function App() {
   const fetchMe = useAuthStore((s) => s.fetchMe);
@@ -96,6 +97,7 @@ export default function App() {
             <Route path="/explore"                                           element={<ExplorePage />} />
             <Route path="/exams/:id/result"                                  element={<ResultPage />} />
             <Route path="/profile"                                           element={<ProfilePage />} />
+            <Route path="/premium"                                           element={<PremiumPage />} />
           </Route>
         </Route>
 

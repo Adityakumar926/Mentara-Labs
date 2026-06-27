@@ -223,3 +223,26 @@ exports.getProgress = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+exports.upgradePremium = async (req, res) => {
+  try {
+    const studentId = req.user.id;
+    const { rows } = await db.query(
+      `UPDATE users
+       SET is_premium = true,
+           premium_expires_at = NOW() + INTERVAL '30 days',
+           updated_at = NOW()
+       WHERE id = $1
+       RETURNING id, email, full_name, role, is_premium, premium_expires_at, avatar_url, curriculum_id, class_id`,
+      [studentId]
+    );
+
+    res.json({
+      success: true,
+      message: 'Upgrade to premium successful!',
+      user: rows[0]
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
