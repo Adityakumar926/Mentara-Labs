@@ -144,35 +144,45 @@ exports.getProgress = async (req, res) => {
       curriculumId ? db.query(
         `SELECT
            c.id, c.name,
-           (SELECT COUNT(*) FROM subjects WHERE ($3::uuid IS NULL AND curriculum_id = $2) OR (class_id = $3))::integer AS total_subjects,
+           (
+             SELECT COUNT(*) 
+             FROM subjects s
+             JOIN classes cl ON cl.id = s.class_id
+             WHERE ($3::uuid IS NULL AND cl.curriculum_id = $2) OR (s.class_id = $3)
+           )::integer AS total_subjects,
            (
              SELECT COUNT(DISTINCT al.content_id)::integer
              FROM activity_logs al
              JOIN content ct ON ct.id = al.content_id
-             JOIN subjects s ON s.id = ct.subject_id
+             JOIN topics t ON t.id = ct.topic_id
+             JOIN subjects s ON s.id = t.subject_id
+             JOIN classes cl ON cl.id = s.class_id
              WHERE al.student_id = $1 
-               AND (($3::uuid IS NULL AND s.curriculum_id = $2) OR (s.class_id = $3))
+               AND (($3::uuid IS NULL AND cl.curriculum_id = $2) OR (s.class_id = $3))
                AND al.activity_type IN ('study', 'video', 'animation')
            ) AS studied_content,
            (
              SELECT COUNT(*)::integer
              FROM exams e
              JOIN subjects s ON s.id = e.subject_id
-             WHERE (($3::uuid IS NULL AND s.curriculum_id = $2) OR (s.class_id = $3)) AND e.status = 'live'
+             JOIN classes cl ON cl.id = s.class_id
+             WHERE (($3::uuid IS NULL AND cl.curriculum_id = $2) OR (s.class_id = $3)) AND e.status = 'live'
            ) AS total_exams,
            (
              SELECT COUNT(DISTINCT es.id)::integer
              FROM exam_submissions es
              JOIN exams e ON e.id = es.exam_id
              JOIN subjects s ON s.id = e.subject_id
-             WHERE es.student_id = $1 AND (($3::uuid IS NULL AND s.curriculum_id = $2) OR (s.class_id = $3))
+             JOIN classes cl ON cl.id = s.class_id
+             WHERE es.student_id = $1 AND (($3::uuid IS NULL AND cl.curriculum_id = $2) OR (s.class_id = $3))
            ) AS completed_exams,
            (
              SELECT ROUND(AVG(es.percentage), 2)::float
              FROM exam_submissions es
              JOIN exams e ON e.id = es.exam_id
              JOIN subjects s ON s.id = e.subject_id
-             WHERE es.student_id = $1 AND (($3::uuid IS NULL AND s.curriculum_id = $2) OR (s.class_id = $3))
+             JOIN classes cl ON cl.id = s.class_id
+             WHERE es.student_id = $1 AND (($3::uuid IS NULL AND cl.curriculum_id = $2) OR (s.class_id = $3))
            ) AS avg_exam_score
          FROM curriculums c
          WHERE c.id = $2`,
