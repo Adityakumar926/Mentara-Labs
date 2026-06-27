@@ -279,6 +279,10 @@ function StudentTopicNode({ topic, allTopics, curriculumId, subjectId, onToggleT
   const navigate = useNavigate();
   const isSub = !!topic.parent_topic_id;
 
+  const rCount = Number(topic.resource_count || 0);
+  const eCount = Number(topic.exam_count || 0);
+  const total = rCount + eCount;
+
   return (
     <div className={isSub ? 'top-subtopic-row' : 'top-parent-card'} style={{ marginLeft: isSub ? '0.5rem' : '0' }}>
       <div className="top-item-row">
@@ -300,10 +304,10 @@ function StudentTopicNode({ topic, allTopics, curriculumId, subjectId, onToggleT
         >
           <div className="top-name">
             {topic.name}
-            {(topic.resource_count > 0 || topic.exam_count > 0) && (
+            {(rCount > 0 || eCount > 0) && (
               <span className="top-resource-count">
-                {topic.resource_count + topic.exam_count} resource{topic.resource_count + topic.exam_count !== 1 ? 's' : ''}
-                {topic.exam_count > 0 && ` (${topic.exam_count} exam${topic.exam_count !== 1 ? 's' : ''})`}
+                {total} resource{total !== 1 ? 's' : ''}
+                {eCount > 0 && ` (${eCount} exam${eCount !== 1 ? 's' : ''})`}
               </span>
             )}
           </div>

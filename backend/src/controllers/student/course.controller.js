@@ -86,8 +86,8 @@ exports.getSubjectTopics = async (req, res) => {
     const { rows } = await db.query(
       `SELECT t.*,
               up.completed AS is_completed,
-              (SELECT COUNT(*) FROM content c WHERE c.topic_id = t.id) AS resource_count,
-              (SELECT COUNT(*) FROM exams e WHERE e.topic_id = t.id AND e.status IN ('live', 'scheduled', 'ended')
+              (SELECT COUNT(*)::int FROM content c WHERE c.topic_id = t.id) AS resource_count,
+              (SELECT COUNT(*)::int FROM exams e WHERE e.topic_id = t.id AND e.status IN ('live', 'scheduled', 'ended')
                  AND (e.batch_id IS NULL OR EXISTS (
                    SELECT 1 FROM batch_students bs
                    WHERE bs.batch_id = e.batch_id AND bs.student_id = $1
