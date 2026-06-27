@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BookOpen, FileText, User, LogOut, Compass, HelpCircle, ChevronRight, Sparkles } from 'lucide-react';
@@ -19,6 +20,20 @@ const CSS = `
     display: flex; height: 100vh; overflow: hidden;
     background: #0A0E1A;
     font-family: 'Inter', sans-serif;
+  }
+
+  /* Global image protection: prevent drag-and-drop copies and direct pointer interactions */
+  .sl-root img {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    pointer-events: none;
   }
 
   /* ── SIDEBAR (desktop) ── */
@@ -244,6 +259,28 @@ const CSS = `
 export default function StudentLayout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+
+  // Prevent saving/copying images via context menus or dragging
+  useEffect(() => {
+    const preventImageSave = (e) => {
+      if (e.target.tagName === 'IMG') {
+        e.preventDefault();
+      }
+    };
+    const preventImageDrag = (e) => {
+      if (e.target.tagName === 'IMG') {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('contextmenu', preventImageSave);
+    document.addEventListener('dragstart', preventImageDrag);
+
+    return () => {
+      document.removeEventListener('contextmenu', preventImageSave);
+      document.removeEventListener('dragstart', preventImageDrag);
+    };
+  }, []);
 
   const handleLogout = async () => {
     await logout();
