@@ -72,6 +72,8 @@ exports.getOne = async (req, res) => {
                'question_type', q.question_type,
                'options', q.options,
                'correct_answer', q.correct_answer,
+               'image_url', q.image_url,
+               'explanation', q.explanation,
                'marks', eq.marks,
                'order_index', eq.order_index
              ) ORDER BY eq.order_index
@@ -149,7 +151,7 @@ exports.update = async (req, res) => {
          total_marks      = COALESCE($7,  total_marks),
          passing_marks    = COALESCE($8,  passing_marks),
          is_premium       = COALESCE($9,  is_premium)
-       WHERE id = $10 AND (status = 'draft' OR status = 'scheduled')
+       WHERE id = $10 AND status != 'live'
        RETURNING *`,
       [
         title        || null,
@@ -165,7 +167,7 @@ exports.update = async (req, res) => {
       ]
     );
     if (!rows[0])
-      return res.status(404).json({ success: false, message: 'Exam not found or not in draft/scheduled status' });
+      return res.status(404).json({ success: false, message: 'Exam not found or cannot be edited (live status)' });
     res.json({ success: true, data: rows[0] });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -175,11 +177,11 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
   try {
     const { rowCount } = await db.query(
-      `DELETE FROM exams WHERE id = $1 AND (status = 'draft' OR status = 'scheduled')`,
+      `DELETE FROM exams WHERE id = $1 AND status != 'live'`,
       [req.params.id]
     );
     if (!rowCount)
-      return res.status(400).json({ success: false, message: 'Only draft or scheduled exams can be deleted' });
+      return res.status(400).json({ success: false, message: 'Live exams cannot be deleted' });
     res.json({ success: true, message: 'Exam deleted' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -259,6 +261,13 @@ exports.addQuestions = async (req, res) => {
     if (!questions?.length)
       return res.status(400).json({ success: false, message: 'questions array is required' });
 
+    // Check if exam is live
+    const { rows: examCheck } = await client.query('SELECT status FROM exams WHERE id = $1', [req.params.id]);
+    if (examCheck[0]?.status === 'live') {
+      client.release();
+      return res.status(400).json({ success: false, message: 'Cannot modify questions of a live exam' });
+    }
+
     await client.query('BEGIN');
     for (const q of questions) {
       await client.query(
@@ -289,6 +298,14 @@ exports.removeQuestion = async (req, res) => {
   const client = await db.pool.connect();
   try {
     const { questionId } = req.params;
+
+    // Check if exam is live
+    const { rows: examCheck } = await client.query('SELECT status FROM exams WHERE id = $1', [req.params.id]);
+    if (examCheck[0]?.status === 'live') {
+      client.release();
+      return res.status(400).json({ success: false, message: 'Cannot modify questions of a live exam' });
+    }
+
     await client.query('BEGIN');
     await client.query(
       `DELETE FROM exam_questions WHERE exam_id = $1 AND question_id = $2`,
