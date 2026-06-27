@@ -572,7 +572,9 @@ export default function QuestionsPage() {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '1rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                         <span className={`qp-type-pill ${typeClass(q.question_type)}`}>
-                          {q.question_type === 'photo' ? 'structure' : q.question_type.replace('_', ' ')}
+                          {q.question_type === 'photo' 
+                            ? 'structure' 
+                            : (q.question_type ? q.question_type.replace('_', ' ') : 'mcq')}
                         </span>
                         {q.difficulty && (
                           <span className={`${diffClass(q.difficulty)} qp-diff`}>
@@ -633,7 +635,9 @@ export default function QuestionsPage() {
                           return (
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '0.5rem', marginTop: '0.65rem' }}>
                               {opts.map((opt, oIdx) => {
-                                const isCorrect = String(q.correct_answer).toUpperCase() === String(opt.key || opt.id || String.fromCharCode(65 + oIdx)).toUpperCase();
+                                if (!opt) return null;
+                                const optKey = String(opt.key || opt.id || String.fromCharCode(65 + oIdx)).toUpperCase();
+                                const isCorrect = String(q.correct_answer).toUpperCase() === optKey;
                                 return (
                                   <div 
                                     key={oIdx} 
@@ -652,7 +656,7 @@ export default function QuestionsPage() {
                                     <strong style={{ color: isCorrect ? '#34D399' : 'rgba(250,250,250,0.3)' }}>
                                       {opt.key || String.fromCharCode(65 + oIdx)}.
                                     </strong>
-                                    <span>{opt.text || opt.value || opt}</span>
+                                    <span>{opt.text || opt.value || (typeof opt === 'string' ? opt : '')}</span>
                                     {isCorrect && (
                                       <span style={{ marginLeft: 'auto', background: 'rgba(16,185,129,0.2)', color: '#34D399', fontSize: '0.55rem', padding: '0.1rem 0.3rem', borderRadius: '4px', textTransform: 'uppercase', fontWeight: 700 }}>
                                         Correct
@@ -711,7 +715,7 @@ export default function QuestionsPage() {
               <Select label="Curriculum" value={form.curriculum_id}
                 onChange={(e) => handleCurriculumChange(e.target.value)}>
                 <option value="">Select curriculum…</option>
-                {(curriculums ?? []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                {(Array.isArray(curriculums) ? curriculums : []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </Select>
               <Select label="Class" value={form.class_id}
                 onChange={(e) => handleClassChange(e.target.value)}>
