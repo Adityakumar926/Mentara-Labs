@@ -6,7 +6,7 @@ import NotificationBell from '@/components/shared/NotificationBell';
 
 const NAV = [
   { to: '/courses',   icon: BookOpen,   label: 'Courses'   },
-  { to: '/batches',   icon: Compass,    label: 'Explore'   },
+  { to: '/explore',   icon: Compass,    label: 'Explore'   },
   { to: '/exams',     icon: FileText,   label: 'Exams'     },
   { to: '/questions', icon: HelpCircle, label: 'Questions' },
   { to: '/profile',   icon: User,       label: 'Profile'   },

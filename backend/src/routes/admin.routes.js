@@ -14,7 +14,6 @@ const topicCtrl = require('../controllers/admin/topic.controller');
 const qCtrl     = require('../controllers/admin/question.controller');
 const examCtrl  = require('../controllers/admin/exam.controller');
 const animCtrl  = require('../controllers/admin/animation.controller');
-const batchCtrl = require('../controllers/admin/batch.controller');
 const hierarchyCtrl = require('../controllers/admin/hierarchy.controller');
 
 // All admin routes require auth + admin role
@@ -149,16 +148,6 @@ router.patch('/animations/:id/star',    animCtrl.toggleStar);
 router.patch('/animations/:id/premium', animCtrl.togglePremium);
 router.get('/animations/:id/preview',   animCtrl.preview);
 
-// ─── BATCHES ──────────────────────────────────────────────────────────────────
-router.get('/batches',                            batchCtrl.getAll);
-router.post('/batches',                           batchCtrl.create);
-router.get('/batches/:id',                        batchCtrl.getOne);
-router.put('/batches/:id',                        batchCtrl.update);
-router.delete('/batches/:id',                     batchCtrl.delete);
-router.post('/batches/:id/students',              batchCtrl.addStudents);
-router.delete('/batches/:id/students/:studentId', batchCtrl.removeStudent);
-router.get('/batches/:id/available-students',     batchCtrl.getAvailableStudents);
-router.get('/batches/:id/analytics',              batchCtrl.getBatchAnalytics);
 
 // ─── STUDENTS / USERS ─────────────────────────────────────────────────────────
 router.get('/students', async (req, res) => {

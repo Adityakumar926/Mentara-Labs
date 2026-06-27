@@ -25,8 +25,6 @@ import CurriculumDetail from '@/features/admin/curriculum/CurriculumDetail';
 import QuestionsPage    from '@/features/admin/questions/QuestionsPage';
 import ExamsAdminPage   from '@/features/admin/exams/ExamsPage';
 import ExamDetail       from '@/features/admin/exams/ExamDetail';
-import BatchesPage      from '@/features/admin/batches/BatchesPage';
-import BatchDetail      from '@/features/admin/batches/BatchDetail';
 import StudentsPage     from '@/features/admin/students/StudentsPage';
 
 // Student pages
@@ -39,7 +37,7 @@ import ExamsStudentPage     from '@/features/student/exams/ExamsPage';
 import ExamTakePage         from '@/features/student/exams/ExamTakePage';
 import ResultPage           from '@/features/student/exams/ResultPage';
 import ProfilePage          from '@/features/student/profile/ProfilePage';
-import ExploreBatchesPage   from '@/features/student/courses/ExploreBatches';
+import ExplorePage          from '@/features/student/courses/Explore';
 import StudentQuestionsPage from '@/features/student/questions/QuestionsPage';
 
 export default function App() {
@@ -76,8 +74,6 @@ export default function App() {
             <Route path="/admin/questions"      element={<QuestionsPage />} />
             <Route path="/admin/exams"          element={<ExamsAdminPage />} />
             <Route path="/admin/exams/:id"      element={<ExamDetail />} />
-            <Route path="/admin/batches"        element={<BatchesPage />} />
-            <Route path="/admin/batches/:id"    element={<BatchDetail />} />
             <Route path="/admin/students"       element={<StudentsPage />} />
           </Route>
         </Route>
@@ -97,7 +93,7 @@ export default function App() {
             <Route path="/questions"                                         element={<StudentQuestionsPage />} />
             <Route path="/exams"                                             element={<ExamsStudentPage />} />
             <Route path="/exams/:id/take"                                    element={<ExamTakePage />} />
-            <Route path="/batches"                                           element={<ExploreBatchesPage />} />
+            <Route path="/explore"                                           element={<ExplorePage />} />
             <Route path="/exams/:id/result"                                  element={<ResultPage />} />
             <Route path="/profile"                                           element={<ProfilePage />} />
           </Route>

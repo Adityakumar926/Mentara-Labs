@@ -102,16 +102,6 @@ export const adminApi = {
   toggleAnimationPremium: (id)       => api.patch(`/admin/animations/${id}/premium`),
   previewAnimation:       (id)       => api.get(`/admin/animations/${id}/preview`),
 
-  // Batches
-  getBatches:           (params)     => api.get('/admin/batches', { params }),
-  getBatch:             (id)         => api.get(`/admin/batches/${id}`),
-  createBatch:          (data)       => api.post('/admin/batches', data),
-  updateBatch:          (id, data)   => api.put(`/admin/batches/${id}`, data),
-  deleteBatch:          (id)         => api.delete(`/admin/batches/${id}`),
-  addBatchStudents:     (id, ids)    => api.post(`/admin/batches/${id}/students`, { student_ids: ids }),
-  removeBatchStudent:   (id, sid)    => api.delete(`/admin/batches/${id}/students/${sid}`),
-  getAvailableStudents: (id, params) => api.get(`/admin/batches/${id}/available-students`, { params }),
-  getBatchAnalytics:    (id)         => api.get(`/admin/batches/${id}/analytics`),
 
   // Students
   getStudents:          (params)   => api.get('/admin/students', { params }),
@@ -122,9 +112,7 @@ export const adminApi = {
 export const studentApi = {
 
   getScheduledExams: () => api.get('/student/exams/scheduled'),
-  getAllBatches: ()   => api.get('/student/batches'),
-  joinBatch:    (id) => api.post(`/student/batches/${id}/join`),
-  leaveBatch:   (id) => api.delete(`/student/batches/${id}/leave`),
+  getExploreContents: () => api.get('/student/explore'),
 
   getLiveExams: () => api.get('/student/exams'),
 

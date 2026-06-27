@@ -346,3 +346,145 @@ exports.getCurriculumClasses = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+// Get all subjects, contents, and exams for student class (Explore Dashboard)
+exports.getExploreContents = async (req, res) => {
+  try {
+    if (!req.user.class_id) {
+      return res.json({ success: true, data: { subjects: [], contents: [], exams: [] } });
+    }
+    const isPremium = req.user.is_premium;
+
+    // 1. Get all subjects of the student's class
+    const { rows: subjects } = await db.query(
+      `SELECT s.*, 
+              cl.name AS class_name,
+              curr.name AS curriculum_name
+       FROM subjects s
+       JOIN classes cl ON cl.id = s.class_id
+       JOIN curriculums curr ON curr.id = cl.curriculum_id
+       WHERE s.class_id = $1
+       ORDER BY s.order_index`,
+      [req.user.class_id]
+    );
+
+    // 2. Get all content items of all subjects in this class
+    const { rows: contents } = await db.query(
+      `SELECT c.id,
+              c.title,
+              c.content_type,
+              c.order_index,
+              c.is_premium,
+              c.topic_id,
+              t.name AS topic_name,
+              s.id AS subject_id,
+              s.name AS subject_name,
+              CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.file_url          END AS file_url,
+              CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.mux_playback_id   END AS mux_playback_id,
+              CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.animation_id      END AS animation_id,
+              up.completed AS is_completed
+       FROM content c
+       JOIN topics t ON t.id = c.topic_id
+       JOIN subjects s ON s.id = t.subject_id
+       LEFT JOIN user_progress up ON up.content_id = c.id AND up.user_id = $3
+       WHERE s.class_id = $1
+       ORDER BY s.order_index, t.order_index, c.order_index`,
+      [req.user.class_id, isPremium, req.user.id]
+    );
+
+    // 3. Get all live and scheduled exams for this class
+    const { rows: exams } = await db.query(
+      `SELECT e.id,
+              e.title,
+              e.description,
+              e.duration_minutes,
+              e.total_marks,
+              e.passing_marks,
+              e.is_premium,
+              e.status,
+              e.scheduled_at,
+              e.ends_at,
+              e.subject_id,
+              e.topic_id,
+              s.name AS subject_name,
+              t.name AS topic_name,
+              es.status AS submission_status,
+              es.id AS submission_id
+       FROM exams e
+       JOIN subjects s ON s.id = e.subject_id
+       LEFT JOIN topics t ON t.id = e.topic_id
+       LEFT JOIN exam_submissions es ON es.exam_id = e.id AND es.student_id = $2
+       WHERE s.class_id = $1
+         AND e.status IN ('live', 'scheduled')
+       ORDER BY e.created_at DESC`,
+      [req.user.class_id, req.user.id]
+    );
+
+    res.json({
+      success: true,
+      data: {
+        subjects,
+        contents,
+        exams
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// GET /student/exams — live exams from enrolled classes (no batches)
+exports.getLiveExams = async (req, res) => {
+  try {
+    if (!req.user.class_id) {
+      return res.json({ success: true, data: [] });
+    }
+
+    const { rows } = await db.query(
+      `SELECT
+         e.id, e.title, e.description, e.duration_minutes,
+         e.total_marks, e.passing_marks, e.is_premium,
+         e.scheduled_at, e.ends_at,
+         s.name AS subject_name,
+         EXISTS (
+           SELECT 1 FROM exam_submissions es
+           WHERE es.exam_id = e.id AND es.student_id = $1
+         ) AS already_attempted
+       FROM exams e
+       JOIN subjects s ON s.id = e.subject_id
+       WHERE s.class_id = $2
+         AND e.status = 'live'
+       ORDER BY e.ends_at ASC`,
+      [req.user.id, req.user.class_id]
+    );
+    res.json({ success: true, data: rows });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// GET /student/exams/scheduled — upcoming exams from enrolled classes (no batches)
+exports.getScheduledExams = async (req, res) => {
+  try {
+    if (!req.user.class_id) {
+      return res.json({ success: true, data: [] });
+    }
+
+    const { rows } = await db.query(
+      `SELECT
+         e.id, e.title, e.description, e.duration_minutes,
+         e.total_marks, e.passing_marks, e.is_premium,
+         e.scheduled_at, e.ends_at,
+         s.name AS subject_name
+       FROM exams e
+       JOIN subjects s ON s.id = e.subject_id
+       WHERE s.class_id = $2
+         AND e.status = 'scheduled'
+       ORDER BY e.scheduled_at ASC`,
+      [req.user.id, req.user.class_id]
+    );
+    res.json({ success: true, data: rows });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};

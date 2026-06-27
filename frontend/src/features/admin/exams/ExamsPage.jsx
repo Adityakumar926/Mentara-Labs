@@ -14,7 +14,7 @@ const BLANK = {
   title: '', description: '',
   duration_minutes: 60, total_marks: 100, passing_marks: 40,
   is_premium: false,
-  subject_id: '', batch_id: '',
+  subject_id: '',
   curriculum_id: '', class_id: '', topic_id: '',
 };
 
@@ -317,7 +317,6 @@ export default function ExamsPage() {
   );
   
   const { data: curriculums } = useApi(adminApi.getCurriculums);
-  const { data: batches } = useApi(adminApi.getBatches);
   const { data: subjects } = useApi(adminApi.getSubjects);
   const { data: hierarchy } = useApi(adminApi.getHierarchy);
 
@@ -406,7 +405,6 @@ export default function ExamsPage() {
   };
 
   const filtered    = (exams ?? []).filter((e) => !filter || e.status === filter);
-  const batchList   = batches?.data ?? batches ?? [];
 
   return (
     <PageWrapper className="p-0">
@@ -494,15 +492,12 @@ export default function ExamsPage() {
                         </div>
                       </div>
 
-                      {(e.batch_name || e.subject_name) && (
+                      {e.subject_name && (
                         <div className="ep-card-meta">
-                          {e.batch_name   && <span>{e.batch_name}</span>}
-                          {e.subject_name && (
-                            <span style={{ color: 'var(--violet-l)' }}>
-                              {e.subject_name}
-                              {e.topic_name && ` • ${e.topic_name}`}
-                            </span>
-                          )}
+                          <span style={{ color: 'var(--violet-l)' }}>
+                            {e.subject_name}
+                            {e.topic_name && ` • ${e.topic_name}`}
+                          </span>
                         </div>
                       )}
 
@@ -538,11 +533,7 @@ export default function ExamsPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <Input label="Title" placeholder="e.g. Mid-term Exam" value={form.title} onChange={(e) => set('title', e.target.value)} />
             <Textarea label="Description" rows={2} value={form.description} onChange={(e) => set('description', e.target.value)} />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '0.75rem' }}>
-              <Select label="Batch" value={form.batch_id} onChange={(e) => set('batch_id', e.target.value)}>
-                <option value="">No batch</option>
-                {batchList.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-              </Select>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem' }}>
               <Select label="Curriculum" value={form.curriculum_id} onChange={(e) => handleCurriculumChange(e.target.value)}>
                 <option value="">No curriculum</option>
                 {(curriculums ?? []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}

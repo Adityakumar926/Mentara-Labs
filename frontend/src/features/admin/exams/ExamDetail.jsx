@@ -399,7 +399,7 @@ const BLANK = {
   title: '', description: '',
   duration_minutes: 60, total_marks: 100, passing_marks: 40,
   is_premium: false,
-  subject_id: '', batch_id: '',
+  subject_id: '',
   curriculum_id: '', class_id: '', topic_id: '',
 };
 
@@ -423,7 +423,6 @@ export default function ExamDetail() {
 
   const { data: exam, loading, refetch } = useApi(() => adminApi.getExam(id), null, [id]);
   const { data: curriculums } = useApi(adminApi.getCurriculums);
-  const { data: batches } = useApi(adminApi.getBatches);
   const { data: subjects } = useApi(adminApi.getSubjects);
   
   const { data: allQuestions } = useApi(
@@ -551,7 +550,6 @@ export default function ExamDetail() {
       passing_marks: exam.passing_marks || '',
       is_premium: exam.is_premium || false,
       subject_id: exam.subject_id || '',
-      batch_id: exam.batch_id || '',
       curriculum_id: exam.curriculum_id || '',
       class_id: exam.class_id || '',
       topic_id: exam.topic_id || '',
@@ -1058,11 +1056,7 @@ export default function ExamDetail() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <Input label="Title" placeholder="e.g. Mid-term Exam" value={editForm.title} onChange={(e) => setEdit('title', e.target.value)} />
             <Textarea label="Description" rows={2} value={editForm.description} onChange={(e) => setEdit('description', e.target.value)} />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '0.75rem' }}>
-              <Select label="Batch" value={editForm.batch_id} onChange={(e) => setEdit('batch_id', e.target.value)}>
-                <option value="">No batch</option>
-                {(batches?.data || batches || []).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-              </Select>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.75rem' }}>
               <Select label="Curriculum" value={editForm.curriculum_id} onChange={(e) => handleEditCurriculumChange(e.target.value)}>
                 <option value="">No curriculum</option>
                 {(curriculums ?? []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}

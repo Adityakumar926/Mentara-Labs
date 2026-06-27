@@ -9,12 +9,11 @@ const courseCtrl      = require('../controllers/student/course.controller');
 const examsubmitCtrl  = require('../controllers/student/examsubmit.controller');
 const streakCtrl      = require('../controllers/student/streak.controller');
 const profileCtrl     = require('../controllers/student/profile.controller');
-const batchEnrollCtrl = require('../controllers/student/batch.enrollment.controller');
 const progressCtrl = require('../controllers/student/progress.controller');
 const notificationController = require('../controllers/student/notification.controller');
 
 // Guard: ensure controllers loaded
-const controllers = { courseCtrl, examsubmitCtrl, streakCtrl, profileCtrl, batchEnrollCtrl, progressCtrl, notificationController };
+const controllers = { courseCtrl, examsubmitCtrl, streakCtrl, profileCtrl, progressCtrl, notificationController };
 for (const [name, ctrl] of Object.entries(controllers)) {
   if (!ctrl || (typeof ctrl !== 'object' && typeof ctrl !== 'function')) {
     throw new Error(`Controller "${name}" failed to load. Check file path and exports.`);
@@ -54,12 +53,10 @@ if (typeof streakCtrl.logActivity      === 'function') router.post('/activity', 
 if (typeof streakCtrl.getCalendar      === 'function') router.get('/streak/calendar', streakCtrl.getCalendar);
 if (typeof streakCtrl.getYearlyHeatmap === 'function') router.get('/streak/heatmap',  streakCtrl.getYearlyHeatmap);
 
-// ─── BATCH ENROLLMENT ─────────────────────────────────────────────────────────
-router.get('/batches',              batchEnrollCtrl.getAllBatches);
-router.post('/batches/:id/join',    batchEnrollCtrl.joinBatch);
-router.delete('/batches/:id/leave', batchEnrollCtrl.leaveBatch);
-router.get('/exams/scheduled',      batchEnrollCtrl.getScheduledExams);
-router.get('/exams',                batchEnrollCtrl.getLiveExams);
+// ─── EXPLORE & EXAMS ──────────────────────────────────────────────────────────
+router.get('/explore',              courseCtrl.getExploreContents);
+router.get('/exams/scheduled',      courseCtrl.getScheduledExams);
+router.get('/exams',                courseCtrl.getLiveExams);
 
 // ─── CURRICULUMS ──────────────────────────────────────────────────────────────
 if (typeof courseCtrl.getMyCurriculums      === 'function') router.get('/curriculums',                        courseCtrl.getMyCurriculums);

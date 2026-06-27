@@ -1,4 +1,4 @@
-import { Users, FileText, HelpCircle, Star, GraduationCap, TrendingUp, Activity } from 'lucide-react';
+import { Users, FileText, HelpCircle, Star, TrendingUp, Activity } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { motion } from 'framer-motion';
 import { PageWrapper, Skeleton } from '@/components/ui';
@@ -295,7 +295,6 @@ export default function DashboardPage() {
     { icon: Star,          label: 'Premium Users',  value: data?.premiumUsers ?? 0,   variant: 'amber'  },
     { icon: FileText,      label: 'Total Exams',    value: data?.examsByStatus?.reduce((a, e) => a + parseInt(e.count), 0) ?? 0, variant: 'green' },
     { icon: HelpCircle,    label: 'Questions',      value: data?.questionsByType?.reduce((a, q) => a + parseInt(q.count), 0) ?? 0, variant: 'cyan' },
-    { icon: GraduationCap, label: 'Batches',        value: data?.totalBatches ?? 0,   variant: 'green'  },
   ];
 
   const examStatusData = data?.examsByStatus?.map((e) => ({
