@@ -104,24 +104,13 @@ const CSS = `
     border-radius: 20px;
     text-decoration: none; color: inherit;
     cursor: pointer; position: relative; overflow: hidden;
-    transition: border-color 0.25s, background 0.25s, transform 0.2s, box-shadow 0.25s;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
   }
   .subj-card:hover {
-    border-color: rgba(124,58,237,0.35);
-    background: rgba(124,58,237,0.05);
-    transform: translateX(4px);
-    box-shadow: 0 8px 32px rgba(124,58,237,0.1);
+    border-color: rgba(124,58,237,0.3);
+    background: rgba(124,58,237,0.04);
+    box-shadow: 0 4px 20px rgba(10,14,26,0.25);
   }
-  .subj-card::before {
-    content: '';
-    position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-    background: linear-gradient(180deg, var(--violet), var(--cyan));
-    border-radius: 0 3px 3px 0;
-    transform: scaleY(0);
-    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
-    transform-origin: center;
-  }
-  .subj-card:hover::before { transform: scaleY(1); }
 
   /* Index bubble */
   .subj-index {
@@ -131,11 +120,10 @@ const CSS = `
     display: flex; align-items: center; justify-content: center;
     font-family: 'Space Grotesk', sans-serif;
     font-size: 0.78rem; font-weight: 700; color: var(--lavender);
-    transition: background 0.25s, transform 0.25s;
+    transition: background 0.2s;
   }
   .subj-card:hover .subj-index {
-    background: rgba(124,58,237,0.22);
-    transform: scale(1.07);
+    background: rgba(124,58,237,0.18);
   }
 
   /* Text */
@@ -167,11 +155,10 @@ const CSS = `
     width: 30px; height: 30px; border-radius: 10px; flex-shrink: 0;
     background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.15);
     display: flex; align-items: center; justify-content: center;
-    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    transition: background 0.2s, border-color 0.2s;
   }
   .subj-card:hover .subj-arrow {
-    background: rgba(124,58,237,0.2); border-color: rgba(124,58,237,0.4);
-    transform: translateX(2px);
+    background: rgba(124,58,237,0.15); border-color: rgba(124,58,237,0.3);
   }
 
   /* ── SKELETON ── */

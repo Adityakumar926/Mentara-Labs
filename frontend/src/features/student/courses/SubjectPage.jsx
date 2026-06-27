@@ -114,34 +114,21 @@ const CSS = `
     padding: 1rem 1.15rem;
     display: flex; align-items: center; gap: 1rem;
     cursor: pointer; text-align: left;
-    transition: border-color 0.25s, background 0.25s, transform 0.2s, box-shadow 0.25s;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
     position: relative; overflow: hidden;
   }
   .sp-item:not(.locked):hover {
-    border-color: rgba(124,58,237,0.35);
-    background: rgba(124,58,237,0.06);
-    transform: translateX(3px);
-    box-shadow: 0 8px 32px rgba(124,58,237,0.12);
+    border-color: rgba(124,58,237,0.3);
+    background: rgba(124,58,237,0.04);
+    box-shadow: 0 4px 20px rgba(10,14,26,0.25);
   }
   .sp-item.locked { opacity: 0.55; cursor: not-allowed; }
-
-  .sp-item:not(.locked)::before {
-    content: '';
-    position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-    background: linear-gradient(180deg, var(--violet), var(--cyan));
-    border-radius: 0 3px 3px 0;
-    transform: scaleY(0);
-    transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
-    transform-origin: center;
-  }
-  .sp-item:not(.locked):hover::before { transform: scaleY(1); }
 
   .sp-icon-bubble {
     width: 44px; height: 44px; border-radius: 14px;
     display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; transition: transform 0.25s, background 0.25s;
+    flex-shrink: 0; transition: background 0.2s;
   }
-  .sp-item:not(.locked):hover .sp-icon-bubble { transform: scale(1.08); }
   .sp-icon-note      { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
   .sp-icon-video     { background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.2); }
   .sp-icon-anim      { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); }
