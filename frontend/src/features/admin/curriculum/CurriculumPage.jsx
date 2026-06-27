@@ -390,7 +390,7 @@ export default function CurriculumPage() {
 
                     <div className="cp-stats-row">
                       <span className="cp-stat-chip">
-                        <BookOpen size={11} /> {c.subject_count ?? 0} subjects
+                        <BookOpen size={11} /> {c.class_count ?? 0} class{c.class_count !== 1 ? 'es' : ''}
                       </span>
                       <span className="cp-stat-chip">
                         <Users size={11} /> {c.student_count ?? 0} students
