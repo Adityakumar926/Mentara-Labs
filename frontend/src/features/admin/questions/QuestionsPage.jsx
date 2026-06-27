@@ -337,6 +337,7 @@ export default function QuestionsPage() {
   const [deleteId, setDeleteId] = useState(null);
   const [imageUploading, setImageUploading] = useState(false);
   const [imageError, setImageError]         = useState('');
+  const [activeImage, setActiveImage]       = useState(null);
 
   const { data: questions, loading, refetch } = useApi(
     adminApi.getQuestions,
@@ -680,7 +681,11 @@ export default function QuestionsPage() {
 
                       {/* Question Image (Right side if exists) */}
                       {q.image_url && (
-                        <div style={{ flexShrink: 0, maxWidth: '140px' }}>
+                        <div 
+                          onClick={() => setActiveImage(q.image_url)}
+                          style={{ flexShrink: 0, maxWidth: '140px', cursor: 'zoom-in', transition: 'transform 0.2s' }}
+                          className="hover:scale-105"
+                        >
                           <img 
                             src={q.image_url} 
                             alt="Question" 
@@ -861,6 +866,13 @@ export default function QuestionsPage() {
           title="Delete Question"
           description="This will permanently delete the question and remove it from all exams. This cannot be undone."
           danger />
+
+        {/* ── Image Preview Modal ── */}
+        <Modal open={!!activeImage} onClose={() => setActiveImage(null)} title="Image Preview" size="xl">
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', background: 'rgba(0,0,0,0.2)', borderRadius: '16px' }}>
+            <img src={activeImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '75vh', borderRadius: '12px', objectFit: 'contain', border: '1px solid rgba(255,255,255,0.1)' }} />
+          </div>
+        </Modal>
 
       </div>
     </PageWrapper>

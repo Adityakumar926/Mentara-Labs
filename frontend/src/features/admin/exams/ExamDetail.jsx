@@ -416,6 +416,7 @@ export default function ExamDetail() {
   const [confirmRescheduleOpen, setConfirmRescheduleOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [viewingQuestion, setViewingQuestion] = useState(null);
+  const [activeImage, setActiveImage]         = useState(null);
 
   const [editModal, setEditModal] = useState(false);
   const [editForm, setEditForm]   = useState(BLANK);
@@ -978,7 +979,11 @@ export default function ExamDetail() {
                             <img 
                               src={q.image_url} 
                               alt="thumbnail" 
-                              style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.2)' }} 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveImage(q.image_url);
+                              }}
+                              style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.2)', cursor: 'zoom-in' }} 
                             />
                           )}
                         </div>
@@ -1207,7 +1212,13 @@ export default function ExamDetail() {
               <div className="ed-q-view-title">{viewingQuestion.question_text}</div>
               
               {viewingQuestion.image_url && (
-                <img src={viewingQuestion.image_url} alt="Question" className="ed-q-view-img" />
+                <img 
+                  src={viewingQuestion.image_url} 
+                  alt="Question" 
+                  className="ed-q-view-img" 
+                  onClick={() => setActiveImage(viewingQuestion.image_url)}
+                  style={{ cursor: 'zoom-in' }}
+                />
               )}
               
               {(() => {
@@ -1243,6 +1254,13 @@ export default function ExamDetail() {
               </div>
             </div>
           )}
+        </Modal>
+
+        {/* ── Image Preview Modal ── */}
+        <Modal open={!!activeImage} onClose={() => setActiveImage(null)} title="Image Preview" size="xl">
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', background: 'rgba(0,0,0,0.2)', borderRadius: '16px' }}>
+            <img src={activeImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '75vh', borderRadius: '12px', objectFit: 'contain', border: '1px solid rgba(255,255,255,0.1)' }} />
+          </div>
         </Modal>
 
       </div>

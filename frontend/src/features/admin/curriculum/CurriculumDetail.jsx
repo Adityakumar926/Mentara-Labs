@@ -460,6 +460,56 @@ const BLANK_CONTENT = {
   worksheetFile: null,
   worksheetPreviewUrl: null,
   is_premium: false,
+  html_part: '',
+  css_part: '',
+  js_part: '',
+};
+
+const parseHtmlContent = (fullHtml) => {
+  if (!fullHtml) return { html: '', css: '', js: '' };
+  
+  let css = '';
+  const styleMatch = fullHtml.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+  if (styleMatch) {
+    css = styleMatch[1].trim();
+  }
+  
+  let js = '';
+  const scriptMatch = fullHtml.match(/<script[^>]*>([\s\S]*?)<\/script>/i);
+  if (scriptMatch) {
+    js = scriptMatch[1].trim();
+  }
+  
+  let html = '';
+  const bodyMatch = fullHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  if (bodyMatch) {
+    html = bodyMatch[1].replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, '').trim();
+  } else {
+    html = fullHtml
+      .replace(/<style[^>]*>([\s\S]*?)<\/style>/gi, '')
+      .replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, '')
+      .trim();
+  }
+  
+  return { html, css, js };
+};
+
+const compileHtmlContent = (html, css, js) => {
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+${css}
+  </style>
+</head>
+<body>
+${html}
+  <script>
+${js}
+  </script>
+</body>
+</html>`;
 };
 
 const ANIM_PLACEHOLDER = `<!DOCTYPE html>
@@ -513,6 +563,7 @@ export default function CurriculumDetail() {
   const [deleteContentId, setDeleteContentId] = useState(null);
   
   const [previewHtml, setPreviewHtml] = useState(null);
+  const [animTab, setAnimTab]         = useState('html');
 
   // Auto-refresh states for localized components
   const [topicsRefreshKey, setTopicsRefreshKey] = useState(0);
@@ -618,10 +669,11 @@ export default function CurriculumDetail() {
           await adminApi.updateContent(f.videoContentId, { title: f.title, is_premium: f.is_premium });
         }
       } else if (f.content_type === 'animation') {
+        const compiledHtml = compileHtmlContent(f.html_part, f.css_part, f.js_part);
         const body = {
           title: f.title,
           content_type: 'animation',
-          html_content: f.html_content,
+          html_content: compiledHtml,
           is_premium: f.is_premium,
         };
         if (editingContent) {
@@ -743,6 +795,7 @@ export default function CurriculumDetail() {
   const openEditContent = (topicId, c) => {
     setEditingContent(c);
     setSaveError('');
+    const parsed = parseHtmlContent(c.html_content ?? '');
     setContentForm({
       ...BLANK_CONTENT,
       title: c.title,
@@ -752,6 +805,9 @@ export default function CurriculumDetail() {
       videoStage: c.content_type === 'video' ? 'done' : 'idle',
       videoPlaybackId: c.mux_playback_id ?? null,
       worksheetPreviewUrl: c.content_type === 'worksheet' ? (c.file_url ?? null) : null,
+      html_part: parsed.html,
+      css_part: parsed.css,
+      js_part: parsed.js
     });
     setContentModal(topicId);
   };
@@ -998,13 +1054,81 @@ export default function CurriculumDetail() {
               <VideoUploader editingContent={editingContent} stage={contentForm.videoStage} progress={contentForm.videoProgress} playbackId={contentForm.videoPlaybackId} titleReady={!!contentForm.title.trim()} onFileSelected={handleVideoUpload} />
             )}
 
-            {contentForm.content_type === 'animation' && (
+             {contentForm.content_type === 'animation' && (
               <div className="cd-anim-editor-wrap">
-                <div className="cd-anim-editor-toolbar">
-                  <span className="cd-anim-editor-label"><Code2 size={12} /> Interactive Animation HTML</span>
-                  <button className="cd-anim-preview-btn" onClick={() => setPreviewHtml(contentForm.html_content || ANIM_PLACEHOLDER)}><Eye size={11} /> Live Preview</button>
+                <div className="cd-anim-editor-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.03)', padding: '2px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    {['html', 'css', 'js', 'output'].map((tab) => (
+                      <button
+                        key={tab}
+                        type="button"
+                        onClick={() => setAnimTab(tab)}
+                        style={{
+                          padding: '0.35rem 0.8rem',
+                          borderRadius: '6px',
+                          fontSize: '0.72rem',
+                          fontWeight: 600,
+                          textTransform: 'uppercase',
+                          background: animTab === tab ? 'rgba(124,58,237,0.2)' : 'transparent',
+                          color: animTab === tab ? 'var(--lavender)' : 'rgba(250,250,250,0.5)',
+                          border: 'none',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease'
+                        }}
+                      >
+                        {tab}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  <button 
+                    type="button"
+                    className="cd-anim-preview-btn" 
+                    onClick={() => {
+                      const compiled = compileHtmlContent(contentForm.html_part, contentForm.css_part, contentForm.js_part);
+                      setPreviewHtml(compiled || ANIM_PLACEHOLDER);
+                    }}
+                  >
+                    <Eye size={11} /> Live Preview
+                  </button>
                 </div>
-                <textarea className="cd-anim-textarea" placeholder={ANIM_PLACEHOLDER} value={contentForm.html_content} onChange={(e) => setContentForm({ ...contentForm, html_content: e.target.value })} />
+
+                <div style={{ marginTop: '0.5rem' }}>
+                  {animTab === 'html' && (
+                    <textarea 
+                      className="cd-anim-textarea" 
+                      placeholder="<!-- Paste your HTML layout here -->" 
+                      value={contentForm.html_part} 
+                      onChange={(e) => setContentForm({ ...contentForm, html_part: e.target.value })} 
+                    />
+                  )}
+                  {animTab === 'css' && (
+                    <textarea 
+                      className="cd-anim-textarea" 
+                      placeholder="/* Paste your CSS styling rules here (without <style> tags) */" 
+                      value={contentForm.css_part} 
+                      onChange={(e) => setContentForm({ ...contentForm, css_part: e.target.value })} 
+                    />
+                  )}
+                  {animTab === 'js' && (
+                    <textarea 
+                      className="cd-anim-textarea" 
+                      placeholder="// Paste your JavaScript interactive logic here (without <script> tags)" 
+                      value={contentForm.js_part} 
+                      onChange={(e) => setContentForm({ ...contentForm, js_part: e.target.value })} 
+                    />
+                  )}
+                  {animTab === 'output' && (
+                    <div style={{ borderRadius: '12px', overflow: 'hidden', background: '#fff', height: '320px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                      <iframe
+                        srcDoc={compileHtmlContent(contentForm.html_part, contentForm.css_part, contentForm.js_part) || ANIM_PLACEHOLDER}
+                        title="Animation Preview"
+                        style={{ width: '100%', height: '100%', border: 'none' }}
+                        sandbox="allow-scripts"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
