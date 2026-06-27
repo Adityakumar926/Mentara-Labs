@@ -150,13 +150,19 @@ const CSS = `
     background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.15);
     color: var(--green); font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;
   }
+
+  @keyframes pr-pulse {
+    0% { opacity: 0.45; }
+    50% { opacity: 0.85; }
+    100% { opacity: 0.45; }
+  }
 `;
 
 export default function PremiumPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [upgrading, setUpgrading] = useState(false);
-  const { data: settings } = useApi(studentApi.getSettings);
+  const { data: settings, loading } = useApi(studentApi.getSettings);
   const price = settings?.premium_price || '499';
   const durationMonths = settings?.premium_duration_months || '1';
 
@@ -250,7 +256,19 @@ export default function PremiumPage() {
           {/* RIGHT: PRICING CARD */}
           <div className="pr-pricing-panel">
             <div className="pr-price-box">
-              <div className="pr-price-tag">₹{price}<span style={{ fontSize: '1rem', color: 'var(--muted)', fontWeight: 500 }}> / {durationMonths} month{parseInt(durationMonths, 10) !== 1 ? 's' : ''}</span></div>
+              {loading ? (
+                <div style={{
+                  height: '46px',
+                  width: '180px',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: '12px',
+                  margin: '0.4rem auto 0.6rem auto',
+                  animation: 'pr-pulse 1.5s infinite'
+                }} />
+              ) : (
+                <div className="pr-price-tag">₹{price}<span style={{ fontSize: '1rem', color: 'var(--muted)', fontWeight: 500 }}> / {durationMonths} month{parseInt(durationMonths, 10) !== 1 ? 's' : ''}</span></div>
+              )}
               <div className="pr-price-sub">Cancel anytime. Secure checkout encryption.</div>
             </div>
 
