@@ -7,12 +7,10 @@ exports.getAll = async (req, res) => {
     const { rows } = await db.query(`
       SELECT
         c.*,
-        (SELECT COUNT(*) FROM classes cl WHERE cl.curriculum_id = c.id) AS class_count,
-        COUNT(DISTINCT bs.student_id) AS student_count
+        (SELECT COUNT(*)::int FROM classes cl WHERE cl.curriculum_id = c.id) AS class_count,
+        (SELECT COUNT(*)::int FROM subjects s JOIN classes cl ON cl.id = s.class_id WHERE cl.curriculum_id = c.id) AS subject_count,
+        (SELECT COUNT(*)::int FROM users u WHERE u.curriculum_id = c.id AND u.role = 'student') AS student_count
       FROM curriculums c
-      LEFT JOIN batches  b  ON b.curriculum_id = c.id
-      LEFT JOIN batch_students bs ON bs.batch_id = b.id
-      GROUP BY c.id
       ORDER BY c.created_at DESC
     `);
     res.json({ success: true, data: rows });
