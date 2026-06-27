@@ -587,7 +587,6 @@ export default function CurriculumDetail() {
   const [contentForm, setContentForm] = useState(BLANK_CONTENT);
   const [deleteContentId, setDeleteContentId] = useState(null);
   
-  const [previewHtml, setPreviewHtml] = useState(null);
   const [animTab, setAnimTab]         = useState('html');
 
   // Auto-refresh states for localized components
@@ -1120,8 +1119,11 @@ export default function CurriculumDetail() {
                     type="button"
                     className="cd-anim-preview-btn" 
                     onClick={() => {
-                      const compiled = compileHtmlContent(contentForm.html_part, contentForm.css_part, contentForm.js_part, contentForm.json_part);
-                      setPreviewHtml(compiled || ANIM_PLACEHOLDER);
+                      const compiled = compileHtmlContent(contentForm.html_part, contentForm.css_part, contentForm.js_part, contentForm.json_part) || ANIM_PLACEHOLDER;
+                      const blob = new Blob([compiled], { type: 'text/html' });
+                      const url = URL.createObjectURL(blob);
+                      window.open(url, '_blank');
+                      setTimeout(() => URL.revokeObjectURL(url), 10_000);
                     }}
                   >
                     <Eye size={11} /> Live Preview
@@ -1189,15 +1191,6 @@ export default function CurriculumDetail() {
         <div className="flex justify-end gap-2 mt-5 pt-4 border-t border-surface-border">
           <Button variant="ghost" onClick={() => { setContentModal(null); setEditingContent(null); setContentForm(BLANK_CONTENT); setSaveError(''); }}>Cancel</Button>
           <Button variant="primary" loading={saving} onClick={handleSaveContent}>{editingContent ? 'Save Changes' : 'Add Content'}</Button>
-        </div>
-      </Modal>
-
-      {/* ── Animation preview modal ── */}
-      <Modal open={!!previewHtml} onClose={() => setPreviewHtml(null)} title="Animation Preview" size="xl">
-        <div style={{ borderRadius: 16, overflow: 'hidden', background: '#fff', height: 420 }}>
-          {previewHtml && (
-            <iframe srcDoc={previewHtml} title="Animation Preview" style={{ width: '100%', height: '100%', border: 'none' }} sandbox="allow-scripts" />
-          )}
         </div>
       </Modal>
 

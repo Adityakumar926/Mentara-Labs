@@ -373,7 +373,7 @@ export default function SubjectPage() {
   const navigate  = useNavigate();
   const isPremium = useAuthStore((s) => s.isPremium());
 
-  const [previewAnim, setPreviewAnim] = useState(null);
+
   const [pdfUrl, setPdfUrl]           = useState(null);
   const [videoId, setVideoId]         = useState(null);
   const [worksheetUrl, setWorksheetUrl] = useState(null); // triggers the worksheet modal
@@ -390,7 +390,7 @@ export default function SubjectPage() {
     studentApi.getNoteUrl, { onSuccess: (res) => setPdfUrl(res.url) }
   );
   const { mutate: getAnimation } = useMutation(
-    studentApi.getAnimation, { onSuccess: (res) => setPreviewAnim(res.data) }
+    studentApi.getAnimation, { onSuccess: (res) => openAnimInNewTab(res.data) }
   );
   const { mutate: getWorksheetUrl } = useMutation(
     studentApi.getWorksheetUrl, { onSuccess: (res) => setWorksheetUrl(res.url) }
@@ -875,29 +875,6 @@ export default function SubjectPage() {
           </div>
         </Modal>
 
-        {/* ── Animation Modal ── */}
-        <Modal
-          open={!!previewAnim}
-          onClose={() => setPreviewAnim(null)}
-          title={previewAnim?.title ?? 'Animation'}
-          size="xl"
-        >
-          <div className="sp-modal-toolbar">
-            <button onClick={() => openAnimInNewTab(previewAnim)} className="sp-open-link">
-              Open in new tab <ExternalLink size={12} />
-            </button>
-          </div>
-          <div style={{ borderRadius: 16, overflow: 'hidden', background: '#fff', height: 500 }}>
-            {previewAnim?.html_content && (
-              <iframe
-                srcDoc={previewAnim.html_content}
-                title={previewAnim.title}
-                style={{ width: '100%', height: '100%', border: 'none' }}
-                sandbox="allow-scripts"
-              />
-            )}
-          </div>
-        </Modal>
 
         {/* ── Worksheet Modal ── */}
         <Modal
