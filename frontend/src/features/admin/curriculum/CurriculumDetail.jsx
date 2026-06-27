@@ -695,10 +695,19 @@ export default function CurriculumDetail() {
         }
       } else if (f.content_type === 'animation') {
         const compiledHtml = compileHtmlContent(f.html_part, f.css_part, f.js_part, f.json_part);
+        const animBody = {
+          title: f.title,
+          html_content: compiledHtml,
+          is_premium: f.is_premium,
+          animation_id: editingContent ? editingContent.animation_id : undefined
+        };
+        const animRes = await adminApi.upsertAnimation(animBody);
+        const savedAnim = animRes.data.data;
+
         const body = {
           title: f.title,
           content_type: 'animation',
-          html_content: compiledHtml,
+          animation_id: savedAnim.id,
           is_premium: f.is_premium,
         };
         if (editingContent) {
