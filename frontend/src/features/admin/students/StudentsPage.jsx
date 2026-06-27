@@ -261,7 +261,13 @@ export default function StudentsPage() {
 
   const openPremModal = (s) => {
     setPremModal(s);
-    setExpiryDate(s.premium_expires_at?.split('T')[0] ?? '');
+    if (!s.is_premium) {
+      const d = new Date();
+      d.setMonth(d.getMonth() + 1);
+      setExpiryDate(d.toISOString().split('T')[0]);
+    } else {
+      setExpiryDate(s.premium_expires_at?.split('T')[0] ?? '');
+    }
   };
 
   const list = students ?? [];
@@ -432,7 +438,7 @@ export default function StudentsPage() {
       <Modal
         open={!!premModal}
         onClose={() => setPremModal(null)}
-        title={premModal?.is_premium ? 'Revoke Premium' : 'Grant Premium'}
+        title={premModal?.is_premium ? 'Manage Premium Plan' : 'Grant Premium'}
         size="sm"
       >
         <div className="space-y-4">
@@ -446,37 +452,66 @@ export default function StudentsPage() {
             </div>
           </div>
 
-          {!premModal?.is_premium && (
-            <Input
-              label="Premium Expiry Date"
-              type="date"
-              value={expiryDate}
-              onChange={(e) => setExpiryDate(e.target.value)}
-            />
-          )}
+          <Input
+            label="Premium Expiry Date"
+            type="date"
+            value={expiryDate}
+            onChange={(e) => setExpiryDate(e.target.value)}
+          />
 
           <p className="text-xs text-text-muted">
             {premModal?.is_premium
-              ? 'This will immediately revoke their premium access.'
-              : 'This will grant them access to all premium content until the expiry date.'}
+              ? 'Modify the expiry date above, or click Revoke to remove their premium status entirely. Leave blank for lifetime access.'
+              : 'This will grant them access to all premium content. Expiry is optional; leave blank for lifetime access.'}
           </p>
         </div>
 
         <div className="flex justify-end gap-2 mt-5 pt-4 border-t border-surface-border">
           <Button variant="ghost" onClick={() => setPremModal(null)}>Cancel</Button>
-          <Button
-            variant={premModal?.is_premium ? 'danger' : 'primary'}
-            loading={toggling}
-            onClick={() =>
-              togglePremium({
-                id: premModal.id,
-                is_premium: !premModal.is_premium,
-                premium_expires_at: !premModal.is_premium ? expiryDate || null : null,
-              })
-            }
-          >
-            {premModal?.is_premium ? 'Revoke Premium' : 'Grant Premium'}
-          </Button>
+          {premModal?.is_premium ? (
+            <>
+              <Button
+                variant="danger"
+                loading={toggling}
+                onClick={() =>
+                  togglePremium({
+                    id: premModal.id,
+                    is_premium: false,
+                    premium_expires_at: null,
+                  })
+                }
+              >
+                Revoke
+              </Button>
+              <Button
+                variant="primary"
+                loading={toggling}
+                onClick={() =>
+                  togglePremium({
+                    id: premModal.id,
+                    is_premium: true,
+                    premium_expires_at: expiryDate || null,
+                  })
+                }
+              >
+                Update Expiry
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="primary"
+              loading={toggling}
+              onClick={() =>
+                togglePremium({
+                  id: premModal.id,
+                  is_premium: true,
+                  premium_expires_at: expiryDate || null,
+                })
+              }
+            >
+              Grant Premium
+            </Button>
+          )}
         </div>
       </Modal>
     </PageWrapper>

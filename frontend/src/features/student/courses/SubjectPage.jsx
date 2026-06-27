@@ -376,8 +376,6 @@ export default function SubjectPage() {
 
   const [pdfUrl, setPdfUrl]           = useState(null);
   const [videoId, setVideoId]         = useState(null);
-  const [worksheetUrl, setWorksheetUrl] = useState(null); // triggers the worksheet modal
-  const [activeWorksheetId, setActiveWorksheetId] = useState(null);
   const [activeVideoContentId, setActiveVideoContentId] = useState(null);
 
   const lastProgressRef = useRef(0);
@@ -409,9 +407,7 @@ export default function SubjectPage() {
     }
   };
 
-  const { mutate: getWorksheetUrl } = useMutation(
-    studentApi.getWorksheetUrl, { onSuccess: (res) => setWorksheetUrl(res.url) }
-  );
+
 
   // Setup popup window callback for worksheet drawing submission
   useEffect(() => {
@@ -494,13 +490,8 @@ export default function SubjectPage() {
         .catch(err => console.error('Failed to track animation progress:', err));
     } else if (item.content_type === 'worksheet') {
       logActivity({ activity_type: 'study', content_id: item.id });
-      setActiveWorksheetId(item.id);
-      // If the file_url is already on the content item, use it directly to skip an extra round-trip.
-      // Falls back to a premium-gated fetch for locked items (already blocked above).
       if (item.file_url) {
-        setWorksheetUrl(item.file_url);
-      } else {
-        getWorksheetUrl(item.id);
+        openWorksheetInNewTab(item.file_url, item.id);
       }
     }
   };
@@ -513,7 +504,7 @@ export default function SubjectPage() {
     setTimeout(() => URL.revokeObjectURL(url), 10_000);
   };
 
-  const openWorksheetInNewTab = (imageUrl) => {
+  const openWorksheetInNewTab = (imageUrl, contentId) => {
     if (!imageUrl) return;
     const PALETTE_COLORS = [
       '#1a1a1a','#EF4444','#F97316','#EAB308',
@@ -665,7 +656,7 @@ export default function SubjectPage() {
     overlay.style.opacity = '0.4';
     try {
       if (window.opener && typeof window.opener.onWorksheetSubmit === 'function') {
-        window.opener.onWorksheetSubmit('${activeWorksheetId}');
+        window.opener.onWorksheetSubmit('${contentId}');
       }
     } catch (e) {
       console.error(e);
@@ -895,29 +886,6 @@ export default function SubjectPage() {
         </Modal>
 
 
-        {/* ── Worksheet Modal ── */}
-        <Modal
-          open={!!worksheetUrl}
-          onClose={() => setWorksheetUrl(null)}
-          title="Worksheet"
-          size="xl"
-        >
-          {worksheetUrl && (
-            <>
-              <div className="sp-modal-toolbar">
-                <button onClick={() => openWorksheetInNewTab(worksheetUrl)} className="sp-open-link">
-                  Open in new tab <ExternalLink size={12} />
-                </button>
-              </div>
-              <WorksheetCanvas
-                imageUrl={worksheetUrl}
-                contentId={activeWorksheetId}
-                onSubmit={handleWorksheetSubmit}
-                onClose={() => setWorksheetUrl(null)}
-              />
-            </>
-          )}
-        </Modal>
 
       </div>
     </PageWrapper>
