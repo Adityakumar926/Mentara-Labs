@@ -490,9 +490,7 @@ export default function SubjectPage() {
         .catch(err => console.error('Failed to track animation progress:', err));
     } else if (item.content_type === 'worksheet') {
       logActivity({ activity_type: 'study', content_id: item.id });
-      if (item.file_url) {
-        openWorksheetInNewTab(item.file_url, item.id);
-      }
+      handleOpenWorksheet(item);
     }
   };
 
@@ -504,7 +502,31 @@ export default function SubjectPage() {
     setTimeout(() => URL.revokeObjectURL(url), 10_000);
   };
 
-  const openWorksheetInNewTab = (imageUrl, contentId) => {
+  const handleOpenWorksheet = async (content) => {
+    const wsWindow = window.open('', '_blank');
+    if (wsWindow) {
+      wsWindow.document.write('<div style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;background:#0A0E1A;color:#fff;">Loading Worksheet...</div>');
+    }
+    try {
+      const res = await studentApi.getWorksheetUrl(content.id);
+      const wsUrl = res.data.url;
+      if (wsUrl && wsWindow) {
+        window.onWorksheetSubmit = (cid) => {
+          studentApi.trackResource({ contentId: cid, completed: true })
+            .then(() => refetch())
+            .catch(err => console.error('Failed to update worksheet progress:', err));
+        };
+        openWorksheetInNewTab(wsUrl, content.id, wsWindow);
+      } else if (wsWindow) {
+        wsWindow.close();
+      }
+    } catch (e) {
+      console.error('Failed to open worksheet:', e);
+      if (wsWindow) wsWindow.close();
+    }
+  };
+
+  const openWorksheetInNewTab = (imageUrl, contentId, wsWindow) => {
     if (!imageUrl) return;
     const PALETTE_COLORS = [
       '#1a1a1a','#EF4444','#F97316','#EAB308',
@@ -670,7 +692,6 @@ export default function SubjectPage() {
 <\/script>
 </body>
 </html>`;
-    const wsWindow = window.open('', '_blank', 'width=980,height=750,resizable=yes,scrollbars=yes');
     if (!wsWindow) return;
     wsWindow.document.open();
     wsWindow.document.write(html);

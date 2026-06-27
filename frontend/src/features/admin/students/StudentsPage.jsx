@@ -369,7 +369,7 @@ export default function StudentsPage() {
                   <th className="sp-hide-md">Joined</th>
                   <th>Plan</th>
                   <th className="sp-hide-lg">Expires</th>
-                  <th />
+                  <th style={{ textAlign: 'right' }}>Manage</th>
                 </tr>
               </thead>
               <tbody>
@@ -418,10 +418,28 @@ export default function StudentsPage() {
                       <td style={{ textAlign: 'right' }}>
                         <button
                           onClick={() => openPremModal(s)}
-                          title={s.is_premium ? 'Revoke premium' : 'Grant premium'}
-                          className={`sp-star-btn ${s.is_premium ? 'is-premium' : ''}`}
+                          title={s.is_premium ? 'Manage premium plan' : 'Grant premium plan'}
+                          style={{
+                            background: 'rgba(255, 255, 255, 0.04)',
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            borderRadius: '8px',
+                            padding: '0.35rem 0.75rem',
+                            fontSize: '0.72rem',
+                            fontWeight: 600,
+                            color: s.is_premium ? 'var(--amber)' : '#F5F0E8',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = s.is_premium ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.08)';
+                            e.currentTarget.style.borderColor = s.is_premium ? 'rgba(245,158,11,0.25)' : 'rgba(255,255,255,0.15)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+                          }}
                         >
-                          <Star size={14} fill={s.is_premium ? 'currentColor' : 'none'} />
+                          {s.is_premium ? 'Manage Plan' : 'Grant Premium'}
                         </button>
                       </td>
                     </motion.tr>
