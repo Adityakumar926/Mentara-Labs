@@ -300,6 +300,20 @@ const fadeUp = (delay = 0) => ({
 const typeClass = (t) => t === 'fill_blank' ? 'qp-type-fill' : t === 'photo' ? 'qp-type-photo' : '';
 const diffClass = (d) => `qp-diff qp-diff-${d}`;
 
+const getOptionsArray = (options) => {
+  if (!options) return [];
+  if (Array.isArray(options)) return options;
+  if (typeof options === 'string') {
+    try {
+      const parsed = JSON.parse(options);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+  return [];
+};
+
 function findTopicPath(topics, targetId, currentPath = []) {
   if (!topics || !targetId) return null;
   for (const topic of topics) {
@@ -423,7 +437,8 @@ export default function QuestionsPage() {
   const openEdit   = (q) => {
     const subj = (allSubjects ?? []).find((s) => String(s.id) === String(q.subject_id));
     setEditing(q);
-    const options = q.options ?? BLANK_Q.options;
+    const parsedOpts = getOptionsArray(q.options);
+    const options = parsedOpts.length > 0 ? parsedOpts : BLANK_Q.options;
     const photoAnswerFormat = options.some((o) => o.text?.trim()) ? 'mcq' : 'text';
     setForm({
       ...q,
@@ -610,39 +625,43 @@ export default function QuestionsPage() {
                         </p>
                         
                         {/* Options Display */}
-                        {q.options && q.options.length > 0 && (
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '0.5rem', marginTop: '0.65rem' }}>
-                            {q.options.map((opt, oIdx) => {
-                              const isCorrect = String(q.correct_answer).toUpperCase() === String(opt.key || opt.id || String.fromCharCode(65 + oIdx)).toUpperCase();
-                              return (
-                                <div 
-                                  key={oIdx} 
-                                  style={{ 
-                                    fontSize: '0.76rem', 
-                                    padding: '0.5rem 0.75rem', 
-                                    borderRadius: '10px', 
-                                    border: isCorrect ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(255,255,255,0.05)',
-                                    background: isCorrect ? 'rgba(16,185,129,0.06)' : 'rgba(255,255,255,0.01)',
-                                    color: isCorrect ? '#34D399' : 'rgba(250,250,250,0.6)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.5rem'
-                                  }}
-                                >
-                                  <strong style={{ color: isCorrect ? '#34D399' : 'rgba(250,250,250,0.3)' }}>
-                                    {opt.key || String.fromCharCode(65 + oIdx)}.
-                                  </strong>
-                                  <span>{opt.text || opt.value || opt}</span>
-                                  {isCorrect && (
-                                    <span style={{ marginLeft: 'auto', background: 'rgba(16,185,129,0.2)', color: '#34D399', fontSize: '0.55rem', padding: '0.1rem 0.3rem', borderRadius: '4px', textTransform: 'uppercase', fontWeight: 700 }}>
-                                      Correct
-                                    </span>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
+                        {(() => {
+                          const opts = getOptionsArray(q.options);
+                          if (opts.length === 0) return null;
+                          return (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '0.5rem', marginTop: '0.65rem' }}>
+                              {opts.map((opt, oIdx) => {
+                                const isCorrect = String(q.correct_answer).toUpperCase() === String(opt.key || opt.id || String.fromCharCode(65 + oIdx)).toUpperCase();
+                                return (
+                                  <div 
+                                    key={oIdx} 
+                                    style={{ 
+                                      fontSize: '0.76rem', 
+                                      padding: '0.5rem 0.75rem', 
+                                      borderRadius: '10px', 
+                                      border: isCorrect ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(255,255,255,0.05)',
+                                      background: isCorrect ? 'rgba(16,185,129,0.06)' : 'rgba(255,255,255,0.01)',
+                                      color: isCorrect ? '#34D399' : 'rgba(250,250,250,0.6)',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '0.5rem'
+                                    }}
+                                  >
+                                    <strong style={{ color: isCorrect ? '#34D399' : 'rgba(250,250,250,0.3)' }}>
+                                      {opt.key || String.fromCharCode(65 + oIdx)}.
+                                    </strong>
+                                    <span>{opt.text || opt.value || opt}</span>
+                                    {isCorrect && (
+                                      <span style={{ marginLeft: 'auto', background: 'rgba(16,185,129,0.2)', color: '#34D399', fontSize: '0.55rem', padding: '0.1rem 0.3rem', borderRadius: '4px', textTransform: 'uppercase', fontWeight: 700 }}>
+                                        Correct
+                                      </span>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
                         
                         {/* Explanation */}
                         {q.explanation && (

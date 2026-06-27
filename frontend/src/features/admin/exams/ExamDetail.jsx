@@ -7,6 +7,20 @@ import { adminApi } from '@/api/services';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 
+const getOptionsArray = (options) => {
+  if (!options) return [];
+  if (Array.isArray(options)) return options;
+  if (typeof options === 'string') {
+    try {
+      const parsed = JSON.parse(options);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+  return [];
+};
+
 /* ─── CSS ─── */
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
@@ -969,29 +983,33 @@ export default function ExamDetail() {
                           )}
                         </div>
                         
-                        {q.options && q.options.length > 0 && (
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.4rem', marginTop: '0.6rem' }}>
-                            {q.options.map((opt, idx) => (
-                              <div 
-                                key={idx} 
-                                style={{ 
-                                  fontSize: '0.72rem', 
-                                  color: 'rgba(250,250,250,0.5)', 
-                                  background: 'rgba(255,255,255,0.02)', 
-                                  padding: '0.3rem 0.6rem', 
-                                  borderRadius: '6px', 
-                                  border: '1px solid rgba(255,255,255,0.04)',
-                                  textOverflow: 'ellipsis',
-                                  overflow: 'hidden',
-                                  whiteSpace: 'nowrap'
-                                }}
-                              >
-                                <strong style={{ marginRight: '0.2rem', color: 'rgba(250,250,250,0.3)' }}>{opt.key || String.fromCharCode(65 + idx)}.</strong>
-                                {opt.text || opt.value || opt}
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                        {(() => {
+                          const opts = getOptionsArray(q.options);
+                          if (opts.length === 0) return null;
+                          return (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '0.4rem', marginTop: '0.6rem' }}>
+                              {opts.map((opt, idx) => (
+                                <div 
+                                  key={idx} 
+                                  style={{ 
+                                    fontSize: '0.72rem', 
+                                    color: 'rgba(250,250,250,0.5)', 
+                                    background: 'rgba(255,255,255,0.02)', 
+                                    padding: '0.3rem 0.6rem', 
+                                    borderRadius: '6px', 
+                                    border: '1px solid rgba(255,255,255,0.04)',
+                                    textOverflow: 'ellipsis',
+                                    overflow: 'hidden',
+                                    whiteSpace: 'nowrap'
+                                  }}
+                                >
+                                  <strong style={{ marginRight: '0.2rem', color: 'rgba(250,250,250,0.3)' }}>{opt.key || String.fromCharCode(65 + idx)}.</strong>
+                                  {opt.text || opt.value || opt}
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })()}
                       </div>
                     </motion.div>
                   );
@@ -1192,22 +1210,26 @@ export default function ExamDetail() {
                 <img src={viewingQuestion.image_url} alt="Question" className="ed-q-view-img" />
               )}
               
-              {viewingQuestion.options && viewingQuestion.options.length > 0 && (
-                <div className="ed-q-view-options">
-                  {viewingQuestion.options.map((opt, idx) => {
-                    const isCorrect = String(viewingQuestion.correct_answer).toUpperCase() === String(opt.key || opt.id || String.fromCharCode(65 + idx)).toUpperCase();
-                    return (
-                      <div key={idx} className={`ed-q-view-option ${isCorrect ? 'ed-q-view-option-correct' : ''}`}>
-                        <span style={{ fontWeight: 700, color: isCorrect ? '#34D399' : 'rgba(250,250,250,0.3)' }}>
-                          {opt.key || String.fromCharCode(65 + idx)}.
-                        </span>
-                        <span>{opt.text || opt.value || opt}</span>
-                        {isCorrect && <span className="ed-q-view-correct-badge" style={{ marginLeft: 'auto' }}>Correct</span>}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+              {(() => {
+                const opts = getOptionsArray(viewingQuestion.options);
+                if (opts.length === 0) return null;
+                return (
+                  <div className="ed-q-view-options">
+                    {opts.map((opt, idx) => {
+                      const isCorrect = String(viewingQuestion.correct_answer).toUpperCase() === String(opt.key || opt.id || String.fromCharCode(65 + idx)).toUpperCase();
+                      return (
+                        <div key={idx} className={`ed-q-view-option ${isCorrect ? 'ed-q-view-option-correct' : ''}`}>
+                          <span style={{ fontWeight: 700, color: isCorrect ? '#34D399' : 'rgba(250,250,250,0.3)' }}>
+                            {opt.key || String.fromCharCode(65 + idx)}.
+                          </span>
+                          <span>{opt.text || opt.value || opt}</span>
+                          {isCorrect && <span className="ed-q-view-correct-badge" style={{ marginLeft: 'auto' }}>Correct</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
               
               {viewingQuestion.explanation && (
                 <div className="ed-q-view-explanation">
