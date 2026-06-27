@@ -69,6 +69,7 @@ if (typeof courseCtrl.getTopicContent       === 'function') router.get('/topics/
 
 // ─── CONTENT ACCESS ───────────────────────────────────────────────────────────
 if (typeof courseCtrl.getNoteUrl    === 'function') router.get('/content/:contentId/note-url',    courseCtrl.getNoteUrl);
+if (typeof courseCtrl.getWorksheetUrl === 'function') router.get('/content/:contentId/worksheet-url', courseCtrl.getWorksheetUrl);
 if (typeof courseCtrl.getVideoToken === 'function') router.get('/content/:contentId/video-token', courseCtrl.getVideoToken);
 if (typeof courseCtrl.getAnimation  === 'function') router.get('/animations/:animationId',        courseCtrl.getAnimation);
 
