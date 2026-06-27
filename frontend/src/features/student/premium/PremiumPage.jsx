@@ -4,6 +4,7 @@ import { Sparkles, Check, ArrowRight, ShieldAlert, Award, Lock, Star } from 'luc
 import { motion } from 'framer-motion';
 import { PageWrapper, Button } from '@/components/ui';
 import { studentApi } from '@/api/services';
+import { useApi } from '@/hooks/useApi';
 import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
 
@@ -155,6 +156,8 @@ export default function PremiumPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [upgrading, setUpgrading] = useState(false);
+  const { data: settings } = useApi(studentApi.getSettings);
+  const price = settings?.premium_price || '499';
 
   const handleUpgrade = async () => {
     setUpgrading(true);
@@ -246,7 +249,7 @@ export default function PremiumPage() {
           {/* RIGHT: PRICING CARD */}
           <div className="pr-pricing-panel">
             <div className="pr-price-box">
-              <div className="pr-price-tag">₹499<span style={{ fontSize: '1rem', color: 'var(--muted)', fontWeight: 500 }}> / month</span></div>
+              <div className="pr-price-tag">₹{price}<span style={{ fontSize: '1rem', color: 'var(--muted)', fontWeight: 500 }}> / month</span></div>
               <div className="pr-price-sub">Cancel anytime. Secure checkout encryption.</div>
             </div>
 

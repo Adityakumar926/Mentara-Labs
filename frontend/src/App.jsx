@@ -26,6 +26,7 @@ import QuestionsPage    from '@/features/admin/questions/QuestionsPage';
 import ExamsAdminPage   from '@/features/admin/exams/ExamsPage';
 import ExamDetail       from '@/features/admin/exams/ExamDetail';
 import StudentsPage     from '@/features/admin/students/StudentsPage';
+import SettingsPage     from '@/features/admin/settings/SettingsPage';
 
 // Student pages
 import OnboardingPage       from '@/features/auth/OnboardingPage';
@@ -76,6 +77,7 @@ export default function App() {
             <Route path="/admin/exams"          element={<ExamsAdminPage />} />
             <Route path="/admin/exams/:id"      element={<ExamDetail />} />
             <Route path="/admin/students"       element={<StudentsPage />} />
+            <Route path="/admin/settings"       element={<SettingsPage />} />
           </Route>
         </Route>
 

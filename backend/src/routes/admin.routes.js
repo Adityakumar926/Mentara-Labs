@@ -207,4 +207,8 @@ router.patch('/students/:id/premium', async (req, res) => {
   }
 });
 
+const settingsCtrl = require('../controllers/admin/settings.controller');
+router.get('/settings', settingsCtrl.getSettings);
+router.put('/settings', settingsCtrl.updateSetting);
+
 module.exports = router;

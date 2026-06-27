@@ -106,6 +106,10 @@ export const adminApi = {
   // Students
   getStudents:          (params)   => api.get('/admin/students', { params }),
   toggleStudentPremium: (id, data) => api.patch(`/admin/students/${id}/premium`, data),
+
+  // Settings
+  getSettings:          ()         => api.get('/admin/settings'),
+  updateSetting:        (data)     => api.put('/admin/settings', data),
 };
 
 // ── STUDENT ───────────────────────────────────────────────────────────────────
@@ -174,4 +178,7 @@ export const studentApi = {
   submitExam:   (examId, submissionId) => api.post(`/student/exams/${examId}/submissions/${submissionId}/submit`),
   getMyResult:  (examId)               => api.get(`/student/exams/${examId}/result`),
   getAllResults: ()                     => api.get('/student/results'),
+
+  // Settings
+  getSettings:   ()                     => api.get('/student/settings'),
 };

@@ -2,7 +2,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard, BookOpen, HelpCircle, FileText,
-  Sparkles, Users, LogOut, ChevronRight,
+  Sparkles, Users, LogOut, ChevronRight, Settings,
 } from 'lucide-react';
 import useAuthStore from '@/store/authStore';
 
@@ -12,6 +12,7 @@ const NAV = [
   { to: '/admin/questions',  icon: HelpCircle,      label: 'Question Bank'},
   { to: '/admin/exams',      icon: FileText,        label: 'Exams'        },
   { to: '/admin/students',   icon: Users,           label: 'Students'     },
+  { to: '/admin/settings',   icon: Settings,        label: 'Settings'     },
 ];
 
 const CSS = `

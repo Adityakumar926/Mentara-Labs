@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FileText, Clock, ChevronRight, Radio, PlayCircle, AlertCircle, CalendarClock } from 'lucide-react';
+import { FileText, Clock, ChevronRight, Radio, PlayCircle, AlertCircle, CalendarClock, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageWrapper, Badge, Skeleton, EmptyState } from '@/components/ui';
 import { useApi } from '@/hooks/useApi';
 import { studentApi } from '@/api/services';
+import useAuthStore from '@/store/authStore';
+import toast from 'react-hot-toast';
 import clsx from 'clsx';
 
 /* ─── CSS ─────────────────────────────────────────────────────────────────── */
@@ -259,18 +261,26 @@ function AlertBanner({ color, bg, border, icon: Icon, children }) {
 
 function LiveExamCard({ exam, idx }) {
   const attempted = exam.already_attempted;
+  const { user } = useAuthStore();
+  const locked = exam.is_premium && !user?.is_premium;
 
   const inner = (
-    <div className={clsx('exam-card', !attempted && 'live-hover', attempted && 'dimmed')} style={attempted ? {} : { borderColor: 'rgba(239,68,68,0.15)' }}>
+    <div className={clsx('exam-card', !attempted && !locked && 'live-hover', (attempted || locked) && 'dimmed')} style={attempted ? {} : locked ? { borderColor: 'rgba(245,158,11,0.15)' } : { borderColor: 'rgba(239,68,68,0.15)' }}>
       {/* Icon */}
-      <div className="exam-icon-box" style={{ background: attempted ? 'rgba(255,255,255,0.04)' : 'rgba(239,68,68,0.1)', border: `1px solid ${attempted ? 'rgba(255,255,255,0.07)' : 'rgba(239,68,68,0.25)'}` }}>
-        <Radio size={18} color={attempted ? 'var(--muted)' : '#EF4444'} />
+      <div className="exam-icon-box" style={{ background: attempted ? 'rgba(255,255,255,0.04)' : locked ? 'rgba(245,158,11,0.07)' : 'rgba(239,68,68,0.1)', border: `1px solid ${attempted ? 'rgba(255,255,255,0.07)' : locked ? 'rgba(245,158,11,0.25)' : 'rgba(239,68,68,0.25)'}` }}>
+        {locked ? (
+          <Lock size={18} color="var(--amber)" />
+        ) : (
+          <Radio size={18} color={attempted ? 'var(--muted)' : '#EF4444'} />
+        )}
       </div>
 
       {/* Info */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <p style={{ fontWeight: 600, fontSize: '0.88rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{exam.title}</p>
         <div className="meta-row">
+          {exam.is_premium && <span style={{ color: 'var(--amber)', fontWeight: 700 }}>PREMIUM</span>}
+          {exam.is_premium && <span className="meta-dot" />}
           {exam.subject_name && <span>{exam.subject_name}</span>}
           {exam.subject_name && exam.batch_name && <span className="meta-dot" />}
           {exam.batch_name && <span>{exam.batch_name}</span>}
@@ -282,16 +292,29 @@ function LiveExamCard({ exam, idx }) {
 
       {/* Right */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexShrink: 0 }}>
-        <span className="live-badge"><PingDot color="rgba(239,68,68,0.6)" bgColor="#EF4444" />LIVE</span>
+        {locked ? (
+          <span style={{ fontSize: '0.72rem', color: 'var(--amber)', display: 'flex', alignItems: 'center', gap: '4px' }}><Lock size={12} />Locked</span>
+        ) : (
+          <span className="live-badge"><PingDot color="rgba(239,68,68,0.6)" bgColor="#EF4444" />LIVE</span>
+        )}
         {attempted ? (
           <span style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>Submitted</span>
+        ) : locked ? (
+          <span className="attempt-label" style={{ background: 'rgba(245,158,11,0.08)', color: 'var(--amber)', borderColor: 'rgba(245,158,11,0.2)' }}><Lock size={12} />Premium</span>
         ) : (
           <span className="attempt-label"><PlayCircle size={13} />Attempt</span>
         )}
-        {!attempted && <ChevronRight size={14} color="var(--muted)" />}
+        {!attempted && !locked && <ChevronRight size={14} color="var(--muted)" />}
       </div>
     </div>
   );
+
+  const handleClick = (e) => {
+    if (locked) {
+      e.preventDefault();
+      toast.error('This is a premium exam. Please upgrade to premium to attempt.');
+    }
+  };
 
   return (
     <motion.div
@@ -299,25 +322,40 @@ function LiveExamCard({ exam, idx }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: idx * 0.07, duration: 0.25 }}
     >
-      {attempted ? inner : <Link to={`/exams/${exam.id}/take`} style={{ textDecoration: 'none' }}>{inner}</Link>}
+      {attempted ? (
+        inner
+      ) : locked ? (
+        <div onClick={handleClick} style={{ cursor: 'pointer' }}>{inner}</div>
+      ) : (
+        <Link to={`/exams/${exam.id}/take`} style={{ textDecoration: 'none' }}>{inner}</Link>
+      )}
     </motion.div>
   );
 }
 
 function ScheduledExamCard({ exam, idx }) {
+  const { user } = useAuthStore();
+  const locked = exam.is_premium && !user?.is_premium;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: idx * 0.07, duration: 0.25 }}
     >
-      <div className="exam-card" style={{ borderColor: 'rgba(124,58,237,0.15)' }}>
-        <div className="exam-icon-box" style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.25)' }}>
-          <CalendarClock size={18} color="var(--violet-l)" />
+      <div className="exam-card" style={locked ? { borderColor: 'rgba(245,158,11,0.15)' } : { borderColor: 'rgba(124,58,237,0.15)' }}>
+        <div className="exam-icon-box" style={{ background: locked ? 'rgba(245,158,11,0.07)' : 'rgba(124,58,237,0.1)', border: `1px solid ${locked ? 'rgba(245,158,11,0.25)' : 'rgba(124,58,237,0.25)'}` }}>
+          {locked ? (
+            <Lock size={18} color="var(--amber)" />
+          ) : (
+            <CalendarClock size={18} color="var(--violet-l)" />
+          )}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{ fontWeight: 600, fontSize: '0.88rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{exam.title}</p>
           <div className="meta-row">
+            {exam.is_premium && <span style={{ color: 'var(--amber)', fontWeight: 700 }}>PREMIUM</span>}
+            {exam.is_premium && <span className="meta-dot" />}
             {exam.subject_name && <span>{exam.subject_name}</span>}
             {exam.batch_name && <><span className="meta-dot" /><span>{exam.batch_name}</span></>}
             {exam.duration_minutes && <><span className="meta-dot" /><span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><Clock size={10} />{exam.duration_minutes} min</span></>}

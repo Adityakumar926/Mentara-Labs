@@ -452,7 +452,10 @@ export default function SubjectPage() {
   };
 
   const handleOpen = (item) => {
-    if (item.is_premium && !isPremium) return;
+    if (item.is_premium && !isPremium) {
+      toast.error('This is a premium resource. Please upgrade to premium to access.');
+      return;
+    }
     if (item.content_type === 'exam') {
       if (item.status === 'live') {
         if (item.submission_status === 'submitted') {
@@ -792,7 +795,6 @@ export default function SubjectPage() {
                         <button
                           className={clsx('sp-item', locked && 'locked')}
                           onClick={() => handleOpen(item)}
-                          disabled={locked}
                         >
                           <div className={clsx('sp-icon-bubble', locked ? 'sp-icon-locked' : cfg.iconCls)}>
                             {locked

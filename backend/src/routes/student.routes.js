@@ -94,4 +94,7 @@ if (typeof examsubmitCtrl.submitExam       === 'function') router.post('/exams/:
 if (typeof examsubmitCtrl.getMyResult      === 'function') router.get('/exams/:examId/result',                             examsubmitCtrl.getMyResult);
 if (typeof examsubmitCtrl.getMyExamHistory === 'function') router.get('/results',                                          examsubmitCtrl.getMyExamHistory);
 
+const settingsCtrl = require('../controllers/student/settings.controller');
+router.get('/settings', settingsCtrl.getSettings);
+
 module.exports = router;
