@@ -216,7 +216,7 @@ exports.upsert = async (req, res) => {
 // ─── Shared helper ────────────────────────────────────────────────────────────
 // Returns true (and writes response) if content is flagged; false if clean.
 function sanitizeHtml(html_content, res) {
-  const forbidden = ['<script src', 'eval(', 'document.cookie', 'window.location'];
+  const forbidden = ['eval(', 'document.cookie', 'window.location'];
   for (const pattern of forbidden) {
     if (html_content.includes(pattern)) {
       res.status(400).json({
