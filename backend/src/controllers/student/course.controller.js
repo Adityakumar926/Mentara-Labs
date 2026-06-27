@@ -32,7 +32,29 @@ exports.getCurriculumSubjects = async (req, res) => {
          s.*,
          cl.name AS class_name,
          curr.name AS curriculum_name,
-         (SELECT COUNT(*) FROM topics t WHERE t.subject_id = s.id) AS topic_count
+         (SELECT COUNT(*) FROM topics t WHERE t.subject_id = s.id) AS topic_count,
+         (
+           SELECT COUNT(*)::int 
+           FROM content c 
+           JOIN topics t ON t.id = c.topic_id 
+           WHERE t.subject_id = s.id
+         ) + (
+           SELECT COUNT(*)::int 
+           FROM exams e 
+           JOIN topics t ON t.id = e.topic_id 
+           WHERE t.subject_id = s.id AND e.status IN ('live', 'scheduled', 'ended')
+         ) AS content_count,
+         (
+           SELECT COUNT(*)::int 
+           FROM content c 
+           JOIN topics t ON t.id = c.topic_id 
+           WHERE t.subject_id = s.id AND c.is_premium = true
+         ) + (
+           SELECT COUNT(*)::int 
+           FROM exams e 
+           JOIN topics t ON t.id = e.topic_id 
+           WHERE t.subject_id = s.id AND e.is_premium = true AND e.status IN ('live', 'scheduled', 'ended')
+         ) AS premium_content_count
        FROM subjects s
        JOIN classes cl ON cl.id = s.class_id
        JOIN curriculums curr ON curr.id = cl.curriculum_id

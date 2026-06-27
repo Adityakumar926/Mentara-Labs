@@ -2,7 +2,7 @@ const db = require('../../config/db');
 
 exports.getStats = async (req, res) => {
   try {
-    const [students, exams, questions, premium, recentExams] = await Promise.all([
+    const [students, exams, questions, premium, recentExams, weeklyActivity] = await Promise.all([
       db.query("SELECT COUNT(*) FROM users WHERE role = 'student'"),
       db.query("SELECT COUNT(*), status FROM exams GROUP BY status"),
       db.query("SELECT COUNT(*), question_type FROM questions GROUP BY question_type"),
@@ -15,6 +15,26 @@ exports.getStats = async (req, res) => {
         LEFT JOIN exam_submissions es ON e.id = es.exam_id
         GROUP BY e.id
         ORDER BY e.created_at DESC LIMIT 5
+      `),
+      db.query(`
+        SELECT 
+          to_char(days.day, 'Dy') AS day,
+          COALESCE(act.cnt, 0)::int AS students,
+          COALESCE(sub.cnt, 0)::int AS exams
+        FROM generate_series(CURRENT_DATE - INTERVAL '6 days', CURRENT_DATE, '1 day') AS days(day)
+        LEFT JOIN (
+          SELECT activity_date, COUNT(DISTINCT student_id) AS cnt 
+          FROM activity_logs 
+          WHERE activity_date >= CURRENT_DATE - INTERVAL '6 days'
+          GROUP BY activity_date
+        ) act ON act.activity_date = days.day::date
+        LEFT JOIN (
+          SELECT submitted_at::date AS sub_date, COUNT(*) AS cnt 
+          FROM exam_submissions 
+          WHERE submitted_at >= CURRENT_DATE - INTERVAL '6 days' AND status = 'submitted'
+          GROUP BY submitted_at::date
+        ) sub ON sub.sub_date = days.day::date
+        ORDER BY days.day ASC
       `)
     ]);
 
@@ -26,7 +46,8 @@ exports.getStats = async (req, res) => {
         questionsByType: questions.rows,
         premiumUsers: parseInt(premium.rows[0].count),
         totalBatches: 0,
-        recentExams: recentExams.rows
+        recentExams: recentExams.rows,
+        weeklyActivity: weeklyActivity.rows
       }
     });
   } catch (err) {

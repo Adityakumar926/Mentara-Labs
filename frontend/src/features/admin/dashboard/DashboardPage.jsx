@@ -307,11 +307,7 @@ export default function DashboardPage() {
     value: parseInt(q.count),
   })) ?? [];
 
-  const trendData = Array.from({ length: 7 }, (_, i) => ({
-    day: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
-    students: Math.floor(Math.random() * 50 + 10),
-    exams:    Math.floor(Math.random() * 20 + 2),
-  }));
+  const trendData = data?.weeklyActivity ?? [];
 
   const badgeCls = (status) => {
     if (status === 'live')     return 'db-badge-live';
