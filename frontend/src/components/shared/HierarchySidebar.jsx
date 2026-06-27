@@ -188,7 +188,7 @@ export default function HierarchySidebar({ onSelectNode, selectedNodeId, selecte
         </div>
 
         {/* Curriculums */}
-        {(hierarchy ?? []).map(curr => {
+        {Array.isArray(hierarchy) && hierarchy.map(curr => {
           const currNodeId = `curr-${curr.id}`;
           const isCurrExpanded = !!expandedNodes[currNodeId];
           const hasClasses = curr.classes && curr.classes.length > 0;

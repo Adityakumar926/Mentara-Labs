@@ -361,11 +361,13 @@ export default function QuestionsPage() {
   const { data: hierarchy } = useApi(adminApi.getHierarchy);
 
   const subjectNode = useMemo(() => {
-    if (!form.subject_id || !hierarchy) return null;
+    if (!form.subject_id || !Array.isArray(hierarchy)) return null;
     for (const curr of hierarchy) {
+      if (!curr || !Array.isArray(curr.classes)) continue;
       for (const cls of curr.classes) {
+        if (!cls || !Array.isArray(cls.subjects)) continue;
         for (const subj of cls.subjects) {
-          if (subj.id === form.subject_id) {
+          if (subj && subj.id === form.subject_id) {
             return subj;
           }
         }
@@ -375,17 +377,17 @@ export default function QuestionsPage() {
   }, [hierarchy, form.subject_id]);
 
   const selectedTopicPath = useMemo(() => {
-    if (!subjectNode || !form.topic_id) return [];
+    if (!subjectNode || !form.topic_id || !Array.isArray(subjectNode.topics)) return [];
     return findTopicPath(subjectNode.topics, form.topic_id) || [];
   }, [subjectNode, form.topic_id]);
 
   const filteredClasses = useMemo(() => {
-    const list = allSubjects ?? [];
+    const list = Array.isArray(allSubjects) ? allSubjects : [];
     if (!form.curriculum_id) return [];
     const seen = new Set();
     const result = [];
     list.forEach((s) => {
-      if (String(s.curriculum_id) === String(form.curriculum_id) && s.class_id) {
+      if (s && String(s.curriculum_id) === String(form.curriculum_id) && s.class_id) {
         if (!seen.has(s.class_id)) {
           seen.add(s.class_id);
           result.push({ id: s.class_id, name: s.class_name });
@@ -396,9 +398,9 @@ export default function QuestionsPage() {
   }, [allSubjects, form.curriculum_id]);
 
   const filteredSubjects = useMemo(() => {
-    const list = allSubjects ?? [];
+    const list = Array.isArray(allSubjects) ? allSubjects : [];
     if (!form.class_id) return [];
-    return list.filter((s) => String(s.class_id) === String(form.class_id));
+    return list.filter((s) => s && String(s.class_id) === String(form.class_id));
   }, [allSubjects, form.class_id]);
 
   const { mutate: saveQ, loading: saving } = useMutation(
