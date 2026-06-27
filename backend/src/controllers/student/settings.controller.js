@@ -3,7 +3,7 @@ const db = require('../../config/db');
 exports.getSettings = async (req, res) => {
   try {
     const { rows } = await db.query(
-      `SELECT key, value FROM system_settings WHERE key = 'premium_price'`
+      `SELECT key, value FROM system_settings WHERE key IN ('premium_price', 'premium_duration_months')`
     );
     const settings = {};
     rows.forEach(r => {

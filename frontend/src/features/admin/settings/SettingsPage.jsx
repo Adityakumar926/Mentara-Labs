@@ -112,6 +112,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [premiumPrice, setPremiumPrice] = useState('499');
+  const [premiumDuration, setPremiumDuration] = useState('1');
   const [studentStats, setStudentStats] = useState({ total: 0, premium: 0 });
 
   useEffect(() => {
@@ -123,6 +124,7 @@ export default function SettingsPage() {
       .then(([settingsRes, studentsRes]) => {
         if (settingsRes.data.success) {
           setPremiumPrice(settingsRes.data.data.premium_price || '499');
+          setPremiumDuration(settingsRes.data.data.premium_duration_months || '1');
         }
         if (studentsRes.data.success) {
           const students = studentsRes.data.data ?? [];
@@ -146,16 +148,18 @@ export default function SettingsPage() {
       toast.error('Please enter a valid positive number for pricing.');
       return;
     }
+    if (!premiumDuration || isNaN(premiumDuration) || parseInt(premiumDuration) <= 0) {
+      toast.error('Please enter a valid positive number for subscription duration.');
+      return;
+    }
 
     setSaving(true);
     try {
-      const res = await adminApi.updateSetting({
-        key: 'premium_price',
-        value: String(premiumPrice)
-      });
-      if (res.data.success) {
-        toast.success('Settings updated successfully!');
-      }
+      await Promise.all([
+        adminApi.updateSetting({ key: 'premium_price', value: String(premiumPrice) }),
+        adminApi.updateSetting({ key: 'premium_duration_months', value: String(premiumDuration) })
+      ]);
+      toast.success('Settings updated successfully!');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to update settings.');
     } finally {
@@ -201,7 +205,7 @@ export default function SettingsPage() {
             <form onSubmit={handleSave}>
               <div className="set-row">
                 <Input 
-                  label="Premium Subscription Monthly Price (INR)" 
+                  label="Premium Subscription Price (INR)" 
                   type="number"
                   placeholder="e.g. 499"
                   value={premiumPrice}
@@ -209,11 +213,20 @@ export default function SettingsPage() {
                 />
               </div>
 
+              <div className="set-row">
+                <Input 
+                  label="Premium Subscription Duration (Months)" 
+                  type="number"
+                  placeholder="e.g. 1"
+                  value={premiumDuration}
+                  onChange={(e) => setPremiumDuration(e.target.value)}
+                />
+              </div>
+
               <div className="set-info-box">
                 <AlertCircle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
                 <div>
-                  This configuration directly updates the checkout and membership details on the student dashboard. 
-                  Any pricing adjustments take effect immediately for new subscribers.
+                  This configuration directly updates the checkout duration, price, and default expiration periods on both the student checkout page and the admin student management panel.
                 </div>
               </div>
 

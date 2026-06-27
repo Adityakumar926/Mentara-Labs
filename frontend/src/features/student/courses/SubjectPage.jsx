@@ -377,6 +377,7 @@ export default function SubjectPage() {
   const [pdfUrl, setPdfUrl]           = useState(null);
   const [videoId, setVideoId]         = useState(null);
   const [activeVideoContentId, setActiveVideoContentId] = useState(null);
+  const { mutate: logActivity }       = useMutation(studentApi.logActivity);
 
   const lastProgressRef = useRef(0);
 

@@ -227,14 +227,21 @@ exports.getProgress = async (req, res) => {
 exports.upgradePremium = async (req, res) => {
   try {
     const studentId = req.user.id;
+    
+    // Fetch global premium duration config
+    const settingsRes = await db.query(
+      `SELECT value FROM system_settings WHERE key = 'premium_duration_months'`
+    );
+    const durationMonths = parseInt(settingsRes.rows[0]?.value || '1', 10);
+
     const { rows } = await db.query(
       `UPDATE users
        SET is_premium = true,
-           premium_expires_at = NOW() + INTERVAL '30 days',
+           premium_expires_at = NOW() + ($2 * INTERVAL '1 month'),
            updated_at = NOW()
        WHERE id = $1
        RETURNING id, email, full_name, role, is_premium, premium_expires_at, avatar_url, curriculum_id, class_id`,
-      [studentId]
+      [studentId, durationMonths]
     );
 
     res.json({

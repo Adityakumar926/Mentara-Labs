@@ -158,6 +158,7 @@ export default function PremiumPage() {
   const [upgrading, setUpgrading] = useState(false);
   const { data: settings } = useApi(studentApi.getSettings);
   const price = settings?.premium_price || '499';
+  const durationMonths = settings?.premium_duration_months || '1';
 
   const handleUpgrade = async () => {
     setUpgrading(true);
@@ -249,7 +250,7 @@ export default function PremiumPage() {
           {/* RIGHT: PRICING CARD */}
           <div className="pr-pricing-panel">
             <div className="pr-price-box">
-              <div className="pr-price-tag">₹{price}<span style={{ fontSize: '1rem', color: 'var(--muted)', fontWeight: 500 }}> / month</span></div>
+              <div className="pr-price-tag">₹{price}<span style={{ fontSize: '1rem', color: 'var(--muted)', fontWeight: 500 }}> / {durationMonths} month{parseInt(durationMonths, 10) !== 1 ? 's' : ''}</span></div>
               <div className="pr-price-sub">Cancel anytime. Secure checkout encryption.</div>
             </div>
 
