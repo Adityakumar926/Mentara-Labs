@@ -476,7 +476,7 @@ const parseHtmlContent = (fullHtml) => {
   }
 
   // Strip the JSON data script and the window.ANIMATION_DATA script from the html
-  const cleanHtml = fullHtml
+  let cleanHtml = fullHtml
     .replace(/<script id="animation-data"[^>]*>([\s\S]*?)<\/script>/gi, '')
     .replace(/<script>\s*try\s*\{\s*window\.ANIMATION_DATA[\s\S]*?<\/script>/gi, '')
     .replace(/<script>\s*window\.ANIMATION_DATA\s*=[\s\S]*?<\/script>/gi, '');
@@ -486,22 +486,34 @@ const parseHtmlContent = (fullHtml) => {
   if (styleMatch) {
     css = styleMatch[1].trim();
   }
-  
+  // Strip style tags from cleanHtml
+  cleanHtml = cleanHtml.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+
+  // Parse custom inline JS (script tag without 'src' attribute)
   let js = '';
-  const scriptMatch = cleanHtml.match(/<script[^>]*>([\s\S]*?)<\/script>/i);
+  const scriptRegex = /<script(?![^>]*\bsrc\b)[^>]*>([\s\S]*?)<\/script>/i;
+  const scriptMatch = cleanHtml.match(scriptRegex);
   if (scriptMatch) {
     js = scriptMatch[1].trim();
   }
   
+  // Strip ONLY the inline script tags (without src attribute) from cleanHtml
+  cleanHtml = cleanHtml.replace(/<script(?![^>]*\bsrc\b)[^>]*>[\s\S]*?<\/script>/gi, '');
+
   let html = '';
   const bodyMatch = cleanHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
   if (bodyMatch) {
-    html = bodyMatch[1].replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, '').trim();
+    // Keep external script/link tags from outside the body (like <head>) and prepend them to the body content
+    const headScripts = [];
+    const headMatches = cleanHtml.match(/<(script\b[^>]*\bsrc\b|link\b[^>]*)[^>]*>([\s\S]*?<\/script>)?/gi) || [];
+    headMatches.forEach(tag => {
+      if (!bodyMatch[0].includes(tag)) {
+        headScripts.push(tag);
+      }
+    });
+    html = (headScripts.join('\n') + '\n' + bodyMatch[1]).trim();
   } else {
-    html = cleanHtml
-      .replace(/<style[^>]*>([\s\S]*?)<\/style>/gi, '')
-      .replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, '')
-      .trim();
+    html = cleanHtml.trim();
   }
   
   return { html, css, js, json };
