@@ -175,7 +175,7 @@ export default function PremiumPage() {
         localStorage.setItem('user', JSON.stringify(res.data.user));
         useAuthStore.setState({ user: res.data.user });
 
-        toast.success('Congratulations! Mentera Premium is now active.');
+        toast.success('Congratulations! Mentara Labs Premium is now active.');
         navigate('/explore');
       }
     } catch (err) {
@@ -205,7 +205,7 @@ export default function PremiumPage() {
           {/* LEFT: INFO & BENEFITS */}
           <div className="pr-info-panel">
             <div className="pr-badge">
-              <Star size={11} fill="var(--amber)" /> Mentera Pro
+              <Star size={11} fill="var(--amber)" /> Mentara Labs Pro
             </div>
             <h2 className="pr-title">Go Premium</h2>
             <p className="pr-desc">Unlock advanced study modules, drawing materials, and simulated practice tests designed to help you excel.</p>
@@ -269,7 +269,7 @@ export default function PremiumPage() {
               ) : (
                 <div className="pr-price-tag">₹{price}<span style={{ fontSize: '1rem', color: 'var(--muted)', fontWeight: 500 }}> / {durationMonths} month{parseInt(durationMonths, 10) !== 1 ? 's' : ''}</span></div>
               )}
-              <div className="pr-price-sub">Cancel anytime. Secure checkout encryption.</div>
+              <div className="pr-price-sub">Secure checkout encryption.</div>
             </div>
 
             {isPremium ? (
