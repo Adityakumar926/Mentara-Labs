@@ -3,6 +3,46 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Core variables (Dark mode default) */
+  --color-navy: #0A0F1E;
+  --color-surface: #111827;
+  --color-surface-card: #1a2235;
+  --color-surface-border: #1f2d45;
+  --color-surface-hover: #1e2d42;
+  --color-text-primary: #f0f4ff;
+  --color-text-secondary: #8fa3bf;
+  --color-text-muted: #4a6080;
+
+  /* Component local variable overrides (default dark) */
+  --local-navy: #0A0E1A;
+  --local-navy2: #0F1629;
+  --local-card-bg: rgba(255, 255, 255, 0.04);
+  --local-card-bdr: rgba(255, 255, 255, 0.08);
+  --local-cream: #F5F0E8;
+  --local-muted: rgba(245, 240, 232, 0.45);
+}
+
+.light {
+  /* Core variables (Light mode override) */
+  --color-navy: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-surface-card: #FFFFFF;
+  --color-surface-border: #E2E8F0;
+  --color-surface-hover: #F1F5F9;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94A3B8;
+
+  /* Component local variable overrides (light theme) */
+  --local-navy: #F8FAFC;
+  --local-navy2: #F1F5F9;
+  --local-card-bg: #FFFFFF;
+  --local-card-bdr: #E2E8F0;
+  --local-cream: #0F172A;
+  --local-muted: #475569;
+}
+
 
 
 /* ── Base ─────────────────────────────────────────────────────────────────── */

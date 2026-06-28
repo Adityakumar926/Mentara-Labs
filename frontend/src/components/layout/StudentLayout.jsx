@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BookOpen, FileText, User, LogOut, Compass, HelpCircle, ChevronRight, Sparkles } from 'lucide-react';
+import { BookOpen, FileText, User, LogOut, Compass, HelpCircle, ChevronRight, Sparkles, Sun, Moon } from 'lucide-react';
 import useAuthStore from '@/store/authStore';
 import NotificationBell from '@/components/shared/NotificationBell';
 
@@ -260,6 +260,18 @@ export default function StudentLayout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
 
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  const toggleTheme = () => {
+    const nextTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(nextTheme);
+    localStorage.setItem('theme', nextTheme);
+    if (nextTheme === 'light') {
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.remove('light');
+    }
+  };
+
   // Prevent saving/copying images via context menus or dragging
   useEffect(() => {
     const preventImageSave = (e) => {
@@ -315,7 +327,31 @@ export default function StudentLayout() {
               </div>
               <span className="sl-logo-text">Mentara Labs</span>
             </div>
-            <NotificationBell variant="desktop" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <button
+                type="button"
+                onClick={toggleTheme}
+                title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'rgba(245,240,232,0.45)',
+                  cursor: 'pointer',
+                  padding: '0.35rem',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'color 0.2s, background 0.2s',
+                  flexShrink: 0
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--local-cream)'; e.currentTarget.style.background = 'var(--local-card-bg)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(245,240,232,0.45)'; e.currentTarget.style.background = 'transparent'; }}
+              >
+                {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
+              </button>
+              <NotificationBell variant="desktop" />
+            </div>
           </div>
 
           {/* Nav */}
@@ -406,6 +442,15 @@ export default function StudentLayout() {
               {label}
             </NavLink>
           ))}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="sl-bottom-item"
+            style={{ background: 'transparent', border: 'none' }}
+          >
+            {theme === 'light' ? <Moon size={19} className="sl-bottom-icon" /> : <Sun size={19} className="sl-bottom-icon" />}
+            Theme
+          </button>
           <NotificationBell variant="mobile" />
         </nav>
       </div>

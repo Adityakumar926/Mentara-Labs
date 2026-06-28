@@ -1,8 +1,9 @@
+import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard, BookOpen, HelpCircle, FileText,
-  Sparkles, Users, LogOut, ChevronRight, Settings,
+  Sparkles, Users, LogOut, ChevronRight, Settings, Sun, Moon
 } from 'lucide-react';
 import useAuthStore from '@/store/authStore';
 
@@ -181,6 +182,18 @@ export default function AdminLayout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
 
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  const toggleTheme = () => {
+    const nextTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(nextTheme);
+    localStorage.setItem('theme', nextTheme);
+    if (nextTheme === 'light') {
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.remove('light');
+    }
+  };
+
   const handleLogout = async () => {
     await logout();
     navigate('/login');
@@ -201,14 +214,38 @@ export default function AdminLayout() {
           transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
           {/* Logo */}
-          <div className="al-logo">
-            <div className="al-logo-mark">
-              <img src="/mentara-new.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+          <div className="al-logo" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div className="al-logo-mark">
+                <img src="/mentara-new.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+              </div>
+              <div>
+                <div className="al-logo-text">Mentara Labs</div>
+                <div className="al-logo-sub">Admin Panel</div>
+              </div>
             </div>
-            <div>
-              <div className="al-logo-text">Mentara Labs</div>
-              <div className="al-logo-sub">Admin Panel</div>
-            </div>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'rgba(245,240,232,0.45)',
+                cursor: 'pointer',
+                padding: '0.35rem',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'color 0.2s, background 0.2s',
+                flexShrink: 0
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--local-cream)'; e.currentTarget.style.background = 'var(--local-card-bg)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(245,240,232,0.45)'; e.currentTarget.style.background = 'transparent'; }}
+            >
+              {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
+            </button>
           </div>
 
           {/* Nav */}
