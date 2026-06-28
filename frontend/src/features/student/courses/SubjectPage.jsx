@@ -412,6 +412,7 @@ const PALETTE = [
 export default function SubjectPage() {
   const { curriculumId, subjectId, topicId } = useParams();
   const navigate  = useNavigate();
+  const isPremium = useAuthStore((s) => s.isPremium());
   const [activeCategory, setActiveCategory] = useState('all');
   const [pdfUrl, setPdfUrl]           = useState(null);
   const [videoId, setVideoId]         = useState(null);
@@ -741,6 +742,11 @@ export default function SubjectPage() {
     wsWindow.document.close();
   };
 
+
+  const items = content?.items ?? [];
+  const exams = content?.exams ?? [];
+  const topicName = content?.topic_name;
+  const subjectName = content?.subject_name;
 
   const groups = [
     { key: 'video',     label: 'Videos',     dot: 'var(--violet-l)',              items: items.filter(i => i.content_type === 'video') },
