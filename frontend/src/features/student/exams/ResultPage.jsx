@@ -353,6 +353,80 @@ export default function ResultPage() {
   const verdictBdr = passed ? 'rgba(16,185,129,0.3)'  : 'rgba(239,68,68,0.3)';
   const verdictClr = passed ? 'var(--green)' : 'var(--red)';
 
+  const isStructureExam = breakdown && breakdown.length > 0 && breakdown.every(q => q.question_type === 'structure');
+
+  if (isStructureExam) {
+    return (
+      <PageWrapper>
+        <style>{CSS}</style>
+        <div className="result-root" style={{ padding: '1.5rem', maxWidth: '640px', margin: '4rem auto 0', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          
+          <motion.div
+            className="result-hero"
+            style={{ borderColor: 'rgba(124,58,237,0.25)', padding: '3.5rem 2rem' }}
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
+          >
+            <div className="result-hero-blob result-hero-blob-1" style={{ background: 'rgba(124,58,237,0.18)' }} />
+            
+            <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              
+              <div style={{
+                width: 72, height: 72, borderRadius: '50%',
+                background: 'rgba(124,58,237,0.1)', border: '2px solid rgba(124,58,237,0.3)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                marginBottom: '1.5rem', boxShadow: '0 0 24px rgba(124,58,237,0.25)'
+              }}>
+                <Award size={36} color="var(--violet-l)" />
+              </div>
+
+              <h2 style={{
+                fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.4rem', fontWeight: 700,
+                background: 'linear-gradient(135deg, var(--cream) 0%, var(--lavender) 100%)',
+                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                marginBottom: '0.65rem'
+              }}>
+                Practice Attempt Submitted!
+              </h2>
+              
+              <p style={{ fontSize: '0.9rem', color: 'var(--muted)', marginBottom: '1.5rem', fontWeight: 500, fontStyle: 'italic' }}>
+                {submission.exam_title}
+              </p>
+
+              <div style={{
+                background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: '16px', padding: '1.25rem', marginBottom: '2rem',
+                textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '0.6rem'
+              }}>
+                <p style={{ fontSize: '0.82rem', lineHeight: 1.6, color: 'rgba(245,240,232,0.85)' }}>
+                  ✨ <strong>Great work completing this practice exam!</strong>
+                </p>
+                <p style={{ fontSize: '0.82rem', lineHeight: 1.6, color: 'rgba(245,240,232,0.7)' }}>
+                  This exam contains structure-drawing questions. These questions are designed to help you practice drawing chemical structures and diagrams, which are not evaluated by automated pass/fail scores.
+                </p>
+                <p style={{ fontSize: '0.82rem', lineHeight: 1.6, color: 'rgba(245,240,232,0.7)' }}>
+                  Keep attempting more exams on your dashboard to strengthen your skills, build muscle memory, and master chemical structures!
+                </p>
+              </div>
+
+              <button 
+                type="button" 
+                className="result-back" 
+                style={{ padding: '0.65rem 2rem', background: 'linear-gradient(135deg, var(--violet), #4F46E5)', color: '#fff', border: 'none', boxShadow: '0 0 20px rgba(124,58,237,0.35)' }} 
+                onClick={() => navigate('/exams')}
+              >
+                Explore More Exams
+              </button>
+
+            </div>
+          </motion.div>
+
+        </div>
+      </PageWrapper>
+    );
+  }
+
   return (
     <PageWrapper>
       <style>{CSS}</style>

@@ -53,9 +53,9 @@ exports.startExam = async (req, res) => {
     //    If a row already exists (in_progress), keep its original deadline_at.
     await client.query('BEGIN');
 
-    const deadline = new Date(
-      Date.now() + exam.duration_minutes * 60 * 1000
-    ).toISOString();
+    const deadline = exam.duration_minutes
+      ? new Date(Date.now() + exam.duration_minutes * 60 * 1000).toISOString()
+      : null;
 
     const { rows: submissionRows } = await client.query(
       `INSERT INTO exam_submissions
@@ -77,6 +77,7 @@ exports.startExam = async (req, res) => {
         submission_id: submissionRows[0].id,
         started_at: submissionRows[0].started_at,
         deadline_at: submissionRows[0].deadline_at,
+        server_time: new Date().toISOString(),
         exam
       }
     });
@@ -110,7 +111,7 @@ exports.getExamQuestions = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Exam already submitted' });
 
     // Auto-submit if past deadline
-    if (new Date(session[0].deadline_at) < new Date()) {
+    if (session[0].deadline_at && new Date(session[0].deadline_at) < new Date()) {
       await db.query(
         `UPDATE exam_submissions SET status = 'submitted', submitted_at = NOW()
          WHERE id = $1`,
@@ -144,7 +145,8 @@ exports.getExamQuestions = async (req, res) => {
           options: typeof q.options === 'string' ? JSON.parse(q.options) : (q.options ?? []),
         })),
         deadline_at: session[0].deadline_at,
-        submission_id: session[0].id
+        submission_id: session[0].id,
+        server_time: new Date().toISOString()
       }
     });
   } catch (err) {
@@ -176,7 +178,7 @@ exports.saveAnswer = async (req, res) => {
     if (session[0].status === 'submitted')
       return res.status(400).json({ success: false, message: 'Cannot modify a submitted exam' });
 
-    if (new Date(session[0].deadline_at) < new Date())
+    if (session[0].deadline_at && new Date(session[0].deadline_at) < new Date())
       return res.status(400).json({ success: false, message: 'Time is up' });
 
     // Upsert the answer
@@ -225,7 +227,7 @@ exports.savePhotoAnswer = async (req, res) => {
     if (session[0].status === 'submitted')
       return res.status(400).json({ success: false, message: 'Cannot modify a submitted exam' });
 
-    if (new Date(session[0].deadline_at) < new Date())
+    if (session[0].deadline_at && new Date(session[0].deadline_at) < new Date())
       return res.status(400).json({ success: false, message: 'Time is up' });
 
     // If this question already has a photo answer, remove the old Cloudinary asset
@@ -478,7 +480,15 @@ exports.getMyExamHistory = async (req, res) => {
          es.percentage,
          es.passed,
          es.submitted_at,
-         RANK() OVER (PARTITION BY es.exam_id ORDER BY es.score DESC) AS rank
+         RANK() OVER (PARTITION BY es.exam_id ORDER BY es.score DESC) AS rank,
+         (
+           SELECT COUNT(*)
+           FROM exam_questions eq
+           JOIN questions q ON q.id = eq.question_id
+           WHERE eq.exam_id = e.id AND q.question_type != 'structure'
+         ) = 0 AND EXISTS (
+           SELECT 1 FROM exam_questions eq2 WHERE eq2.exam_id = e.id
+         ) AS is_structure_only
        FROM exam_submissions es
        JOIN exams    e ON e.id = es.exam_id
        LEFT JOIN subjects s ON s.id = e.subject_id

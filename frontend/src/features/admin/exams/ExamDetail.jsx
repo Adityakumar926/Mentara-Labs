@@ -545,9 +545,9 @@ export default function ExamDetail() {
     setEditForm({
       title: exam.title || '',
       description: exam.description || '',
-      duration_minutes: exam.duration_minutes || 60,
+      duration_minutes: exam.duration_minutes,
       total_marks: exam.total_marks || 0,
-      passing_marks: exam.passing_marks || '',
+      passing_marks: exam.passing_marks ?? '',
       is_premium: exam.is_premium || false,
       subject_id: exam.subject_id || '',
       curriculum_id: exam.curriculum_id || '',
@@ -676,7 +676,7 @@ export default function ExamDetail() {
                 <span className={`ed-status ed-status-${exam.status}`}>{exam.status}</span>
               </div>
               <div className="ed-subtitle">
-                <span><Clock size={11} style={{ color: 'var(--cyan)' }} />{exam.duration_minutes}m</span>
+                <span><Clock size={11} style={{ color: 'var(--cyan)' }} />{exam.duration_minutes ? `${exam.duration_minutes}m` : 'Untimed'}</span>
                 <span>{exam.total_marks} marks</span>
                 {exam.passing_marks && <span>Pass: {exam.passing_marks}</span>}
               </div>
@@ -1038,9 +1038,18 @@ export default function ExamDetail() {
               onChange={(e) => setSchedForm({ scheduled_at: e.target.value })}
             />
             <p className="ed-sched-note">
-              The exam will automatically go live at the scheduled time and end after{' '}
-              <strong>{exam.duration_minutes} minutes</strong>.
-              Unsubmitted attempts will be auto-submitted when time is up.
+              {exam.duration_minutes ? (
+                <>
+                  The exam will automatically go live at the scheduled time and end after{' '}
+                  <strong>{exam.duration_minutes} minutes</strong>.
+                  Unsubmitted attempts will be auto-submitted when time is up.
+                </>
+              ) : (
+                <>
+                  The exam will automatically go live at the scheduled time and will remain untimed.
+                  Admins must manually end the exam when finished.
+                </>
+              )}
             </p>
           </div>
           <div className="ed-modal-footer-end">
@@ -1107,12 +1116,17 @@ export default function ExamDetail() {
               </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
-              <Input label="Duration (min)" type="number" value={editForm.duration_minutes} onChange={(e) => setEdit('duration_minutes', +e.target.value)} />
+            <div style={{ display: 'grid', gridTemplateColumns: editForm.duration_minutes !== null ? '1fr 1fr 1fr' : '1fr 1fr', gap: '0.75rem' }}>
+              {editForm.duration_minutes !== null && (
+                <Input label="Duration (min)" type="number" value={editForm.duration_minutes ?? ''} onChange={(e) => setEdit('duration_minutes', e.target.value === '' ? null : +e.target.value)} />
+              )}
               <Input label="Total Marks"    type="number" value={editForm.total_marks}       onChange={(e) => setEdit('total_marks',       +e.target.value)} />
-              <Input label="Passing Marks"  type="number" value={editForm.passing_marks}     onChange={(e) => setEdit('passing_marks',     +e.target.value)} />
+              <Input label="Passing Marks"  type="number" value={editForm.passing_marks ?? ''}     onChange={(e) => setEdit('passing_marks',     e.target.value === '' ? null : +e.target.value)} />
             </div>
-            <Toggle label="Premium exam" checked={editForm.is_premium} onChange={(v) => setEdit('is_premium', v)} />
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <Toggle label="Enable Exam Timer" checked={editForm.duration_minutes !== null} onChange={(checked) => setEdit('duration_minutes', checked ? 60 : null)} />
+              <Toggle label="Premium exam" checked={editForm.is_premium} onChange={(v) => setEdit('is_premium', v)} />
+            </div>
           </div>
           <div className="ed-modal-footer-end">
             <Button variant="ghost" onClick={() => { setEditModal(false); }}>Cancel</Button>

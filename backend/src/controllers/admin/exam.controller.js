@@ -103,8 +103,8 @@ exports.create = async (req, res) => {
       duration_minutes, total_marks, passing_marks, is_premium
     } = req.body;
 
-    if (!title || !duration_minutes || !total_marks)
-      return res.status(400).json({ success: false, message: 'title, duration_minutes and total_marks are required' });
+    if (!title || total_marks === undefined || total_marks === null)
+      return res.status(400).json({ success: false, message: 'title and total_marks are required' });
 
     const { rows } = await db.query(
       `INSERT INTO exams
@@ -116,7 +116,7 @@ exports.create = async (req, res) => {
         description        || null,
         subject_id         || null,
         topic_id           || null,
-        duration_minutes,
+        duration_minutes === undefined ? null : duration_minutes,
         total_marks,
         passing_marks      || null,
         is_premium ?? false,
@@ -136,15 +136,32 @@ exports.update = async (req, res) => {
       duration_minutes, total_marks, passing_marks, is_premium
     } = req.body;
 
+    // Check if the exam has only structure questions
+    const { rows: structCheck } = await db.query(
+      `SELECT COUNT(*) AS total_qs,
+              COUNT(*) FILTER (WHERE q.question_type = 'structure') AS struct_qs
+       FROM exam_questions eq
+       JOIN questions q ON q.id = eq.question_id
+       WHERE eq.exam_id = $1`,
+      [req.params.id]
+    );
+    const totalQs = parseInt(structCheck[0]?.total_qs || 0);
+    const structQs = parseInt(structCheck[0]?.struct_qs || 0);
+
+    let finalPassingMarks = passing_marks;
+    if (totalQs > 0 && totalQs === structQs) {
+      finalPassingMarks = null;
+    }
+
     const { rows } = await db.query(
       `UPDATE exams SET
          title            = COALESCE($1,  title),
-         description      = COALESCE($2,  description),
+         description      = $2,
          subject_id       = COALESCE($3,  subject_id),
-         topic_id         = COALESCE($4,  topic_id),
-         duration_minutes = COALESCE($5,  duration_minutes),
+         topic_id         = $4,
+         duration_minutes = $5,
          total_marks      = COALESCE($6,  total_marks),
-         passing_marks    = COALESCE($7,  passing_marks),
+         passing_marks    = $7,
          is_premium       = COALESCE($8,  is_premium)
        WHERE id = $9 AND status != 'live'
        RETURNING *`,
@@ -153,9 +170,9 @@ exports.update = async (req, res) => {
         description  || null,
         subject_id   || null,
         topic_id     || null,
-        duration_minutes || null,
+        duration_minutes === undefined ? null : duration_minutes,
         total_marks  || null,
-        passing_marks || null,
+        finalPassingMarks === undefined ? null : finalPassingMarks,
         is_premium ?? null,
         req.params.id
       ]
@@ -277,6 +294,25 @@ exports.addQuestions = async (req, res) => {
        ) WHERE id = $1`,
       [req.params.id]
     );
+
+    // Auto-null passing_marks if all questions are of type 'structure'
+    const { rows: structCheck } = await client.query(
+      `SELECT COUNT(*) AS total_qs,
+              COUNT(*) FILTER (WHERE q.question_type = 'structure') AS struct_qs
+       FROM exam_questions eq
+       JOIN questions q ON q.id = eq.question_id
+       WHERE eq.exam_id = $1`,
+      [req.params.id]
+    );
+    const totalQs = parseInt(structCheck[0]?.total_qs || 0);
+    const structQs = parseInt(structCheck[0]?.struct_qs || 0);
+    if (totalQs > 0 && totalQs === structQs) {
+      await client.query(
+        `UPDATE exams SET passing_marks = NULL WHERE id = $1`,
+        [req.params.id]
+      );
+    }
+
     await client.query('COMMIT');
     res.json({ success: true, message: `${questions.length} question(s) added to exam` });
   } catch (err) {
@@ -310,6 +346,25 @@ exports.removeQuestion = async (req, res) => {
        ) WHERE id = $1`,
       [req.params.id]
     );
+
+    // Auto-null passing_marks if all questions are of type 'structure'
+    const { rows: structCheck } = await client.query(
+      `SELECT COUNT(*) AS total_qs,
+              COUNT(*) FILTER (WHERE q.question_type = 'structure') AS struct_qs
+       FROM exam_questions eq
+       JOIN questions q ON q.id = eq.question_id
+       WHERE eq.exam_id = $1`,
+      [req.params.id]
+    );
+    const totalQs = parseInt(structCheck[0]?.total_qs || 0);
+    const structQs = parseInt(structCheck[0]?.struct_qs || 0);
+    if (totalQs > 0 && totalQs === structQs) {
+      await client.query(
+        `UPDATE exams SET passing_marks = NULL WHERE id = $1`,
+        [req.params.id]
+      );
+    }
+
     await client.query('COMMIT');
     res.json({ success: true, message: 'Question removed' });
   } catch (err) {
@@ -359,13 +414,11 @@ exports.schedule = async (req, res) => {
     }
 
     // Auto-calculate ends_at from scheduled_at + duration_minutes
-    const duration = parseInt(qCount[0].duration_minutes);
-    const ends_at  = new Date(new Date(scheduled_at).getTime() + duration * 60 * 1000).toISOString();
+    const duration = qCount[0].duration_minutes ? parseInt(qCount[0].duration_minutes) : null;
+    const ends_at  = duration ? new Date(new Date(scheduled_at).getTime() + duration * 60 * 1000).toISOString() : null;
 
-    // If it was ended, clear previous submissions
-    if (currentStatus === 'ended') {
-      await client.query(`DELETE FROM exam_submissions WHERE exam_id = $1`, [req.params.id]);
-    }
+    // Delete any old submissions to ensure fresh start
+    await client.query(`DELETE FROM exam_submissions WHERE exam_id = $1`, [req.params.id]);
 
     const { rows } = await client.query(
       `UPDATE exams
@@ -429,14 +482,12 @@ exports.goLive = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Exam must be draft, scheduled, or ended to go live' });
     }
 
-    const duration = parseInt(qCount[0].duration_minutes);
+    const duration = qCount[0].duration_minutes ? parseInt(qCount[0].duration_minutes) : null;
     const scheduled_at = new Date().toISOString();
-    const ends_at  = new Date(new Date().getTime() + duration * 60 * 1000).toISOString();
+    const ends_at  = duration ? new Date(new Date().getTime() + duration * 60 * 1000).toISOString() : null;
 
-    // If it was ended, clear previous submissions
-    if (currentStatus === 'ended') {
-      await client.query(`DELETE FROM exam_submissions WHERE exam_id = $1`, [req.params.id]);
-    }
+    // Delete any old submissions to ensure fresh start
+    await client.query(`DELETE FROM exam_submissions WHERE exam_id = $1`, [req.params.id]);
 
     const { rows } = await client.query(
       `UPDATE exams SET status = 'live', scheduled_at = $1, ends_at = $2

@@ -502,7 +502,7 @@ export default function ExamsPage() {
                       )}
 
                       <div className="ep-card-foot">
-                        <span><Clock size={11} style={{ color: 'var(--cyan)' }} />{e.duration_minutes}m</span>
+                        <span><Clock size={11} style={{ color: 'var(--cyan)' }} />{e.duration_minutes ? `${e.duration_minutes}m` : 'Untimed'}</span>
                         <span><Users size={11} style={{ color: 'var(--violet-l)' }} />{e.submission_count ?? 0} submitted</span>
                         {e.question_count > 0 && <span>{e.question_count} Qs</span>}
                         <button
@@ -584,12 +584,17 @@ export default function ExamsPage() {
               </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
-              <Input label="Duration (min)" type="number" value={form.duration_minutes} onChange={(e) => set('duration_minutes', +e.target.value)} />
+            <div style={{ display: 'grid', gridTemplateColumns: form.duration_minutes !== null ? '1fr 1fr 1fr' : '1fr 1fr', gap: '0.75rem' }}>
+              {form.duration_minutes !== null && (
+                <Input label="Duration (min)" type="number" value={form.duration_minutes ?? ''} onChange={(e) => set('duration_minutes', e.target.value === '' ? null : +e.target.value)} />
+              )}
               <Input label="Total Marks"    type="number" value={form.total_marks}       onChange={(e) => set('total_marks',       +e.target.value)} />
-              <Input label="Passing Marks"  type="number" value={form.passing_marks}     onChange={(e) => set('passing_marks',     +e.target.value)} />
+              <Input label="Passing Marks"  type="number" value={form.passing_marks ?? ''}     onChange={(e) => set('passing_marks',     e.target.value === '' ? null : +e.target.value)} />
             </div>
-            <Toggle label="Premium exam" checked={form.is_premium} onChange={(v) => set('is_premium', v)} />
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <Toggle label="Enable Exam Timer" checked={form.duration_minutes !== null} onChange={(checked) => set('duration_minutes', checked ? 60 : null)} />
+              <Toggle label="Premium exam" checked={form.is_premium} onChange={(v) => set('is_premium', v)} />
+            </div>
           </div>
           <div className="ep-modal-footer">
             <Button variant="ghost" onClick={() => { setModal(false); setForm(BLANK); }}>Cancel</Button>

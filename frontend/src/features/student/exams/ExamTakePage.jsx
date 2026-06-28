@@ -478,15 +478,19 @@ const CSS = `
 `;
 
 /* ─── Timer hook ──────────────────────────────────────────────────────────── */
-function useCountdown(deadlineIso) {
+function useCountdown(deadlineIso, serverOffset = 0) {
   const [remaining, setRemaining] = useState(0);
   useEffect(() => {
     if (!deadlineIso) return;
-    const tick = () => { const diff = Math.max(0, new Date(deadlineIso) - Date.now()); setRemaining(diff); };
+    const tick = () => {
+      const adjustedNow = Date.now() + serverOffset;
+      const diff = Math.max(0, new Date(deadlineIso).getTime() - adjustedNow);
+      setRemaining(diff);
+    };
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [deadlineIso]);
+  }, [deadlineIso, serverOffset]);
   const h = Math.floor(remaining / 3600000);
   const m = Math.floor((remaining % 3600000) / 60000);
   const s = Math.floor((remaining % 60000) / 1000);
@@ -678,7 +682,8 @@ function StructureCanvas({ imageUrl, strokes = [], onChange }) {
           src={imageUrl}
           alt="Structure diagram"
           onLoad={handleImageLoad}
-          style={{ width: '100%', maxHeight: '550px', objectFit: 'contain', borderRadius: '12px', display: 'block' }}
+          draggable={false}
+          style={{ width: '100%', maxHeight: '550px', objectFit: 'contain', borderRadius: '12px', display: 'block', pointerEvents: 'none', userSelect: 'none', WebkitUserSelect: 'none', WebkitUserDrag: 'none' }}
         />
         
         {canvasSize.width > 0 && (
@@ -691,6 +696,7 @@ function StructureCanvas({ imageUrl, strokes = [], onChange }) {
             onTouchStart={handleStart}
             onTouchMove={handleMove}
             onTouchEnd={handleEnd}
+            onContextMenu={e => e.preventDefault()}
             style={{
               position: 'absolute',
               top: 0,
@@ -811,6 +817,7 @@ export default function ExamTakePage() {
   const [phase, setPhase]                 = useState('loading');
   const [submissionId, setSubmissionId]     = useState(null);
   const [deadline, setDeadline]             = useState(null);
+  const [serverOffset, setServerOffset]     = useState(0);
   const [questions, setQuestions]           = useState([]);
   const [answers, setAnswers]               = useState({});
   const [current, setCurrent]               = useState(0);
@@ -821,7 +828,7 @@ export default function ExamTakePage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [canvasStrokes, setCanvasStrokes] = useState({});
 
-  const { remaining, label: timerLabel, expired } = useCountdown(deadline);
+  const { remaining, label: timerLabel, expired } = useCountdown(deadline, serverOffset);
 
   useEffect(() => {
     const handleFsChange = () => {
@@ -858,6 +865,10 @@ export default function ExamTakePage() {
         const startRes = await studentApi.startExam(examId);
         const sid = startRes.data.data.submission_id;
         const dl  = startRes.data.data.deadline_at;
+        const st  = startRes.data.data.server_time;
+        if (st) {
+          setServerOffset(new Date(st).getTime() - Date.now());
+        }
         setSubmissionId(sid);
         setDeadline(dl);
         const qRes = await studentApi.getExamQuestions(examId);

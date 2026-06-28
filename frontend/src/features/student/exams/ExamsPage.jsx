@@ -449,8 +449,9 @@ function HistoryTab({ history, loading }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
           {historyList.map((r, idx) => {
             const pct       = r.percentage != null ? Math.round(r.percentage) : null;
-            const pctColor  = r.passed ? 'var(--green)' : 'var(--red)';
-            const pctBg     = r.passed ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)';
+            const pctColor  = r.is_structure_only ? 'var(--violet-l)' : r.passed ? 'var(--green)' : 'var(--red)';
+            const pctBg     = r.is_structure_only ? 'rgba(124,58,237,0.12)' : r.passed ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)';
+            const scoreText = r.is_structure_only ? 'Prc' : pct != null ? `${pct}%` : '—';
             return (
               <motion.div
                 key={r.submission_id}
@@ -461,7 +462,7 @@ function HistoryTab({ history, loading }) {
                 <Link to={`/exams/${r.exam_id}/result`} style={{ textDecoration: 'none' }}>
                   <div className="exam-card hoverable">
                     <div className="score-circle" style={{ background: pctBg, color: pctColor }}>
-                      {pct != null ? `${pct}%` : '—'}
+                      {scoreText}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <p style={{ fontWeight: 600, fontSize: '0.88rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.title}</p>
@@ -470,14 +471,24 @@ function HistoryTab({ history, loading }) {
                         <span className="meta-dot" />
                         <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}><Clock size={10} />{fmt(r.submitted_at)}</span>
                         <span className="meta-dot" />
-                        <span>{r.score}/{r.total_marks} marks</span>
+                        {r.is_structure_only ? (
+                          <span>Structure Practice</span>
+                        ) : (
+                          <span>{r.score}/{r.total_marks} marks</span>
+                        )}
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
-                      {r.rank && <span style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>#{r.rank}</span>}
-                      <span className="result-pill" style={{ background: r.passed ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', color: r.passed ? 'var(--green)' : 'var(--red)', border: `1px solid ${r.passed ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}` }}>
-                        {r.passed ? 'Passed' : 'Failed'}
-                      </span>
+                      {r.rank && !r.is_structure_only && <span style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>#{r.rank}</span>}
+                      {r.is_structure_only ? (
+                        <span className="result-pill" style={{ background: 'rgba(124,58,237,0.12)', color: 'var(--violet-l)', border: '1px solid rgba(124,58,237,0.25)' }}>
+                          Practice
+                        </span>
+                      ) : (
+                        <span className="result-pill" style={{ background: r.passed ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', color: r.passed ? 'var(--green)' : 'var(--red)', border: `1px solid ${r.passed ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}` }}>
+                          {r.passed ? 'Passed' : 'Failed'}
+                        </span>
+                      )}
                       <ChevronRight size={14} color="var(--muted)" />
                     </div>
                   </div>

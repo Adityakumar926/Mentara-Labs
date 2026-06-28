@@ -678,6 +678,8 @@ export default function SubjectPage() {
     ctx.clearRect(0, 0, overlay.width, overlay.height);
   };
   document.getElementById('btnClose').onclick = () => window.close();
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('dragstart', e => e.preventDefault());
 </script>
 </body>
 </html>`;
@@ -1084,6 +1086,7 @@ function WorksheetCanvas({ imageUrl, contentId, onSubmit, onClose }) {
               alt="Worksheet"
               onLoad={handleImageLoad}
               draggable={false}
+              style={{ pointerEvents: 'none', userSelect: 'none', WebkitUserSelect: 'none', WebkitUserDrag: 'none' }}
             />
 
             {/* Transparent drawing canvas layered on top */}
@@ -1098,6 +1101,7 @@ function WorksheetCanvas({ imageUrl, contentId, onSubmit, onClose }) {
               onTouchStart={startDraw}
               onTouchMove={draw}
               onTouchEnd={stopDraw}
+              onContextMenu={e => e.preventDefault()}
             />
 
             {/* Submitted overlay */}
