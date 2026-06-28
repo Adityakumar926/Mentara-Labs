@@ -422,9 +422,8 @@ exports.schedule = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Only draft or ended exams can be scheduled' });
     }
 
-    // Auto-calculate ends_at from scheduled_at + duration_minutes
-    const duration = qCount[0].duration_minutes ? parseInt(qCount[0].duration_minutes) : null;
-    const ends_at  = duration ? new Date(new Date(scheduled_at).getTime() + duration * 60 * 1000).toISOString() : null;
+    // Global ends_at is null (remains live until manually ended by admin)
+    const ends_at  = null;
 
     // Delete any old submissions to ensure fresh start
     await client.query(`DELETE FROM exam_submissions WHERE exam_id = $1`, [req.params.id]);
@@ -491,9 +490,9 @@ exports.goLive = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Exam must be draft, scheduled, or ended to go live' });
     }
 
-    const duration = qCount[0].duration_minutes ? parseInt(qCount[0].duration_minutes) : null;
     const scheduled_at = new Date().toISOString();
-    const ends_at  = duration ? new Date(new Date().getTime() + duration * 60 * 1000).toISOString() : null;
+    // Global ends_at is null (remains live until manually ended by admin)
+    const ends_at  = null;
 
     // Delete any old submissions to ensure fresh start
     await client.query(`DELETE FROM exam_submissions WHERE exam_id = $1`, [req.params.id]);
