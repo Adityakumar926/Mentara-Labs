@@ -347,11 +347,12 @@ export default function ResultPage() {
                         || (submission.exam_ends_at ? new Date() >= new Date(submission.exam_ends_at) : true);
   const showRank      = examEnded && rank != null;
 
-  const heroGlow   = passed ? 'rgba(16,185,129,0.2)' : percentage >= 50 ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.15)';
-  const heroBorder = passed ? 'rgba(16,185,129,0.3)' : percentage >= 50 ? 'rgba(245,158,11,0.2)' : 'rgba(239,68,68,0.2)';
-  const verdictBg  = passed ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)';
-  const verdictBdr = passed ? 'rgba(16,185,129,0.3)'  : 'rgba(239,68,68,0.3)';
-  const verdictClr = passed ? 'var(--green)' : 'var(--red)';
+  const hasPassing = submission.passed !== null;
+  const heroGlow   = passed ? 'rgba(16,185,129,0.2)' : !hasPassing ? 'rgba(124,58,237,0.15)' : percentage >= 50 ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.15)';
+  const heroBorder = passed ? 'rgba(16,185,129,0.3)' : !hasPassing ? 'rgba(124,58,237,0.2)'  : percentage >= 50 ? 'rgba(245,158,11,0.2)'  : 'rgba(239,68,68,0.2)';
+  const verdictBg  = passed ? 'rgba(16,185,129,0.12)' : !hasPassing ? 'rgba(124,58,237,0.12)' : 'rgba(239,68,68,0.12)';
+  const verdictBdr = passed ? 'rgba(16,185,129,0.3)'  : !hasPassing ? 'rgba(124,58,237,0.3)'  : 'rgba(239,68,68,0.3)';
+  const verdictClr = passed ? 'var(--green)' : !hasPassing ? 'var(--violet-l)' : 'var(--red)';
 
   const isStructureExam = breakdown && breakdown.length > 0 && breakdown.every(q => q.question_type === 'structure' || q.question_type === 'photo');
 
@@ -470,8 +471,8 @@ export default function ResultPage() {
             {/* Verdict badge */}
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35, type: 'spring', stiffness: 300 }}>
               <span className="result-verdict" style={{ background: verdictBg, border: `1px solid ${verdictBdr}`, color: verdictClr }}>
-                {passed ? <Trophy size={14} /> : <XCircle size={14} />}
-                {passed ? 'Passed' : 'Failed'}
+                {passed ? <Trophy size={14} /> : !hasPassing ? <CheckCircle size={14} /> : <XCircle size={14} />}
+                {passed ? 'Passed' : !hasPassing ? 'Completed' : 'Failed'}
               </span>
             </motion.div>
 
@@ -484,7 +485,7 @@ export default function ResultPage() {
             >
               {[
                 { label: 'Score',     val: submission.score,       color: 'var(--cream)' },
-                { label: 'Total',     val: submission.total_marks, color: 'var(--cream)' },
+                { label: 'Total',     val: submission.total_marks ?? '-', color: 'var(--cream)' },
                 submission.passing_marks && { label: 'Pass mark', val: submission.passing_marks, color: 'var(--muted)' },
               ].filter(Boolean).map((s, i) => (
                 <div key={i} className="result-stat">

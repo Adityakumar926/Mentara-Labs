@@ -474,7 +474,7 @@ function HistoryTab({ history, loading }) {
                         {r.is_structure_only ? (
                           <span>Structure Practice</span>
                         ) : (
-                          <span>{r.score}/{r.total_marks} marks</span>
+                          <span>{r.score}/{r.total_marks ?? '-'} marks</span>
                         )}
                       </div>
                     </div>
@@ -483,6 +483,10 @@ function HistoryTab({ history, loading }) {
                       {r.is_structure_only ? (
                         <span className="result-pill" style={{ background: 'rgba(124,58,237,0.12)', color: 'var(--violet-l)', border: '1px solid rgba(124,58,237,0.25)' }}>
                           Practice
+                        </span>
+                      ) : r.passed === null ? (
+                        <span className="result-pill" style={{ background: 'rgba(124,58,237,0.12)', color: 'var(--violet-l)', border: '1px solid rgba(124,58,237,0.25)' }}>
+                          Completed
                         </span>
                       ) : (
                         <span className="result-pill" style={{ background: r.passed ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', color: r.passed ? 'var(--green)' : 'var(--red)', border: `1px solid ${r.passed ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}` }}>

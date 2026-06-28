@@ -108,8 +108,8 @@ exports.create = async (req, res) => {
     const finalTotal = sanitizeNum(total_marks);
     const finalPassing = sanitizeNum(passing_marks);
 
-    if (!title || finalTotal === null)
-      return res.status(400).json({ success: false, message: 'title and total_marks are required' });
+    if (!title)
+      return res.status(400).json({ success: false, message: 'title is required' });
 
     const { rows } = await db.query(
       `INSERT INTO exams
@@ -169,7 +169,7 @@ exports.update = async (req, res) => {
          subject_id       = COALESCE($3,  subject_id),
          topic_id         = $4,
          duration_minutes = $5,
-         total_marks      = COALESCE($6,  total_marks),
+         total_marks      = $6,
          passing_marks    = $7,
          is_premium       = COALESCE($8,  is_premium)
        WHERE id = $9 AND status != 'live'
@@ -317,7 +317,7 @@ exports.addQuestions = async (req, res) => {
     const structQs = parseInt(structCheck[0]?.struct_qs || 0);
     if (totalQs > 0 && totalQs === structQs) {
       await client.query(
-        `UPDATE exams SET passing_marks = NULL WHERE id = $1`,
+        `UPDATE exams SET passing_marks = NULL, total_marks = NULL WHERE id = $1`,
         [req.params.id]
       );
     }
@@ -369,7 +369,7 @@ exports.removeQuestion = async (req, res) => {
     const structQs = parseInt(structCheck[0]?.struct_qs || 0);
     if (totalQs > 0 && totalQs === structQs) {
       await client.query(
-        `UPDATE exams SET passing_marks = NULL WHERE id = $1`,
+        `UPDATE exams SET passing_marks = NULL, total_marks = NULL WHERE id = $1`,
         [req.params.id]
       );
     }
