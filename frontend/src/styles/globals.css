@@ -21,6 +21,11 @@
   --local-card-bdr: rgba(255, 255, 255, 0.08);
   --local-cream: #F5F0E8;
   --local-muted: rgba(245, 240, 232, 0.45);
+
+  /* Accents defaults (dark) */
+  --local-lavender: #C4B5FD;
+  --local-cyan: #00D4FF;
+  --local-violet-l: #9D6FEF;
 }
 
 .light {
@@ -28,19 +33,24 @@
   --color-navy: #F8FAFC;
   --color-surface: #FFFFFF;
   --color-surface-card: #FFFFFF;
-  --color-surface-border: #E2E8F0;
-  --color-surface-hover: #F1F5F9;
-  --color-text-primary: #0F172A;
-  --color-text-secondary: #475569;
-  --color-text-muted: #94A3B8;
+  --color-surface-border: #CBD5E1; /* Darker grey border for boxes and cards visibility */
+  --color-surface-hover: #E2E8F0;
+  --color-text-primary: #0F172A; /* Slate 900 */
+  --color-text-secondary: #334155; /* Slate 700 for hard/dark secondary text */
+  --color-text-muted: #475569; /* Slate 600 for visible muted text */
 
   /* Component local variable overrides (light theme) */
   --local-navy: #F8FAFC;
   --local-navy2: #F1F5F9;
   --local-card-bg: #FFFFFF;
-  --local-card-bdr: #E2E8F0;
+  --local-card-bdr: #CBD5E1; /* Darker slate border for cards and cards-shadow outline */
   --local-cream: #0F172A;
-  --local-muted: #475569;
+  --local-muted: #334155; /* Slate 700 */
+
+  /* Accent overrides for light theme readability */
+  --local-lavender: #5B21B6; /* Dark purple for readable tags/badges */
+  --local-cyan: #0891B2; /* Dark cyan/teal */
+  --local-violet-l: #4F46E5; /* Dark indigo */
 }
 
 
@@ -85,7 +95,7 @@
 
   .skeleton {
     @apply bg-surface-border rounded-lg;
-    background: linear-gradient(90deg, #1f2d45 25%, #263245 50%, #1f2d45 75%);
+    background: linear-gradient(90deg, var(--color-surface-border) 25%, var(--color-surface-hover) 50%, var(--color-surface-border) 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
   }

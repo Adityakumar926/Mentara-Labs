@@ -21,10 +21,10 @@ const CSS = `
   .sp-root {
     --navy:     var(--local-navy, #0A0E1A);
     --violet:   #7C3AED;
-    --violet-l: #9D6FEF;
-    --cyan:     #00D4FF;
+    --violet-l: var(--local-violet-l, #9D6FEF);
+    --cyan:     var(--local-cyan, #00D4FF);
     --cream:    var(--local-cream, #F5F0E8);
-    --lavender: #C4B5FD;
+    --lavender: var(--local-lavender, #C4B5FD);
     --green:    #10B981;
     --amber:    #F59E0B;
     --muted:    var(--local-muted, rgba(245,240,232,0.45));
