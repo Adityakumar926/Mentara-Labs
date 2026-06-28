@@ -776,10 +776,12 @@ export default function QuestionsPage() {
               </Select>
             </div>
 
-            {/* Photo questions: the image attached to the question itself */}
-            {form.question_type === 'photo' && (
+            {/* Optional reference image for MCQ/fill_blank or required for photo (structure) questions */}
+            {(form.question_type === 'photo' || form.question_type === 'mcq' || form.question_type === 'fill_blank') && (
               <div>
-                <p className="qp-section-label">Question Image</p>
+                <p className="qp-section-label">
+                  {form.question_type === 'photo' ? 'Question Image' : 'Question Image (Optional)'}
+                </p>
                 {form.image_url ? (
                   <div className="qp-image-preview-wrap">
                     <img src={form.image_url} alt="Question" className="qp-image-preview" />

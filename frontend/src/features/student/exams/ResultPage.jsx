@@ -560,8 +560,8 @@ export default function ResultPage() {
                       </div>
                     </div>
 
-                    {/* Image Display for Structured Text Questions */}
-                    {q.question_type === 'photo' && q.image_url && (
+                    {/* Image Display for Questions */}
+                    {q.image_url && (
                       <div style={{ marginTop: '0.85rem', display: 'flex', justifyContent: 'center' }}>
                         <img 
                           src={q.image_url} 

@@ -1038,6 +1038,25 @@ export default function ExamTakePage() {
                       onChange={(newStrokes) => setCanvasStrokes(p => ({ ...p, [q.id]: newStrokes }))}
                     />
                   )}
+
+                  {/* Optional reference image for MCQ/fill_blank questions */}
+                  {q.question_type !== 'photo' && q.image_url && (
+                    <div style={{ marginTop: '1rem', width: '100%', display: 'flex', justifyContent: 'center' }}>
+                      <img 
+                        src={q.image_url} 
+                        alt="Question reference" 
+                        style={{ 
+                          maxWidth: '100%', 
+                          maxHeight: '320px', 
+                          objectFit: 'contain', 
+                          borderRadius: '12px', 
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          background: 'rgba(0,0,0,0.2)',
+                          padding: '0.5rem'
+                        }} 
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* Answer area */}
