@@ -11,6 +11,7 @@ import { studentApi } from '@/api/services';
 import useAuthStore from '@/store/authStore';
 import MuxPlayer from '@mux/mux-player-react';
 import clsx from 'clsx';
+import toast from 'react-hot-toast';
 
 /* ─── Premium Modern CSS ─── */
 const CSS = `
@@ -298,10 +299,15 @@ export default function Explore() {
   // Launch animation in new tab
   const handleLaunchAnimation = async (content) => {
     if (content.is_premium && !isUserPremium) return;
+    if (!content.animation_id) {
+      toast.error('Animation ID is missing.');
+      return;
+    }
     
     const animWindow = window.open('', '_blank');
     if (animWindow) {
       animWindow.document.write('<div style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;background:#0A0E1A;color:#fff;">Loading Animation...</div>');
+      animWindow.document.close();
     }
 
     setLoadingActionId(content.id);
@@ -309,11 +315,13 @@ export default function Explore() {
       const res = await studentApi.getAnimation(content.animation_id);
       const anim = res.data.data;
       if (anim?.html_content && animWindow) {
-        animWindow.document.open();
-        animWindow.document.write(anim.html_content);
-        animWindow.document.close();
+        const blob = new Blob([anim.html_content], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        animWindow.location.href = url;
+        setTimeout(() => URL.revokeObjectURL(url), 10_000);
       } else if (animWindow) {
         animWindow.close();
+        toast.error('No content found for this animation.');
       }
       // Track completion
       await studentApi.trackResource({ contentId: content.id, completed: true });
@@ -321,6 +329,7 @@ export default function Explore() {
     } catch (e) {
       console.error('Failed to open animation:', e);
       if (animWindow) animWindow.close();
+      toast.error('Failed to open animation.');
     } finally {
       setLoadingActionId(null);
     }

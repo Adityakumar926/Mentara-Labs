@@ -423,23 +423,27 @@ export default function SubjectPage() {
 
   const { data: content, loading, refetch } = useApi(
     () => studentApi.getTopicContent(topicId), null, [topicId]
-  );
-
-
-  const handleOpenAnimation = async (animId) => {
+  );  const handleOpenAnimation = async (animId) => {
+    if (!animId) {
+      toast.error('Animation ID is missing.');
+      return;
+    }
     const animWindow = window.open('', '_blank');
     if (animWindow) {
       animWindow.document.write('<div style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;background:#0A0E1A;color:#fff;">Loading Animation...</div>');
+      animWindow.document.close();
     }
     try {
       const res = await studentApi.getAnimation(animId);
       const anim = res.data.data;
       if (anim?.html_content && animWindow) {
-        animWindow.document.open();
-        animWindow.document.write(anim.html_content);
-        animWindow.document.close();
+        const blob = new Blob([anim.html_content], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        animWindow.location.href = url;
+        setTimeout(() => URL.revokeObjectURL(url), 10_000);
       } else if (animWindow) {
         animWindow.close();
+        toast.error('No content found for this animation.');
       }
     } catch (e) {
       console.error(e);
@@ -447,8 +451,6 @@ export default function SubjectPage() {
       toast.error('Failed to open animation.');
     }
   };
-
-
 
   // Setup popup window callback for worksheet drawing submission
   useEffect(() => {
