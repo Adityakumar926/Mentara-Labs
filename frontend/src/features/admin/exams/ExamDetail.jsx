@@ -1119,10 +1119,10 @@ export default function ExamDetail() {
 
             <div style={{ display: 'grid', gridTemplateColumns: editForm.duration_minutes !== null ? '1fr 1fr 1fr' : '1fr 1fr', gap: '0.75rem' }}>
               {editForm.duration_minutes !== null && (
-                <Input label="Duration (min)" type="number" value={editForm.duration_minutes ?? ''} onChange={(e) => setEdit('duration_minutes', e.target.value === '' ? null : +e.target.value)} />
+                <Input label="Duration (min)" type="number" value={editForm.duration_minutes || ''} onChange={(e) => setEdit('duration_minutes', e.target.value === '' ? null : +e.target.value)} />
               )}
-              <Input label="Total Marks"    type="number" value={editForm.total_marks}       onChange={(e) => setEdit('total_marks',       +e.target.value)} />
-              <Input label="Passing Marks"  type="number" value={editForm.passing_marks ?? ''}     onChange={(e) => setEdit('passing_marks',     e.target.value === '' ? null : +e.target.value)} />
+              <Input label="Total Marks"    type="number" value={editForm.total_marks || ''}       onChange={(e) => setEdit('total_marks',       e.target.value === '' ? '' : +e.target.value)} />
+              <Input label="Passing Marks"  type="number" value={editForm.passing_marks || ''}     onChange={(e) => setEdit('passing_marks',     e.target.value === '' ? null : +e.target.value)} />
             </div>
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <Toggle label="Enable Exam Timer" checked={editForm.duration_minutes !== null} onChange={(checked) => setEdit('duration_minutes', checked ? 60 : null)} />

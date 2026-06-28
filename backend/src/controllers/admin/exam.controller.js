@@ -103,7 +103,12 @@ exports.create = async (req, res) => {
       duration_minutes, total_marks, passing_marks, is_premium
     } = req.body;
 
-    if (!title || total_marks === undefined || total_marks === null)
+    const sanitizeNum = (val) => (val === '' || val === undefined || val === null) ? null : Number(val);
+    const finalDuration = sanitizeNum(duration_minutes);
+    const finalTotal = sanitizeNum(total_marks);
+    const finalPassing = sanitizeNum(passing_marks);
+
+    if (!title || finalTotal === null)
       return res.status(400).json({ success: false, message: 'title and total_marks are required' });
 
     const { rows } = await db.query(
@@ -116,9 +121,9 @@ exports.create = async (req, res) => {
         description        || null,
         subject_id         || null,
         topic_id           || null,
-        duration_minutes === undefined ? null : duration_minutes,
-        total_marks,
-        passing_marks      || null,
+        finalDuration,
+        finalTotal,
+        finalPassing,
         is_premium ?? false,
         req.user.id
       ]
@@ -136,6 +141,11 @@ exports.update = async (req, res) => {
       duration_minutes, total_marks, passing_marks, is_premium
     } = req.body;
 
+    const sanitizeNum = (val) => (val === '' || val === undefined || val === null) ? null : Number(val);
+    const finalDuration = sanitizeNum(duration_minutes);
+    const finalTotal = sanitizeNum(total_marks);
+    let finalPassing = sanitizeNum(passing_marks);
+
     // Check if the exam has only structure questions
     const { rows: structCheck } = await db.query(
       `SELECT COUNT(*) AS total_qs,
@@ -148,9 +158,8 @@ exports.update = async (req, res) => {
     const totalQs = parseInt(structCheck[0]?.total_qs || 0);
     const structQs = parseInt(structCheck[0]?.struct_qs || 0);
 
-    let finalPassingMarks = passing_marks;
     if (totalQs > 0 && totalQs === structQs) {
-      finalPassingMarks = null;
+      finalPassing = null;
     }
 
     const { rows } = await db.query(
@@ -170,9 +179,9 @@ exports.update = async (req, res) => {
         description  || null,
         subject_id   || null,
         topic_id     || null,
-        duration_minutes === undefined ? null : duration_minutes,
-        total_marks  || null,
-        finalPassingMarks === undefined ? null : finalPassingMarks,
+        finalDuration,
+        finalTotal,
+        finalPassing,
         is_premium ?? null,
         req.params.id
       ]

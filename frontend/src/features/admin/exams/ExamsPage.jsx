@@ -586,10 +586,10 @@ export default function ExamsPage() {
 
             <div style={{ display: 'grid', gridTemplateColumns: form.duration_minutes !== null ? '1fr 1fr 1fr' : '1fr 1fr', gap: '0.75rem' }}>
               {form.duration_minutes !== null && (
-                <Input label="Duration (min)" type="number" value={form.duration_minutes ?? ''} onChange={(e) => set('duration_minutes', e.target.value === '' ? null : +e.target.value)} />
+                <Input label="Duration (min)" type="number" value={form.duration_minutes || ''} onChange={(e) => set('duration_minutes', e.target.value === '' ? null : +e.target.value)} />
               )}
-              <Input label="Total Marks"    type="number" value={form.total_marks}       onChange={(e) => set('total_marks',       +e.target.value)} />
-              <Input label="Passing Marks"  type="number" value={form.passing_marks ?? ''}     onChange={(e) => set('passing_marks',     e.target.value === '' ? null : +e.target.value)} />
+              <Input label="Total Marks"    type="number" value={form.total_marks || ''}       onChange={(e) => set('total_marks',       e.target.value === '' ? '' : +e.target.value)} />
+              <Input label="Passing Marks"  type="number" value={form.passing_marks || ''}     onChange={(e) => set('passing_marks',     e.target.value === '' ? null : +e.target.value)} />
             </div>
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <Toggle label="Enable Exam Timer" checked={form.duration_minutes !== null} onChange={(checked) => set('duration_minutes', checked ? 60 : null)} />
