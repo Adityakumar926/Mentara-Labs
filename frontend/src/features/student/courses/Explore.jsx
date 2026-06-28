@@ -268,7 +268,7 @@ export default function Explore() {
 
       // 2. Material type sub-filter
       if (activeTab === 'materials' && activeMatType !== 'all') {
-        if (activeMatType === 'notes' && c.content_type !== 'notes') return false;
+        if (activeMatType === 'notes' && c.content_type !== 'note') return false;
         if (activeMatType === 'video' && c.content_type !== 'video') return false;
         if (activeMatType === 'worksheet' && c.content_type !== 'worksheet') return false;
       }
@@ -770,7 +770,7 @@ export default function Explore() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   {activeContents.map(c => {
                     const locked = c.is_premium && !isUserPremium;
-                    const isNotes = c.content_type === 'notes';
+                    const isNotes = c.content_type === 'note' || c.content_type === 'notes';
                     const isVideo = c.content_type === 'video';
                     const isWorksheet = c.content_type === 'worksheet';
                     
