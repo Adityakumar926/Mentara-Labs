@@ -304,32 +304,30 @@ export default function Explore() {
       return;
     }
     
-    const animWindow = window.open('', '_blank');
-    if (animWindow) {
-      animWindow.document.write('<div style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;background:#0A0E1A;color:#fff;">Loading Animation...</div>');
-      animWindow.document.close();
-    }
-
+    const toastId = toast.loading('Preparing animation...');
     setLoadingActionId(content.id);
     try {
       const res = await studentApi.getAnimation(content.animation_id);
       const anim = res.data.data;
-      if (anim?.html_content && animWindow) {
+      if (anim?.html_content) {
         const blob = new Blob([anim.html_content], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
-        animWindow.location.href = url;
-        setTimeout(() => URL.revokeObjectURL(url), 10_000);
-      } else if (animWindow) {
-        animWindow.close();
-        toast.error('No content found for this animation.');
+        const animWindow = window.open(url, '_blank');
+        if (!animWindow) {
+          toast.error('Popup blocker active. Please allow popups for this site.', { id: toastId });
+        } else {
+          toast.success('Animation loaded!', { id: toastId });
+          setTimeout(() => URL.revokeObjectURL(url), 10_000);
+        }
+      } else {
+        toast.error('No content found for this animation.', { id: toastId });
       }
       // Track completion
       await studentApi.trackResource({ contentId: content.id, completed: true });
       refetch();
     } catch (e) {
       console.error('Failed to open animation:', e);
-      if (animWindow) animWindow.close();
-      toast.error('Failed to open animation.');
+      toast.error('Failed to open animation.', { id: toastId });
     } finally {
       setLoadingActionId(null);
     }
