@@ -21,7 +21,7 @@ const CSS = `
 
   .al-root {
     display: flex; height: 100vh; overflow: hidden;
-    background: #0A0E1A;
+    background: var(--color-navy);
     font-family: 'Inter', sans-serif;
   }
 
@@ -29,8 +29,8 @@ const CSS = `
   .al-aside {
     width: 232px; flex-shrink: 0;
     display: flex; flex-direction: column;
-    background: rgba(255,255,255,0.025);
-    border-right: 1px solid rgba(255,255,255,0.07);
+    background: var(--local-card-bg);
+    border-right: 1px solid var(--local-card-bdr);
     position: relative; overflow: hidden;
   }
   /* Subtle ambient glow behind sidebar */
@@ -60,7 +60,7 @@ const CSS = `
   .al-logo {
     display: flex; align-items: center; gap: 0.75rem;
     padding: 1.4rem 1.25rem 1.3rem;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
+    border-bottom: 1px solid var(--local-card-bdr);
     position: relative; z-index: 1; flex-shrink: 0;
   }
   .al-logo-mark {
@@ -71,13 +71,13 @@ const CSS = `
   .al-logo-text {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 0.95rem; font-weight: 700;
-    background: linear-gradient(135deg, #F5F0E8 0%, #C4B5FD 100%);
+    background: linear-gradient(135deg, var(--local-cream) 0%, #C4B5FD 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     line-height: 1.2;
   }
   .al-logo-sub {
     font-size: 0.62rem; font-weight: 600; letter-spacing: 0.08em;
-    text-transform: uppercase; color: rgba(245,240,232,0.35); margin-top: 0.05rem;
+    text-transform: uppercase; color: var(--color-text-muted); margin-top: 0.05rem;
   }
 
   /* ── NAV ── */
@@ -92,18 +92,18 @@ const CSS = `
     display: flex; align-items: center; gap: 0.75rem;
     padding: 0.6rem 0.85rem; border-radius: 14px;
     font-size: 0.8rem; font-weight: 500;
-    color: rgba(245,240,232,0.45);
+    color: var(--color-text-secondary);
     text-decoration: none; cursor: pointer;
     transition: color 0.2s, background 0.2s;
     position: relative; overflow: hidden;
     border: 1px solid transparent;
   }
   .al-nav-item:hover {
-    color: rgba(245,240,232,0.85);
-    background: rgba(255,255,255,0.04);
+    color: var(--color-text-primary);
+    background: var(--color-surface-hover);
   }
   .al-nav-item.active {
-    color: #fff;
+    color: var(--color-text-primary);
     background: rgba(124,58,237,0.14);
     border-color: rgba(124,58,237,0.25);
   }
@@ -116,11 +116,11 @@ const CSS = `
     background: linear-gradient(180deg, #7C3AED, #00D4FF);
     box-shadow: 0 0 8px rgba(124,58,237,0.8);
   }
-  .al-nav-icon { color: rgba(245,240,232,0.35); transition: color 0.2s; flex-shrink: 0; }
-  .al-nav-item:hover .al-nav-icon { color: rgba(245,240,232,0.7); }
+  .al-nav-icon { color: var(--color-text-muted); transition: color 0.2s; flex-shrink: 0; }
+  .al-nav-item:hover .al-nav-icon { color: var(--color-text-secondary); }
   .al-nav-label { flex: 1; }
   .al-nav-chevron {
-    opacity: 0; color: rgba(245,240,232,0.3);
+    opacity: 0; color: var(--color-text-muted);
     transition: opacity 0.2s, transform 0.2s;
   }
   .al-nav-item:hover .al-nav-chevron { opacity: 1; transform: translateX(2px); }
@@ -129,17 +129,17 @@ const CSS = `
   /* ── USER FOOTER ── */
   .al-footer {
     padding: 0.65rem;
-    border-top: 1px solid rgba(255,255,255,0.07);
+    border-top: 1px solid var(--local-card-bdr);
     position: relative; z-index: 1; flex-shrink: 0;
   }
   .al-user-row {
     display: flex; align-items: center; gap: 0.65rem;
     padding: 0.65rem 0.75rem; border-radius: 16px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: var(--local-card-bg);
+    border: 1px solid var(--local-card-bdr);
     transition: background 0.2s, border-color 0.2s;
   }
-  .al-user-row:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+  .al-user-row:hover { background: var(--color-surface-hover); border-color: var(--local-card-bdr); }
   .al-avatar {
     width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
     background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(0,212,255,0.2));
@@ -150,18 +150,18 @@ const CSS = `
     color: #C4B5FD;
   }
   .al-user-name {
-    font-size: 0.75rem; font-weight: 600; color: #F5F0E8;
+    font-size: 0.75rem; font-weight: 600; color: var(--color-text-primary);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .al-user-email {
-    font-size: 0.62rem; color: rgba(245,240,232,0.35);
+    font-size: 0.62rem; color: var(--color-text-muted);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .al-logout {
     width: 28px; height: 28px; border-radius: 9px;
     background: none; border: none; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    color: rgba(245,240,232,0.35);
+    color: var(--color-text-muted);
     transition: color 0.2s, background 0.2s;
     flex-shrink: 0;
   }
@@ -170,7 +170,7 @@ const CSS = `
   /* ── MAIN ── */
   .al-main {
     flex: 1; overflow-y: auto;
-    background: #0A0E1A;
+    background: var(--color-navy);
   }
   .al-main::-webkit-scrollbar { width: 6px; }
   .al-main::-webkit-scrollbar-track { background: transparent; }

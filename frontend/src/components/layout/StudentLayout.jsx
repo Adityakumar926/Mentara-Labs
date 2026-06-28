@@ -18,7 +18,7 @@ const CSS = `
 
   .sl-root {
     display: flex; height: 100vh; overflow: hidden;
-    background: #0A0E1A;
+    background: var(--color-navy);
     font-family: 'Inter', sans-serif;
   }
 
@@ -40,8 +40,8 @@ const CSS = `
   .sl-aside {
     width: 220px; flex-shrink: 0;
     display: flex; flex-direction: column;
-    background: rgba(255,255,255,0.025);
-    border-right: 1px solid rgba(255,255,255,0.07);
+    background: var(--local-card-bg);
+    border-right: 1px solid var(--local-card-bdr);
     position: relative; overflow: hidden;
   }
   @media (max-width: 767px) { .sl-aside { display: none; } }
@@ -68,7 +68,7 @@ const CSS = `
   .sl-logo {
     display: flex; align-items: center; justify-content: space-between; gap: 0.7rem;
     padding: 1.4rem 1.2rem 1.3rem;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
+    border-bottom: 1px solid var(--local-card-bdr);
     position: relative; z-index: 1; flex-shrink: 0;
   }
   .sl-logo-left { display: flex; align-items: center; gap: 0.7rem; min-width: 0; }
@@ -80,7 +80,7 @@ const CSS = `
   .sl-logo-text {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 0.92rem; font-weight: 700;
-    background: linear-gradient(135deg, #F5F0E8 0%, #C4B5FD 100%);
+    background: linear-gradient(135deg, var(--local-cream) 0%, #C4B5FD 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   }
 
@@ -96,18 +96,18 @@ const CSS = `
     display: flex; align-items: center; gap: 0.7rem;
     padding: 0.6rem 0.85rem; border-radius: 14px;
     font-size: 0.8rem; font-weight: 500;
-    color: rgba(245,240,232,0.45);
+    color: var(--color-text-secondary);
     text-decoration: none;
     transition: color 0.2s, background 0.2s;
     position: relative; overflow: hidden;
     border: 1px solid transparent;
   }
   .sl-nav-item:hover {
-    color: rgba(245,240,232,0.85);
-    background: rgba(255,255,255,0.04);
+    color: var(--color-text-primary);
+    background: var(--color-surface-hover);
   }
   .sl-nav-item.active {
-    color: #fff;
+    color: var(--color-text-primary);
     background: rgba(124,58,237,0.14);
     border-color: rgba(124,58,237,0.25);
   }
@@ -118,12 +118,12 @@ const CSS = `
     background: linear-gradient(180deg, #7C3AED, #00D4FF);
     box-shadow: 0 0 8px rgba(124,58,237,0.8);
   }
-  .sl-nav-icon { color: rgba(245,240,232,0.35); transition: color 0.2s; flex-shrink: 0; }
-  .sl-nav-item:hover .sl-nav-icon { color: rgba(245,240,232,0.7); }
+  .sl-nav-icon { color: var(--color-text-muted); transition: color 0.2s; flex-shrink: 0; }
+  .sl-nav-item:hover .sl-nav-icon { color: var(--color-text-secondary); }
   .sl-nav-item.active .sl-nav-icon { color: #C4B5FD; }
   .sl-nav-label { flex: 1; }
   .sl-nav-chevron {
-    opacity: 0; color: rgba(245,240,232,0.3);
+    opacity: 0; color: var(--color-text-muted);
     transition: opacity 0.2s, transform 0.2s;
   }
   .sl-nav-item:hover .sl-nav-chevron { opacity: 1; transform: translateX(2px); }
@@ -178,17 +178,17 @@ const CSS = `
   /* User footer */
   .sl-footer {
     padding: 0.6rem;
-    border-top: 1px solid rgba(255,255,255,0.07);
+    border-top: 1px solid var(--local-card-bdr);
     position: relative; z-index: 1; flex-shrink: 0;
   }
   .sl-user-row {
     display: flex; align-items: center; gap: 0.6rem;
     padding: 0.6rem 0.7rem; border-radius: 14px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: var(--local-card-bg);
+    border: 1px solid var(--local-card-bdr);
     transition: background 0.2s, border-color 0.2s;
   }
-  .sl-user-row:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+  .sl-user-row:hover { background: var(--color-surface-hover); border-color: var(--local-card-bdr); }
   .sl-avatar {
     width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
     background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(0,212,255,0.2));
@@ -199,13 +199,13 @@ const CSS = `
     overflow: hidden;
   }
   .sl-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-  .sl-user-name { font-size: 0.72rem; font-weight: 600; color: #F5F0E8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .sl-user-email { font-size: 0.6rem; color: rgba(245,240,232,0.35); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sl-user-name { font-size: 0.72rem; font-weight: 600; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sl-user-email { font-size: 0.6rem; color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .sl-logout {
     width: 26px; height: 26px; border-radius: 8px;
     background: none; border: none; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    color: rgba(245,240,232,0.3); flex-shrink: 0;
+    color: var(--color-text-muted); flex-shrink: 0;
     transition: color 0.2s, background 0.2s;
   }
   .sl-logout:hover { color: #FCA5A5; background: rgba(239,68,68,0.1); }
@@ -213,7 +213,7 @@ const CSS = `
   /* ── MAIN ── */
   .sl-main {
     flex: 1; overflow-y: auto;
-    background: #0A0E1A;
+    background: var(--color-navy);
     padding-bottom: 0;
   }
   @media (max-width: 767px) { .sl-main { padding-bottom: 72px; } }
@@ -226,9 +226,9 @@ const CSS = `
   .sl-bottom-nav {
     display: none;
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
-    background: rgba(10,14,26,0.92);
+    background: var(--color-surface);
     backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255,255,255,0.07);
+    border-top: 1px solid var(--local-card-bdr);
   }
   @media (max-width: 767px) { .sl-bottom-nav { display: flex; } }
 
@@ -238,12 +238,12 @@ const CSS = `
     padding: 0.6rem 0 0.55rem;
     gap: 0.22rem;
     text-decoration: none;
-    color: rgba(245,240,232,0.35);
+    color: var(--color-text-secondary);
     font-size: 0.58rem; font-weight: 600; letter-spacing: 0.04em;
     transition: color 0.2s;
     position: relative;
   }
-  .sl-bottom-item:hover { color: rgba(245,240,232,0.7); }
+  .sl-bottom-item:hover { color: var(--color-text-primary); }
   .sl-bottom-item.active { color: #C4B5FD; }
   /* Active indicator dot above icon */
   .sl-bottom-item.active::before {
