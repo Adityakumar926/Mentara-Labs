@@ -760,21 +760,24 @@ export default function SubjectPage() {
 
   const categories = [
     { id: 'all', label: 'All', icon: BookOpen, count: totalItemsCount },
-    { id: 'materials', label: 'Materials', icon: FileText, count: items.filter(i => i.content_type === 'video' || i.content_type === 'note' || i.content_type === 'animation').length },
+    { id: 'materials', label: 'Materials', icon: FileText, count: items.filter(i => i.content_type === 'video' || i.content_type === 'note').length },
+    { id: 'animations', label: 'Animations', icon: Sparkles, count: items.filter(i => i.content_type === 'animation').length },
     { id: 'practice', label: 'Worksheets', icon: Image, count: items.filter(i => i.content_type === 'worksheet').length },
     { id: 'exams', label: 'Exams', icon: CheckCircle2, count: exams.length },
   ];
 
   const filteredGroups = groups.filter(g => {
     if (activeCategory === 'all') return true;
-    if (activeCategory === 'materials') return g.key === 'video' || g.key === 'note' || g.key === 'animation';
+    if (activeCategory === 'materials') return g.key === 'video' || g.key === 'note';
+    if (activeCategory === 'animations') return g.key === 'animation';
     if (activeCategory === 'practice') return g.key === 'worksheet';
     if (activeCategory === 'exams') return g.key === 'exam';
     return true;
   });
 
   const categoryEmptyConfigs = {
-    materials: { title: 'No learning materials yet', desc: 'There are no notes, videos, or animations available for this topic yet.' },
+    materials: { title: 'No materials yet', desc: 'There are no notes or videos available for this topic yet.' },
+    animations: { title: 'No animations yet', desc: 'There are no interactive animations available for this topic yet.' },
     practice:  { title: 'No worksheets yet', desc: 'There are no practice worksheets available for this topic yet.' },
     exams:     { title: 'No exams yet', desc: 'There are no exams scheduled or live for this topic yet.' },
     all:       { title: 'No content yet', desc: 'Your teacher has not uploaded any content for this topic yet.' }
@@ -865,7 +868,7 @@ export default function SubjectPage() {
 
             {filteredGroups.length === 0 ? (
               <EmptyState
-                icon={activeCategory === 'exams' ? CheckCircle2 : activeCategory === 'practice' ? Image : FileText}
+                icon={activeCategory === 'exams' ? CheckCircle2 : activeCategory === 'practice' ? Image : activeCategory === 'animations' ? Sparkles : FileText}
                 title={emptyCfg.title}
                 description={emptyCfg.desc}
               />
