@@ -795,7 +795,12 @@ export default function Explore() {
                     const ActionIconComp = actionIcon;
 
                     return (
-                      <div key={c.id} className="ex-mat-card">
+                      <div 
+                        key={c.id} 
+                        className={clsx('ex-mat-card', locked && 'locked')}
+                        onClick={locked || loadingActionId === c.id ? undefined : handler}
+                        style={{ cursor: locked ? 'not-allowed' : 'pointer' }}
+                      >
                         <div className="ex-mat-left">
                           <div className={clsx('ex-mat-icon-wrap', iconCls)}>
                             <IconComp size={16} />
@@ -809,10 +814,8 @@ export default function Explore() {
                           </div>
                         </div>
 
-                        <button 
+                        <div 
                           className={clsx('ex-mat-btn-action', locked && 'locked')}
-                          disabled={locked || loadingActionId === c.id}
-                          onClick={handler}
                         >
                           {loadingActionId === c.id ? (
                             '...'
@@ -821,7 +824,7 @@ export default function Explore() {
                           ) : (
                             <ActionIconComp size={12} />
                           )}
-                        </button>
+                        </div>
                       </div>
                     );
                   })}
