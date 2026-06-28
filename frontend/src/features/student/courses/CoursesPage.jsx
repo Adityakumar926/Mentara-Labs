@@ -11,16 +11,16 @@ const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
 
   .cp-root {
-    --navy:       #0A0E1A;
-    --navy2:      #0F1629;
+    --navy:       var(--local-navy, #0A0E1A);
+    --navy2:      var(--local-navy2, #0F1629);
     --violet:     #7C3AED;
     --violet-l:   #9D6FEF;
     --cyan:       #00D4FF;
-    --cream:      #F5F0E8;
+    --cream:      var(--local-cream, #F5F0E8);
     --lavender:   #C4B5FD;
-    --muted:      rgba(245,240,232,0.45);
-    --card-bg:    rgba(255,255,255,0.04);
-    --card-bdr:   rgba(255,255,255,0.08);
+    --muted:      var(--local-muted, rgba(245,240,232,0.45));
+    --card-bg:    var(--local-card-bg, rgba(255,255,255,0.04));
+    --card-bdr:   var(--local-card-bdr, rgba(255,255,255,0.08));
     font-family: 'Inter', sans-serif;
     color: var(--cream);
   }
@@ -337,7 +337,7 @@ export default function CoursesPage() {
         {loading ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
             {Array(4).fill(0).map((_, i) => (
-              <div key={i} style={{ borderRadius: 24, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.03)' }}>
+              <div key={i} style={{ borderRadius: 24, overflow: 'hidden', border: '1px solid var(--local-card-bdr)', background: 'var(--local-card-bg)' }}>
                 <div className="cp-skeleton" style={{ height: 160 }} />
                 <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   <div className="cp-skeleton" style={{ height: 18, width: '70%' }} />

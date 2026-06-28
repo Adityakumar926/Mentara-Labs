@@ -14,20 +14,20 @@ const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
 
   .prof-root {
-    --navy:       #0A0E1A;
-    --navy2:      #0F1629;
-    --navy3:      #131929;
+    --navy:       var(--local-navy, #0A0E1A);
+    --navy2:      var(--local-navy2, #0F1629);
+    --navy3:      var(--local-navy2, #131929);
     --violet:     #7C3AED;
     --violet-l:   #9D6FEF;
     --cyan:       #00D4FF;
-    --cream:      #F5F0E8;
+    --cream:      var(--local-cream, #F5F0E8);
     --lavender:   #C4B5FD;
     --amber:      #F59E0B;
     --green:      #10B981;
     --red:        #EF4444;
-    --card-bg:    rgba(255,255,255,0.04);
-    --card-bdr:   rgba(255,255,255,0.08);
-    --muted:      rgba(245,240,232,0.45);
+    --card-bg:    var(--local-card-bg, rgba(255,255,255,0.04));
+    --card-bdr:   var(--local-card-bdr, rgba(255,255,255,0.08));
+    --muted:      var(--local-muted, rgba(245,240,232,0.45));
     font-family: 'Inter', sans-serif;
     color: var(--cream);
     overflow-x: hidden;

@@ -56,15 +56,15 @@ const CSS = `
 
   .sp-back-btn {
     width: 40px; height: 40px; border-radius: 14px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--local-card-bg);
+    border: 1px solid var(--local-card-bdr);
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; color: var(--muted);
     transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.2s;
     flex-shrink: 0; position: relative; z-index: 1;
   }
   .sp-back-btn:hover {
-    background: rgba(124,58,237,0.15); border-color: rgba(124,58,237,0.3);
+    background: var(--color-surface-hover); border-color: var(--violet);
     color: var(--lavender); transform: translateX(-2px);
   }
   .sp-header-text { position: relative; z-index: 1; }
@@ -333,12 +333,11 @@ const CSS = `
   }
   .ws-submitted-sub { font-size: 0.78rem; color: var(--muted); }
 
-  /* ── TABS ── */
   .sp-tabs {
     display: flex;
     gap: 0.5rem;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.06);
+    background: var(--local-card-bg);
+    border: 1px solid var(--local-card-bdr);
     padding: 0.35rem;
     border-radius: 16px;
     margin-bottom: 1.5rem;
@@ -365,26 +364,26 @@ const CSS = `
   }
   .sp-tab-btn:hover {
     color: var(--cream);
-    background: rgba(255,255,255,0.03);
+    background: var(--color-surface-hover);
   }
   .sp-tab-btn.active {
     color: #fff;
-    background: linear-gradient(135deg, rgba(124,58,237,0.2) 0%, rgba(0,212,255,0.1) 100%);
+    background: linear-gradient(135deg, var(--violet) 0%, var(--violet-l) 100%);
     border: 1px solid rgba(124,58,237,0.25);
     box-shadow: 0 4px 15px rgba(124,58,237,0.15);
   }
   .sp-tab-count {
     font-size: 0.68rem;
     padding: 0.1rem 0.45rem;
-    background: rgba(255,255,255,0.05);
+    background: var(--color-surface-hover);
     border-radius: 6px;
-    color: var(--muted);
+    color: var(--color-text-secondary);
     font-weight: 700;
     transition: all 0.2s;
   }
   .sp-tab-btn.active .sp-tab-count {
-    background: rgba(124,58,237,0.3);
-    color: var(--lavender);
+    background: rgba(255,255,255,0.2);
+    color: #fff;
   }
 `;
 
@@ -838,7 +837,7 @@ export default function SubjectPage() {
         {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
             {Array(6).fill(0).map((_, i) => (
-              <div key={i} style={{ borderRadius: 18, border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.03)', padding: '1rem 1.15rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div key={i} style={{ borderRadius: 18, border: '1px solid var(--local-card-bdr)', background: 'var(--local-card-bg)', padding: '1rem 1.15rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <div className="sp-skel" style={{ width: 44, height: 44, borderRadius: 14, flexShrink: 0 }} />
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                   <div className="sp-skel" style={{ height: 14, width: '60%' }} />

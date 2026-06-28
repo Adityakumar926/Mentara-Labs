@@ -88,36 +88,36 @@ const CSS = `
   .ex-search-wrap { position: relative; flex: 1; min-width: 260px; }
   .ex-search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
   .ex-search {
-    width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    width: 100%; background: var(--local-card-bg); border: 1px solid var(--local-card-bdr);
     border-radius: 14px; padding: 0.65rem 1rem 0.65rem 2.5rem;
     font-family: 'Inter', sans-serif; font-size: 0.8rem; color: var(--cream); outline: none;
     transition: border-color 0.2s, background 0.2s;
   }
-  .ex-search:focus { border-color: rgba(124,58,237,0.4); background: rgba(124,58,237,0.04); }
+  .ex-search:focus { border-color: var(--violet); background: var(--color-surface-hover); }
 
   /* Category Tabs */
   .ex-tabs-bar {
-    display: flex; gap: 0.35rem; background: rgba(255,255,255,0.02);
-    border: 1px solid var(--card-bdr); border-radius: 16px; padding: 0.3rem; flex-shrink: 0;
+    display: flex; gap: 0.35rem; background: var(--local-card-bg);
+    border: 1px solid var(--local-card-bdr); border-radius: 16px; padding: 0.3rem; flex-shrink: 0;
   }
   .ex-tab-btn {
     display: flex; align-items: center; gap: 0.5rem; padding: 0.55rem 1rem; border-radius: 12px;
     font-size: 0.76rem; font-weight: 600; color: var(--muted); border: none; background: transparent;
     cursor: pointer; transition: all 0.2s ease;
   }
-  .ex-tab-btn:hover { color: var(--cream); background: rgba(255,255,255,0.03); }
+  .ex-tab-btn:hover { color: var(--cream); background: var(--color-surface-hover); }
   .ex-tab-btn.active {
-    color: #fff; background: rgba(124,58,237,0.18); border: 1px solid rgba(124,58,237,0.3);
+    color: #fff; background: var(--violet); border: 1px solid var(--violet);
   }
 
   /* ── SUBJECT FILTERS ── */
   .ex-subjects { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; }
   .ex-subject-pill {
     padding: 0.4rem 0.9rem; border-radius: 50px; font-size: 0.72rem; font-weight: 600;
-    color: var(--muted); background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+    color: var(--muted); background: var(--local-card-bg); border: 1px solid var(--local-card-bdr);
     cursor: pointer; transition: all 0.18s;
   }
-  .ex-subject-pill:hover { color: var(--cream); border-color: rgba(255,255,255,0.15); }
+  .ex-subject-pill:hover { color: var(--cream); border-color: var(--violet-l); }
   .ex-subject-pill.active {
     color: #fff; background: linear-gradient(135deg, var(--violet), var(--violet-l));
     border-color: rgba(124,58,237,0.3); box-shadow: 0 4px 12px rgba(124,58,237,0.25);
@@ -129,7 +129,7 @@ const CSS = `
   }
   .ex-mat-btn {
     padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.68rem; font-weight: 600;
-    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+    background: var(--local-card-bg); border: 1px solid var(--local-card-bdr);
     color: var(--muted); cursor: pointer; transition: all 0.15s;
   }
   .ex-mat-btn:hover { color: var(--cream); }
@@ -168,7 +168,7 @@ const CSS = `
 
   .ex-card-action {
     display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem;
-    width: 100%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+    width: 100%; background: var(--local-card-bg); border: 1px solid var(--local-card-bdr);
     border-radius: 12px; padding: 0.55rem; font-size: 0.75rem; font-weight: 600;
     color: var(--cream); cursor: pointer; transition: all 0.15s;
   }
@@ -185,7 +185,7 @@ const CSS = `
     padding: 0.9rem 1.15rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
     transition: all 0.18s;
   }
-  .ex-mat-card:hover { border-color: rgba(0,212,255,0.15); background: rgba(255,255,255,0.045); }
+  .ex-mat-card:hover { border-color: var(--violet); background: var(--color-surface-hover); }
   .ex-mat-left { display: flex; align-items: center; gap: 0.9rem; min-width: 0; }
   .ex-mat-icon-wrap {
     width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
@@ -199,11 +199,11 @@ const CSS = `
 
   .ex-mat-btn-action {
     width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
-    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); color: var(--muted);
+    background: var(--local-card-bg); border: 1px solid var(--local-card-bdr); color: var(--muted);
     cursor: pointer; transition: all 0.15s; flex-shrink: 0;
   }
-  .ex-mat-card:hover .ex-mat-btn-action { color: #fff; background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); }
-  .ex-mat-card:hover .ex-mat-btn-action:hover { background: var(--violet); border-color: var(--violet-l); }
+  .ex-mat-card:hover .ex-mat-btn-action { color: var(--cream); background: var(--color-surface-hover); border-color: var(--local-card-bdr); }
+  .ex-mat-card:hover .ex-mat-btn-action:hover { background: var(--violet); border-color: var(--violet-l); color: #fff; }
   .ex-mat-btn-action.locked { color: rgba(245,211,77,0.3); border-color: rgba(245,158,11,0.1); cursor: not-allowed; }
 
   /* ── EXAM CARD ── */

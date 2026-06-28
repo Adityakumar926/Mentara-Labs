@@ -11,19 +11,19 @@ const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
 
   .q-root {
-    --navy:     #0A0E1A;
-    --navy2:    #0F1629;
+    --navy:     var(--local-navy, #0A0E1A);
+    --navy2:    var(--local-navy2, #0F1629);
     --violet:   #7C3AED;
     --violet-l: #9D6FEF;
     --cyan:     #00D4FF;
-    --cream:    #F5F0E8;
+    --cream:    var(--local-cream, #F5F0E8);
     --lavender: #C4B5FD;
     --amber:    #F59E0B;
     --green:    #10B981;
     --red:      #EF4444;
-    --card-bg:  rgba(255,255,255,0.04);
-    --card-bdr: rgba(255,255,255,0.08);
-    --muted:    rgba(245,240,232,0.45);
+    --card-bg:  var(--local-card-bg, rgba(255,255,255,0.04));
+    --card-bdr: var(--local-card-bdr, rgba(255,255,255,0.08));
+    --muted:    var(--local-muted, rgba(245,240,232,0.45));
     font-family: 'Inter', sans-serif;
     color: var(--cream);
   }
@@ -55,8 +55,8 @@ const CSS = `
   }
   .q-search-input {
     width: 100%;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.09);
+    background: var(--local-card-bg);
+    border: 1px solid var(--local-card-bdr);
     border-radius: 16px;
     padding: 0.75rem 1rem 0.75rem 2.5rem;
     color: var(--cream);
@@ -68,16 +68,16 @@ const CSS = `
   .q-search-input:focus {
     border-color: var(--violet);
     box-shadow: 0 0 0 3px rgba(124,58,237,0.15), 0 0 24px rgba(124,58,237,0.08);
-    background: rgba(124,58,237,0.05);
+    background: var(--color-surface-hover);
   }
-  .q-search-input::placeholder { color: rgba(245,240,232,0.2); }
+  .q-search-input::placeholder { color: var(--color-text-muted); }
 
   /* ── TYPE FILTER STRIP ── */
   .q-filter-strip {
     display: flex; gap: 0.25rem;
     padding: 0.3rem;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: var(--local-card-bg);
+    border: 1px solid var(--local-card-bdr);
     border-radius: 16px;
     flex-shrink: 0;
   }
@@ -107,16 +107,16 @@ const CSS = `
     width: 100%;
     display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
     padding: 0.85rem 1.1rem;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: var(--local-card-bg);
+    border: 1px solid var(--local-card-bdr);
     border-radius: 20px;
     cursor: pointer;
     transition: border-color 0.2s, background 0.2s, transform 0.15s;
     color: var(--cream);
   }
   .subject-header-btn:hover {
-    border-color: rgba(124,58,237,0.3);
-    background: rgba(124,58,237,0.05);
+    border-color: var(--violet);
+    background: var(--color-surface-hover);
     transform: translateY(-1px);
   }
   .subject-name {
