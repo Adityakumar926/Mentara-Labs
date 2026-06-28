@@ -149,7 +149,7 @@ exports.update = async (req, res) => {
     // Check if the exam has only structure questions
     const { rows: structCheck } = await db.query(
       `SELECT COUNT(*) AS total_qs,
-              COUNT(*) FILTER (WHERE q.question_type = 'structure') AS struct_qs
+              COUNT(*) FILTER (WHERE q.question_type = 'photo') AS struct_qs
        FROM exam_questions eq
        JOIN questions q ON q.id = eq.question_id
        WHERE eq.exam_id = $1`,
@@ -307,7 +307,7 @@ exports.addQuestions = async (req, res) => {
     // Auto-null passing_marks if all questions are of type 'structure'
     const { rows: structCheck } = await client.query(
       `SELECT COUNT(*) AS total_qs,
-              COUNT(*) FILTER (WHERE q.question_type = 'structure') AS struct_qs
+              COUNT(*) FILTER (WHERE q.question_type = 'photo') AS struct_qs
        FROM exam_questions eq
        JOIN questions q ON q.id = eq.question_id
        WHERE eq.exam_id = $1`,
@@ -359,7 +359,7 @@ exports.removeQuestion = async (req, res) => {
     // Auto-null passing_marks if all questions are of type 'structure'
     const { rows: structCheck } = await client.query(
       `SELECT COUNT(*) AS total_qs,
-              COUNT(*) FILTER (WHERE q.question_type = 'structure') AS struct_qs
+              COUNT(*) FILTER (WHERE q.question_type = 'photo') AS struct_qs
        FROM exam_questions eq
        JOIN questions q ON q.id = eq.question_id
        WHERE eq.exam_id = $1`,

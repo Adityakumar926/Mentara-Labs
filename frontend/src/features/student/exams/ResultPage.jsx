@@ -353,7 +353,7 @@ export default function ResultPage() {
   const verdictBdr = passed ? 'rgba(16,185,129,0.3)'  : 'rgba(239,68,68,0.3)';
   const verdictClr = passed ? 'var(--green)' : 'var(--red)';
 
-  const isStructureExam = breakdown && breakdown.length > 0 && breakdown.every(q => q.question_type === 'structure');
+  const isStructureExam = breakdown && breakdown.length > 0 && breakdown.every(q => q.question_type === 'structure' || q.question_type === 'photo');
 
   if (isStructureExam) {
     return (

@@ -481,14 +481,14 @@ exports.getMyExamHistory = async (req, res) => {
          es.passed,
          es.submitted_at,
          RANK() OVER (PARTITION BY es.exam_id ORDER BY es.score DESC) AS rank,
-         (
-           SELECT COUNT(*)
-           FROM exam_questions eq
-           JOIN questions q ON q.id = eq.question_id
-           WHERE eq.exam_id = e.id AND q.question_type != 'structure'
-         ) = 0 AND EXISTS (
-           SELECT 1 FROM exam_questions eq2 WHERE eq2.exam_id = e.id
-         ) AS is_structure_only
+          (
+            SELECT COUNT(*)
+            FROM exam_questions eq
+            JOIN questions q ON q.id = eq.question_id
+            WHERE eq.exam_id = e.id AND q.question_type != 'photo'
+          ) = 0 AND EXISTS (
+            SELECT 1 FROM exam_questions eq2 WHERE eq2.exam_id = e.id
+          ) AS is_structure_only
        FROM exam_submissions es
        JOIN exams    e ON e.id = es.exam_id
        LEFT JOIN subjects s ON s.id = e.subject_id
