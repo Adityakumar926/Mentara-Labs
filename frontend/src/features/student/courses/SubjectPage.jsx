@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, FileText, Video, Sparkles, Lock, ChevronRight,
   ExternalLink, Image, Pen, Minus, Palette, RotateCcw,
-  CheckCircle2, X, Eraser,
+  CheckCircle2, X, Eraser, BookOpen,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageWrapper, Badge, Skeleton, EmptyState, Modal } from '@/components/ui';
@@ -332,6 +332,60 @@ const CSS = `
     font-size: 1.1rem; font-weight: 700; color: #6EE7B7;
   }
   .ws-submitted-sub { font-size: 0.78rem; color: var(--muted); }
+
+  /* ── TABS ── */
+  .sp-tabs {
+    display: flex;
+    gap: 0.5rem;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    padding: 0.35rem;
+    border-radius: 16px;
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .sp-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .sp-tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    padding: 0.65rem 1.15rem;
+    border-radius: 12px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+  .sp-tab-btn:hover {
+    color: var(--cream);
+    background: rgba(255,255,255,0.03);
+  }
+  .sp-tab-btn.active {
+    color: #fff;
+    background: linear-gradient(135deg, rgba(124,58,237,0.2) 0%, rgba(0,212,255,0.1) 100%);
+    border: 1px solid rgba(124,58,237,0.25);
+    box-shadow: 0 4px 15px rgba(124,58,237,0.15);
+  }
+  .sp-tab-count {
+    font-size: 0.68rem;
+    padding: 0.1rem 0.45rem;
+    background: rgba(255,255,255,0.05);
+    border-radius: 6px;
+    color: var(--muted);
+    font-weight: 700;
+    transition: all 0.2s;
+  }
+  .sp-tab-btn.active .sp-tab-count {
+    background: rgba(124,58,237,0.3);
+    color: var(--lavender);
+  }
 `;
 
 const TYPE_CONFIG = {
@@ -358,9 +412,7 @@ const PALETTE = [
 export default function SubjectPage() {
   const { curriculumId, subjectId, topicId } = useParams();
   const navigate  = useNavigate();
-  const isPremium = useAuthStore((s) => s.isPremium());
-
-
+  const [activeCategory, setActiveCategory] = useState('all');
   const [pdfUrl, setPdfUrl]           = useState(null);
   const [videoId, setVideoId]         = useState(null);
   const [activeVideoContentId, setActiveVideoContentId] = useState(null);
@@ -690,11 +742,6 @@ export default function SubjectPage() {
   };
 
 
-  const items = content?.items ?? [];
-  const exams = content?.exams ?? [];
-  const topicName = content?.topic_name;
-  const subjectName = content?.subject_name;
-
   const groups = [
     { key: 'video',     label: 'Videos',     dot: 'var(--violet-l)',              items: items.filter(i => i.content_type === 'video') },
     { key: 'note',      label: 'Notes',      dot: 'rgba(245,240,232,0.5)',        items: items.filter(i => i.content_type === 'note') },
@@ -704,6 +751,29 @@ export default function SubjectPage() {
   ].filter(g => g.items.length > 0);
 
   const totalItemsCount = items.length + exams.length;
+
+  const categories = [
+    { id: 'all', label: 'All', icon: BookOpen, count: totalItemsCount },
+    { id: 'materials', label: 'Materials', icon: FileText, count: items.filter(i => i.content_type === 'video' || i.content_type === 'note' || i.content_type === 'animation').length },
+    { id: 'practice', label: 'Worksheets', icon: Image, count: items.filter(i => i.content_type === 'worksheet').length },
+    { id: 'exams', label: 'Exams', icon: CheckCircle2, count: exams.length },
+  ];
+
+  const filteredGroups = groups.filter(g => {
+    if (activeCategory === 'all') return true;
+    if (activeCategory === 'materials') return g.key === 'video' || g.key === 'note' || g.key === 'animation';
+    if (activeCategory === 'practice') return g.key === 'worksheet';
+    if (activeCategory === 'exams') return g.key === 'exam';
+    return true;
+  });
+
+  const categoryEmptyConfigs = {
+    materials: { title: 'No learning materials yet', desc: 'There are no notes, videos, or animations available for this topic yet.' },
+    practice:  { title: 'No worksheets yet', desc: 'There are no practice worksheets available for this topic yet.' },
+    exams:     { title: 'No exams yet', desc: 'There are no exams scheduled or live for this topic yet.' },
+    all:       { title: 'No content yet', desc: 'Your teacher has not uploaded any content for this topic yet.' }
+  };
+  const emptyCfg = categoryEmptyConfigs[activeCategory] || categoryEmptyConfigs.all;
 
   let globalIdx = 0;
 
@@ -767,98 +837,120 @@ export default function SubjectPage() {
               </div>
             ))}
           </div>
-        ) : totalItemsCount === 0 ? (
-          <EmptyState
-            icon={FileText}
-            title="No content yet"
-            description="Your teacher hasn't uploaded anything here yet. Check back soon."
-          />
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
-            {groups.map((group) => (
-              <div key={group.key}>
-                <div className="sp-group-label">
-                  <span className="sp-group-dot" style={{ background: group.dot, boxShadow: `0 0 6px ${group.dot}` }} />
-                  {group.label}
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  {group.items.map((item) => {
-                    const cfg    = TYPE_CONFIG[item.content_type] ?? TYPE_CONFIG.note;
-                    const Icon   = cfg.icon;
-                    const locked = item.is_premium && !isPremium;
-                    const delay  = (globalIdx++) * 0.045;
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {/* Category tabs */}
+            <div className="sp-tabs">
+              {categories.map((cat) => {
+                const CatIcon = cat.icon;
+                return (
+                  <button
+                    key={cat.id}
+                    className={clsx('sp-tab-btn', activeCategory === cat.id && 'active')}
+                    onClick={() => setActiveCategory(cat.id)}
+                  >
+                    <CatIcon size={14} />
+                    <span>{cat.label}</span>
+                    <span className="sp-tab-count">{cat.count}</span>
+                  </button>
+                );
+              })}
+            </div>
 
-                    return (
-                      <motion.div
-                        key={item.id}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay, duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] }}
-                      >
-                        <button
-                          className={clsx('sp-item', locked && 'locked')}
-                          onClick={() => handleOpen(item)}
-                        >
-                          <div className={clsx('sp-icon-bubble', locked ? 'sp-icon-locked' : cfg.iconCls)}>
-                            {locked
-                              ? <Lock size={17} style={{ color: '#FCD34D' }} />
-                              : <Icon size={19} style={{ color: cfg.color }} />
-                            }
-                          </div>
+            {filteredGroups.length === 0 ? (
+              <EmptyState
+                icon={activeCategory === 'exams' ? CheckCircle2 : activeCategory === 'practice' ? Image : FileText}
+                title={emptyCfg.title}
+                description={emptyCfg.desc}
+              />
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+                {filteredGroups.map((group) => (
+                  <div key={group.key}>
+                    <div className="sp-group-label">
+                      <span className="sp-group-dot" style={{ background: group.dot, boxShadow: `0 0 6px ${group.dot}` }} />
+                      {group.label}
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {group.items.map((item) => {
+                        const cfg    = TYPE_CONFIG[item.content_type] ?? TYPE_CONFIG.note;
+                        const Icon   = cfg.icon;
+                        const locked = item.is_premium && !isPremium;
+                        const delay  = (globalIdx++) * 0.045;
 
-                          <div className="sp-item-info">
-                            <p className={clsx('sp-item-title', locked ? 'locked-txt' : 'normal-txt')}>
-                              {item.title}
-                            </p>
-                            <div className="sp-badges">
-                              <span className={`sp-type-badge ${cfg.badge}`}>
-                                {cfg.label}
-                              </span>
-                              {item.is_premium && (
-                                <span className="sp-type-badge sp-badge-premium">
-                                  <Lock size={8} /> Premium
-                                </span>
-                              )}
-                              {item.content_type === 'exam' && (
-                                <>
-                                  <span className={clsx(
-                                    'sp-type-badge',
-                                    item.status === 'live' && 'sp-badge-video',
-                                    item.status === 'scheduled' && 'sp-badge-worksheet',
-                                    item.status === 'ended' && 'sp-badge-note'
-                                  )}>
-                                    {item.status}
+                        return (
+                          <motion.div
+                            key={item.id}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay, duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] }}
+                          >
+                            <button
+                              className={clsx('sp-item', locked && 'locked')}
+                              onClick={() => handleOpen(item)}
+                            >
+                              <div className={clsx('sp-icon-bubble', locked ? 'sp-icon-locked' : cfg.iconCls)}>
+                                {locked
+                                  ? <Lock size={17} style={{ color: '#FCD34D' }} />
+                                  : <Icon size={19} style={{ color: cfg.color }} />
+                                }
+                              </div>
+
+                              <div className="sp-item-info">
+                                <p className={clsx('sp-item-title', locked ? 'locked-txt' : 'normal-txt')}>
+                                  {item.title}
+                                </p>
+                                <div className="sp-badges">
+                                  <span className={`sp-type-badge ${cfg.badge}`}>
+                                    {cfg.label}
                                   </span>
-                                  {item.submission_status && (
-                                    <span className={clsx(
-                                      'sp-type-badge',
-                                      item.submission_status === 'submitted' ? 'sp-badge-anim' : 'sp-badge-worksheet'
-                                    )}>
-                                      {item.submission_status === 'submitted' ? 'Submitted' : 'In Progress'}
+                                  {item.is_premium && (
+                                    <span className="sp-type-badge sp-badge-premium">
+                                      <Lock size={8} /> Premium
                                     </span>
                                   )}
-                                  {item.status === 'ended' && !item.submission_status && (
-                                    <span className="sp-type-badge sp-badge-note">
-                                      Missed
-                                    </span>
+                                  {item.content_type === 'exam' && (
+                                    <>
+                                      <span className={clsx(
+                                        'sp-type-badge',
+                                        item.status === 'live' && 'sp-badge-video',
+                                        item.status === 'scheduled' && 'sp-badge-worksheet',
+                                        item.status === 'ended' && 'sp-badge-note'
+                                      )}>
+                                        {item.status}
+                                      </span>
+                                      {item.submission_status && (
+                                        <span className={clsx(
+                                          'sp-type-badge',
+                                          item.submission_status === 'submitted' ? 'sp-badge-anim' : 'sp-badge-worksheet'
+                                        )}>
+                                          {item.submission_status === 'submitted' ? 'Submitted' : 'In Progress'}
+                                        </span>
+                                      )}
+                                      {item.status === 'ended' && !item.submission_status && (
+                                        <span className="sp-type-badge sp-badge-note">
+                                          Missed
+                                        </span>
+                                      )}
+                                    </>
                                   )}
-                                </>
-                              )}
-                            </div>
-                          </div>
+                                </div>
+                              </div>
 
-                          {!locked && (
-                            <div className="sp-item-arrow">
-                              <ChevronRight size={13} style={{ color: 'var(--violet-l)' }} />
-                            </div>
-                          )}
-                        </button>
-                      </motion.div>
-                    );
-                  })}
-                </div>
+                              {!locked && (
+                                <div className="sp-item-arrow">
+                                  <ChevronRight size={13} style={{ color: 'var(--violet-l)' }} />
+                                </div>
+                              )}
+                            </button>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
         )}
 
