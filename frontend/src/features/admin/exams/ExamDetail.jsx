@@ -584,6 +584,7 @@ export default function ExamDetail() {
     if (!filterTopicId || !subjectNode) return list;
     
     const findNode = (topics, id) => {
+      if (!topics) return null;
       for (const t of topics) {
         if (t.id === id) return t;
         if (t.children) {
@@ -1007,7 +1008,7 @@ export default function ExamDetail() {
                                   }}
                                 >
                                   <strong style={{ marginRight: '0.2rem', color: 'rgba(250,250,250,0.3)' }}>{opt.key || String.fromCharCode(65 + idx)}.</strong>
-                                  {opt.text || opt.value || opt}
+                                  {typeof opt === 'object' ? (opt.text || opt.value || opt.key || JSON.stringify(opt)) : opt}
                                 </div>
                               ))}
                             </div>
@@ -1241,7 +1242,7 @@ export default function ExamDetail() {
                           <span style={{ fontWeight: 700, color: isCorrect ? '#34D399' : 'rgba(250,250,250,0.3)' }}>
                             {opt.key || String.fromCharCode(65 + idx)}.
                           </span>
-                          <span>{opt.text || opt.value || opt}</span>
+                          <span>{typeof opt === 'object' ? (opt.text || opt.value || opt.key || JSON.stringify(opt)) : opt}</span>
                           {isCorrect && <span className="ed-q-view-correct-badge" style={{ marginLeft: 'auto' }}>Correct</span>}
                         </div>
                       );
