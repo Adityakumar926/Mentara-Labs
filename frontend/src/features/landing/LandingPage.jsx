@@ -6,7 +6,7 @@ import {
   ArrowUpRight, Play, Timer, Atom, PenTool, Sparkles, ChevronRight, 
   Globe, BookOpen, GraduationCap, Award, Library, Compass, X, Menu,
   Dna, Sigma, Code2, LineChart, Globe2, BookText, Check, Quote,
-  Github, Twitter, Linkedin, Youtube, Star, BarChart3, Layers
+  Github, Twitter, Linkedin, Youtube, Star, BarChart3, Layers, FlaskConical
 } from "lucide-react";
 
 export default function LandingPage() {
