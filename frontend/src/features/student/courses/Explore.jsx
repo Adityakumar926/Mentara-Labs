@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Search, Sparkles, BookOpen, FileText, Video, Image, 
-  ExternalLink, Eye, Play, Download, ChevronRight, Award, Lock
+  ExternalLink, Eye, Play, Download, ChevronRight, Award, Lock, Clock, CheckCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageWrapper, EmptyState, Button, Modal } from '@/components/ui';
@@ -224,8 +224,25 @@ const CSS = `
   .ex-exam-badge-live { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); color: var(--green); }
   .ex-exam-badge-sch { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); color: var(--amber); }
 
-  .ex-exam-meta { font-size: 0.7rem; color: var(--muted); display: flex; flex-direction: column; gap: 0.3rem; margin-top: auto; }
-  .ex-exam-meta-item { display: flex; align-items: center; gap: 0.4rem; }
+  .ex-exam-meta {
+    font-size: 0.72rem;
+    color: var(--color-text-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: auto;
+    font-weight: 600;
+  }
+  .ex-exam-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--color-text-secondary);
+  }
+  .ex-exam-meta-icon {
+    color: var(--local-violet-l);
+    flex-shrink: 0;
+  }
 
   .ex-exam-btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
@@ -892,9 +909,20 @@ export default function Explore() {
 
                         <div className="ex-exam-meta">
                           {exam.description && <p style={{ color: 'var(--muted)', fontSize: '0.68rem', marginBottom: '0.2rem' }}>{exam.description}</p>}
-                          <div className="ex-exam-meta-item">⏱️ {exam.duration_minutes} Mins</div>
-                          <div className="ex-exam-meta-item">📝 {exam.total_marks} Marks</div>
-                          {attempted && <div className="ex-exam-meta-item" style={{ color: 'var(--green)' }}>✓ Attempted</div>}
+                          <div className="ex-exam-meta-item">
+                            <Clock size={12} className="ex-exam-meta-icon" />
+                            <span>{exam.duration_minutes} Mins</span>
+                          </div>
+                          <div className="ex-exam-meta-item">
+                            <Award size={12} className="ex-exam-meta-icon" />
+                            <span>{exam.total_marks} Marks</span>
+                          </div>
+                          {attempted && (
+                            <div className="ex-exam-meta-item" style={{ color: 'var(--local-green)' }}>
+                              <CheckCircle size={12} style={{ color: 'var(--local-green)', flexShrink: 0 }} />
+                              <span>Attempted</span>
+                            </div>
+                          )}
                         </div>
 
                         {locked ? (
