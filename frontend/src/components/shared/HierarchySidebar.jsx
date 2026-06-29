@@ -116,6 +116,13 @@ export default function HierarchySidebar({ onSelectNode, selectedNodeId, selecte
     });
   };
 
+  const selectAndExpandNode = (node, type, pathIds, pathNames, nodeId, hasChildren) => {
+    selectNode(node, type, pathIds, pathNames);
+    if (hasChildren) {
+      setExpandedNodes(prev => ({ ...prev, [nodeId]: !prev[nodeId] }));
+    }
+  };
+
   // Render recursive topic node
   const renderTopicNode = (topic, subjectPathIds, subjectPathNames, depth = 0) => {
     const nodeId = `topic-${topic.id}`;
@@ -130,7 +137,7 @@ export default function HierarchySidebar({ onSelectNode, selectedNodeId, selecte
       <div key={topic.id} style={{ display: 'flex', flexDirection: 'column' }}>
         <div 
           className={clsx('hs-item', isActive && 'active')}
-          onClick={() => selectNode(topic, 'topic', pathIds, pathNames)}
+          onClick={() => selectAndExpandNode(topic, 'topic', pathIds, pathNames, nodeId, hasChildren)}
         >
           {hasChildren ? (
             <span onClick={(e) => toggleExpand(nodeId, e)} style={{ display: 'flex', alignItems: 'center' }}>
@@ -198,7 +205,7 @@ export default function HierarchySidebar({ onSelectNode, selectedNodeId, selecte
             <div key={curr.id} style={{ display: 'flex', flexDirection: 'column' }}>
               <div 
                 className={clsx('hs-item', isCurrActive && 'active')}
-                onClick={() => selectNode(curr, 'curriculum', { curriculum_id: curr.id }, [curr.name])}
+                onClick={() => selectAndExpandNode(curr, 'curriculum', { curriculum_id: curr.id }, [curr.name], currNodeId, hasClasses)}
               >
                 {hasClasses ? (
                   <span onClick={(e) => toggleExpand(currNodeId, e)} style={{ display: 'flex', alignItems: 'center' }}>
@@ -228,7 +235,7 @@ export default function HierarchySidebar({ onSelectNode, selectedNodeId, selecte
                       <div key={cls.id} style={{ display: 'flex', flexDirection: 'column' }}>
                         <div 
                           className={clsx('hs-item', isClassActive && 'active')}
-                          onClick={() => selectNode(cls, 'class', classPathIds, classPathNames)}
+                          onClick={() => selectAndExpandNode(cls, 'class', classPathIds, classPathNames, classNodeId, hasSubjects)}
                         >
                           {hasSubjects ? (
                             <span onClick={(e) => toggleExpand(classNodeId, e)} style={{ display: 'flex', alignItems: 'center' }}>
@@ -258,7 +265,7 @@ export default function HierarchySidebar({ onSelectNode, selectedNodeId, selecte
                                 <div key={subj.id} style={{ display: 'flex', flexDirection: 'column' }}>
                                   <div 
                                     className={clsx('hs-item', isSubjActive && 'active')}
-                                    onClick={() => selectNode(subj, 'subject', subjPathIds, subjPathNames)}
+                                    onClick={() => selectAndExpandNode(subj, 'subject', subjPathIds, subjPathNames, subjNodeId, hasTopics)}
                                   >
                                     {hasTopics ? (
                                       <span onClick={(e) => toggleExpand(subjNodeId, e)} style={{ display: 'flex', alignItems: 'center' }}>
