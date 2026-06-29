@@ -32,7 +32,8 @@ const CSS = `
     --card-bdr: var(--local-card-bdr, rgba(255,255,255,0.06));
     font-family: 'Inter', sans-serif;
     color: var(--cream);
-    overflow-x: hidden;
+    position: relative;
+    overflow: hidden;
   }
   .ex-root *, .ex-root *::before, .ex-root *::after { box-sizing: border-box; }
 
