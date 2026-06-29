@@ -51,6 +51,18 @@ export default function LandingPage() {
         .animate-ping-glow {
           animation: ping-glow 2.5s infinite ease-in-out;
         }
+        @keyframes header-rgb {
+          0% { background-position: 0% 50%; }
+          100% { background-position: 100% 50%; }
+        }
+        .header-gradient-text {
+          background: linear-gradient(90deg, #22d3ee, #34d399, #a855f7, #22d3ee);
+          background-size: 300% 100%;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: header-rgb 4s linear infinite;
+        }
       `}</style>
 
       <main className="relative min-h-screen bg-zinc-950 text-zinc-100 overflow-hidden font-sans">
@@ -96,9 +108,9 @@ function Header() {
       } flex items-center`}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8 w-full flex items-center justify-between">
-        <a href="#" data-testid="brand-logo" className="flex items-center gap-2.5 group">
-          <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-8 w-8 object-contain" />
-          <span className="font-display font-bold text-[16px] tracking-tight">Mentara Labs</span>
+        <a href="#" data-testid="brand-logo" className="flex items-center gap-3 group">
+          <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-11 w-11 object-contain transition-transform duration-300 group-hover:scale-105" />
+          <span className="font-display font-bold text-[26px] tracking-tight header-gradient-text">Mentara Labs</span>
         </a>
 
         <nav className="hidden md:flex items-center gap-1.5">
@@ -1049,9 +1061,9 @@ function Footer() {
         {/* Links grid */}
         <div className="grid lg:grid-cols-12 gap-10 pb-16">
           <div className="lg:col-span-4">
-            <div className="flex items-center gap-2 mb-5">
-              <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-7 w-7 object-contain" />
-              <span className="font-display font-bold text-[15px] tracking-tight text-white">Mentara Labs</span>
+            <div className="flex items-center gap-3 mb-5">
+              <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-9 w-9 object-contain" />
+              <span className="font-display font-bold text-[18px] tracking-tight header-gradient-text">Mentara Labs</span>
             </div>
             <p className="text-sm text-zinc-500 leading-relaxed max-w-xs font-semibold">
               The premium learning operating system for global curricula. Built by educators, examiners and engineers.

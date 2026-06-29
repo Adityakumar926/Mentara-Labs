@@ -71,9 +71,15 @@ const CSS = `
   .al-logo-text {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 0.95rem; font-weight: 700;
-    background: linear-gradient(135deg, var(--local-cream) 0%, #C4B5FD 100%);
+    background: linear-gradient(90deg, #22d3ee, #34d399, #a855f7, #22d3ee);
+    background-size: 300% 100%;
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    animation: al-logo-rgb 4s linear infinite;
     line-height: 1.2;
+  }
+  @keyframes al-logo-rgb {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
   }
   .al-logo-sub {
     font-size: 0.62rem; font-weight: 600; letter-spacing: 0.08em;

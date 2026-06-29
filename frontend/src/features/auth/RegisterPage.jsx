@@ -152,10 +152,15 @@ export default function RegisterPage() {
         }
         .panel-logo-text {
           font-family: 'Outfit', sans-serif;
-          font-size: 1.25rem;
-          font-weight: 700;
-          color: #ffffff;
-          letter-spacing: -0.015em;
+          font-size: 1.65rem;
+          font-weight: 800;
+          letter-spacing: -0.02em;
+          background: linear-gradient(90deg, #22d3ee, #34d399, #a855f7, #22d3ee);
+          background-size: 300% 100%;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: rgb-glow 4s linear infinite;
         }
         .panel-mid {
           position: relative;
@@ -439,8 +444,8 @@ export default function RegisterPage() {
         {/* LEFT — brand panel */}
         <aside className="auth-panel">
           <div className="auth-panel-grid" />
-          <Link to="/" className="panel-logo">
-            <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-8 w-8 object-contain" />
+          <Link to="/" className="panel-logo" style={{ gap: '12px' }}>
+            <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-11 w-11 object-contain" />
             <span className="panel-logo-text">Mentara Labs</span>
           </Link>
 
@@ -474,9 +479,9 @@ export default function RegisterPage() {
         <main className="auth-form-side">
           <div className="auth-form-box" style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}>
             {/* Mobile-only logo */}
-            <div className="md-hidden" style={{ alignSelf: 'center' }}>
-              <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-8 w-8 object-contain" />
-              <span className="panel-logo-text" style={{ color: '#ffffff', fontFamily: 'Outfit, sans-serif' }}>Mentara Labs</span>
+            <div className="md-hidden" style={{ alignSelf: 'center', gap: '12px' }}>
+              <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-10 w-10 object-contain" />
+              <span className="panel-logo-text" style={{ fontFamily: 'Outfit, sans-serif' }}>Mentara Labs</span>
             </div>
 
             <div className="form-eyebrow">Create Account</div>
