@@ -32,6 +32,7 @@ const CSS = `
     --card-bdr: var(--local-card-bdr, rgba(255,255,255,0.06));
     font-family: 'Inter', sans-serif;
     color: var(--cream);
+    overflow-x: hidden;
   }
   .ex-root *, .ex-root *::before, .ex-root *::after { box-sizing: border-box; }
 
@@ -98,7 +99,7 @@ const CSS = `
 
   /* Category Tabs */
   .ex-tabs-bar {
-    display: flex; gap: 0.35rem; background: var(--local-card-bg);
+    display: flex; flex-wrap: wrap; gap: 0.35rem; background: var(--local-card-bg);
     border: 2px solid var(--local-card-bdr); border-radius: 16px; padding: 0.3rem; flex-shrink: 0;
   }
   .ex-tab-btn {
@@ -126,7 +127,7 @@ const CSS = `
 
   /* ── SUB-TAB SELECTION FOR MATERIALS ── */
   .ex-materials-filter {
-    display: flex; gap: 0.4rem; margin-bottom: 1.25rem;
+    display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.25rem;
   }
   .ex-mat-btn {
     padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.68rem; font-weight: 700;

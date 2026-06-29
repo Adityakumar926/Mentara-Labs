@@ -339,26 +339,27 @@ const CSS = `
     display: flex; align-items: flex-start; gap: 0.75rem;
     padding: 1rem 1.1rem;
     border-radius: 16px;
-    background: rgba(245,158,11,0.06);
-    border: 1px solid rgba(245,158,11,0.2);
+    background: rgba(245,158,11,0.08);
+    border: 2px solid var(--local-amber);
     margin-bottom: 1.5rem;
     font-size: 0.82rem;
-    color: var(--cream);
+    color: var(--color-text-primary);
     line-height: 1.65;
+    font-weight: 600;
   }
   .modal-btns { display: flex; justify-content: flex-end; gap: 0.6rem; }
   .modal-btn {
     display: inline-flex; align-items: center; gap: 0.4rem;
     padding: 0.6rem 1.25rem;
     border-radius: 12px;
-    font-size: 0.82rem; font-weight: 600;
+    font-size: 0.82rem; font-weight: 700;
     font-family: 'Space Grotesk', sans-serif;
     cursor: pointer;
     transition: all 0.2s;
     border: none;
   }
-  .modal-btn.ghost { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--muted); }
-  .modal-btn.ghost:hover { background: rgba(255,255,255,0.1); color: var(--cream); }
+  .modal-btn.ghost { background: var(--card-bg); border: 2px solid var(--card-bdr); color: var(--color-text-secondary); }
+  .modal-btn.ghost:hover { background: var(--color-surface-hover); color: var(--color-text-primary); }
   .modal-btn.primary { background: linear-gradient(135deg, var(--violet), #4F46E5); color: #fff; box-shadow: 0 0 20px rgba(124,58,237,0.35); }
   .modal-btn.primary:hover { box-shadow: 0 0 32px rgba(124,58,237,0.55); }
 
@@ -1173,8 +1174,8 @@ export default function ExamTakePage() {
           <div className="take-modal-warning">
             <AlertTriangle size={16} color="var(--amber)" style={{ flexShrink: 0, marginTop: 2 }} />
             <div>
-              <p style={{ fontWeight: 700, marginBottom: '0.3rem', color: 'var(--cream)' }}>Are you sure?</p>
-              <p>You've answered <strong style={{ color: 'var(--cream)' }}>{answered}</strong> of <strong style={{ color: 'var(--cream)' }}>{total}</strong> questions. You cannot change answers after submitting.</p>
+              <p style={{ fontWeight: 700, marginBottom: '0.3rem', color: 'var(--color-text-primary)' }}>Are you sure?</p>
+              <p>You've answered <strong style={{ color: 'var(--local-amber)' }}>{answered}</strong> of <strong style={{ color: 'var(--local-amber)' }}>{total}</strong> questions. You cannot change answers after submitting.</p>
             </div>
           </div>
           <div className="modal-btns">
