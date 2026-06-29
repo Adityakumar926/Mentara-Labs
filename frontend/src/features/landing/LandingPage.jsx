@@ -97,10 +97,7 @@ function Header() {
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8 w-full flex items-center justify-between">
         <a href="#" data-testid="brand-logo" className="flex items-center gap-2.5 group">
-          <div className="relative h-8 w-8 rounded-lg bg-zinc-900 overflow-hidden border border-white/10 grid place-items-center">
-            <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-6 w-6 object-contain" />
-            <div className="absolute inset-0 rounded-lg bg-cyan-400/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
-          </div>
+          <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-8 w-8 object-contain" />
           <span className="font-display font-bold text-[16px] tracking-tight">Mentara Labs</span>
         </a>
 
@@ -1053,9 +1050,7 @@ function Footer() {
         <div className="grid lg:grid-cols-12 gap-10 pb-16">
           <div className="lg:col-span-4">
             <div className="flex items-center gap-2 mb-5">
-              <div className="h-7 w-7 rounded-md bg-zinc-900 overflow-hidden border border-white/10 grid place-items-center">
-                <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-5 w-5 object-contain" />
-              </div>
+              <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-7 w-7 object-contain" />
               <span className="font-display font-bold text-[15px] tracking-tight text-white">Mentara Labs</span>
             </div>
             <p className="text-sm text-zinc-500 leading-relaxed max-w-xs font-semibold">
