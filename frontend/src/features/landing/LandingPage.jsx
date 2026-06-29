@@ -1,6 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import useAuthStore from '@/store/authStore';
+import { 
+  ArrowRight, Compass, Atom, BookOpen, Globe, FlaskConical, Lightbulb, 
+  Scroll, Terminal, Brain, CheckCircle, TrendingUp, Flame, Target, Users, Video, Boxes, Star 
+} from 'lucide-react';
 
 export default function LandingPage() {
   const navigate  = useNavigate();
@@ -71,6 +75,8 @@ export default function LandingPage() {
           --lavender:    #C4B5FD;
           --card-bg:     rgba(255,255,255,0.04);
           --card-border: rgba(255,255,255,0.08);
+          --orbit-radius-1: 85px;
+          --orbit-radius-2: 145px;
           background: var(--navy);
           color: var(--cream);
           font-family: 'Inter', sans-serif;
@@ -184,24 +190,123 @@ export default function LandingPage() {
         .btn-secondary:hover { background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.3); }
 
         /* ── ORBIT ── */
-        .orbit-container { position:relative;width:100%;height:500px;display:flex;align-items:center;justify-content:center;animation:fade-up 1s 0.2s ease both; }
-        .orbit-canvas { position:relative;width:420px;height:420px; }
-        .core { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:80px;background:linear-gradient(135deg,var(--violet),var(--cyan));border-radius:50%;box-shadow:0 0 0 12px rgba(124,58,237,0.15),0 0 60px rgba(0,212,255,0.4);display:flex;align-items:center;justify-content:center;font-size:2rem;z-index:10;animation:core-pulse 4s ease-in-out infinite; }
-        @keyframes core-pulse { 0%,100%{box-shadow:0 0 0 12px rgba(124,58,237,0.15),0 0 60px rgba(0,212,255,0.4)} 50%{box-shadow:0 0 0 20px rgba(124,58,237,0.1),0 0 100px rgba(0,212,255,0.6)} }
-        .ring { position:absolute;top:50%;left:50%;border-radius:50%;border:1px solid rgba(255,255,255,0.06);transform:translate(-50%,-50%); }
-        .ring-1{width:160px;height:160px} .ring-2{width:270px;height:270px;border-color:rgba(124,58,237,0.15)} .ring-3{width:380px;height:380px}
-        .orbit-node { position:absolute;top:50%;left:50%;width:48px;height:48px;margin:-24px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.12);box-shadow:0 4px 20px rgba(0,0,0,0.3);z-index:5; }
-        .node-label { position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:0.62rem;font-weight:600;white-space:nowrap;color:rgba(245,240,232,0.6);letter-spacing:0.04em; }
-        .n1{animation:orbit-cw  8s linear infinite;background:rgba(124,58,237,0.3)}
-        .n2{animation:orbit-ccw 10s linear infinite;background:rgba(0,212,255,0.2)}
-        .n3{animation:orbit-cw  12s linear infinite;background:rgba(196,181,253,0.2)}
-        .n4{animation:orbit-cw  12s 4s linear infinite;background:rgba(124,58,237,0.25)}
-        .n5{animation:orbit-cw  12s 8s linear infinite;background:rgba(0,212,255,0.15)}
-        .n6{animation:orbit-ccw 18s linear infinite;background:rgba(79,70,229,0.25)}
-        .n7{animation:orbit-ccw 18s 6s linear infinite;background:rgba(196,181,253,0.15)}
-        .n8{animation:orbit-ccw 18s 12s linear infinite;background:rgba(0,212,255,0.2)}
-        @keyframes orbit-cw  { from{transform:rotate(0deg) translateX(80px) rotate(0deg)} to{transform:rotate(360deg) translateX(80px) rotate(-360deg)} }
-        @keyframes orbit-ccw { from{transform:rotate(0deg) translateX(140px) rotate(0deg)} to{transform:rotate(-360deg) translateX(140px) rotate(360deg)} }
+        .orbit-container {
+          position: relative;
+          width: 100%;
+          height: 500px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          animation: fade-up 1s 0.2s ease both;
+        }
+        .orbit-canvas {
+          position: relative;
+          width: 420px;
+          height: 420px;
+        }
+        .core {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 84px;
+          height: 84px;
+          background: linear-gradient(135deg, var(--violet), var(--cyan));
+          border-radius: 50%;
+          box-shadow: 0 0 0 12px rgba(124, 58, 237, 0.15), 0 0 60px rgba(0, 212, 255, 0.4);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 10;
+          animation: core-pulse 4s ease-in-out infinite;
+          border: 2px solid rgba(255,255,255,0.25);
+        }
+        .core-icon {
+          color: #fff;
+          filter: drop-shadow(0 0 8px rgba(255,255,255,0.6));
+        }
+        @keyframes core-pulse {
+          0%, 100% {
+            box-shadow: 0 0 0 12px rgba(124, 58, 237, 0.15), 0 0 60px rgba(0, 212, 255, 0.4);
+            transform: translate(-50%, -50%) scale(1);
+          }
+          50% {
+            box-shadow: 0 0 0 20px rgba(124, 58, 237, 0.1), 0 0 100px rgba(0, 212, 255, 0.6);
+            transform: translate(-50%, -50%) scale(1.05);
+          }
+        }
+        .ring {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          border-radius: 50%;
+          border: 1px dashed rgba(255, 255, 255, 0.08);
+          transform: translate(-50%, -50%);
+        }
+        .ring-1 { width: 170px; height: 170px; border-style: solid; border-color: rgba(255,255,255,0.04); }
+        .ring-2 { width: 280px; height: 280px; border-color: rgba(124, 58, 237, 0.12); border-style: dashed; animation: rotate-cw 40s linear infinite; }
+        .ring-3 { width: 390px; height: 390px; border-color: rgba(0, 212, 255, 0.08); border-style: dashed; animation: rotate-ccw 60s linear infinite; }
+
+        @keyframes rotate-cw { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+        @keyframes rotate-ccw { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(-360deg); } }
+
+        .orbit-node {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 52px;
+          height: 52px;
+          margin: -26px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          backdrop-filter: blur(12px);
+          border: 2px solid rgba(255, 255, 255, 0.15);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 15px currentColor;
+          z-index: 5;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .orbit-node:hover {
+          transform: scale(1.15) !important;
+          border-color: #fff;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 25px currentColor;
+        }
+        .node-icon {
+          color: #fff;
+        }
+        .node-label {
+          position: absolute;
+          bottom: -22px;
+          left: 50%;
+          transform: translateX(-50%);
+          font-size: 0.62rem;
+          font-weight: 700;
+          white-space: nowrap;
+          color: rgba(245, 240, 232, 0.7);
+          letter-spacing: 0.04em;
+          background: rgba(10, 14, 26, 0.75);
+          padding: 2px 8px;
+          border-radius: 20px;
+          border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .n1 { animation: orbit-cw  14s linear infinite; color: var(--violet-l); background: rgba(124, 58, 237, 0.18); }
+        .n2 { animation: orbit-ccw 18s linear infinite; color: var(--cyan); background: rgba(0, 212, 255, 0.15); }
+        .n3 { animation: orbit-cw  22s linear infinite; color: var(--lavender); background: rgba(196, 181, 253, 0.15); }
+        .n4 { animation: orbit-cw  22s 7s linear infinite; color: var(--violet-l); background: rgba(124, 58, 237, 0.18); }
+        .n5 { animation: orbit-cw  22s 14s linear infinite; color: var(--cyan); background: rgba(0, 212, 255, 0.12); }
+        .n6 { animation: orbit-ccw 30s linear infinite; color: var(--violet-l); background: rgba(124, 58, 237, 0.18); }
+        .n7 { animation: orbit-ccw 30s 10s linear infinite; color: var(--lavender); background: rgba(196, 181, 253, 0.15); }
+        .n8 { animation: orbit-ccw 30s 20s linear infinite; color: var(--cyan); background: rgba(0, 212, 255, 0.15); }
+        
+        @keyframes orbit-cw  {
+          from { transform: rotate(0deg) translateX(var(--orbit-radius-1)) rotate(0deg); }
+          to { transform: rotate(360deg) translateX(var(--orbit-radius-1)) rotate(-360deg); }
+        }
+        @keyframes orbit-ccw {
+          from { transform: rotate(0deg) translateX(var(--orbit-radius-2)) rotate(0deg); }
+          to { transform: rotate(-360deg) translateX(var(--orbit-radius-2)) rotate(360deg); }
+        }
 
         /* ── MARQUEE ── */
         .marquee-section { padding:2.5rem 0;border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05);overflow:hidden;position:relative;z-index:1; }
@@ -222,11 +327,19 @@ export default function LandingPage() {
         .bento-card::before { content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.03)0%,transparent 60%);pointer-events:none; }
         .bento-card:hover { transform:translateY(-4px);border-color:rgba(124,58,237,0.3);box-shadow:0 20px 60px rgba(0,0,0,0.3),0 0 0 1px rgba(124,58,237,0.2); }
         .bc-1{grid-column:span 7} .bc-2{grid-column:span 5} .bc-3{grid-column:span 4} .bc-4{grid-column:span 4} .bc-5{grid-column:span 4} .bc-6{grid-column:span 5} .bc-7{grid-column:span 7}
-        .bento-icon { width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1.25rem; }
-        .icon-violet{background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.3)}
-        .icon-cyan{background:rgba(0,212,255,0.15);border:1px solid rgba(0,212,255,0.25)}
-        .icon-lav{background:rgba(196,181,253,0.15);border:1px solid rgba(196,181,253,0.2)}
-        .icon-indigo{background:rgba(79,70,229,0.2);border:1px solid rgba(79,70,229,0.3)}
+        .bento-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 1.25rem;
+        }
+        .icon-violet { background: rgba(124, 58, 237, 0.15); border: 1.5px solid rgba(124, 58, 237, 0.3); color: var(--lavender); }
+        .icon-cyan { background: rgba(0, 212, 255, 0.12); border: 1.5px solid rgba(0, 212, 255, 0.25); color: var(--cyan); }
+        .icon-lav { background: rgba(196, 181, 253, 0.12); border: 1.5px solid rgba(196, 181, 253, 0.2); color: var(--lavender); }
+        .icon-indigo { background: rgba(79, 70, 229, 0.18); border: 1.5px solid rgba(79, 70, 229, 0.3); color: var(--lavender); }
         .bento-title { font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:600;margin-bottom:0.6rem;letter-spacing:-0.01em; }
         .bento-desc { color:rgba(245,240,232,0.5);font-size:0.9rem;line-height:1.65; }
         .bc-1 .bento-title{font-size:1.6rem} .bc-1 .bento-desc{font-size:1rem;max-width:380px}
@@ -302,6 +415,10 @@ export default function LandingPage() {
           .bc-1,.bc-2,.bc-3,.bc-4,.bc-5,.bc-6,.bc-7{grid-column:span 12}
           .how-grid::before{display:none}
           .nav-links{display:none}
+          .lp-root {
+            --orbit-radius-1: 55px;
+            --orbit-radius-2: 95px;
+          }
         }
         @media(prefers-reduced-motion:reduce){
           *,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}
@@ -356,16 +473,44 @@ export default function LandingPage() {
             {/* Orbit */}
             <div className="orbit-container">
               <div className="orbit-canvas">
-                <div className="ring ring-1" /><div className="ring ring-2" /><div className="ring ring-3" />
-                <div className="core">🧠</div>
-                <div className="orbit-node n1">📐<div className="node-label">Maths</div></div>
-                <div className="orbit-node n2">🧪<div className="node-label">Science</div></div>
-                <div className="orbit-node n3">📖<div className="node-label">English</div></div>
-                <div className="orbit-node n4">🌍<div className="node-label">Geography</div></div>
-                <div className="orbit-node n5">⚗️<div className="node-label">Chemistry</div></div>
-                <div className="orbit-node n6">💡<div className="node-label">Physics</div></div>
-                <div className="orbit-node n7">📜<div className="node-label">History</div></div>
-                <div className="orbit-node n8">💻<div className="node-label">CS</div></div>
+                <div className="ring ring-1" />
+                <div className="ring ring-2" />
+                <div className="ring ring-3" />
+                <div className="core">
+                  <Brain size={32} className="core-icon" />
+                </div>
+                <div className="orbit-node n1">
+                  <Compass size={18} className="node-icon" />
+                  <div className="node-label">Maths</div>
+                </div>
+                <div className="orbit-node n2">
+                  <Atom size={18} className="node-icon" />
+                  <div className="node-label">Science</div>
+                </div>
+                <div className="orbit-node n3">
+                  <BookOpen size={18} className="node-icon" />
+                  <div className="node-label">English</div>
+                </div>
+                <div className="orbit-node n4">
+                  <Globe size={18} className="node-icon" />
+                  <div className="node-label">Geography</div>
+                </div>
+                <div className="orbit-node n5">
+                  <FlaskConical size={18} className="node-icon" />
+                  <div className="node-label">Chemistry</div>
+                </div>
+                <div className="orbit-node n6">
+                  <Lightbulb size={18} className="node-icon" />
+                  <div className="node-label">Physics</div>
+                </div>
+                <div className="orbit-node n7">
+                  <Scroll size={18} className="node-icon" />
+                  <div className="node-label">History</div>
+                </div>
+                <div className="orbit-node n8">
+                  <Terminal size={18} className="node-icon" />
+                  <div className="node-label">CS</div>
+                </div>
               </div>
             </div>
           </div>
@@ -389,7 +534,7 @@ export default function LandingPage() {
           <p className="section-sub reveal">From bite-sized lessons to full mock exams — every tool is built to make you better, faster.</p>
           <div className="bento">
             <div className="bento-card bc-1 reveal">
-              <div className="bento-icon icon-violet">📈</div>
+              <div className="bento-icon icon-violet"><TrendingUp size={20} /></div>
               <div className="bento-title">Real-time Progress Tracking</div>
               <p className="bento-desc">Watch your understanding grow chapter by chapter. Mentara Labs maps your knowledge gaps so every minute of study counts.</p>
               <div className="progress-bars">
@@ -404,7 +549,7 @@ export default function LandingPage() {
             </div>
 
             <div className="bento-card bc-2 reveal">
-              <div className="bento-icon icon-cyan">🔥</div>
+              <div className="bento-icon icon-cyan"><Flame size={20} /></div>
               <div className="bento-title">Daily Streak System</div>
               <p className="bento-desc">Consistency is the real exam strategy. Keep your streak alive and unlock rewards every week.</p>
               <div className="streak-display">
@@ -416,13 +561,13 @@ export default function LandingPage() {
             </div>
 
             <div className="bento-card bc-3 reveal">
-              <div className="bento-icon icon-lav">📚</div>
+              <div className="bento-icon icon-lav"><BookOpen size={20} /></div>
               <div className="bento-title">Structured Curriculum</div>
               <p className="bento-desc">Every subject mapped chapter by chapter, with animated explainers attached to each concept.</p>
             </div>
 
             <div className="bento-card bc-4 reveal">
-              <div className="bento-icon icon-violet">🎯</div>
+              <div className="bento-icon icon-violet"><Target size={20} /></div>
               <div className="bento-title">Smart Mock Exams</div>
               <p className="bento-desc">Timed, scored, and instantly analysed. Know exactly what to fix before the real test.</p>
               <div className="sparkline">
@@ -435,13 +580,13 @@ export default function LandingPage() {
             </div>
 
             <div className="bento-card bc-5 reveal">
-              <div className="bento-icon icon-indigo">👥</div>
+              <div className="bento-icon icon-indigo"><Users size={20} /></div>
               <div className="bento-title">Batch Management</div>
               <p className="bento-desc">Admins can enrol students, track cohort performance, and assign exams in seconds.</p>
             </div>
 
             <div className="bento-card bc-6 reveal" style={{background:'linear-gradient(135deg,rgba(124,58,237,0.15),rgba(0,212,255,0.08))'}}>
-              <div className="bento-icon icon-cyan">🎬</div>
+              <div className="bento-icon icon-cyan"><Video size={20} /></div>
               <div className="bento-title">Animated Video Lessons</div>
               <p className="bento-desc">Complex concepts made crystal clear through short, engaging visual explainers — no 2-hour lectures.</p>
               <div className="tag-cloud">
@@ -452,7 +597,7 @@ export default function LandingPage() {
             </div>
 
             <div className="bento-card bc-7 reveal">
-              <div className="bento-icon icon-lav">🧩</div>
+              <div className="bento-icon icon-lav"><Boxes size={20} /></div>
               <div className="bento-title">500+ Question Bank</div>
               <p className="bento-desc">MCQ, short-answer, and numericals across all subjects. Every question tagged by chapter, difficulty, and exam type so admins can build perfect test papers instantly.</p>
               <div className="tag-cloud">
@@ -497,7 +642,9 @@ export default function LandingPage() {
               ['R','Ritika Joshi','Class 11 · NEET Prep','"The animated lessons are so clear — way better than watching a 1-hour YouTube video. I finally understand Organic Chemistry."'],
             ].map(([av,name,role,quote]) => (
               <div className="t-card reveal" key={name}>
-                <div className="t-stars">★★★★★</div>
+                <div className="t-stars" style={{ display: 'flex', gap: 2, marginBottom: '1rem' }}>
+                  {[1, 2, 3, 4, 5].map(n => <Star key={n} size={13} fill="#F59E0B" color="#F59E0B" />)}
+                </div>
                 <p className="t-quote">{quote}</p>
                 <div className="t-author">
                   <div className="t-avatar">{av}</div>
