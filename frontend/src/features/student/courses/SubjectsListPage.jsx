@@ -11,17 +11,18 @@ const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
 
   .subj-root {
-    --navy:     #0A0E1A;
+    --navy:     var(--local-navy, #0A0E1A);
+    --navy2:    var(--local-navy2, #0F1629);
     --violet:   #7C3AED;
-    --violet-l: #9D6FEF;
-    --cyan:     #00D4FF;
-    --cream:    #F5F0E8;
-    --lavender: #C4B5FD;
-    --green:    #10B981;
-    --amber:    #F59E0B;
-    --muted:    rgba(245,240,232,0.45);
-    --card-bg:  rgba(255,255,255,0.04);
-    --card-bdr: rgba(255,255,255,0.08);
+    --violet-l: var(--local-violet-l, #9D6FEF);
+    --cyan:     var(--local-cyan, #00D4FF);
+    --cream:    var(--local-cream, #F5F0E8);
+    --lavender: var(--local-lavender, #C4B5FD);
+    --green:    var(--local-green, #10B981);
+    --amber:    var(--local-amber, #F59E0B);
+    --muted:    var(--local-muted, rgba(245,240,232,0.45));
+    --card-bg:  var(--local-card-bg, rgba(255,255,255,0.04));
+    --card-bdr: var(--local-card-bdr, rgba(255,255,255,0.08));
     font-family: 'Inter', sans-serif;
     color: var(--cream);
   }
@@ -31,7 +32,7 @@ const CSS = `
   .subj-header {
     position: relative;
     background: linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(0,212,255,0.06) 60%, rgba(10,14,26,0) 100%);
-    border: 1px solid var(--card-bdr);
+    border: 2px solid var(--card-bdr);
     border-radius: 28px;
     padding: 1.75rem 2.25rem;
     overflow: hidden;
@@ -58,17 +59,19 @@ const CSS = `
 
   .subj-back-btn {
     display: flex; align-items: center; justify-content: center;
-    width: 40px; height: 40px; border-radius: 14px; border: none;
-    background: rgba(255,255,255,0.06); color: var(--muted);
+    width: 40px; height: 40px; border-radius: 14px;
+    border: 2px solid var(--card-bdr);
+    background: var(--local-card-bg); color: var(--muted);
     cursor: pointer; flex-shrink: 0; position: relative; z-index: 1;
     transition: background 0.2s, color 0.2s, transform 0.2s;
+    font-weight: 700;
   }
-  .subj-back-btn:hover { background: rgba(124,58,237,0.15); color: var(--cream); transform: translateX(-2px); }
+  .subj-back-btn:hover { background: var(--color-surface-hover); color: var(--cream); transform: translateX(-2px); }
 
   .subj-header-text { position: relative; z-index: 1; flex: 1; min-width: 0; }
   .subj-eyebrow {
     display: inline-flex; align-items: center; gap: 0.45rem;
-    background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3);
+    background: rgba(124,58,237,0.15); border: 2px solid rgba(124,58,237,0.35);
     padding: 0.22rem 0.75rem; border-radius: 50px;
     font-size: 0.67rem; font-weight: 700; color: var(--lavender);
     letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.4rem;
@@ -89,7 +92,7 @@ const CSS = `
     line-height: 1.2; margin-bottom: 0.1rem;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .subj-subtitle { font-size: 0.78rem; color: var(--muted); }
+  .subj-subtitle { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
 
   /* ── SUBJECT CARDS ── */
   .subj-grid {
@@ -100,15 +103,15 @@ const CSS = `
     display: flex; align-items: center; gap: 1rem;
     padding: 1.1rem 1.25rem;
     background: var(--card-bg);
-    border: 1px solid var(--card-bdr);
+    border: 2px solid var(--card-bdr);
     border-radius: 20px;
     text-decoration: none; color: inherit;
     cursor: pointer; position: relative; overflow: hidden;
     transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
   }
   .subj-card:hover {
-    border-color: rgba(124,58,237,0.3);
-    background: rgba(124,58,237,0.04);
+    border-color: var(--violet);
+    background: var(--color-surface-hover);
     box-shadow: 0 4px 20px rgba(10,14,26,0.25);
   }
 
@@ -116,7 +119,7 @@ const CSS = `
   .subj-index {
     width: 40px; height: 40px; border-radius: 13px; flex-shrink: 0;
     background: rgba(124,58,237,0.1);
-    border: 1px solid rgba(124,58,237,0.2);
+    border: 2px solid rgba(124,58,237,0.3);
     display: flex; align-items: center; justify-content: center;
     font-family: 'Space Grotesk', sans-serif;
     font-size: 0.78rem; font-weight: 700; color: var(--lavender);
@@ -136,7 +139,7 @@ const CSS = `
   }
   .subj-card-meta {
     display: flex; align-items: center; gap: 0.6rem;
-    font-size: 0.68rem; color: var(--muted);
+    font-size: 0.68rem; color: var(--muted); font-weight: 600;
   }
   .subj-card-meta-item { display: flex; align-items: center; gap: 0.25rem; }
 
@@ -145,25 +148,25 @@ const CSS = `
     display: inline-flex; align-items: center; gap: 0.25rem;
     padding: 0.14rem 0.5rem; border-radius: 50px;
     font-size: 0.6rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
-    border: 1px solid;
+    border: 2px solid;
   }
-  .subj-badge-premium { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); color: #FCD34D; }
+  .subj-badge-premium { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); color: var(--amber); }
   .subj-badge-content { background: rgba(0,212,255,0.08); border-color: rgba(0,212,255,0.2); color: var(--cyan); }
 
   /* Arrow */
   .subj-arrow {
     width: 30px; height: 30px; border-radius: 10px; flex-shrink: 0;
-    background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.15);
+    background: rgba(124,58,237,0.08); border: 2px solid rgba(124,58,237,0.25);
     display: flex; align-items: center; justify-content: center;
     transition: background 0.2s, border-color 0.2s;
   }
   .subj-card:hover .subj-arrow {
-    background: rgba(124,58,237,0.15); border-color: rgba(124,58,237,0.3);
+    background: rgba(124,58,237,0.15); border-color: var(--violet);
   }
 
   /* ── SKELETON ── */
   .subj-skel {
-    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 75%);
+    background: linear-gradient(90deg, var(--color-surface-border) 25%, var(--color-surface-hover) 50%, var(--color-surface-border) 75%);
     background-size: 200% 100%;
     animation: subj-shimmer 1.6s ease infinite;
     border-radius: 12px;
@@ -174,18 +177,18 @@ const CSS = `
   .subj-empty {
     display: flex; flex-direction: column; align-items: center; gap: 1rem;
     padding: 3.5rem 2rem;
-    border: 1px dashed rgba(124,58,237,0.2);
+    border: 2px dashed var(--card-bdr);
     border-radius: 20px;
-    background: rgba(124,58,237,0.02);
+    background: var(--card-bg);
     text-align: center;
   }
   .subj-empty-icon {
     width: 52px; height: 52px; border-radius: 16px;
-    background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.2);
+    background: var(--local-card-bg); border: 2px solid var(--local-card-bdr);
     display: flex; align-items: center; justify-content: center;
   }
   .subj-empty-title { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--cream); }
-  .subj-empty-desc  { font-size: 0.78rem; color: var(--muted); max-width: 260px; line-height: 1.55; }
+  .subj-empty-desc  { font-size: 0.78rem; color: var(--muted); max-width: 260px; line-height: 1.55; font-weight: 600; }
 `;
 
 const listContainer = {
@@ -254,8 +257,8 @@ export default function SubjectsListPage() {
                 style={{
                   display: 'flex', alignItems: 'center', gap: '1rem',
                   padding: '1.1rem 1.25rem',
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.07)',
+                  background: 'var(--local-card-bg)',
+                  border: '2px solid var(--local-card-bdr)',
                   borderRadius: 20,
                 }}
               >

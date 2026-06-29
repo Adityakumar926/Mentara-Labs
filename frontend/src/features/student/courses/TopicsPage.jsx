@@ -58,17 +58,18 @@ export default function TopicsPage() {
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
 
     .top-root {
-      --navy:     #0A0E1A;
+      --navy:     var(--local-navy, #0A0E1A);
+      --navy2:    var(--local-navy2, #0F1629);
       --violet:   #7C3AED;
-      --violet-l: #9D6FEF;
-      --cyan:     #00D4FF;
-      --cream:    #F5F0E8;
-      --lavender: #C4B5FD;
-      --green:    #10B981;
-      --amber:    #F59E0B;
-      --muted:    rgba(245,240,232,0.45);
-      --card-bg:  rgba(255,255,255,0.04);
-      --card-bdr: rgba(255,255,255,0.08);
+      --violet-l: var(--local-violet-l, #9D6FEF);
+      --cyan:     var(--local-cyan, #00D4FF);
+      --cream:    var(--local-cream, #F5F0E8);
+      --lavender: var(--local-lavender, #C4B5FD);
+      --green:    var(--local-green, #10B981);
+      --amber:    var(--local-amber, #F59E0B);
+      --muted:    var(--local-muted, rgba(245,240,232,0.45));
+      --card-bg:  var(--local-card-bg, rgba(255,255,255,0.04));
+      --card-bdr: var(--local-card-bdr, rgba(255,255,255,0.08));
       font-family: 'Inter', sans-serif;
       color: var(--cream);
     }
@@ -76,7 +77,7 @@ export default function TopicsPage() {
     .top-header {
       position: relative;
       background: linear-gradient(135deg, rgba(124,58,237,0.1) 0%, rgba(0,212,255,0.05) 100%);
-      border: 1px solid var(--card-bdr);
+      border: 2px solid var(--card-bdr);
       border-radius: 24px; padding: 1.5rem 1.75rem;
       overflow: hidden; backdrop-filter: blur(16px);
       margin-bottom: 1.5rem;
@@ -85,14 +86,15 @@ export default function TopicsPage() {
 
     .top-back-btn {
       width: 40px; height: 40px; border-radius: 14px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
+      background: var(--local-card-bg);
+      border: 2px solid var(--local-card-bdr);
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; color: var(--muted);
       transition: background 0.2s, color 0.2s, transform 0.2s;
+      font-weight: 700;
     }
     .top-back-btn:hover {
-      background: rgba(124,58,237,0.15); color: var(--cream); transform: translateX(-2px);
+      background: var(--color-surface-hover); color: var(--cream); transform: translateX(-2px);
     }
 
     .top-title {
@@ -100,22 +102,24 @@ export default function TopicsPage() {
       font-size: 1.35rem; font-weight: 700;
       background: linear-gradient(135deg, var(--cream) 0%, var(--lavender) 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      line-height: 1.2;
     }
 
     /* Progress bar */
     .top-progress-container {
       background: var(--card-bg);
-      border: 1px solid var(--card-bdr);
+      border: 2px solid var(--card-bdr);
       border-radius: 18px;
       padding: 1.25rem;
       margin-bottom: 1.5rem;
     }
     .top-progress-bar {
       height: 8px;
-      background: rgba(255,255,255,0.05);
+      background: var(--local-navy);
       border-radius: 4px;
       overflow: hidden;
       margin-top: 0.5rem;
+      border: 1px solid var(--local-card-bdr);
     }
     .top-progress-fill {
       height: 100%;
@@ -127,14 +131,14 @@ export default function TopicsPage() {
     /* Topic item */
     .top-parent-card {
       background: var(--card-bg);
-      border: 1px solid var(--card-bdr);
+      border: 2px solid var(--card-bdr);
       border-radius: 20px;
       padding: 1.1rem 1.25rem;
       margin-bottom: 0.65rem;
       transition: border-color 0.2s;
     }
     .top-parent-card:hover {
-      border-color: rgba(124,58,237,0.25);
+      border-color: var(--violet);
     }
     .top-item-row {
       display: flex;
@@ -146,15 +150,15 @@ export default function TopicsPage() {
       background: none; border: none; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center;
       transition: color 0.2s;
     }
-    .top-check-btn:hover { color: var(--violet-l); }
-    .top-check-btn.completed { color: var(--green); }
+    .top-check-btn:hover { color: var(--violet); }
+    .top-check-btn.completed { color: var(--local-green); }
 
     .top-name-section {
       flex: 1;
       cursor: pointer;
     }
     .top-name {
-      font-weight: 600;
+      font-weight: 700;
       font-size: 1.02rem;
       color: var(--cream);
       display: flex;
@@ -171,7 +175,7 @@ export default function TopicsPage() {
       letter-spacing: 0.03em;
       color: var(--cyan);
       background: rgba(0, 212, 255, 0.08);
-      border: 1px solid rgba(0, 212, 255, 0.2);
+      border: 2px solid rgba(0, 212, 255, 0.3);
       padding: 0.12rem 0.5rem;
       border-radius: 50px;
     }
@@ -179,6 +183,7 @@ export default function TopicsPage() {
       font-size: 0.78rem;
       color: var(--muted);
       margin-top: 2px;
+      font-weight: 600;
     }
 
     /* Subtopics list */
@@ -190,16 +195,16 @@ export default function TopicsPage() {
     }
     
     .top-subtopic-row {
-      background: rgba(255,255,255,0.015);
-      border: 1px solid rgba(255,255,255,0.04);
+      background: var(--local-card-bg);
+      border: 2px solid var(--local-card-bdr);
       border-radius: 14px;
       padding: 0.8rem 1rem;
       margin-top: 0.25rem;
       transition: border-color 0.2s, background 0.2s;
     }
     .top-subtopic-row:hover {
-      border-color: rgba(124,58,237,0.2);
-      background: rgba(124,58,237,0.03);
+      border-color: var(--violet);
+      background: var(--color-surface-hover);
     }
     
     .top-chevron {
@@ -335,7 +340,7 @@ function StudentTopicNode({ topic, allTopics, curriculumId, subjectId, onToggleT
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.22 }}
             className="subtop-list"
-            style={{ borderLeft: '1px dashed rgba(255,255,255,0.06)', paddingLeft: '0.25rem', overflow: 'hidden' }}
+            style={{ borderLeft: '2px dashed var(--local-card-bdr)', paddingLeft: '0.25rem', overflow: 'hidden' }}
           >
             {childTopics.map(ct => (
               <StudentTopicNode
