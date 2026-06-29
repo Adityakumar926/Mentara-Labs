@@ -117,26 +117,26 @@ const CSS = `
   .stat-chip {
     text-align: center;
     padding: 0.75rem 1.25rem;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: var(--local-card-bg);
+    border: 2px solid var(--local-card-bdr);
     border-radius: 16px;
     transition: border-color 0.2s, background 0.2s, transform 0.2s;
   }
-  .stat-chip:hover { border-color: rgba(124,58,237,0.35); background: rgba(124,58,237,0.08); transform: translateY(-2px); }
+  .stat-chip:hover { border-color: var(--violet); background: var(--color-surface-hover); transform: translateY(-2px); }
   .stat-chip-val {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 1.4rem; font-weight: 700;
     background: linear-gradient(135deg, var(--cream), var(--lavender));
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
   }
-  .stat-chip-label { font-size: 0.7rem; color: var(--muted); margin-top: 0.15rem; font-weight: 500; letter-spacing: 0.03em; }
+  .stat-chip-label { font-size: 0.7rem; color: var(--muted); margin-top: 0.15rem; font-weight: 600; letter-spacing: 0.03em; }
 
   /* ── TABS ── */
   .tab-strip {
     display: flex; gap: 0.25rem;
     padding: 0.3rem;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: var(--local-card-bg);
+    border: 2px solid var(--local-card-bdr);
     border-radius: 18px;
     width: fit-content;
   }
@@ -145,8 +145,8 @@ const CSS = `
     padding: 0.55rem 1.1rem;
     border-radius: 14px;
     border: none; background: transparent;
-    color: rgba(245,240,232,0.5);
-    font-size: 0.8rem; font-weight: 600;
+    color: var(--color-text-secondary);
+    font-size: 0.8rem; font-weight: 700;
     cursor: pointer;
     transition: color 0.2s;
     font-family: 'Inter', sans-serif;
@@ -165,13 +165,13 @@ const CSS = `
   /* ── CONTENT CARD ── */
   .prof-card {
     background: var(--card-bg);
-    border: 1px solid var(--card-bdr);
+    border: 2px solid var(--card-bdr);
     border-radius: 24px;
     overflow: hidden;
     backdrop-filter: blur(16px);
     transition: border-color 0.3s;
   }
-  .prof-card:hover { border-color: rgba(124,58,237,0.2); }
+  .prof-card:hover { border-color: var(--violet); }
 
   /* ── FORM ── */
   .prof-form-field {
@@ -179,28 +179,29 @@ const CSS = `
     margin-bottom: 1.25rem;
   }
   .prof-label {
-    font-size: 0.78rem; font-weight: 600;
-    color: rgba(245,240,232,0.65);
-    letter-spacing: 0.04em;
+    font-size: 0.78rem; font-weight: 800;
+    color: var(--color-text-primary);
+    letter-spacing: 0.05em;
   }
   .prof-input {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: var(--local-card-bg);
+    border: 2px solid var(--local-card-bdr);
     border-radius: 14px;
     padding: 0.8rem 1rem;
-    color: var(--cream);
+    color: var(--color-text-primary);
     font-size: 0.9rem;
     font-family: 'Inter', sans-serif;
     transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
     outline: none;
     width: 100%;
+    font-weight: 600;
   }
   .prof-input:focus {
     border-color: var(--violet);
     box-shadow: 0 0 0 3px rgba(124,58,237,0.15), 0 0 20px rgba(124,58,237,0.1);
-    background: rgba(124,58,237,0.06);
+    background: var(--color-surface-hover);
   }
-  .prof-input::placeholder { color: rgba(245,240,232,0.25); }
+  .prof-input::placeholder { color: var(--color-text-muted); }
   .prof-input.error { border-color: var(--red); box-shadow: 0 0 0 3px rgba(239,68,68,0.15); }
   .field-error { font-size: 0.73rem; color: var(--red); }
 

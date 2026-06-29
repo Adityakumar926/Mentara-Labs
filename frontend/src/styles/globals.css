@@ -26,6 +26,9 @@
   --local-lavender: #C4B5FD;
   --local-cyan: #00D4FF;
   --local-violet-l: #9D6FEF;
+  --local-green: #10B981;
+  --local-red: #EF4444;
+  --local-amber: #F59E0B;
 }
 
 .light {
@@ -43,7 +46,7 @@
   --local-navy: #F8FAFC;
   --local-navy2: #F1F5F9;
   --local-card-bg: #FFFFFF;
-  --local-card-bdr: #CBD5E1; /* Darker slate border for cards and cards-shadow outline */
+  --local-card-bdr: #94A3B8; /* Slate-400 for cards, boxes, and buttons maximum definition */
   --local-cream: #0F172A;
   --local-muted: #334155; /* Slate 700 */
 
@@ -51,6 +54,9 @@
   --local-lavender: #5B21B6; /* Dark purple for readable tags/badges */
   --local-cyan: #0891B2; /* Dark cyan/teal */
   --local-violet-l: #4F46E5; /* Dark indigo */
+  --local-green: #059669; /* Dark emerald green */
+  --local-red: #DC2626; /* Dark ruby red */
+  --local-amber: #D97706; /* Dark amber yellow */
 }
 
 

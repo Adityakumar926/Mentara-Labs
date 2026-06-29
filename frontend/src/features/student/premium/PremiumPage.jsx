@@ -57,8 +57,8 @@ const CSS = `
     z-index: 1;
     width: 100%;
     max-width: 820px;
-    background: rgba(15,22,41,0.65);
-    border: 1px solid var(--card-bdr);
+    background: var(--local-navy2);
+    border: 2px solid var(--card-bdr);
     border-radius: 28px;
     backdrop-filter: blur(24px);
     overflow: hidden;
@@ -75,15 +75,15 @@ const CSS = `
     display: flex;
     flex-direction: column;
     justify-content: center;
-    border-bottom: 1px solid var(--card-bdr);
+    border-bottom: 2px solid var(--card-bdr);
   }
   @media (min-width: 768px) {
-    .pr-info-panel { border-bottom: none; border-right: 1px solid var(--card-bdr); }
+    .pr-info-panel { border-bottom: none; border-right: 2px solid var(--card-bdr); }
   }
 
   .pr-badge {
     display: inline-flex; align-items: center; gap: 0.4rem;
-    background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);
+    background: rgba(245,158,11,0.08); border: 2px solid var(--local-card-bdr);
     padding: 0.35rem 0.8rem; border-radius: 50px;
     font-size: 0.65rem; font-weight: 700; color: var(--amber);
     text-transform: uppercase; letter-spacing: 0.05em; width: fit-content; margin-bottom: 1.25rem;
@@ -96,16 +96,17 @@ const CSS = `
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     margin-bottom: 0.8rem;
   }
-  .pr-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; margin-bottom: 1.75rem; }
+  .pr-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; margin-bottom: 1.75rem; font-weight: 600; }
 
   .pr-benefits-list { display: flex; flex-direction: column; gap: 1rem; }
   .pr-benefit-item { display: flex; align-items: start; gap: 0.75rem; }
   .pr-benefit-icon {
     width: 22px; height: 22px; border-radius: 50%; background: rgba(16,185,129,0.1);
+    border: 1.5px solid var(--local-green);
     display: flex; align-items: center; justify-content: center; color: var(--green); flex-shrink: 0; margin-top: 0.1rem;
   }
-  .pr-benefit-text { font-size: 0.8rem; font-weight: 500; color: var(--cream); }
-  .pr-benefit-subtext { font-size: 0.68rem; color: var(--muted); margin-top: 0.15rem; }
+  .pr-benefit-text { font-size: 0.82rem; font-weight: 700; color: var(--cream); }
+  .pr-benefit-subtext { font-size: 0.7rem; color: var(--muted); margin-top: 0.15rem; font-weight: 600; }
 
   /* Right Panel: Checkout / Pricing card */
   .pr-pricing-panel {
@@ -114,7 +115,7 @@ const CSS = `
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: rgba(255,255,255,0.01);
+    background: var(--local-navy);
   }
 
   .pr-price-box {
@@ -122,33 +123,33 @@ const CSS = `
   }
   .pr-price-tag {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 2.8rem; font-weight: 700; color: #fff; line-height: 1;
+    font-size: 2.8rem; font-weight: 700; color: var(--cream); line-height: 1;
   }
-  .pr-price-sub { font-size: 0.78rem; color: var(--muted); margin-top: 0.4rem; }
+  .pr-price-sub { font-size: 0.78rem; color: var(--muted); margin-top: 0.4rem; font-weight: 600; }
 
   .pr-action-btn {
     width: 100%;
     background: linear-gradient(135deg, var(--violet), var(--violet-l));
-    border: 1px solid rgba(124,58,237,0.3); border-radius: 16px;
-    padding: 0.95rem; font-size: 0.85rem; font-weight: 700; color: #fff;
+    border: 2px solid var(--violet); border-radius: 16px;
+    padding: 0.95rem; font-size: 0.85rem; font-weight: 800; color: #fff;
     cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
     transition: all 0.22s ease;
     box-shadow: 0 8px 24px rgba(124,58,237,0.35); margin-bottom: 1.25rem;
   }
   .pr-action-btn:hover {
     transform: translateY(-2px); box-shadow: 0 12px 30px rgba(124,58,237,0.45);
-    border-color: rgba(124,58,237,0.45);
+    border-color: var(--violet-l);
   }
   .pr-action-btn:active { transform: translateY(0); }
 
   .pr-security-hint {
-    display: flex; align-items: center; gap: 0.4rem; font-size: 0.65rem; color: var(--muted);
+    display: flex; align-items: center; gap: 0.4rem; font-size: 0.65rem; color: var(--muted); font-weight: 600;
   }
   
   .pr-already-premium {
     text-align: center; padding: 1rem; border-radius: 16px;
-    background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.15);
-    color: var(--green); font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;
+    background: rgba(16,185,129,0.05); border: 2px solid var(--local-green);
+    color: var(--green); font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;
   }
 
   @keyframes pr-pulse {

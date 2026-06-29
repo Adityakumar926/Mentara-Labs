@@ -79,7 +79,7 @@ const CSS = `
     display: flex; align-items: center; gap: 1rem;
     padding: 1.1rem 1.25rem;
     background: var(--card-bg);
-    border: 1px solid var(--card-bdr);
+    border: 2px solid var(--card-bdr);
     border-radius: 20px;
     backdrop-filter: blur(16px);
     transition: border-color 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
@@ -87,16 +87,16 @@ const CSS = `
     color: inherit;
   }
   .exam-card.hoverable:hover {
-    border-color: rgba(124,58,237,0.35);
-    background: rgba(124,58,237,0.06);
+    border-color: var(--violet);
+    background: var(--color-surface-hover);
     transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.25), 0 0 0 1px rgba(124,58,237,0.2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
   }
   .exam-card.live-hover:hover {
-    border-color: rgba(239,68,68,0.35);
-    background: rgba(239,68,68,0.05);
+    border-color: var(--local-red, #EF4444);
+    background: var(--color-surface-hover);
     transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.25), 0 0 0 1px rgba(239,68,68,0.2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
   }
   .exam-card.dimmed { opacity: 0.55; cursor: not-allowed; }
 
@@ -112,11 +112,11 @@ const CSS = `
   .live-badge {
     display: inline-flex; align-items: center; gap: 0.35rem;
     background: rgba(239,68,68,0.12);
-    border: 1px solid rgba(239,68,68,0.3);
+    border: 2px solid var(--local-red, rgba(239,68,68,0.3));
     padding: 0.2rem 0.65rem;
     border-radius: 99px;
     font-size: 0.7rem; font-weight: 700;
-    color: #EF4444;
+    color: var(--local-red, #EF4444);
     letter-spacing: 0.05em;
     font-family: 'Space Grotesk', sans-serif;
   }
@@ -130,8 +130,8 @@ const CSS = `
   /* ── ATTEMPT LABEL ── */
   .attempt-label {
     display: inline-flex; align-items: center; gap: 0.3rem;
-    font-size: 0.78rem; font-weight: 600;
-    color: var(--violet-l);
+    font-size: 0.78rem; font-weight: 700;
+    color: var(--local-violet-l);
     font-family: 'Space Grotesk', sans-serif;
     white-space: nowrap;
   }
@@ -148,12 +148,12 @@ const CSS = `
   .history-stat-card {
     padding: 1.1rem 1rem;
     background: var(--card-bg);
-    border: 1px solid var(--card-bdr);
+    border: 2px solid var(--card-bdr);
     border-radius: 18px;
     text-align: center;
     transition: border-color 0.2s, transform 0.2s;
   }
-  .history-stat-card:hover { border-color: rgba(124,58,237,0.3); transform: translateY(-2px); }
+  .history-stat-card:hover { border-color: var(--violet); transform: translateY(-2px); }
   .history-stat-val {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 1.6rem; font-weight: 700;

@@ -109,7 +109,7 @@ const CSS = `
   .sp-item {
     width: 100%;
     background: var(--card-bg);
-    border: 1px solid var(--card-bdr);
+    border: 2px solid var(--card-bdr);
     border-radius: 18px;
     padding: 1rem 1.15rem;
     display: flex; align-items: center; gap: 1rem;
@@ -118,8 +118,8 @@ const CSS = `
     position: relative; overflow: hidden;
   }
   .sp-item:not(.locked):hover {
-    border-color: rgba(124,58,237,0.3);
-    background: rgba(124,58,237,0.04);
+    border-color: var(--violet);
+    background: var(--color-surface-hover);
     box-shadow: 0 4px 20px rgba(10,14,26,0.25);
   }
   .sp-item.locked { opacity: 0.55; cursor: not-allowed; }
@@ -129,16 +129,16 @@ const CSS = `
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0; transition: background 0.2s;
   }
-  .sp-icon-note      { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
-  .sp-icon-video     { background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.2); }
-  .sp-icon-anim      { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); }
-  .sp-icon-worksheet { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); }
-  .sp-icon-exam      { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); }
-  .sp-icon-locked    { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); }
+  .sp-icon-note      { background: var(--local-card-bg); border: 2px solid var(--local-card-bdr); }
+  .sp-icon-video     { background: rgba(124,58,237,0.12); border: 2px solid rgba(124,58,237,0.3); }
+  .sp-icon-anim      { background: rgba(16,185,129,0.1); border: 2px solid rgba(16,185,129,0.3); }
+  .sp-icon-worksheet { background: rgba(245,158,11,0.1); border: 2px solid rgba(245,158,11,0.3); }
+  .sp-icon-exam      { background: rgba(239,68,68,0.1); border: 2px solid rgba(239,68,68,0.3); }
+  .sp-icon-locked    { background: rgba(245,158,11,0.1); border: 2px solid rgba(245,158,11,0.3); }
 
   .sp-item-info { flex: 1; min-width: 0; }
   .sp-item-title {
-    font-size: 0.85rem; font-weight: 600; line-height: 1.35;
+    font-size: 0.85rem; font-weight: 700; line-height: 1.35;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   .sp-item-title.locked-txt { color: var(--muted); }
@@ -148,24 +148,24 @@ const CSS = `
     display: inline-flex; align-items: center; gap: 0.25rem;
     padding: 0.15rem 0.55rem; border-radius: 50px;
     font-size: 0.62rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
-    border: 1px solid;
+    border: 2px solid;
   }
-  .sp-badge-note      { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.12); color: var(--muted); }
-  .sp-badge-video     { background: rgba(124,58,237,0.12); border-color: rgba(124,58,237,0.25); color: var(--lavender); }
-  .sp-badge-anim      { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); color: #6EE7B7; }
-  .sp-badge-worksheet { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); color: #FCD34D; }
-  .sp-badge-danger    { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.25); color: #F87171; }
-  .sp-badge-premium   { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); color: #FCD34D; }
+  .sp-badge-note      { background: var(--local-card-bg); border-color: var(--local-card-bdr); color: var(--color-text-secondary); }
+  .sp-badge-video     { background: rgba(124,58,237,0.12); border-color: rgba(124,58,237,0.25); color: var(--local-lavender); }
+  .sp-badge-anim      { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); color: var(--local-green); }
+  .sp-badge-worksheet { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); color: var(--local-amber); }
+  .sp-badge-danger    { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.25); color: var(--local-red); }
+  .sp-badge-premium   { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); color: var(--local-amber); }
 
   .sp-item-arrow {
     width: 30px; height: 30px; border-radius: 10px;
-    background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.15);
+    background: rgba(124,58,237,0.08); border: 2px solid rgba(124,58,237,0.25);
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
     transition: background 0.2s, border-color 0.2s, transform 0.2s;
   }
   .sp-item:not(.locked):hover .sp-item-arrow {
-    background: rgba(124,58,237,0.2); border-color: rgba(124,58,237,0.4);
+    background: rgba(124,58,237,0.2); border-color: var(--violet);
     transform: translateX(2px);
   }
 

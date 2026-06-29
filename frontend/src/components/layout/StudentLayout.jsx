@@ -95,12 +95,12 @@ const CSS = `
   .sl-nav-item {
     display: flex; align-items: center; gap: 0.7rem;
     padding: 0.6rem 0.85rem; border-radius: 14px;
-    font-size: 0.8rem; font-weight: 500;
+    font-size: 0.8rem; font-weight: 700;
     color: var(--color-text-secondary);
     text-decoration: none;
     transition: color 0.2s, background 0.2s;
     position: relative; overflow: hidden;
-    border: 1px solid transparent;
+    border: 2px solid transparent;
   }
   .sl-nav-item:hover {
     color: var(--color-text-primary);
@@ -109,7 +109,7 @@ const CSS = `
   .sl-nav-item.active {
     color: var(--color-text-primary);
     background: rgba(124,58,237,0.14);
-    border-color: rgba(124,58,237,0.25);
+    border-color: var(--local-lavender);
   }
   .sl-nav-item.active::before {
     content: '';
@@ -120,7 +120,7 @@ const CSS = `
   }
   .sl-nav-icon { color: var(--color-text-muted); transition: color 0.2s; flex-shrink: 0; }
   .sl-nav-item:hover .sl-nav-icon { color: var(--color-text-secondary); }
-  .sl-nav-item.active .sl-nav-icon { color: #C4B5FD; }
+  .sl-nav-item.active .sl-nav-icon { color: var(--local-lavender); }
   .sl-nav-label { flex: 1; }
   .sl-nav-chevron {
     opacity: 0; color: var(--color-text-muted);
@@ -239,12 +239,12 @@ const CSS = `
     gap: 0.22rem;
     text-decoration: none;
     color: var(--color-text-secondary);
-    font-size: 0.58rem; font-weight: 600; letter-spacing: 0.04em;
+    font-size: 0.58rem; font-weight: 700; letter-spacing: 0.04em;
     transition: color 0.2s;
     position: relative;
   }
   .sl-bottom-item:hover { color: var(--color-text-primary); }
-  .sl-bottom-item.active { color: #C4B5FD; }
+  .sl-bottom-item.active { color: var(--local-lavender); }
   /* Active indicator dot above icon */
   .sl-bottom-item.active::before {
     content: '';
@@ -335,7 +335,7 @@ export default function StudentLayout() {
                 style={{
                   background: 'transparent',
                   border: 'none',
-                  color: 'rgba(245,240,232,0.45)',
+                  color: 'var(--color-text-secondary)',
                   cursor: 'pointer',
                   padding: '0.35rem',
                   borderRadius: '50%',
@@ -345,8 +345,8 @@ export default function StudentLayout() {
                   transition: 'color 0.2s, background 0.2s',
                   flexShrink: 0
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--local-cream)'; e.currentTarget.style.background = 'var(--local-card-bg)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(245,240,232,0.45)'; e.currentTarget.style.background = 'transparent'; }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--local-cream)'; e.currentTarget.style.background = 'var(--color-surface-hover)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-secondary)'; e.currentTarget.style.background = 'transparent'; }}
               >
                 {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
               </button>

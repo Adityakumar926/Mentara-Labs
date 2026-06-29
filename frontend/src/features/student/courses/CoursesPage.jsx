@@ -89,7 +89,7 @@ const CSS = `
   .cp-card {
     position: relative;
     background: var(--card-bg);
-    border: 1px solid var(--card-bdr);
+    border: 2px solid var(--card-bdr);
     border-radius: 24px;
     overflow: hidden;
     backdrop-filter: blur(12px);
@@ -99,7 +99,7 @@ const CSS = `
     cursor: pointer;
   }
   .cp-card:hover {
-    border-color: rgba(124,58,237,0.35);
+    border-color: var(--violet);
     box-shadow: 0 8px 30px rgba(10,14,26,0.3);
   }
   .cp-card::before {
@@ -122,13 +122,13 @@ const CSS = `
   }
   .cp-thumb-fallback {
     width: 100%; height: 100%;
-    background: linear-gradient(135deg, rgba(124,58,237,0.18) 0%, rgba(10,14,26,0.8) 60%, rgba(0,212,255,0.08) 100%);
+    background: linear-gradient(135deg, rgba(124,58,237,0.18) 0%, var(--local-navy2) 60%, rgba(0,212,255,0.08) 100%);
     display: flex; align-items: center; justify-content: center;
   }
   .cp-thumb-icon {
     width: 56px; height: 56px; border-radius: 18px;
     background: rgba(124,58,237,0.15);
-    border: 1px solid rgba(124,58,237,0.2);
+    border: 2px solid rgba(124,58,237,0.3);
     display: flex; align-items: center; justify-content: center;
     transition: background 0.2s;
   }
@@ -148,7 +148,7 @@ const CSS = `
     bottom: 10px; left: 12px; z-index: 2;
     background: rgba(124,58,237,0.85);
     backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.12);
+    border: 1.5px solid rgba(255,255,255,0.12);
     border-radius: 50px;
     padding: 0.2rem 0.65rem;
     font-size: 0.65rem; font-weight: 700;
@@ -160,37 +160,37 @@ const CSS = `
   .cp-body { padding: 1.25rem; flex: 1; display: flex; flex-direction: column; gap: 0.75rem; }
   .cp-course-name {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.9rem; font-weight: 700;
+    font-size: 0.95rem; font-weight: 700;
     line-height: 1.3; color: var(--cream);
   }
-  .cp-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .cp-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-weight: 600; }
 
   /* Footer row */
   .cp-footer {
     display: flex; align-items: center; justify-content: space-between;
     padding-top: 0.75rem;
-    border-top: 1px solid rgba(255,255,255,0.07);
+    border-top: 2px solid var(--card-bdr);
     margin-top: auto;
   }
   .cp-meta { display: flex; align-items: center; gap: 0.9rem; }
-  .cp-meta-item { display: flex; align-items: center; gap: 0.3rem; font-size: 0.68rem; color: var(--muted); font-weight: 500; }
+  .cp-meta-item { display: flex; align-items: center; gap: 0.3rem; font-size: 0.68rem; color: var(--muted); font-weight: 600; }
   .cp-arrow {
     width: 28px; height: 28px; border-radius: 10px;
     background: rgba(124,58,237,0.1);
-    border: 1px solid rgba(124,58,237,0.2);
+    border: 2px solid rgba(124,58,237,0.25);
     display: flex; align-items: center; justify-content: center;
     transition: background 0.2s, border-color 0.2s, transform 0.2s;
     flex-shrink: 0;
   }
   .cp-card:hover .cp-arrow {
     background: rgba(124,58,237,0.25);
-    border-color: rgba(124,58,237,0.5);
+    border-color: var(--violet);
     transform: translateX(2px);
   }
 
   /* Shimmer skeleton */
   .cp-skeleton {
-    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+    background: linear-gradient(90deg, var(--color-surface-border) 25%, var(--color-surface-hover) 50%, var(--color-surface-border) 75%);
     background-size: 200% 100%;
     animation: cp-shimmer 1.6s ease infinite;
     border-radius: 14px;
@@ -201,10 +201,10 @@ const CSS = `
   .cp-count-badge {
     display: inline-flex; align-items: center; gap: 0.5rem;
     background: rgba(0,212,255,0.08);
-    border: 1px solid rgba(0,212,255,0.2);
+    border: 2px solid rgba(0,212,255,0.3);
     border-radius: 50px;
     padding: 0.25rem 0.75rem;
-    font-size: 0.72rem; font-weight: 600; color: var(--cyan);
+    font-size: 0.72rem; font-weight: 700; color: var(--cyan);
   }
 `;
 

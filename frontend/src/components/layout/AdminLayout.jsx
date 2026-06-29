@@ -231,7 +231,7 @@ export default function AdminLayout() {
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: 'rgba(245,240,232,0.45)',
+                color: 'var(--color-text-secondary)',
                 cursor: 'pointer',
                 padding: '0.35rem',
                 borderRadius: '50%',
@@ -241,8 +241,8 @@ export default function AdminLayout() {
                 transition: 'color 0.2s, background 0.2s',
                 flexShrink: 0
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--local-cream)'; e.currentTarget.style.background = 'var(--local-card-bg)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(245,240,232,0.45)'; e.currentTarget.style.background = 'transparent'; }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--local-cream)'; e.currentTarget.style.background = 'var(--color-surface-hover)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-secondary)'; e.currentTarget.style.background = 'transparent'; }}
             >
               {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
             </button>
