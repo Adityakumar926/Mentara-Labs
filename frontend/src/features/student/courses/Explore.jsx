@@ -248,7 +248,13 @@ export default function Explore() {
   const [activeTab, setActiveTab] = useState('animations'); // 'animations', 'materials', 'exams'
   const [activeSubjectId, setActiveSubjectId] = useState('all');
   const [activeMatType, setActiveMatType] = useState('all'); // 'all', 'notes', 'video', 'worksheet'
+  const [activeExamFilter, setActiveExamFilter] = useState('all'); // 'all', 'attempted', 'pending'
   const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    setActiveMatType('all');
+    setActiveExamFilter('all');
+  }, [activeTab]);
   
   // Modals / Actions state
   const [selectedVideoUrl, setSelectedVideoUrl] = useState(null);
@@ -294,6 +300,10 @@ export default function Explore() {
 
       // Search query filter
       if (searchQuery.trim() && !e.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+
+      // Attempted filter
+      if (activeExamFilter === 'attempted' && e.submission_status !== 'submitted') return false;
+      if (activeExamFilter === 'pending' && e.submission_status === 'submitted') return false;
 
       return true;
     });
@@ -850,6 +860,13 @@ export default function Explore() {
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.25 }}
             >
+              {/* Secondary filter bar for exams */}
+              <div className="ex-materials-filter">
+                <button className={clsx('ex-mat-btn', activeExamFilter === 'all' && 'active')} onClick={() => setActiveExamFilter('all')}>All Exams</button>
+                <button className={clsx('ex-mat-btn', activeExamFilter === 'attempted' && 'active')} onClick={() => setActiveExamFilter('attempted')}>Attempted</button>
+                <button className={clsx('ex-mat-btn', activeExamFilter === 'pending' && 'active')} onClick={() => setActiveExamFilter('pending')}>Pending</button>
+              </div>
+
               {activeExams.length === 0 ? (
                 <EmptyState icon={FileText} title="No Practice Exams Found" description="Try selecting a different subject or typing another keyword." />
               ) : (
