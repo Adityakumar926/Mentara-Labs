@@ -1,744 +1,1112 @@
-import { useEffect, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import useAuthStore from '@/store/authStore';
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import useAuthStore from "@/store/authStore";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
-  ArrowRight, Compass, Atom, BookOpen, Globe, FlaskConical, Lightbulb, 
-  Scroll, Terminal, Brain, CheckCircle, TrendingUp, Flame, Target, Users, Video, Boxes, Star 
-} from 'lucide-react';
+  ArrowUpRight, Play, Timer, Atom, PenTool, Sparkles, ChevronRight, 
+  Globe, BookOpen, GraduationCap, Award, Library, Compass, X, Menu,
+  Dna, Sigma, Code2, LineChart, Globe2, BookText, Check, Quote,
+  Github, Twitter, Linkedin, Youtube, Star, BarChart3, Layers
+} from "lucide-react";
 
 export default function LandingPage() {
-  const navigate  = useNavigate();
-  const { user }  = useAuthStore();
+  const navigate = useNavigate();
+  const { user } = useAuthStore();
 
   // Redirect already-authenticated users
   useEffect(() => {
     if (user) {
-      navigate(user.role === 'admin' ? '/admin' : '/courses', { replace: true });
+      navigate(user.role === "admin" ? "/admin" : "/courses", { replace: true });
     }
   }, [user, navigate]);
-
-  // Scroll-reveal
-  useEffect(() => {
-    const els = document.querySelectorAll('.reveal');
-    const io  = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) {
-          const siblings = [...e.target.parentElement.querySelectorAll('.reveal')];
-          const idx      = siblings.indexOf(e.target);
-          e.target.style.transitionDelay = idx * 0.07 + 's';
-          e.target.classList.add('visible');
-          io.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.12 });
-    els.forEach((r) => io.observe(r));
-    return () => io.disconnect();
-  }, []);
-
-  // Bento cursor glow
-  useEffect(() => {
-    const cards = document.querySelectorAll('.bento-card');
-    const onMove = (e) => {
-      const r = e.currentTarget.getBoundingClientRect();
-      const x = ((e.clientX - r.left) / r.width)  * 100;
-      const y = ((e.clientY - r.top)  / r.height) * 100;
-      e.currentTarget.style.background =
-        `radial-gradient(circle at ${x}% ${y}%, rgba(124,58,237,0.12) 0%, rgba(255,255,255,0.04) 60%)`;
-    };
-    const onLeave = (e) => { e.currentTarget.style.background = ''; };
-    cards.forEach((c) => { c.addEventListener('mousemove', onMove); c.addEventListener('mouseleave', onLeave); });
-    return () => cards.forEach((c) => { c.removeEventListener('mousemove', onMove); c.removeEventListener('mouseleave', onLeave); });
-  }, []);
-
-  // Nav scroll tint
-  useEffect(() => {
-    const nav = document.getElementById('main-nav');
-    const onScroll = () => {
-      if (nav) nav.style.background = window.scrollY > 40
-        ? 'rgba(10,14,26,0.95)'
-        : 'rgba(10,14,26,0.8)';
-    };
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   return (
     <>
       <style>{`
-        .lp-root {
-          --navy:        #030712;
-          --navy2:       #0B0F19;
-          --violet:      #8B5CF6;
-          --violet-l:    #A78BFA;
-          --cyan:        #06B6D4;
-          --cream:       #F9FAFB;
-          --lavender:    #C4B5FD;
-          --card-bg:     rgba(15, 23, 42, 0.6);
-          --card-border: rgba(255, 255, 255, 0.05);
-          --orbit-radius-1: 85px;
-          --orbit-radius-2: 145px;
-          background: var(--navy);
-          color: var(--cream);
-          font-family: 'Inter', sans-serif;
-          overflow-x: hidden;
-          line-height: 1.6;
+        .font-display {
+          font-family: 'Outfit', 'Space Grotesk', sans-serif;
         }
-        .lp-root *, .lp-root *::before, .lp-root *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        /* ── NAV ── */
-        #main-nav {
-          position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-          padding: 1.2rem 8%;
-          display: flex; align-items: center; justify-content: space-between;
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          background: rgba(3, 7, 18, 0.75);
-          border-bottom: 2px solid rgba(255, 255, 255, 0.05);
-          transition: background 0.3s, border-color 0.3s;
+        .font-mono-label {
+          font-family: 'Space Grotesk', monospace;
         }
-        .nav-logo {
-          display: flex; align-items: center; gap: 0.5rem;
-          font-family: 'Outfit', sans-serif;
-          font-size: 1.35rem; font-weight: 800;
-          text-decoration: none;
+        .bg-grid {
+          background-size: 30px 30px;
+          background-image: 
+            linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
         }
-        .nav-logo-text {
-          background: linear-gradient(135deg, var(--cyan), var(--violet-l));
-          -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-          letter-spacing: -0.02em;
+        @keyframes blob {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.05); }
+          66% { transform: translate(-20px, 20px) scale(0.95); }
         }
-        .nav-links { display: flex; gap: 2.5rem; list-style: none; }
-        .nav-links a { color: rgba(249, 250, 251, 0.6); text-decoration: none; font-size: 0.88rem; font-weight: 600; transition: color 0.2s; }
-        .nav-links a:hover { color: var(--cream); }
-        .nav-cta {
-          background: linear-gradient(135deg, var(--violet), #5B21B6);
-          color: #fff; border: none; padding: 0.6rem 1.4rem;
-          border-radius: 50px; font-size: 0.88rem; font-weight: 700;
-          cursor: pointer; font-family: 'Outfit', sans-serif;
-          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s;
-          box-shadow: 0 0 24px rgba(139, 92, 246, 0.4);
-          text-decoration: none; display: inline-block;
+        .animate-blob {
+          animation: blob 12s infinite alternate ease-in-out;
         }
-        .nav-cta:hover { transform: translateY(-1.5px); box-shadow: 0 0 36px rgba(139, 92, 246, 0.6); }
-
-        /* ── BLOBS ── */
-        .blob { position: absolute; border-radius: 50%; filter: blur(90px); pointer-events: none; }
-        .blob-1 { width:600px;height:600px;background:radial-gradient(circle,rgba(139,92,246,0.2)0%,transparent 70%);top:-150px;left:-150px;animation:drift1 12s ease-in-out infinite alternate; }
-        .blob-2 { width:500px;height:500px;background:radial-gradient(circle,rgba(6,182,212,0.15)0%,transparent 70%);bottom:-100px;right:-100px;animation:drift2 15s ease-in-out infinite alternate; }
-        .blob-3 { width:300px;height:300px;background:radial-gradient(circle,rgba(196,181,253,0.12)0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);animation:pulse-blob 8s ease-in-out infinite; }
-        @keyframes drift1 { from{transform:translate(0,0)} to{transform:translate(60px,40px)} }
-        @keyframes drift2 { from{transform:translate(0,0)} to{transform:translate(-50px,-30px)} }
-        @keyframes pulse-blob { 0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(1)} 50%{opacity:1;transform:translate(-50%,-50%) scale(1.3)} }
-
-        /* ── HERO ── */
-        .hero {
-          position: relative; min-height: 100vh;
-          display: flex; align-items: center; justify-content: center;
-          overflow: hidden; padding: 9rem 8% 5rem;
+        @keyframes ping-glow {
+          0% { transform: scale(0.8); opacity: 0.5; }
+          50% { transform: scale(1.1); opacity: 0.8; box-shadow: 0 0 12px currentColor; }
+          100% { transform: scale(0.8); opacity: 0.5; }
         }
-        .hero-content {
-          position: relative; z-index: 2;
-          display: grid; grid-template-columns: 1.1fr 0.9fr;
-          gap: 5rem; align-items: center; max-width: 1200px; width: 100%;
-        }
-        .hero-eyebrow {
-          display: inline-flex; align-items: center; gap: 0.5rem;
-          background: rgba(139,92,246,0.12); border: 2px solid rgba(139,92,246,0.3);
-          padding: 0.4rem 1.15rem; border-radius: 50px;
-          font-size: 0.76rem; font-weight: 700; color: var(--lavender);
-          letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1.5rem;
-          animation: fade-up 0.8s ease both;
-          font-family: 'Outfit', sans-serif;
-        }
-        .eyebrow-dot { width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:blink 2s ease infinite; }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-        .hero-headline {
-          font-family: 'Outfit', sans-serif;
-          font-size: clamp(3rem,5.5vw,4.5rem); font-weight: 800;
-          line-height: 1.05; letter-spacing: -0.03em;
-          animation: fade-up 0.8s 0.1s ease both;
-        }
-        .headline-gradient {
-          background: linear-gradient(135deg, var(--cyan) 0%, var(--lavender) 50%, var(--violet-l) 100%);
-          -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-        }
-        .hero-sub { margin-top:1.5rem;color:rgba(249,250,251,0.55);font-size:1.1rem;max-width:500px;line-height:1.75;animation:fade-up 0.8s 0.2s ease both; }
-        .hero-actions { display:flex;gap:1rem;margin-top:2.25rem;flex-wrap:wrap;animation:fade-up 0.8s 0.3s ease both; }
-        .hero-stats { display:flex;gap:3rem;margin-top:3rem;animation:fade-up 0.8s 0.4s ease both; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 2rem; }
-        .stat-num { font-family:'Outfit',sans-serif;font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,var(--cream),var(--lavender));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text; }
-        .stat-label { font-size:0.78rem;color:rgba(249,250,251,0.45);margin-top:0.15rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-
-        @keyframes fade-up { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
-
-        /* ── BUTTONS ── */
-        .btn-primary {
-          display:inline-flex;align-items:center;gap:0.5rem;
-          background:linear-gradient(135deg,var(--violet),#4F46E5);
-          color:#fff;padding:0.9rem 2.25rem;border-radius:50px;
-          font-family:'Outfit',sans-serif;font-weight:700;font-size:1rem;
-          text-decoration:none;border:none;cursor:pointer;
-          box-shadow:0 0 32px rgba(139,92,246,0.4);
-          transition:transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),box-shadow 0.2s;
-        }
-        .btn-primary:hover { transform:translateY(-2px);box-shadow:0 0 48px rgba(139, 92, 246, 0.6); }
-        .btn-secondary {
-          display:inline-flex;align-items:center;gap:0.5rem;
-          background:transparent;color:var(--cream);padding:0.9rem 2.25rem;border-radius:50px;
-          border:2px solid rgba(255,255,255,0.15);
-          font-family:'Outfit',sans-serif;font-weight:600;font-size:1rem;
-          text-decoration:none;cursor:pointer;transition:background 0.2s,border-color 0.2s,transform 0.2s;
-        }
-        .btn-secondary:hover { background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.3); transform: translateY(-1px); }
-
-        /* ── ORBIT ── */
-        .orbit-container {
-          position: relative;
-          width: 100%;
-          height: 500px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          animation: fade-up 1s 0.2s ease both;
-        }
-        .orbit-canvas {
-          position: relative;
-          width: 420px;
-          height: 420px;
-        }
-        .core {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 84px;
-          height: 84px;
-          background: linear-gradient(135deg, var(--violet), var(--cyan));
-          border-radius: 50%;
-          box-shadow: 0 0 0 12px rgba(124, 58, 237, 0.15), 0 0 60px rgba(0, 212, 255, 0.4);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 10;
-          animation: core-pulse 4s ease-in-out infinite;
-          border: 2px solid rgba(255,255,255,0.25);
-        }
-        .core-icon {
-          color: #fff;
-          filter: drop-shadow(0 0 8px rgba(255,255,255,0.6));
-        }
-        @keyframes core-pulse {
-          0%, 100% {
-            box-shadow: 0 0 0 12px rgba(124, 58, 237, 0.15), 0 0 60px rgba(0, 212, 255, 0.4);
-            transform: translate(-50%, -50%) scale(1);
-          }
-          50% {
-            box-shadow: 0 0 0 20px rgba(124, 58, 237, 0.1), 0 0 100px rgba(0, 212, 255, 0.6);
-            transform: translate(-50%, -50%) scale(1.05);
-          }
-        }
-        .ring {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          border-radius: 50%;
-          border: 1px dashed rgba(255, 255, 255, 0.08);
-          transform: translate(-50%, -50%);
-        }
-        .ring-1 { width: 170px; height: 170px; border-style: solid; border-color: rgba(255,255,255,0.04); }
-        .ring-2 { width: 280px; height: 280px; border-color: rgba(124, 58, 237, 0.12); border-style: dashed; animation: rotate-cw 40s linear infinite; }
-        .ring-3 { width: 390px; height: 390px; border-color: rgba(0, 212, 255, 0.08); border-style: dashed; animation: rotate-ccw 60s linear infinite; }
-
-        @keyframes rotate-cw { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
-        @keyframes rotate-ccw { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(-360deg); } }
-
-        .orbit-node {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 52px;
-          height: 52px;
-          margin: -26px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          backdrop-filter: blur(12px);
-          border: 2px solid rgba(255, 255, 255, 0.15);
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 15px currentColor;
-          z-index: 5;
-          transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .orbit-node:hover {
-          transform: scale(1.15) !important;
-          border-color: #fff;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 25px currentColor;
-        }
-        .node-icon {
-          color: #fff;
-        }
-        .node-label {
-          position: absolute;
-          bottom: -22px;
-          left: 50%;
-          transform: translateX(-50%);
-          font-size: 0.62rem;
-          font-weight: 700;
-          white-space: nowrap;
-          color: rgba(245, 240, 232, 0.7);
-          letter-spacing: 0.04em;
-          background: rgba(10, 14, 26, 0.75);
-          padding: 2px 8px;
-          border-radius: 20px;
-          border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-        .n1 { animation: orbit-cw  14s linear infinite; color: var(--violet-l); background: rgba(124, 58, 237, 0.18); }
-        .n2 { animation: orbit-ccw 18s linear infinite; color: var(--cyan); background: rgba(0, 212, 255, 0.15); }
-        .n3 { animation: orbit-cw  22s linear infinite; color: var(--lavender); background: rgba(196, 181, 253, 0.15); }
-        .n4 { animation: orbit-cw  22s 7s linear infinite; color: var(--violet-l); background: rgba(124, 58, 237, 0.18); }
-        .n5 { animation: orbit-cw  22s 14s linear infinite; color: var(--cyan); background: rgba(0, 212, 255, 0.12); }
-        .n6 { animation: orbit-ccw 30s linear infinite; color: var(--violet-l); background: rgba(124, 58, 237, 0.18); }
-        .n7 { animation: orbit-ccw 30s 10s linear infinite; color: var(--lavender); background: rgba(196, 181, 253, 0.15); }
-        .n8 { animation: orbit-ccw 30s 20s linear infinite; color: var(--cyan); background: rgba(0, 212, 255, 0.15); }
-        
-        @keyframes orbit-cw  {
-          from { transform: rotate(0deg) translateX(var(--orbit-radius-1)) rotate(0deg); }
-          to { transform: rotate(360deg) translateX(var(--orbit-radius-1)) rotate(-360deg); }
-        }
-        @keyframes orbit-ccw {
-          from { transform: rotate(0deg) translateX(var(--orbit-radius-2)) rotate(0deg); }
-          to { transform: rotate(-360deg) translateX(var(--orbit-radius-2)) rotate(360deg); }
-        }
-
-        /* ── MARQUEE ── */
-        .marquee-section { padding:2.5rem 0;border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05);overflow:hidden;position:relative;z-index:1; }
-        .marquee-track { display:flex;gap:3rem;width:max-content;animation:marquee 30s linear infinite; }
-        .marquee-item { display:flex;align-items:center;gap:0.75rem;font-family:'Space Grotesk',sans-serif;font-size:0.9rem;font-weight:600;color:rgba(245,240,232,0.35);white-space:nowrap;letter-spacing:0.05em; }
-        .marquee-dot { color:var(--cyan);font-size:1.2rem;opacity:0.6; }
-        @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
-
-        /* ── SECTIONS ── */
-        .lp-section { padding:7rem 5%;position:relative;z-index:1; }
-        .section-eyebrow { text-align:center;font-size:0.78rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--cyan);margin-bottom:1rem; font-family: 'Outfit', sans-serif; }
-        .section-title { text-align:center;font-family:'Outfit',sans-serif;font-size:clamp(2rem,3.5vw,3rem);font-weight:800;line-height:1.2;letter-spacing:-0.02em;max-width:600px;margin:0 auto 1rem; color: var(--cream); }
-        .section-sub { text-align:center;color:rgba(249,250,251,0.5);max-width:500px;margin:0 auto 4rem;font-size:1.05rem; }
-
-        /* ── BENTO ── */
-        .bento { display:grid;grid-template-columns:repeat(12,1fr);gap:1.5rem;max-width:1200px;margin:0 auto; }
-        .bento-card {
-          background: var(--card-bg);
-          border: 2px solid var(--card-border);
-          border-radius: 24px;
-          padding: 2.25rem;
-          position: relative;
-          overflow: hidden;
-          transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s, box-shadow 0.3s;
-          box-shadow: 0 4px 30px rgba(0,0,0,0.25);
-        }
-        .bento-card::before { content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.03)0%,transparent 60%);pointer-events:none; }
-        .bento-card:hover {
-          transform: translateY(-5px);
-          border-color: var(--violet);
-          box-shadow: 0 20px 40px rgba(139, 92, 246, 0.08), 0 0 0 1px rgba(139, 92, 246, 0.2);
-        }
-        .bc-1{grid-column:span 7} .bc-2{grid-column:span 5} .bc-3{grid-column:span 4} .bc-4{grid-column:span 4} .bc-5{grid-column:span 4} .bc-6{grid-column:span 5} .bc-7{grid-column:span 7}
-        .bento-icon {
-          width: 48px;
-          height: 48px;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-bottom: 1.25rem;
-        }
-        .icon-violet { background: rgba(124, 58, 237, 0.15); border: 1.5px solid rgba(124, 58, 237, 0.3); color: var(--lavender); }
-        .icon-cyan { background: rgba(0, 212, 255, 0.12); border: 1.5px solid rgba(0, 212, 255, 0.25); color: var(--cyan); }
-        .icon-lav { background: rgba(196, 181, 253, 0.12); border: 1.5px solid rgba(196, 181, 253, 0.2); color: var(--lavender); }
-        .icon-indigo { background: rgba(79, 70, 229, 0.18); border: 1.5px solid rgba(79, 70, 229, 0.3); color: var(--lavender); }
-        .bento-title { font-family:'Outfit',sans-serif;font-size:1.25rem;font-weight:700;margin-bottom:0.6rem;letter-spacing:-0.01em; color: var(--cream); }
-        .bento-desc { color:rgba(249,250,251,0.5);font-size:0.9rem;line-height:1.65; }
-        .bc-1 .bento-title{font-size:1.6rem} .bc-1 .bento-desc{font-size:1rem;max-width:380px}
-
-        .progress-bars{margin-top:1.5rem;display:flex;flex-direction:column;gap:0.75rem}
-        .pb-row{display:flex;align-items:center;gap:1rem}
-        .pb-label{font-size:0.8rem;font-weight:500;min-width:80px;color:rgba(249,250,251,0.7)}
-        .pb-track{flex:1;height:6px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden}
-        .pb-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--violet),var(--cyan));transform-origin:left;animation:fill-bar 1.5s 0.5s ease both}
-        @keyframes fill-bar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-
-        .streak-display{margin-top:1.5rem;display:flex;gap:0.5rem;flex-wrap:wrap}
-        .streak-day{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700}
-        .streak-day.active{background:linear-gradient(135deg,var(--violet),var(--cyan));color:#fff;box-shadow:0 0 12px rgba(124,58,237,0.5)}
-        .streak-day.inactive{background:rgba(255,255,255,0.06);color:rgba(249,250,251,0.3)}
-        .streak-num{margin-top:1rem;font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:700;background:linear-gradient(135deg,#FF6B35,#F59E0B);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-
-        .sparkline{margin-top:1.5rem;height:60px}
-        .sparkline svg{width:100%;height:100%}
-
-        .tag-cloud{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:1.5rem}
-        .lp-tag{padding:0.3rem 0.85rem;border-radius:50px;font-size:0.75rem;font-weight:600;border:1px solid rgba(255,255,255,0.1);color:rgba(249,250,251,0.6);background:rgba(255,255,255,0.04);transition:all 0.2s}
-        .lp-tag:hover{border-color:var(--violet);color:var(--lavender)}
-        .lp-tag.active{background:rgba(124,58,237,0.2);border-color:rgba(124,58,237,0.4);color:var(--lavender)}
-
-        /* ── HOW ── */
-        .how-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:2.5rem;max-width:1100px;margin:0 auto;position:relative}
-        .how-grid::before{content:'';position:absolute;top:38px;left:12%;right:12%;height:1px;background:linear-gradient(90deg,transparent,rgba(139,92,246,0.3),rgba(6,182,212,0.3),transparent);pointer-events:none}
-        .how-step{text-align:center;padding:0 1rem}
-        .step-num {
-          width: 76px;
-          height: 76px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-family: 'Outfit', sans-serif;
-          font-size: 1.5rem;
-          font-weight: 800;
-          margin: 0 auto 1.5rem;
-          background: rgba(139, 92, 246, 0.1);
-          border: 2px solid rgba(139, 92, 246, 0.3);
-          color: var(--lavender);
-          box-shadow: 0 0 30px rgba(139, 92, 246, 0.15);
-          transition: all 0.3s;
-        }
-        .how-step:hover .step-num {
-          background: var(--violet);
-          color: #fff;
-          border-color: var(--violet);
-          box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
-          transform: scale(1.05);
-        }
-        .how-step h3 {
-          font-family: 'Outfit', sans-serif;
-          font-size: 1.15rem;
-          font-weight: 700;
-          margin-bottom: 0.6rem;
-          color: var(--cream);
-        }
-        .how-step p{color:rgba(249,250,251,0.5);font-size:0.9rem;line-height:1.6}
-
-        /* ── TESTIMONIALS ── */
-        .t-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.5rem;max-width:1100px;margin:0 auto }
-        .t-card {
-          background: var(--card-bg);
-          border: 2px solid var(--card-border);
-          border-radius: 24px;
-          padding: 2rem;
-          transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s, box-shadow 0.3s;
-          box-shadow: 0 4px 30px rgba(0,0,0,0.25);
-        }
-        .t-card:hover {
-          transform: translateY(-4px);
-          border-color: var(--violet);
-          box-shadow: 0 20px 40px rgba(139, 92, 246, 0.08);
-        }
-        .t-stars{color:#F59E0B;font-size:0.9rem;letter-spacing:2px;margin-bottom:1rem}
-        .t-quote{font-size:0.95rem;color:rgba(249,250,251,0.75);line-height:1.7;margin-bottom:1.25rem;font-style:italic}
-        .t-author{display:flex;align-items:center;gap:0.75rem}
-        .t-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;background:linear-gradient(135deg,var(--violet),var(--cyan));color:#fff;font-family:'Space Grotesk',sans-serif;flex-shrink:0}
-        .t-name{font-family:'Outfit',sans-serif;font-size:0.92rem;font-weight:700}
-        .t-role{font-size:0.78rem;color:rgba(249,250,251,0.4)}
-
-        /* ── CTA ── */
-        .cta-section{padding:5rem 5%;position:relative;z-index:1;overflow:hidden}
-        .cta-inner{max-width:900px;margin:0 auto;background:linear-gradient(135deg,rgba(124,58,237,0.15)0%,rgba(6,182,212,0.08)100%);border:2px solid rgba(139,92,246,0.3);border-radius:32px;padding:4rem 3rem;text-align:center;position:relative;overflow:hidden}
-        .cta-inner::before{content:'';position:absolute;inset:-2px;background:linear-gradient(135deg,rgba(124,58,237,0.4),rgba(0,212,255,0.3));border-radius:34px;z-index:-1;opacity:0.5;filter:blur(8px)}
-        .cta-title{font-family:'Outfit',sans-serif;font-size:clamp(1.8rem,3vw,2.8rem);font-weight:800;letter-spacing:-0.02em;margin-bottom:1rem}
-        .cta-sub{color:rgba(249,250,251,0.6);margin-bottom:2rem;font-size:1.05rem}
-        .cta-actions{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap}
-
-        /* ── FOOTER ── */
-        .lp-footer{padding:3rem 5% 2rem;border-top:1px solid rgba(255,255,255,0.05);position:relative;z-index:1}
-        .footer-inner{display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:0 auto;flex-wrap:wrap;gap:1rem}
-        .footer-logo{font-family:'Outfit',sans-serif;font-size:1.3rem;font-weight:800;background:linear-gradient(135deg,var(--cyan),var(--violet-l));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-        .footer-links{display:flex;gap:2.5rem;list-style:none}
-        .footer-links a{color:rgba(249,250,251,0.4);font-size:0.85rem;text-decoration:none;transition:color 0.2s}
-        .footer-links a:hover{color:var(--cream)}
-        .footer-copy{color:rgba(249,250,251,0.3);font-size:0.8rem}
-
-        /* ── REVEAL ── */
-        .reveal{opacity:0;transform:translateY(30px);transition:opacity 0.7s ease,transform 0.7s ease}
-        .reveal.visible{opacity:1;transform:translateY(0)}
-
-        /* ── RESPONSIVE ── */
-        @media(max-width:900px){
-          .hero-content{grid-template-columns:1fr;text-align:center}
-          .hero-sub,.hero-actions,.hero-stats{justify-content:center}
-          .orbit-container{height:320px}
-          .orbit-canvas{width:280px;height:280px}
-          .n6,.n7,.n8,.ring-3{display:none}
-          .bc-1,.bc-2,.bc-3,.bc-4,.bc-5,.bc-6,.bc-7{grid-column:span 12}
-          .how-grid::before{display:none}
-          .nav-links{display:none}
-          .lp-root {
-            --orbit-radius-1: 55px;
-            --orbit-radius-2: 95px;
-          }
-        }
-        @media(prefers-reduced-motion:reduce){
-          *,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}
+        .animate-ping-glow {
+          animation: ping-glow 2.5s infinite ease-in-out;
         }
       `}</style>
 
-      <div className="lp-root">
-        {/* ── NAV ── */}
-        <nav id="main-nav">
-          <span className="nav-logo">
-            <img src="/mentara-new.png" alt="" style={{ width: '26px', height: '26px', display: 'block' }} />
-            <span className="nav-logo-text">Mentara Labs</span>
-          </span>
-          <ul className="nav-links">
-            <li><a href="#features">Features</a></li>
-            <li><a href="#how">How it works</a></li>
-            <li><a href="#testimonials">Stories</a></li>
-            <li><Link to="/login" style={{ color: 'rgba(245,240,232,0.6)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500 }}>Login</Link></li>
-          </ul>
-          <Link to="/register" className="nav-cta">Get Started Free</Link>
+      <main className="relative min-h-screen bg-zinc-950 text-zinc-100 overflow-hidden font-sans">
+        <Header />
+        <Hero />
+        <CurriculumStrip />
+        <FeaturesBento />
+        <LearningJourney />
+        <SubjectsGrid />
+        <Testimonials />
+        <Pricing />
+        <FAQ />
+        <Footer />
+      </main>
+    </>
+  );
+}
+
+/* ── 1. HEADER ── */
+function Header() {
+  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const NAV_LINKS = [
+    { label: "Curriculum", href: "#curriculum" },
+    { label: "Features", href: "#features" },
+    { label: "Subjects", href: "#subjects" },
+    { label: "Pricing", href: "#pricing" },
+    { label: "FAQ", href: "#faq" },
+  ];
+
+  return (
+    <header
+      data-testid="site-header"
+      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+        scrolled ? "bg-zinc-950/90 backdrop-blur-xl border-b border-white/5 h-16" : "bg-transparent h-20"
+      } flex items-center`}
+    >
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 w-full flex items-center justify-between">
+        <a href="#" data-testid="brand-logo" className="flex items-center gap-2.5 group">
+          <div className="relative h-8 w-8 rounded-lg bg-gradient-to-br from-cyan-400 to-emerald-400 grid place-items-center">
+            <span className="font-display font-black text-zinc-950 text-base">M</span>
+            <div className="absolute inset-0 rounded-lg bg-cyan-400/40 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+          </div>
+          <span className="font-display font-bold text-[16px] tracking-tight">Mentara Labs</span>
+        </a>
+
+        <nav className="hidden md:flex items-center gap-1.5">
+          {NAV_LINKS.map((item) => (
+            <a
+              key={item.label}
+              href={item.href}
+              data-testid={`nav-${item.label.toLowerCase()}`}
+              className="px-3.5 py-2 text-[13px] font-medium text-zinc-400 hover:text-white transition-colors rounded-md"
+            >
+              {item.label}
+            </a>
+          ))}
         </nav>
 
-        {/* ── HERO ── */}
-        <section className="hero">
-          <div className="blob blob-1" />
-          <div className="blob blob-2" />
-          <div className="blob blob-3" />
-          <div className="hero-content">
-            <div>
-              <div className="hero-eyebrow"><span className="eyebrow-dot" />Intelligent Learning Platform</div>
-              <h1 className="hero-headline">
-                Master Every<br /><span className="headline-gradient">Subject. Every</span><br />Exam. Every Day.
-              </h1>
-              <p className="hero-sub">Mentara Labs connects you to structured courses, adaptive exams, and a streak system that turns consistency into your superpower.</p>
-              <div className="hero-actions">
-                <Link to="/register" className="btn-primary">
-                  Start Learning Free
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                </Link>
-                <a href="#features" className="btn-secondary">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5"/><path d="M6.5 6c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5c0 1-1.5 1.5-1.5 2.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><circle cx="8" cy="11.5" r=".75" fill="currentColor"/></svg>
-                  Explore Features
+        <div className="flex items-center gap-4">
+          <Link
+            to="/login"
+            data-testid="header-signin"
+            className="hidden sm:inline text-[13px] font-semibold text-zinc-400 hover:text-white transition-colors"
+          >
+            Sign in
+          </Link>
+          <Link
+            to="/register"
+            data-testid="header-cta"
+            className="group inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-semibold text-zinc-950 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:shadow-[0_0_30px_rgba(34,211,238,0.45)] transition-shadow duration-300"
+          >
+            Get Started
+            <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </Link>
+          <button
+            data-testid="mobile-menu-toggle"
+            onClick={() => setOpen(!open)}
+            className="md:hidden p-2 text-zinc-300 hover:text-white transition-colors"
+            aria-label="Toggle menu"
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            data-testid="mobile-nav"
+            className="absolute top-full inset-x-0 border-t border-white/5 bg-zinc-950/95 backdrop-blur-2xl py-4 shadow-xl md:hidden"
+          >
+            <div className="px-6 flex flex-col gap-1">
+              {NAV_LINKS.map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  onClick={() => setOpen(false)}
+                  className="py-2.5 text-sm text-zinc-300 hover:text-cyan-400 font-medium transition-colors"
+                >
+                  {item.label}
                 </a>
+              ))}
+              <hr className="border-white/5 my-2" />
+              <Link
+                to="/login"
+                onClick={() => setOpen(false)}
+                className="py-2.5 text-sm text-zinc-300 hover:text-cyan-400 font-medium transition-colors"
+              >
+                Sign in
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
+  );
+}
+
+/* ── 2. HERO ── */
+function Hero() {
+  return (
+    <section data-testid="hero-section" className="relative pt-32 pb-24 lg:pt-40 lg:pb-32 overflow-hidden bg-zinc-950">
+      {/* Animated background orbs */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute top-1/4 -left-32 h-[480px] w-[480px] rounded-full bg-cyan-500/20 blur-[120px] animate-blob" />
+        <div className="absolute top-1/3 right-0 h-[520px] w-[520px] rounded-full bg-emerald-500/15 blur-[140px] animate-blob" style={{ animationDelay: "-4s" }} />
+        <div className="absolute bottom-0 left-1/3 h-[360px] w-[360px] rounded-full bg-teal-500/10 blur-[120px] animate-blob" style={{ animationDelay: "-8s" }} />
+      </div>
+
+      {/* Grid background */}
+      <div className="absolute inset-0 -z-10 bg-grid opacity-30 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]" />
+
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 grid lg:grid-cols-12 gap-12 items-center">
+        {/* Left Column Info */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+          className="lg:col-span-7"
+        >
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.02] backdrop-blur-md mb-8" data-testid="hero-badge">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75 animate-ping" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" />
+            </span>
+            <span className="font-mono-label text-[10px] uppercase tracking-[0.22em] text-zinc-300">
+              Built for Cambridge · IB DP · MYP
+            </span>
+          </div>
+
+          <h1 className="font-display font-black text-5xl sm:text-6xl lg:text-7xl leading-[0.95] tracking-tighter text-white">
+            The new operating system for{" "}
+            <span className="bg-gradient-to-r from-cyan-300 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+              global curricula.
+            </span>
+          </h1>
+
+          <p className="mt-7 text-lg leading-relaxed text-zinc-400 max-w-xl">
+            Mentara Labs delivers premium, institution-grade learning for Cambridge IGCSE, A-Level
+            and IB Diploma students — powered by interactive simulations, drawable worksheets and
+            timed exam engines that mirror the real thing.
+          </p>
+
+          <div className="mt-10 flex flex-wrap items-center gap-4">
+            <Link
+              to="/register"
+              data-testid="hero-cta-primary"
+              className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 font-semibold text-sm hover:shadow-[0_0_40px_rgba(34,211,238,0.45)] transition-shadow duration-300"
+            >
+              Start Free Trial
+              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </Link>
+            <a
+              href="#features"
+              data-testid="hero-cta-secondary"
+              className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-full border border-white/10 bg-white/[0.02] backdrop-blur-md text-zinc-200 font-medium text-sm hover:border-white/25 hover:bg-white/[0.04] transition-all"
+            >
+              <Play className="h-3.5 w-3.5 fill-cyan-400 text-cyan-400" />
+              Explore Features
+            </a>
+          </div>
+
+          <div className="mt-12 grid grid-cols-3 gap-6 max-w-md border-t border-white/5 pt-8">
+            {[
+              { stat: "12k+", label: "Active learners" },
+              { stat: "98%", label: "Syllabus Pass Rate" },
+              { stat: "240+", label: "Interactive Labs" },
+            ].map((s) => (
+              <div key={s.label}>
+                <div className="font-display text-2xl font-bold text-white">{s.stat}</div>
+                <div className="text-xs text-zinc-500 mt-1">{s.label}</div>
               </div>
-              <div className="hero-stats">
-                <div><div className="stat-num">12K+</div><div className="stat-label">Active Learners</div></div>
-                <div><div className="stat-num">500+</div><div className="stat-label">Exam Questions</div></div>
-                <div><div className="stat-num">98%</div><div className="stat-label">Satisfaction</div></div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Right Column Floating UI Mockups */}
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.2, ease: "easeOut" }}
+          className="lg:col-span-5 relative"
+        >
+          <div className="relative h-[480px] w-full">
+            {/* Glow */}
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-emerald-500/10 blur-2xl pointer-events-none" />
+
+            {/* Projectile simulation Card */}
+            <motion.div
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute top-2 left-0 right-4 rounded-2xl border border-white/10 bg-zinc-900/65 backdrop-blur-2xl p-5 shadow-2xl"
+              data-testid="hero-mock-simulation"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-1.5">
+                  <div className="h-2.5 w-2.5 rounded-full bg-rose-500/80" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
+                  <div className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
+                </div>
+                <span className="font-mono-label text-[10px] uppercase tracking-[0.18em] text-zinc-500">
+                  physics · projectile motion
+                </span>
+              </div>
+              <div className="relative h-40 rounded-lg bg-zinc-950/80 border border-white/5 overflow-hidden">
+                <svg viewBox="0 0 320 180" className="w-full h-full">
+                  <defs>
+                    <linearGradient id="trail" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#22d3ee" stopOpacity="0" />
+                      <stop offset="100%" stopColor="#22d3ee" stopOpacity="1" />
+                    </linearGradient>
+                  </defs>
+                  {[...Array(8)].map((_, i) => (
+                    <line key={`v${i}`} x1={i * 40} y1="0" x2={i * 40} y2="180" stroke="rgba(255,255,255,0.03)" />
+                  ))}
+                  {[...Array(5)].map((_, i) => (
+                    <line key={`h${i}`} x1="0" y1={i * 40} x2="320" y2={i * 40} stroke="rgba(255,255,255,0.03)" />
+                  ))}
+                  <path d="M10 150 Q 110 -10 300 130" stroke="url(#trail)" strokeWidth="2" fill="none" />
+                  <circle cx="200" cy="60" r="5" fill="#22d3ee">
+                    <animate attributeName="cx" values="10;300;10" dur="4s" repeatCount="indefinite" />
+                    <animate attributeName="cy" values="150;30;150" dur="4s" repeatCount="indefinite" />
+                  </circle>
+                </svg>
+              </div>
+              <div className="mt-4 grid grid-cols-3 gap-2.5">
+                {[
+                  { label: "Velocity", value: "42 m/s" },
+                  { label: "Angle", value: "37°" },
+                  { label: "Range", value: "184 m" },
+                ].map((m) => (
+                  <div key={m.label} className="rounded-lg border border-white/5 bg-white/[0.01] px-3 py-2">
+                    <div className="font-mono-label text-[9px] uppercase tracking-wider text-zinc-500">{m.label}</div>
+                    <div className="font-display text-xs text-white font-bold mt-0.5">{m.value}</div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Timer card */}
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
+              className="absolute bottom-4 -left-6 w-56 rounded-xl border border-cyan-500/20 bg-zinc-900/80 backdrop-blur-2xl p-4 shadow-[0_0_35px_rgba(34,211,238,0.12)]"
+              data-testid="hero-mock-timer"
+            >
+              <div className="flex items-center gap-2 mb-2.5">
+                <Timer className="h-3.5 w-3.5 text-cyan-400" />
+                <span className="font-mono-label text-[10px] uppercase tracking-[0.18em] text-zinc-400">
+                  Paper 2 · IB Physics HL
+                </span>
+              </div>
+              <div className="font-display text-2xl font-black tabular-nums text-white">
+                01<span className="text-cyan-400">:</span>24<span className="text-cyan-400">:</span>17
+              </div>
+              <div className="mt-3 h-1 rounded-full bg-zinc-800 overflow-hidden">
+                <div className="h-full w-2/3 bg-gradient-to-r from-cyan-400 to-emerald-400" />
+              </div>
+            </motion.div>
+
+            {/* Draw tool card */}
+            <motion.div
+              animate={{ y: [0, -6, 0] }}
+              transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
+              className="absolute top-1/2 -right-4 w-48 rounded-xl border border-emerald-500/20 bg-zinc-900/80 backdrop-blur-2xl p-4 shadow-[0_0_35px_rgba(52,211,153,0.1)]"
+              data-testid="hero-mock-worksheet"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <PenTool className="h-3.5 w-3.5 text-emerald-400" />
+                <span className="font-mono-label text-[10px] uppercase tracking-[0.18em] text-zinc-400">
+                  Draw Tool
+                </span>
+              </div>
+              <svg viewBox="0 0 200 80" className="w-full">
+                <path d="M10 50 Q 40 10 70 40 T 130 35 T 190 55" stroke="#34d399" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+                <text x="10" y="75" fontFamily="monospace" fontSize="8" fill="#71717a">f(x) = sin(x)</text>
+              </svg>
+            </motion.div>
+
+            {/* Streak pill */}
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
+              className="absolute -top-3 right-6 px-3.5 py-2 rounded-full border border-white/10 bg-zinc-900/80 backdrop-blur-2xl flex items-center gap-2"
+              data-testid="hero-mock-streak"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+              <span className="font-mono-label text-[10px] uppercase tracking-[0.18em] text-zinc-300">
+                7-Day Streak
+              </span>
+            </motion.div>
+          </div>
+        </motion.div>
+      </div>
+
+      <div className="mt-20 max-w-7xl mx-auto px-6 lg:px-8 flex items-center gap-2 text-zinc-500 font-semibold">
+        <ChevronRight className="h-3.5 w-3.5" />
+        <span className="font-mono-label text-[10px] uppercase tracking-[0.22em]">Trusted by educators worldwide</span>
+      </div>
+    </section>
+  );
+}
+
+/* ── 3. CURRICULUM STRIP ── */
+function CurriculumStrip() {
+  const BADGES = [
+    { icon: Globe, label: "Cambridge IGCSE" },
+    { icon: GraduationCap, label: "Cambridge A-Level" },
+    { icon: BookOpen, label: "IB Diploma" },
+    { icon: Compass, label: "IB MYP" },
+    { icon: Award, label: "Examiner-Reviewed" },
+    { icon: Library, label: "Global Standards" },
+  ];
+
+  return (
+    <section id="curriculum" data-testid="curriculum-strip" className="relative py-20 border-y border-white/5 bg-zinc-950">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-12">
+          <div className="max-w-md">
+            <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
+              · Curriculum coverage
+            </span>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight mt-3 text-white">
+              Aligned with the world&apos;s most rigorous frameworks.
+            </h2>
+          </div>
+          <p className="text-sm text-zinc-500 max-w-sm leading-relaxed font-medium">
+            Every lesson, simulation and exam paper is mapped directly to the official syllabus
+            outcomes — so nothing you study is wasted.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          {BADGES.map(({ icon: Icon, label }) => (
+            <div
+              key={label}
+              data-testid={`curriculum-badge-${label.toLowerCase().replace(/\s+/g, "-")}`}
+              className="group flex items-center gap-2.5 px-4 py-3.5 rounded-full border border-white/10 bg-white/[0.02] backdrop-blur-md hover:border-cyan-500/40 hover:bg-white/[0.04] transition-all cursor-pointer"
+            >
+              <Icon className="h-4 w-4 text-cyan-400 group-hover:text-emerald-400 transition-colors shrink-0" />
+              <span className="text-[12.5px] font-semibold text-zinc-300 tracking-tight">{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── 4. FEATURES BENTO ── */
+function FeaturesBento() {
+  return (
+    <section id="features" data-testid="features-section" className="relative py-28 lg:py-36 bg-zinc-950/20">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="max-w-2xl mb-16">
+          <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-emerald-400">
+            · The platform
+          </span>
+          <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tighter mt-3 leading-[1.05] text-white">
+            Built for how students{" "}
+            <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+              actually learn.
+            </span>
+          </h2>
+          <p className="text-zinc-400 mt-5 text-lg leading-relaxed">
+            Four product pillars, one cohesive learning environment. No more juggling tabs, PDFs
+            and broken simulations.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[minmax(220px,auto)]">
+          {/* Simulations */}
+          <BentoCard
+            className="md:col-span-2 lg:col-span-2 lg:row-span-2"
+            tag="01 · Interactive simulations"
+            tagColor="text-cyan-400"
+            title="Drag, tweak, break things — then learn why."
+            description="240+ Physics, Chemistry & Biology simulations rendered in real time. Adjust variables, watch outcomes change, build genuine intuition."
+            testid="feature-simulations"
+          >
+            <div className="mt-6 relative h-56 rounded-xl border border-white/10 overflow-hidden bg-zinc-950">
+              <img
+                src="https://images.pexels.com/photos/29067691/pexels-photo-29067691.jpeg?auto=compress&cs=tinysrgb&w=600"
+                alt="Simulation"
+                className="absolute inset-0 w-full h-full object-cover opacity-50"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-transparent" />
+              <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+                <div>
+                  <div className="font-mono-label text-[10px] uppercase tracking-[0.18em] text-cyan-400">
+                    Live · Chemistry · Titration
+                  </div>
+                  <div className="font-display text-lg font-bold text-white mt-1">pH Curve · NaOH ⇌ HCl</div>
+                </div>
+                <div className="px-3 py-1 rounded-full border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-mono-label text-[9px] font-bold">
+                  RUNNING
+                </div>
               </div>
             </div>
+          </BentoCard>
 
-            {/* Orbit */}
-            <div className="orbit-container">
-              <div className="orbit-canvas">
-                <div className="ring ring-1" />
-                <div className="ring ring-2" />
-                <div className="ring ring-3" />
-                <div className="core">
-                  <Brain size={32} className="core-icon" />
+          {/* Draw tools */}
+          <BentoCard
+            tag="02 · Draw tools"
+            tagColor="text-emerald-400"
+            title="Annotate worksheets like paper."
+            description="Sketch diagrams, mark up vectors, highlight equations. Saved automatically."
+            icon={<PenTool className="h-5 w-5 text-emerald-400" />}
+            testid="feature-drawtools"
+          >
+            <div className="mt-5 rounded-lg border border-white/10 bg-zinc-950 p-3">
+              <svg viewBox="0 0 220 90" className="w-full h-20">
+                <path d="M10 70 Q 40 10 80 40 T 160 30 T 215 60" stroke="#34d399" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+                <path d="M10 80 L 215 80" stroke="rgba(255,255,255,0.08)" />
+                <circle cx="80" cy="40" r="3" fill="#22d3ee" />
+                <text x="88" y="36" fontFamily="monospace" fontSize="8" fill="#a1a1aa">peak</text>
+              </svg>
+              <div className="flex items-center gap-1 mt-2">
+                {["#22d3ee", "#34d399", "#f59e0b", "#f43f5e"].map((c) => (
+                  <div key={c} className="h-2.5 w-2.5 rounded-full" style={{ background: c }} />
+                ))}
+                <div className="ml-auto font-mono-label text-[9px] uppercase tracking-wider text-zinc-500">auto-saved</div>
+              </div>
+            </div>
+          </BentoCard>
+
+          {/* Premium content */}
+          <BentoCard
+            tag="03 · Premium content"
+            tagColor="text-cyan-400"
+            title="Written by examiners. Reviewed by teachers."
+            description="Every topic, every subtopic, every command term — covered to syllabus depth."
+            icon={<Sparkles className="h-5 w-5 text-cyan-400" />}
+            testid="feature-content"
+          >
+            <div className="mt-5 space-y-2">
+              {[
+                { c: "Mechanics", p: 92 },
+                { c: "Electromagnetism", p: 78 },
+                { c: "Quantum Theory", p: 64 },
+              ].map((t) => (
+                <div key={t.c}>
+                  <div className="flex justify-between text-[10px] font-mono-label text-zinc-500 uppercase tracking-wider font-semibold">
+                    <span>{t.c}</span><span>{t.p}%</span>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-zinc-800 mt-1 overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-cyan-400 to-emerald-400" style={{ width: `${t.p}%` }} />
+                  </div>
                 </div>
-                <div className="orbit-node n1">
-                  <Compass size={18} className="node-icon" />
-                  <div className="node-label">Maths</div>
+              ))}
+            </div>
+          </BentoCard>
+
+          {/* Auto exams */}
+          <BentoCard
+            className="md:col-span-3 lg:col-span-2"
+            tag="04 · Timed past exams"
+            tagColor="text-emerald-400"
+            title="Real exam conditions. Instant marking."
+            description="Sit past papers under timed conditions. Our engine grades MCQ, structured and long-response questions — then maps your gaps."
+            testid="feature-exams"
+          >
+            <div className="mt-6 grid grid-cols-3 gap-2.5">
+              <MockTimer label="Paper 1" time="00:45:00" pct={62} color="cyan" />
+              <MockTimer label="Paper 2" time="01:15:00" pct={48} color="emerald" />
+              <MockTimer label="Paper 3" time="00:30:00" pct={91} color="cyan" />
+            </div>
+          </BentoCard>
+
+          {/* Analytics */}
+          <BentoCard
+            tag="05 · Analytics"
+            tagColor="text-cyan-400"
+            title="See mastery gaps early."
+            description="Granular per-syllabus-point mastery tracking that keeps you ahead."
+            icon={<BarChart3 className="h-5 w-5 text-cyan-400" />}
+            testid="feature-analytics"
+          >
+            <div className="mt-4 flex items-end gap-1.5 h-16">
+              {[40, 65, 30, 80, 55, 90, 70, 95].map((h, i) => (
+                <div
+                  key={i}
+                  className="flex-1 rounded-sm bg-gradient-to-t from-cyan-500/40 to-cyan-400"
+                  style={{ height: `${h}%` }}
+                />
+              ))}
+            </div>
+          </BentoCard>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BentoCard({ className = "", tag, tagColor, title, description, icon, children, testid }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      data-testid={testid}
+      className={`group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-2xl p-6 hover:border-white/20 hover:-translate-y-0.5 transition-all duration-300 overflow-hidden ${className}`}
+    >
+      <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-cyan-500/0 via-cyan-500/0 to-emerald-500/0 group-hover:from-cyan-500/10 group-hover:to-emerald-500/10 transition-opacity pointer-events-none" />
+      <div className="relative">
+        <div className="flex items-center justify-between gap-3">
+          <span className={`font-mono-label text-[10px] uppercase tracking-[0.22em] ${tagColor} font-bold`}>{tag}</span>
+          {icon}
+        </div>
+        <h3 className="font-display font-bold text-xl lg:text-2xl tracking-tight text-white mt-4 leading-tight">
+          {title}
+        </h3>
+        <p className="text-sm text-zinc-400 mt-2 leading-relaxed">{description}</p>
+        {children}
+      </div>
+    </motion.div>
+  );
+}
+
+function MockTimer({ label, time, pct, color }) {
+  const bgGrad = color === "cyan" ? "from-cyan-400 to-emerald-400" : "from-emerald-400 to-cyan-400";
+  const iconColor = color === "cyan" ? "text-cyan-400" : "text-emerald-400";
+  return (
+    <div className="rounded-lg border border-white/10 bg-zinc-950/70 p-3">
+      <div className="flex items-center gap-1.5 mb-2">
+        <Timer className={`h-3.5 w-3.5 ${iconColor}`} />
+        <span className="font-mono-label text-[9px] uppercase tracking-wider text-zinc-500 font-bold">{label}</span>
+      </div>
+      <div className="font-display font-bold text-[13px] sm:text-sm tabular-nums text-white">{time}</div>
+      <div className="h-1 rounded-full bg-zinc-800 mt-2 overflow-hidden">
+        <div className={`h-full bg-gradient-to-r ${bgGrad}`} style={{ width: `${pct}%` }} />
+      </div>
+    </div>
+  );
+}
+
+/* ── 5. LEARNING JOURNEY ── */
+function LearningJourney() {
+  const STEPS = [
+    {
+      n: "01",
+      title: "Pick your curriculum.",
+      body: "Choose Cambridge IGCSE, A-Level, IB DP or MYP. We unlock the exact syllabus you need.",
+    },
+    {
+      n: "02",
+      title: "Learn with simulations.",
+      body: "Read examiner-reviewed notes, then explore the concept in a live, interactive simulation.",
+    },
+    {
+      n: "03",
+      title: "Practice with draw worksheets.",
+      body: "Annotate diagrams, sketch graphs, attempt structured questions — just like the real paper.",
+    },
+    {
+      n: "04",
+      title: "Sit a timed exam.",
+      body: "Take an auto-marked past paper under exam conditions. Get a syllabus-mapped breakdown.",
+    },
+  ];
+
+  return (
+    <section data-testid="journey-section" className="relative py-28 lg:py-32 bg-zinc-950 border-y border-white/5">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 grid lg:grid-cols-12 gap-12">
+        <div className="lg:col-span-4 lg:sticky lg:top-32 lg:self-start">
+          <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
+            · Learning journey
+          </span>
+          <h2 className="font-display text-4xl lg:text-5xl font-bold tracking-tighter mt-3 leading-[1.05] text-white">
+            From first lesson to exam day — in four deliberate steps.
+          </h2>
+          <p className="text-zinc-400 mt-5 leading-relaxed">
+            Our methodology is built on years of working with top-scoring IB and Cambridge students.
+            No fluff, no filler.
+          </p>
+        </div>
+
+        <div className="lg:col-span-8 relative">
+          <div className="absolute left-[19px] top-2 bottom-2 w-px bg-gradient-to-b from-cyan-500/40 via-emerald-500/30 to-transparent pointer-events-none" />
+
+          <div className="space-y-12">
+            {STEPS.map((s, i) => (
+              <motion.div
+                key={s.n}
+                initial={{ opacity: 0, x: 24 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.6, delay: i * 0.08, ease: "easeOut" }}
+                data-testid={`journey-step-${s.n}`}
+                className="relative pl-16 animate-section-reveal"
+              >
+                <div className="absolute left-0 top-1 h-10 w-10 rounded-full border border-cyan-500/30 bg-zinc-950 grid place-items-center">
+                  <div className="h-2.5 w-2.5 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 animate-ping-glow" />
                 </div>
-                <div className="orbit-node n2">
-                  <Atom size={18} className="node-icon" />
-                  <div className="node-label">Science</div>
+                <div className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-zinc-500 font-bold">
+                  Step {s.n}
                 </div>
-                <div className="orbit-node n3">
-                  <BookOpen size={18} className="node-icon" />
-                  <div className="node-label">English</div>
+                <h3 className="font-display text-2xl lg:text-3xl font-bold tracking-tight text-white mt-1">
+                  {s.title}
+                </h3>
+                <p className="text-zinc-400 mt-3 max-w-lg leading-relaxed">{s.body}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── 6. SUBJECTS GRID ── */
+function SubjectsGrid() {
+  const SUBJECTS = [
+    { name: "Physics", icon: Atom, topics: 14, accent: "cyan" },
+    { name: "Chemistry", icon: FlaskConical, topics: 12, accent: "emerald" },
+    { name: "Biology", icon: Dna, topics: 16, accent: "emerald" },
+    { name: "Mathematics", icon: Sigma, topics: 18, accent: "cyan" },
+    { name: "Computer Science", icon: Code2, topics: 9, accent: "cyan" },
+    { name: "Economics", icon: LineChart, topics: 11, accent: "emerald" },
+    { name: "Geography", icon: Globe2, topics: 10, accent: "cyan" },
+    { name: "English Lit.", icon: BookText, topics: 8, accent: "emerald" },
+  ];
+
+  const ACCENT = {
+    cyan: {
+      border: "hover:border-cyan-500/40",
+      iconWrap: "border-cyan-500/20 bg-cyan-500/5 group-hover:bg-cyan-500/10",
+      icon: "text-cyan-400",
+    },
+    emerald: {
+      border: "hover:border-emerald-500/40",
+      iconWrap: "border-emerald-500/20 bg-emerald-500/5 group-hover:bg-emerald-500/10",
+      icon: "text-emerald-400",
+    },
+  };
+
+  return (
+    <section id="subjects" data-testid="subjects-section" className="relative py-28 lg:py-32 bg-zinc-950/10">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
+          <div className="max-w-xl">
+            <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-emerald-400">
+              · Subjects
+            </span>
+            <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tighter mt-3 leading-[1.05] text-white">
+              Every subject. Every exam board. One platform.
+            </h2>
+          </div>
+          <p className="text-zinc-500 text-sm max-w-sm font-semibold">
+            Currently 8 core subjects live. Adding 12 more across humanities and languages by next academic cycle.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {SUBJECTS.map((s) => {
+            const a = ACCENT[s.accent];
+            return (
+              <div
+                key={s.name}
+                data-testid={`subject-${s.name.toLowerCase().replace(/[^a-z]/g, "")}`}
+                className={`group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-md p-5 ${a.border} hover:-translate-y-0.5 transition-all duration-300 cursor-pointer`}
+              >
+                <div className={`h-10 w-10 rounded-lg border ${a.iconWrap} grid place-items-center mb-4 transition-colors`}>
+                  <s.icon className={`h-5 w-5 ${a.icon}`} />
                 </div>
-                <div className="orbit-node n4">
-                  <Globe size={18} className="node-icon" />
-                  <div className="node-label">Geography</div>
-                </div>
-                <div className="orbit-node n5">
-                  <FlaskConical size={18} className="node-icon" />
-                  <div className="node-label">Chemistry</div>
-                </div>
-                <div className="orbit-node n6">
-                  <Lightbulb size={18} className="node-icon" />
-                  <div className="node-label">Physics</div>
-                </div>
-                <div className="orbit-node n7">
-                  <Scroll size={18} className="node-icon" />
-                  <div className="node-label">History</div>
-                </div>
-                <div className="orbit-node n8">
-                  <Terminal size={18} className="node-icon" />
-                  <div className="node-label">CS</div>
+                <div className="font-display text-lg font-bold text-white tracking-tight">{s.name}</div>
+                <div className="font-mono-label text-[10px] uppercase tracking-wider text-zinc-500 mt-1 font-bold">
+                  {s.topics} Topics · Cambridge · IB
                 </div>
               </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── 7. TESTIMONIALS ── */
+function Testimonials() {
+  const TESTIMONIAL_DATA = [
+    {
+      quote: "I went from a 5 to a 7 in IB Physics HL in one term. The simulations are unreal — I actually get circular motion now.",
+      name: "Aanya Sharma",
+      role: "IB DP Y13 · Singapore",
+      img: "https://images.pexels.com/photos/13538613/pexels-photo-13538613.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=65&w=65",
+    },
+    {
+      quote: "The auto-timed mocks feel exactly like the real exam. My daughter walked into A-Levels with zero panic.",
+      name: "Marcus Hale",
+      role: "Parent · Cambridge A-Level",
+      img: "https://images.pexels.com/photos/36608621/pexels-photo-36608621.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=65&w=65",
+    },
+    {
+      quote: "Finally a platform that respects how rigorous IB actually is. The draw worksheets save me printing hours.",
+      name: "Liang Wei",
+      role: "IB DP Y12 · Hong Kong",
+      img: "https://images.pexels.com/photos/8085257/pexels-photo-8085257.jpeg?auto=compress&cs=tinysrgb&w=100",
+    },
+  ];
+
+  return (
+    <section data-testid="testimonials-section" className="relative py-28 lg:py-32 bg-zinc-950 border-y border-white/5">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="max-w-2xl mb-14">
+          <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
+            · Student stories
+          </span>
+          <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tighter mt-3 leading-[1.05] text-white">
+            Results that speak louder than marketing copy.
+          </h2>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-5">
+          {TESTIMONIAL_DATA.map((t, i) => (
+            <div
+              key={i}
+              data-testid={`testimonial-${i}`}
+              className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-2xl p-7 hover:border-cyan-500/30 transition-all duration-300"
+            >
+              <Quote className="h-5 w-5 text-cyan-400/60 mb-5" />
+              <p className="text-zinc-200 leading-relaxed text-[15px]">{t.quote}</p>
+              <div className="mt-7 flex items-center gap-3 pt-5 border-t border-white/5">
+                <div className="relative h-10 w-10 rounded-full overflow-hidden border border-white/10 bg-zinc-900">
+                  <img src={t.img} alt={t.name} className="h-full w-full object-cover" />
+                </div>
+                <div>
+                  <div className="font-display font-semibold text-sm text-white">{t.name}</div>
+                  <div className="font-mono-label text-[10px] uppercase tracking-wider text-zinc-500 font-bold">{t.role}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── 8. PRICING ── */
+function Pricing() {
+  const PLANS = [
+    {
+      name: "Explorer",
+      price: "Free",
+      sub: "Forever",
+      description: "Get a taste of the platform. Perfect for trying out a few simulations and lessons.",
+      features: ["3 simulations / month", "1 subject sandbox", "Community support", "Basic exam timer"],
+      cta: "Start free",
+      highlight: false,
+    },
+    {
+      name: "Scholar",
+      price: "$24",
+      sub: "/ month",
+      description: "Everything a serious Cambridge or IB student needs to top their cohort.",
+      features: [
+        "Unlimited simulations",
+        "All subjects · all syllabi",
+        "Drawable worksheets",
+        "Auto-timed exams + analytics",
+        "Past papers (10+ years)",
+        "Priority support",
+      ],
+      cta: "Start 7-day trial",
+      highlight: true,
+    },
+    {
+      name: "Institution",
+      price: "Custom",
+      sub: "Per cohort",
+      description: "For schools, tuition centers and academies running global curricula.",
+      features: ["Bulk seats & rosters", "Teacher dashboards", "Custom branding", "Dedicated success manager"],
+      cta: "Talk to sales",
+      highlight: false,
+    },
+  ];
+
+  return (
+    <section id="pricing" data-testid="pricing-section" className="relative py-28 lg:py-36 bg-zinc-950/20">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="max-w-2xl mb-14">
+          <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-emerald-400">
+            · Pricing
+          </span>
+          <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tighter mt-3 leading-[1.05] text-white">
+            Premium learning,{" "}
+            <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+              honestly priced.
+            </span>
+          </h2>
+          <p className="text-zinc-400 mt-5 text-lg">No hidden fees. Cancel anytime. Built for students, not investors.</p>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-5">
+          {PLANS.map((p) => (
+            <div
+              key={p.name}
+              data-testid={`plan-${p.name.toLowerCase()}`}
+              className={`relative rounded-2xl border p-8 backdrop-blur-2xl transition-all duration-300 ${
+                p.highlight
+                  ? "border-cyan-500/50 bg-gradient-to-br from-cyan-500/[0.07] via-zinc-900/40 to-emerald-500/[0.07] shadow-[0_0_60px_-15px_rgba(34,211,238,0.35)]"
+                  : "border-white/10 bg-white/[0.02] hover:border-white/20"
+              }`}
+            >
+              {p.highlight && (
+                <div className="absolute -top-3 left-8 px-3 py-1 rounded-full text-[10px] font-mono-label uppercase tracking-[0.18em] bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 font-bold">
+                  Most popular
+                </div>
+              )}
+              <div className="font-mono-label text-[10px] uppercase tracking-[0.22em] text-zinc-500 font-bold">{p.name}</div>
+              <div className="mt-4 flex items-baseline gap-1.5">
+                <span className="font-display text-5xl font-black tracking-tighter text-white">{p.price}</span>
+                <span className="text-sm text-zinc-500 font-semibold">{p.sub}</span>
+              </div>
+              <p className="text-sm text-zinc-400 mt-3 leading-relaxed min-h-[3rem]">{p.description}</p>
+
+              <Link
+                to="/register"
+                data-testid={`plan-cta-${p.name.toLowerCase()}`}
+                className={`mt-7 inline-flex w-full items-center justify-center gap-2 px-5 py-3 rounded-full font-semibold text-sm transition-all ${
+                  p.highlight
+                    ? "bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 hover:shadow-[0_0_30px_rgba(34,211,238,0.45)]"
+                    : "border border-white/15 text-white hover:bg-white/5"
+                }`}
+              >
+                {p.cta}
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+
+              <ul className="mt-7 space-y-3">
+                {p.features.map((f) => (
+                  <li key={f} className="flex items-start gap-3 text-sm text-zinc-300">
+                    <Check className={`h-4 w-4 mt-0.5 shrink-0 ${p.highlight ? "text-cyan-400" : "text-emerald-400"}`} />
+                    <span className="font-medium">{f}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── 9. FAQ ── */
+function FAQ() {
+  const FAQS = [
+    {
+      q: "Which exam boards do you support?",
+      a: "Today we fully support Cambridge IGCSE, Cambridge A-Level, and IB Diploma Programme (HL & SL). IB MYP is in beta. We add new boards based on student demand.",
+    },
+    {
+      q: "Are the simulations syllabus-aligned?",
+      a: "Yes. Every simulation is tagged to specific syllabus points. When you study a topic, the relevant simulations surface automatically. Built and verified by examiners.",
+    },
+    {
+      q: "How realistic are the auto-timed exams?",
+      a: "We replicate official exam conditions — strict timers, no pause, official paper format, the same command terms. Marking uses a hybrid of pattern-matching for structured answers and rubric-based scoring for long responses.",
+    },
+    {
+      q: "Can I use the draw tools on a tablet?",
+      a: "Absolutely. The draw tools are pressure-sensitive on iPad and Apple Pencil, and fully usable on Android with Samsung S-Pen. Mouse drawing on desktop works smoothly too.",
+    },
+    {
+      q: "Is there a free trial?",
+      a: "The Explorer plan is free forever with limited access. The Scholar plan includes a 7-day full-access trial — no credit card required.",
+    },
+    {
+      q: "Do teachers and schools have a separate plan?",
+      a: "Yes — our Institution plan includes teacher dashboards, classroom rosters, assignment tracking, custom branding and a dedicated success manager. Reach out to sales.",
+    },
+  ];
+
+  return (
+    <section id="faq" data-testid="faq-section" className="relative py-28 lg:py-32 bg-zinc-950 border-t border-white/5">
+      <div className="max-w-4xl mx-auto px-6 lg:px-8">
+        <div className="text-center mb-14">
+          <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
+            · Frequently asked
+          </span>
+          <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tighter mt-3 leading-[1.05] text-white">
+            Questions, answered.
+          </h2>
+        </div>
+
+        <div className="space-y-3">
+          {FAQS.map((f, i) => (
+            <FAQItem key={i} q={f.q} a={f.a} i={i} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FAQItem({ q, a, i }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div
+      data-testid={`faq-item-${i}`}
+      className="border border-white/10 bg-white/[0.02] backdrop-blur-md rounded-xl px-5 hover:border-cyan-500/30 transition-colors"
+    >
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between text-left font-display font-semibold text-base text-white py-5"
+      >
+        <span>{q}</span>
+        <ChevronRight className={`h-4 w-4 text-cyan-400 transition-transform duration-200 ${open ? "rotate-90" : ""}`} />
+      </button>
+      {open && (
+        <div className="text-zinc-400 leading-relaxed text-[14.5px] pb-5">
+          {a}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── 10. FOOTER ── */
+function Footer() {
+  const COLS = [
+    { title: "Platform", links: ["Simulations", "Worksheets", "Auto Exams", "Analytics"] },
+    { title: "Curriculum", links: ["Cambridge IGCSE", "Cambridge A-Level", "IB Diploma", "IB MYP"] },
+    { title: "Company", links: ["About", "Educators", "Careers", "Press"] },
+    { title: "Resources", links: ["Blog", "Help center", "Status", "Changelog"] },
+  ];
+
+  return (
+    <footer data-testid="site-footer" className="relative pt-28 pb-12 bg-black border-t border-white/5 overflow-hidden">
+      {/* Glow */}
+      <div className="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[60%] bg-gradient-to-r from-cyan-500/10 via-cyan-500/5 to-emerald-500/10 blur-3xl pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 relative">
+        {/* CTA Banner */}
+        <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-cyan-500/[0.08] via-zinc-900/40 to-emerald-500/[0.08] backdrop-blur-2xl p-10 lg:p-14 mb-24">
+          <div className="grid lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-7">
+              <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
+                · Get started
+              </span>
+              <h3 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tighter mt-3 leading-[1.05] text-white">
+                Study smarter, not louder. Try Mentara Labs free.
+              </h3>
+            </div>
+            <div className="lg:col-span-5 flex flex-col sm:flex-row gap-3 lg:justify-end">
+              <Link
+                to="/register"
+                data-testid="footer-cta-start"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 font-semibold text-sm hover:shadow-[0_0_30px_rgba(34,211,238,0.45)] transition-shadow"
+              >
+                Start free trial
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/register"
+                data-testid="footer-cta-demo"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full border border-white/15 text-white font-medium text-sm hover:bg-white/5 transition-all"
+              >
+                Book a demo
+              </Link>
             </div>
           </div>
-        </section>
+        </div>
 
-        {/* ── MARQUEE ── */}
-        <div className="marquee-section">
-          <div className="marquee-track">
-            {['Adaptive Exams','Structured Curriculum','Daily Streaks','Batch Management','Video Animations','Live Leaderboards','Instant Results','Progress Analytics',
-              'Adaptive Exams','Structured Curriculum','Daily Streaks','Batch Management','Video Animations','Live Leaderboards','Instant Results','Progress Analytics']
-              .map((t, i) => (
-              <span className="marquee-item" key={i}><span className="marquee-dot">◆</span>{t}</span>
+        {/* Links grid */}
+        <div className="grid lg:grid-cols-12 gap-10 pb-16">
+          <div className="lg:col-span-4">
+            <div className="flex items-center gap-2 mb-5">
+              <div className="h-7 w-7 rounded-md bg-gradient-to-br from-cyan-400 to-emerald-400 grid place-items-center">
+                <span className="font-display font-black text-zinc-950 text-sm">M</span>
+              </div>
+              <span className="font-display font-bold text-[15px] tracking-tight text-white">Mentara Labs</span>
+            </div>
+            <p className="text-sm text-zinc-500 leading-relaxed max-w-xs font-semibold">
+              The premium learning operating system for global curricula. Built by educators, examiners and engineers.
+            </p>
+            <div className="flex items-center gap-3 mt-6">
+              {[Twitter, Linkedin, Youtube, Github].map((Icon, i) => (
+                <a
+                  key={i}
+                  href="#"
+                  data-testid={`social-${i}`}
+                  aria-label="social"
+                  className="h-9 w-9 rounded-full border border-white/10 grid place-items-center text-zinc-500 hover:text-cyan-400 hover:border-cyan-500/40 transition-all"
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+            {COLS.map((c) => (
+              <div key={c.title}>
+                <div className="font-mono-label text-[10px] uppercase tracking-[0.22em] text-zinc-500 mb-4 font-bold">
+                  {c.title}
+                </div>
+                <ul className="space-y-2.5">
+                  {c.links.map((l) => (
+                    <li key={l}>
+                      <a href="#" className="text-sm text-zinc-300 hover:text-cyan-400 transition-colors font-semibold">
+                        {l}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
           </div>
         </div>
 
-        {/* ── FEATURES ── */}
-        <section className="lp-section" id="features">
-          <div className="section-eyebrow reveal">Everything you need</div>
-          <h2 className="section-title reveal">A full learning ecosystem, not just an app</h2>
-          <p className="section-sub reveal">From bite-sized lessons to full mock exams — every tool is built to make you better, faster.</p>
-          <div className="bento">
-            <div className="bento-card bc-1 reveal">
-              <div className="bento-icon icon-violet"><TrendingUp size={20} /></div>
-              <div className="bento-title">Real-time Progress Tracking</div>
-              <p className="bento-desc">Watch your understanding grow chapter by chapter. Mentara Labs maps your knowledge gaps so every minute of study counts.</p>
-              <div className="progress-bars">
-                {[['Mathematics','82%',82],['Physics','67%',67],['Chemistry','91%',91],['English','54%',54]].map(([s,l,w]) => (
-                  <div className="pb-row" key={s}>
-                    <span className="pb-label">{s}</span>
-                    <div className="pb-track"><div className="pb-fill" style={{width:`${w}%`}} /></div>
-                    <span style={{fontSize:'0.78rem',color:'var(--lavender)'}}>{l}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bento-card bc-2 reveal">
-              <div className="bento-icon icon-cyan"><Flame size={20} /></div>
-              <div className="bento-title">Daily Streak System</div>
-              <p className="bento-desc">Consistency is the real exam strategy. Keep your streak alive and unlock rewards every week.</p>
-              <div className="streak-display">
-                {['M','T','W','T','F','S','S','M','T','W','T','F','S','S'].map((d,i) => (
-                  <div key={i} className={`streak-day ${[2,3,4,7,8,9,10,11].includes(i) ? 'active' : 'inactive'}`}>{d}</div>
-                ))}
-              </div>
-              <div className="streak-num">6 Day Streak 🔥</div>
-            </div>
-
-            <div className="bento-card bc-3 reveal">
-              <div className="bento-icon icon-lav"><BookOpen size={20} /></div>
-              <div className="bento-title">Structured Curriculum</div>
-              <p className="bento-desc">Every subject mapped chapter by chapter, with animated explainers attached to each concept.</p>
-            </div>
-
-            <div className="bento-card bc-4 reveal">
-              <div className="bento-icon icon-violet"><Target size={20} /></div>
-              <div className="bento-title">Smart Mock Exams</div>
-              <p className="bento-desc">Timed, scored, and instantly analysed. Know exactly what to fix before the real test.</p>
-              <div className="sparkline">
-                <svg viewBox="0 0 200 60" preserveAspectRatio="none">
-                  <defs><linearGradient id="sg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style={{stopColor:'rgba(0,212,255,0.3)'}}/><stop offset="100%" style={{stopColor:'rgba(0,212,255,0)'}}/></linearGradient></defs>
-                  <path d="M0,50 L20,42 L40,45 L60,30 L80,35 L100,20 L120,25 L140,15 L160,18 L180,8 L200,5" fill="none" stroke="rgba(0,212,255,0.8)" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M0,50 L20,42 L40,45 L60,30 L80,35 L100,20 L120,25 L140,15 L160,18 L180,8 L200,5 L200,60 L0,60 Z" fill="url(#sg)"/>
-                </svg>
-              </div>
-            </div>
-
-            <div className="bento-card bc-5 reveal">
-              <div className="bento-icon icon-indigo"><Users size={20} /></div>
-              <div className="bento-title">Batch Management</div>
-              <p className="bento-desc">Admins can enrol students, track cohort performance, and assign exams in seconds.</p>
-            </div>
-
-            <div className="bento-card bc-6 reveal" style={{background:'linear-gradient(135deg,rgba(124,58,237,0.15),rgba(0,212,255,0.08))'}}>
-              <div className="bento-icon icon-cyan"><Video size={20} /></div>
-              <div className="bento-title">Animated Video Lessons</div>
-              <p className="bento-desc">Complex concepts made crystal clear through short, engaging visual explainers — no 2-hour lectures.</p>
-              <div className="tag-cloud">
-                {['Algebra','Photosynthesis','Newton\'s Laws','Trigonometry','Electrostatics'].map((t,i) => (
-                  <span key={t} className={`lp-tag ${[0,2,4].includes(i)?'active':''}`}>{t}</span>
-                ))}
-              </div>
-            </div>
-
-            <div className="bento-card bc-7 reveal">
-              <div className="bento-icon icon-lav"><Boxes size={20} /></div>
-              <div className="bento-title">500+ Question Bank</div>
-              <p className="bento-desc">MCQ, short-answer, and numericals across all subjects. Every question tagged by chapter, difficulty, and exam type so admins can build perfect test papers instantly.</p>
-              <div className="tag-cloud">
-                {['MCQ','Numerical','Short Answer','Chapter-wise','Past Papers','Difficulty Rated'].map((t,i) => (
-                  <span key={t} className={`lp-tag ${[0,1,3,5].includes(i)?'active':''}`}>{t}</span>
-                ))}
-              </div>
-            </div>
+        <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="font-mono-label text-[10px] uppercase tracking-[0.22em] text-zinc-600 font-bold">
+            © 2026 Mentara Labs · All rights reserved
           </div>
-        </section>
-
-        {/* ── HOW IT WORKS ── */}
-        <section className="lp-section" id="how" style={{background:'linear-gradient(180deg,transparent 0%,rgba(124,58,237,0.05) 50%,transparent 100%)'}}>
-          <div className="section-eyebrow reveal">Simple process</div>
-          <h2 className="section-title reveal">Up and running in minutes</h2>
-          <p className="section-sub reveal">Whether you're a student joining a batch or an admin building a curriculum — Mentara Labs gets out of your way.</p>
-          <div className="how-grid">
-            {[
-              ['1','Create your account','Sign up in under 30 seconds. Students join a batch; admins get their full dashboard instantly.'],
-              ['2','Pick your subjects','Browse the structured curriculum and enrol into any active batch your institution has set up.'],
-              ['3','Learn & practice daily','Watch animated lessons, solve questions from the bank, and keep your streak alive every day.'],
-              ['4','Take exams, see results','Sit timed mock exams and get a full breakdown of your score the moment you submit.'],
-            ].map(([n,h,p]) => (
-              <div className="how-step reveal" key={n}>
-                <div className="step-num">{n}</div>
-                <h3>{h}</h3>
-                <p>{p}</p>
-              </div>
-            ))}
+          <div className="flex items-center gap-5 text-[12px] text-zinc-500 font-semibold">
+            <a href="#" className="hover:text-zinc-300">Privacy</a>
+            <a href="#" className="hover:text-zinc-300">Terms</a>
+            <a href="#" className="hover:text-zinc-300">Cookies</a>
           </div>
-        </section>
-
-        {/* ── TESTIMONIALS ── */}
-        <section className="lp-section" id="testimonials">
-          <div className="section-eyebrow reveal">Student stories</div>
-          <h2 className="section-title reveal">Real results. Real students.</h2>
-          <p className="section-sub reveal">From first login to final exam — here's what our learners say.</p>
-          <div className="t-grid">
-            {[
-              ['A','Arjun Mehta','Class 12 · JEE Aspirant','"The streak system completely changed how I study. I haven\'t missed a day in three weeks and my Physics score jumped from 54% to 87%."'],
-              ['P','Priya Sharma','Science Teacher · 8 yrs experience','"As a teacher managing 4 batches, Mentara Labs\' admin panel saved me hours every week. I can assign exams and check results in minutes."'],
-              ['R','Ritika Joshi','Class 11 · NEET Prep','"The animated lessons are so clear — way better than watching a 1-hour YouTube video. I finally understand Organic Chemistry."'],
-            ].map(([av,name,role,quote]) => (
-              <div className="t-card reveal" key={name}>
-                <div className="t-stars" style={{ display: 'flex', gap: 2, marginBottom: '1rem' }}>
-                  {[1, 2, 3, 4, 5].map(n => <Star key={n} size={13} fill="#F59E0B" color="#F59E0B" />)}
-                </div>
-                <p className="t-quote">{quote}</p>
-                <div className="t-author">
-                  <div className="t-avatar">{av}</div>
-                  <div><div className="t-name">{name}</div><div className="t-role">{role}</div></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── CTA ── */}
-        <section className="cta-section reveal">
-          <div className="cta-inner">
-            <h2 className="cta-title">Ready to transform how you learn?</h2>
-            <p className="cta-sub">Join thousands of students already using Mentara Labs to ace their exams.</p>
-            <div className="cta-actions">
-              <Link to="/register" className="btn-primary">
-                Get started — it's free
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              </Link>
-              <Link to="/login" className="btn-secondary">Login to your account</Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ── FOOTER ── */}
-        <footer className="lp-footer">
-          <div className="footer-inner">
-            <div className="footer-logo">Mentara Labs</div>
-            <ul className="footer-links">
-              <li><a href="#features">Features</a></li>
-              <li><a href="#how">How it works</a></li>
-              <li><Link to="/login" style={{color:'rgba(245,240,232,0.4)',textDecoration:'none',fontSize:'0.85rem'}}>Login</Link></li>
-              <li><Link to="/register" style={{color:'rgba(245,240,232,0.4)',textDecoration:'none',fontSize:'0.85rem'}}>Register</Link></li>
-            </ul>
-            <div className="footer-copy">© 2025 Mentara Labs. All rights reserved.</div>
-          </div>
-        </footer>
+        </div>
       </div>
-    </>
+    </footer>
   );
 }
