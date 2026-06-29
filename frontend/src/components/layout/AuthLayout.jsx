@@ -2,15 +2,15 @@ import { Outlet } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
 
   .auth-root {
-    min-height: 100vh;
-    background: #0A0E1A;
-    display: flex; align-items: center; justify-content: center;
-    padding: 1.5rem;
-    position: relative; overflow: hidden;
+    height: 100vh;
+    background: #030712;
+    position: relative;
+    overflow: hidden;
     font-family: 'Inter', sans-serif;
+    width: 100%;
   }
 
   /* Ambient blobs */
@@ -20,19 +20,19 @@ const CSS = `
   }
   .auth-blob-1 {
     width: 500px; height: 500px;
-    background: radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(34, 211, 238, 0.12) 0%, transparent 70%);
     top: -160px; left: -120px;
     animation: auth-drift1 13s ease-in-out infinite alternate;
   }
   .auth-blob-2 {
     width: 420px; height: 420px;
-    background: radial-gradient(circle, rgba(0,212,255,0.14) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(52, 211, 153, 0.08) 0%, transparent 70%);
     bottom: -120px; right: -100px;
     animation: auth-drift2 16s ease-in-out infinite alternate;
   }
   .auth-blob-3 {
     width: 280px; height: 280px;
-    background: radial-gradient(circle, rgba(196,181,253,0.1) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(196,181,253,0.06) 0%, transparent 70%);
     top: 50%; left: 50%; transform: translate(-50%, -50%);
     animation: auth-pulse 9s ease-in-out infinite;
   }
@@ -50,27 +50,11 @@ const CSS = `
     mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(0,0,0,0.6) 0%, transparent 100%);
   }
 
-  /* Logo (top-center) */
-  .auth-logo {
-    position: absolute; top: 1.75rem; left: 50%; transform: translateX(-50%);
-    display: flex; align-items: center; gap: 0.6rem; z-index: 2; white-space: nowrap;
-  }
-  .auth-logo-mark {
-    width: 34px; height: 34px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .auth-logo-text {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.05rem; font-weight: 700;
-    background: linear-gradient(135deg, #F5F0E8 0%, #C4B5FD 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  }
-
   /* Card wrapper */
   .auth-card-wrap {
     position: relative; z-index: 2;
     width: 100%;
+    height: 100vh;
   }
 `;
 
@@ -86,20 +70,12 @@ export default function AuthLayout() {
         <div className="auth-blob auth-blob-3" />
         <div className="auth-grid" />
 
-        {/* Logo */}
-        <div className="auth-logo">
-          <div className="auth-logo-mark">
-            <img src="/mentara-new.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
-          </div>
-          <span className="auth-logo-text">Mentara Labs</span>
-        </div>
-
         {/* Auth form slot */}
         <motion.div
           className="auth-card-wrap"
-          initial={{ opacity: 0, y: 20, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
         >
           <Outlet />
         </motion.div>
