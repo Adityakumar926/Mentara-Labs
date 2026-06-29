@@ -12,19 +12,19 @@ const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
 
   .result-root {
-    --navy:     #0A0E1A;
-    --navy2:    #0F1629;
+    --navy:     var(--local-navy, #0A0E1A);
+    --navy2:    var(--local-navy2, #0F1629);
     --violet:   #7C3AED;
-    --violet-l: #9D6FEF;
-    --cyan:     #00D4FF;
-    --cream:    #F5F0E8;
-    --lavender: #C4B5FD;
-    --amber:    #F59E0B;
-    --green:    #10B981;
-    --red:      #EF4444;
-    --card-bg:  rgba(255,255,255,0.04);
-    --card-bdr: rgba(255,255,255,0.08);
-    --muted:    rgba(245,240,232,0.45);
+    --violet-l: var(--local-violet-l, #9D6FEF);
+    --cyan:     var(--local-cyan, #00D4FF);
+    --cream:    var(--local-cream, #F5F0E8);
+    --lavender: var(--local-lavender, #C4B5FD);
+    --amber:    var(--local-amber, #F59E0B);
+    --green:    var(--local-green, #10B981);
+    --red:      var(--local-red, #EF4444);
+    --card-bg:  var(--local-card-bg, rgba(255,255,255,0.04));
+    --card-bdr: var(--local-card-bdr, rgba(255,255,255,0.08));
+    --muted:    var(--local-muted, rgba(245,240,232,0.45));
     font-family: 'Inter', sans-serif;
     color: var(--cream);
   }
@@ -33,10 +33,10 @@ const CSS = `
   /* ── BACK BUTTON ── */
   .result-back {
     display: inline-flex; align-items: center; gap: 0.5rem;
-    font-size: 0.82rem; font-weight: 600;
+    font-size: 0.82rem; font-weight: 700;
     color: var(--muted);
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: var(--local-card-bg);
+    border: 2px solid var(--local-card-bdr);
     border-radius: 12px;
     padding: 0.45rem 1rem;
     cursor: pointer;
@@ -44,13 +44,13 @@ const CSS = `
     text-decoration: none;
     font-family: 'Space Grotesk', sans-serif;
   }
-  .result-back:hover { color: var(--cream); background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.15); }
+  .result-back:hover { color: var(--cream); background: var(--color-surface-hover); border-color: var(--violet); }
 
   /* ── SCORE HERO ── */
   .result-hero {
     position: relative;
     background: var(--card-bg);
-    border: 1px solid var(--card-bdr);
+    border: 2px solid var(--card-bdr);
     border-radius: 28px;
     padding: 2.5rem 2rem;
     text-align: center;
@@ -73,7 +73,7 @@ const CSS = `
     margin: 0 auto 1.5rem;
   }
   .score-ring-svg { transform: rotate(-90deg); }
-  .score-ring-bg { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 8; }
+  .score-ring-bg { fill: none; stroke: var(--local-card-bdr); stroke-width: 8; }
   .score-ring-fill { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1.4s cubic-bezier(0.4,0,0.2,1); }
   .score-ring-inner {
     position: absolute;
@@ -84,7 +84,8 @@ const CSS = `
     font-size: 1.9rem; font-weight: 700;
     line-height: 1;
   }
-  .score-ring-label { font-size: 0.7rem; color: var(--muted); margin-top: 2px; font-weight: 500; }
+  .score-ring-pct span { font-weight: 800; }
+  .score-ring-label { font-size: 0.7rem; color: var(--muted); margin-top: 2px; font-weight: 700; }
 
   /* ── PASSED / FAILED BADGE ── */
   .result-verdict {
@@ -92,7 +93,7 @@ const CSS = `
     padding: 0.4rem 1.25rem;
     border-radius: 99px;
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.82rem; font-weight: 700;
+    font-size: 0.82rem; font-weight: 800;
     letter-spacing: 0.06em;
     margin-bottom: 1.25rem;
   }
@@ -101,20 +102,20 @@ const CSS = `
   .result-stats-row {
     display: flex; align-items: center; justify-content: center;
     gap: 0; padding-top: 1.5rem;
-    border-top: 1px solid rgba(255,255,255,0.07);
+    border-top: 2px solid var(--local-card-bdr);
     flex-wrap: wrap;
   }
   .result-stat {
     text-align: center;
     padding: 0.5rem 1.5rem;
-    border-right: 1px solid rgba(255,255,255,0.07);
+    border-right: 2px solid var(--local-card-bdr);
   }
   .result-stat:last-child { border-right: none; }
   .result-stat-val {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 1.3rem; font-weight: 700;
   }
-  .result-stat-label { font-size: 0.68rem; color: var(--muted); margin-top: 0.15rem; font-weight: 500; letter-spacing: 0.04em; }
+  .result-stat-label { font-size: 0.68rem; color: var(--muted); margin-top: 0.15rem; font-weight: 700; letter-spacing: 0.04em; }
 
   /* ── SECTION HEADER ── */
   .result-section-head {
@@ -127,7 +128,7 @@ const CSS = `
   /* ── QUESTION CARD ── */
   .result-qcard {
     background: var(--card-bg);
-    border: 1px solid var(--card-bdr);
+    border: 2px solid var(--card-bdr);
     border-radius: 20px;
     padding: 1.4rem 1.5rem;
     position: relative;
@@ -135,7 +136,7 @@ const CSS = `
     backdrop-filter: blur(12px);
     transition: border-color 0.2s;
   }
-  .result-qcard:hover { border-color: rgba(255,255,255,0.14); }
+  .result-qcard:hover { border-color: var(--violet); }
   .result-qcard-accent {
     position: absolute;
     left: 0; top: 0; bottom: 0;
@@ -150,8 +151,9 @@ const CSS = `
     border-radius: 7px;
     font-size: 0.65rem; font-weight: 700;
     font-family: 'Space Grotesk', monospace;
-    background: rgba(255,255,255,0.07);
+    background: var(--local-card-bg);
     color: var(--muted);
+    border: 1px solid var(--local-card-bdr);
     flex-shrink: 0;
   }
 
@@ -161,6 +163,7 @@ const CSS = `
     padding: 0.65rem 0.9rem;
     border-radius: 14px;
     font-size: 0.8rem;
+    font-weight: 600;
   }
   .answer-pill-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em; opacity: 0.7; flex-shrink: 0; text-transform: uppercase; }
 
@@ -169,22 +172,22 @@ const CSS = `
     padding: 0.85rem 1rem;
     border-radius: 14px;
     background: rgba(124,58,237,0.06);
-    border: 1px solid rgba(124,58,237,0.15);
+    border: 2px solid rgba(124,58,237,0.15);
     margin-top: 0.85rem;
   }
   .result-explanation-label {
-    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+    font-size: 0.68rem; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase;
     color: var(--violet-l); margin-bottom: 0.4rem;
     font-family: 'Space Grotesk', sans-serif;
   }
-  .result-explanation-text { font-size: 0.82rem; line-height: 1.65; color: rgba(245,240,232,0.7); }
+  .result-explanation-text { font-size: 0.82rem; line-height: 1.65; color: var(--color-text-secondary); font-weight: 600; }
 
   /* ── SKELETON ── */
   .result-skel {
-    background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.04) 100%);
+    background: linear-gradient(90deg, var(--color-surface-border) 25%, var(--color-surface-hover) 50%, var(--color-surface-border) 75%);
     background-size: 200% 100%;
     border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.06);
+    border: 2px solid var(--color-surface-border);
     animation: skel-shine 1.6s ease infinite;
   }
   @keyframes skel-shine { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
@@ -196,9 +199,9 @@ const CSS = `
     border-radius: 99px;
     font-size: 0.65rem; font-weight: 700;
     font-family: 'Space Grotesk', sans-serif;
-    background: rgba(255,255,255,0.06);
+    background: var(--local-card-bg);
     color: var(--muted);
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 2px solid var(--local-card-bdr);
   }
 
   /* ── CONFETTI PARTICLE ── */
@@ -349,10 +352,10 @@ export default function ResultPage() {
 
   const hasPassing = submission.passed !== null;
   const heroGlow   = passed ? 'rgba(16,185,129,0.2)' : !hasPassing ? 'rgba(124,58,237,0.15)' : percentage >= 50 ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.15)';
-  const heroBorder = passed ? 'rgba(16,185,129,0.3)' : !hasPassing ? 'rgba(124,58,237,0.2)'  : percentage >= 50 ? 'rgba(245,158,11,0.2)'  : 'rgba(239,68,68,0.2)';
-  const verdictBg  = passed ? 'rgba(16,185,129,0.12)' : !hasPassing ? 'rgba(124,58,237,0.12)' : 'rgba(239,68,68,0.12)';
-  const verdictBdr = passed ? 'rgba(16,185,129,0.3)'  : !hasPassing ? 'rgba(124,58,237,0.3)'  : 'rgba(239,68,68,0.3)';
-  const verdictClr = passed ? 'var(--green)' : !hasPassing ? 'var(--violet-l)' : 'var(--red)';
+  const heroBorder = passed ? 'var(--local-green)' : !hasPassing ? 'var(--local-violet-l)'  : percentage >= 50 ? 'var(--local-amber)'  : 'var(--local-red)';
+  const verdictBg  = passed ? 'rgba(16,185,129,0.08)' : !hasPassing ? 'rgba(124,58,237,0.08)' : 'rgba(239,68,68,0.08)';
+  const verdictBdr = passed ? 'var(--local-green)'  : !hasPassing ? 'var(--local-violet-l)'  : 'var(--local-red)';
+  const verdictClr = passed ? 'var(--local-green)' : !hasPassing ? 'var(--local-violet-l)' : 'var(--local-red)';
 
   const isStructureExam = breakdown && breakdown.length > 0 && breakdown.every(q => q.question_type === 'structure' || q.question_type === 'photo');
 
@@ -375,7 +378,7 @@ export default function ResultPage() {
               
               <div style={{
                 width: 72, height: 72, borderRadius: '50%',
-                background: 'rgba(124,58,237,0.1)', border: '2px solid rgba(124,58,237,0.3)',
+                background: 'var(--local-card-bg)', border: '2px solid var(--local-violet-l)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 marginBottom: '1.5rem', boxShadow: '0 0 24px rgba(124,58,237,0.25)'
               }}>
@@ -391,22 +394,22 @@ export default function ResultPage() {
                 Practice Attempt Submitted!
               </h2>
               
-              <p style={{ fontSize: '0.9rem', color: 'var(--muted)', marginBottom: '1.5rem', fontWeight: 500, fontStyle: 'italic' }}>
+              <p style={{ fontSize: '0.9rem', color: 'var(--muted)', marginBottom: '1.5rem', fontWeight: 700, fontStyle: 'italic' }}>
                 {submission.exam_title}
               </p>
 
               <div style={{
-                background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
+                background: 'var(--local-card-bg)', border: '2px solid var(--local-card-bdr)',
                 borderRadius: '16px', padding: '1.25rem', marginBottom: '2rem',
                 textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '0.6rem'
               }}>
-                <p style={{ fontSize: '0.82rem', lineHeight: 1.6, color: 'rgba(245,240,232,0.85)' }}>
+                <p style={{ fontSize: '0.82rem', lineHeight: 1.6, color: 'var(--color-text-primary)' }}>
                   ✨ <strong>Great work completing this practice exam!</strong>
                 </p>
-                <p style={{ fontSize: '0.82rem', lineHeight: 1.6, color: 'rgba(245,240,232,0.7)' }}>
+                <p style={{ fontSize: '0.82rem', lineHeight: 1.6, color: 'var(--color-text-secondary)', fontWeight: 600 }}>
                   This exam contains structure-drawing questions. These questions are designed to help you practice drawing chemical structures and diagrams, which are not evaluated by automated pass/fail scores.
                 </p>
-                <p style={{ fontSize: '0.82rem', lineHeight: 1.6, color: 'rgba(245,240,232,0.7)' }}>
+                <p style={{ fontSize: '0.82rem', lineHeight: 1.6, color: 'var(--color-text-secondary)', fontWeight: 600 }}>
                   Keep attempting more exams on your dashboard to strengthen your skills, build muscle memory, and master chemical structures!
                 </p>
               </div>
@@ -548,7 +551,7 @@ export default function ResultPage() {
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.85rem' }}>
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', flex: 1, minWidth: 0 }}>
                         <span className="result-qbadge">{i + 1}</span>
-                        <p style={{ fontSize: '0.9rem', lineHeight: 1.65, color: 'var(--cream)', fontWeight: 500 }}>{q.question_text}</p>
+                        <p style={{ fontSize: '0.9rem', lineHeight: 1.65, color: 'var(--color-text-primary)', fontWeight: 600 }}>{q.question_text}</p>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
                         <span className="marks-chip">{q.marks}m</span>
@@ -566,7 +569,7 @@ export default function ResultPage() {
                         <img 
                           src={q.image_url} 
                           alt="Question illustration" 
-                          style={{ maxWidth: '100%', maxHeight: '240px', borderRadius: '12px', border: '1px solid var(--card-bdr)', display: 'block' }} 
+                          style={{ maxWidth: '100%', maxHeight: '240px', borderRadius: '12px', border: '2px solid var(--card-bdr)', display: 'block' }} 
                           loading="lazy"
                         />
                       </div>
@@ -579,10 +582,10 @@ export default function ResultPage() {
                           className="answer-pill"
                           style={
                             correct
-                              ? { background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', color: 'var(--green)' }
+                              ? { background: 'rgba(16,185,129,0.1)', border: '2px solid rgba(16,185,129,0.25)', color: 'var(--green)' }
                               : wrong
-                              ? { background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.22)', color: 'var(--red)' }
-                              : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'var(--muted)' }
+                              ? { background: 'rgba(239,68,68,0.08)', border: '2px solid rgba(239,68,68,0.22)', color: 'var(--red)' }
+                              : { background: 'var(--local-card-bg)', border: '2px solid var(--local-card-bdr)', color: 'var(--color-text-secondary)' }
                           }
                         >
                           <span className="answer-pill-label">Your answer</span>
@@ -590,7 +593,7 @@ export default function ResultPage() {
                         </div>
 
                         {!correct && q.correct_answer && (
-                          <div className="answer-pill" style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', color: 'var(--green)' }}>
+                          <div className="answer-pill" style={{ background: 'rgba(16,185,129,0.1)', border: '2px solid rgba(16,185,129,0.25)', color: 'var(--green)' }}>
                             <span className="answer-pill-label">Correct</span>
                             <span style={{ fontWeight: 600 }}>{q.correct_answer}</span>
                           </div>

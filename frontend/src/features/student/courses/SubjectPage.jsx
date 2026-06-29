@@ -388,11 +388,11 @@ const CSS = `
 `;
 
 const TYPE_CONFIG = {
-  note:      { icon: FileText, iconCls: 'sp-icon-note',      badge: 'sp-badge-note',      label: 'Note',      color: 'rgba(245,240,232,0.6)' },
-  video:     { icon: Video,    iconCls: 'sp-icon-video',     badge: 'sp-badge-video',     label: 'Video',     color: 'var(--violet-l)' },
-  animation: { icon: Sparkles, iconCls: 'sp-icon-anim',      badge: 'sp-badge-anim',      label: 'Animation', color: '#6EE7B7' },
-  worksheet: { icon: Image,    iconCls: 'sp-icon-worksheet', badge: 'sp-badge-worksheet', label: 'Worksheet', color: '#FCD34D' },
-  exam:      { icon: CheckCircle2, iconCls: 'sp-icon-exam',  badge: 'sp-badge-danger',    label: 'Exam',      color: '#EF4444' },
+  note:      { icon: FileText, iconCls: 'sp-icon-note',      badge: 'sp-badge-note',      label: 'Note',      color: 'var(--color-text-secondary)' },
+  video:     { icon: Video,    iconCls: 'sp-icon-video',     badge: 'sp-badge-video',     label: 'Video',     color: 'var(--local-violet-l)' },
+  animation: { icon: Sparkles, iconCls: 'sp-icon-anim',      badge: 'sp-badge-anim',      label: 'Animation', color: 'var(--local-green)' },
+  worksheet: { icon: Image,    iconCls: 'sp-icon-worksheet', badge: 'sp-badge-worksheet', label: 'Worksheet', color: 'var(--local-amber)' },
+  exam:      { icon: CheckCircle2, iconCls: 'sp-icon-exam',  badge: 'sp-badge-danger',    label: 'Exam',      color: 'var(--local-red)' },
 };
 
 // ── Worksheet palette ──────────────────────────────────────────────────────────
@@ -900,7 +900,7 @@ export default function SubjectPage() {
                             >
                               <div className={clsx('sp-icon-bubble', locked ? 'sp-icon-locked' : cfg.iconCls)}>
                                 {locked
-                                  ? <Lock size={17} style={{ color: '#FCD34D' }} />
+                                  ? <Lock size={17} style={{ color: 'var(--local-amber)' }} />
                                   : <Icon size={19} style={{ color: cfg.color }} />
                                 }
                               </div>

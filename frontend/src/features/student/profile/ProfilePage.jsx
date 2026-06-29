@@ -28,9 +28,21 @@ const CSS = `
     --card-bg:    var(--local-card-bg, rgba(255,255,255,0.04));
     --card-bdr:   var(--local-card-bdr, rgba(255,255,255,0.08));
     --muted:      var(--local-muted, rgba(245,240,232,0.45));
+    --local-heat-0: rgba(255,255,255,0.06);
+    --local-heat-1: rgba(124,58,237,0.25);
+    --local-heat-2: rgba(124,58,237,0.45);
+    --local-heat-3: rgba(124,58,237,0.65);
+    --local-heat-4: #7C3AED;
     font-family: 'Inter', sans-serif;
     color: var(--cream);
     overflow-x: hidden;
+  }
+  .light .prof-root, :global(.light) .prof-root, :root.light .prof-root {
+    --local-heat-0: #E2E8F0;
+    --local-heat-1: #DDD6FE;
+    --local-heat-2: #C4B5FD;
+    --local-heat-3: #A78BFA;
+    --local-heat-4: #7C3AED;
   }
   .prof-root *, .prof-root *::before, .prof-root *::after { box-sizing: border-box; }
 
@@ -152,8 +164,9 @@ const CSS = `
     font-family: 'Inter', sans-serif;
     position: relative;
     white-space: nowrap;
+    isolation: isolate;
   }
-  .tab-btn.active { color: #fff; }
+  .tab-btn.active { color: #fff !important; }
   .tab-indicator {
     position: absolute; inset: 0;
     border-radius: 14px;
@@ -277,9 +290,9 @@ const CSS = `
     cursor: default;
     position: relative;
   }
-  .cal-day.active { background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.25); }
+  .cal-day.active { background: var(--local-heat-1); border: 2px solid var(--local-heat-3); color: var(--color-text-primary); font-weight: 700; }
   .cal-day.today { outline: 2px solid var(--violet); outline-offset: 1px; }
-  .cal-day:not(.active) { background: rgba(255,255,255,0.03); }
+  .cal-day:not(.active) { background: var(--local-heat-0); border: 1px solid var(--local-card-bdr); }
   .cal-day:hover { transform: scale(1.08); z-index: 1; }
 
   /* ── EXAM TABLE ── */
@@ -318,11 +331,11 @@ const ACTIVITY_COLOR = {
 };
 
 const HEAT_LEVELS = [
-  'rgba(255,255,255,0.06)',
-  'rgba(124,58,237,0.25)',
-  'rgba(124,58,237,0.45)',
-  'rgba(124,58,237,0.65)',
-  '#7C3AED',
+  'var(--local-heat-0)',
+  'var(--local-heat-1)',
+  'var(--local-heat-2)',
+  'var(--local-heat-3)',
+  'var(--local-heat-4)',
 ];
 
 function getHeatColor(count) {
