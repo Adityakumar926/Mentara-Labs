@@ -8,17 +8,17 @@ const CSS = `
   .nb-desktop-trigger {
     position: relative;
     width: 30px; height: 30px; border-radius: 10px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: var(--local-card-bg);
+    border: 2px solid var(--local-card-bdr);
     display: flex; align-items: center; justify-content: center;
-    color: rgba(245,240,232,0.55);
+    color: var(--color-text-secondary);
     cursor: pointer; flex-shrink: 0;
     transition: color 0.2s, background 0.2s, border-color 0.2s;
   }
   .nb-desktop-trigger:hover {
-    color: #F5F0E8;
-    background: rgba(255,255,255,0.07);
-    border-color: rgba(255,255,255,0.14);
+    color: var(--color-text-primary);
+    background: var(--color-surface-hover);
+    border-color: var(--local-card-bdr);
   }
 
   .nb-mobile-trigger {
@@ -26,12 +26,12 @@ const CSS = `
     align-items: center; justify-content: center;
     padding: 0.6rem 0 0.55rem; gap: 0.22rem;
     background: none; border: none; cursor: pointer;
-    color: rgba(245,240,232,0.35);
-    font-size: 0.58rem; font-weight: 600; letter-spacing: 0.04em;
+    color: var(--color-text-secondary);
+    font-size: 0.58rem; font-weight: 700; letter-spacing: 0.04em;
     font-family: 'Inter', sans-serif;
     transition: color 0.2s;
   }
-  .nb-mobile-trigger:hover { color: rgba(245,240,232,0.7); }
+  .nb-mobile-trigger:hover { color: var(--color-text-primary); }
 
   .nb-icon-wrap { position: relative; display: inline-flex; }
   .nb-badge {
@@ -39,7 +39,7 @@ const CSS = `
     min-width: 14px; height: 14px; padding: 0 3px;
     border-radius: 7px;
     background: linear-gradient(135deg, #F59E0B, #DC2626);
-    border: 1.5px solid #0A0E1A;
+    border: 1.5px solid var(--color-navy);
     display: flex; align-items: center; justify-content: center;
     font-size: 0.52rem; font-weight: 700; color: #fff;
     line-height: 1;
@@ -54,8 +54,8 @@ const CSS = `
   .nb-dropdown {
     position: fixed; z-index: 201;
     width: 320px; max-height: 420px;
-    background: #11162A;
-    border: 1px solid rgba(255,255,255,0.09);
+    background: var(--color-surface);
+    border: 2px solid var(--local-card-bdr);
     border-radius: 16px;
     box-shadow: 0 16px 40px rgba(0,0,0,0.45);
     display: flex; flex-direction: column;
@@ -67,8 +67,8 @@ const CSS = `
     position: fixed; z-index: 201;
     left: 0; right: 0; bottom: 0;
     max-height: 70vh;
-    background: #11162A;
-    border-top: 1px solid rgba(255,255,255,0.09);
+    background: var(--color-surface);
+    border-top: 2px solid var(--local-card-bdr);
     border-radius: 20px 20px 0 0;
     box-shadow: 0 -16px 40px rgba(0,0,0,0.45);
     display: flex; flex-direction: column;
@@ -79,39 +79,39 @@ const CSS = `
   .nb-header {
     display: flex; align-items: center; justify-content: space-between;
     padding: 0.9rem 1rem 0.7rem;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
+    border-bottom: 2px solid var(--local-card-bdr);
     flex-shrink: 0;
   }
   .nb-header-title {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.85rem; font-weight: 700; color: #F5F0E8;
+    font-size: 0.85rem; font-weight: 700; color: var(--color-text-primary);
   }
   .nb-mark-all {
     display: flex; align-items: center; gap: 0.3rem;
     background: none; border: none; cursor: pointer;
-    font-size: 0.65rem; font-weight: 600; color: #C4B5FD;
+    font-size: 0.65rem; font-weight: 700; color: var(--local-lavender);
     padding: 0.2rem 0.4rem; border-radius: 8px;
     transition: background 0.2s;
   }
-  .nb-mark-all:hover { background: rgba(124,58,237,0.14); }
+  .nb-mark-all:hover { background: var(--color-surface-hover); }
 
   .nb-list { overflow-y: auto; }
   .nb-list::-webkit-scrollbar { width: 6px; }
-  .nb-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+  .nb-list::-webkit-scrollbar-thumb { background: var(--local-card-bdr); border-radius: 3px; }
 
   .nb-empty {
     padding: 2rem 1rem; text-align: center;
-    font-size: 0.72rem; color: rgba(245,240,232,0.35);
+    font-size: 0.72rem; color: var(--color-text-muted);
   }
 
   .nb-item {
     width: 100%; display: flex; align-items: flex-start; gap: 0.6rem;
     padding: 0.7rem 1rem; border: none; background: none; cursor: pointer;
     text-align: left; position: relative;
-    border-bottom: 1px solid rgba(255,255,255,0.045);
+    border-bottom: 1px solid var(--local-card-bdr);
     transition: background 0.15s;
   }
-  .nb-item:hover { background: rgba(255,255,255,0.035); }
+  .nb-item:hover { background: var(--color-surface-hover); }
   .nb-item:last-child { border-bottom: none; }
 
   .nb-item-icon {
@@ -119,21 +119,22 @@ const CSS = `
     display: flex; align-items: center; justify-content: center;
     margin-top: 1px;
   }
-  .nb-item-icon.scheduled { background: rgba(124,58,237,0.16); color: #C4B5FD; }
-  .nb-item-icon.live { background: rgba(34,197,94,0.16); color: #4ADE80; }
+  .nb-item-icon.scheduled { background: rgba(124,58,237,0.1); border: 1.5px solid var(--local-lavender); color: var(--local-lavender); }
+  .nb-item-icon.live { background: rgba(34,197,94,0.1); border: 1.5px solid var(--local-green); color: var(--local-green); }
 
   .nb-item-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.1rem; }
   .nb-item-title {
-    font-size: 0.74rem; font-weight: 600;
-    color: rgba(245,240,232,0.92);
+    font-size: 0.74rem; font-weight: 700;
+    color: var(--color-text-primary);
   }
-  .nb-item.unread .nb-item-title { color: #F5F0E8; }
+  .nb-item.unread .nb-item-title { color: var(--color-text-primary); }
   .nb-item-msg {
-    font-size: 0.68rem; color: rgba(245,240,232,0.45);
+    font-size: 0.68rem; color: var(--color-text-secondary);
+    font-weight: 600;
     overflow: hidden; text-overflow: ellipsis; display: -webkit-box;
     -webkit-line-clamp: 2; -webkit-box-orient: vertical;
   }
-  .nb-item-time { font-size: 0.6rem; color: rgba(245,240,232,0.3); margin-top: 0.1rem; }
+  .nb-item-time { font-size: 0.6rem; color: var(--color-text-muted); margin-top: 0.1rem; font-weight: 600; }
 
   .nb-dot {
     width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;

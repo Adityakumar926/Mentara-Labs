@@ -91,8 +91,8 @@ const CSS = `
   .sp-premium-notice {
     display: flex; align-items: center; gap: 0.85rem;
     padding: 0.9rem 1.1rem; border-radius: 16px;
-    background: rgba(245,158,11,0.06);
-    border: 1px solid rgba(245,158,11,0.2);
+    background: rgba(245,158,11,0.08);
+    border: 2px solid var(--local-amber);
     margin-bottom: 1.25rem;
     position: relative; overflow: hidden;
   }
@@ -102,8 +102,8 @@ const CSS = `
     background: linear-gradient(90deg, rgba(245,158,11,0.04) 0%, transparent 100%);
     pointer-events: none;
   }
-  .sp-premium-text { font-size: 0.78rem; color: rgba(252,211,77,0.9); line-height: 1.5; }
-  .sp-premium-text strong { color: #FCD34D; font-weight: 700; }
+  .sp-premium-text { font-size: 0.78rem; color: var(--color-text-primary); line-height: 1.5; font-weight: 700; }
+  .sp-premium-text strong { color: var(--local-amber); font-weight: 800; }
 
   /* ── CONTENT ITEM ── */
   .sp-item {
@@ -825,7 +825,7 @@ export default function SubjectPage() {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
             >
-              <Lock size={16} style={{ color: '#FCD34D', flexShrink: 0 }} />
+              <Lock size={16} style={{ color: 'var(--local-amber)', flexShrink: 0 }} />
               <p className="sp-premium-text">
                 Some content requires a <strong>Premium</strong> plan. Contact your admin to upgrade.
               </p>

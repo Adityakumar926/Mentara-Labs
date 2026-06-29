@@ -133,19 +133,19 @@ const CSS = `
     margin: 0 0.6rem 0.6rem;
     padding: 0.55rem 0.85rem; border-radius: 14px;
     background: rgba(245,158,11,0.08);
-    border: 1px solid rgba(245,158,11,0.2);
+    border: 2px solid var(--local-amber);
     display: flex; align-items: center; gap: 0.5rem;
     position: relative; z-index: 1;
   }
   .sl-premium-star { font-size: 0.8rem; }
-  .sl-premium-text { font-size: 0.72rem; font-weight: 700; color: #FCD34D; letter-spacing: 0.02em; }
+  .sl-premium-text { font-size: 0.72rem; font-weight: 800; color: var(--local-amber); letter-spacing: 0.02em; }
 
   /* Upgrade to premium button (non-premium users) */
   .sl-upgrade {
     margin: 0 0.6rem 0.6rem;
     padding: 0.6rem 0.85rem; border-radius: 16px;
-    background: linear-gradient(135deg, rgba(245,158,11,0.14), rgba(124,58,237,0.14));
-    border: 1px solid rgba(245,158,11,0.28);
+    background: rgba(245,158,11,0.05);
+    border: 2px solid var(--local-amber);
     display: flex; align-items: center; gap: 0.55rem;
     position: relative; z-index: 1; overflow: hidden;
     cursor: pointer; width: 90%;
@@ -155,7 +155,7 @@ const CSS = `
   .sl-upgrade:hover {
     transform: translateY(-1px);
     box-shadow: 0 6px 20px rgba(245,158,11,0.18);
-    border-color: rgba(245,158,11,0.5);
+    border-color: var(--violet);
   }
   .sl-upgrade:active { transform: translateY(0); }
   .sl-upgrade::before {
@@ -172,8 +172,8 @@ const CSS = `
     color: #fff;
   }
   .sl-upgrade-copy { display: flex; flex-direction: column; align-items: flex-start; text-align: left; min-width: 0; }
-  .sl-upgrade-title { font-size: 0.72rem; font-weight: 700; color: #FCD34D; letter-spacing: 0.01em; }
-  .sl-upgrade-sub { font-size: 0.6rem; color: rgba(245,240,232,0.4); }
+  .sl-upgrade-title { font-size: 0.72rem; font-weight: 800; color: var(--local-amber); letter-spacing: 0.01em; }
+  .sl-upgrade-sub { font-size: 0.6rem; color: var(--color-text-secondary); font-weight: 700; }
 
   /* User footer */
   .sl-footer {
