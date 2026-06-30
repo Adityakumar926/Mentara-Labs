@@ -40,6 +40,22 @@ const CSS = `
     overflow: hidden;
     backdrop-filter: blur(16px);
     margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .cp-header-image {
+    width: 320px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 16px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  @media (max-width: 767px) {
+    .cp-header-image { display: none; }
   }
   .cp-header-blob {
     position: absolute; border-radius: 50%; filter: blur(70px); pointer-events: none;
@@ -206,6 +222,27 @@ const CSS = `
     padding: 0.25rem 0.75rem;
     font-size: 0.72rem; font-weight: 700; color: var(--cyan);
   }
+
+  /* ── Light Mode Overrides ── */
+  .light .cp-header {
+    background: linear-gradient(135deg, rgba(34, 211, 238, 0.12) 0%, rgba(124, 58, 237, 0.18) 60%, rgba(248, 250, 252, 0.8) 100%);
+    border-color: #D2D6FF;
+  }
+  .light .cp-card {
+    background: #F3F4FD;
+    border-color: #D2D6FF;
+  }
+  .light .cp-card:hover {
+    border-color: #B2B9FF;
+    background: #EBEFFF;
+    box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.08);
+  }
+  .light .cp-course-name {
+    color: #0F172A;
+  }
+  .light .cp-footer {
+    border-top-color: #D2D6FF !important;
+  }
 `;
 
 const fmt = (d) =>
@@ -310,7 +347,7 @@ export default function CoursesPage() {
         >
           <div className="cp-header-blob cp-header-blob-1" />
           <div className="cp-header-blob cp-header-blob-2" />
-          <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ position: 'relative', zIndex: 1, flex: 1 }}>
             <div className="cp-eyebrow">
               <span className="eyebrow-dot" />
               Your Learning
@@ -331,6 +368,7 @@ export default function CoursesPage() {
               )}
             </div>
           </div>
+          <img src="/header-courses.png" alt="" className="cp-header-image" />
         </motion.div>
 
         {/* Grid */}

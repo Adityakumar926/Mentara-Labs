@@ -75,7 +75,17 @@
 
   body {
     @apply bg-navy text-text-primary font-sans;
+    margin: 0;
+    padding: 0;
     background-image: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(91,95,239,0.08), transparent);
+  }
+
+  html:has(.sl-root), body:has(.sl-root),
+  html:has(.al-root), body:has(.al-root) {
+    overflow: hidden !important;
+    height: 100vh !important;
+    width: 100vw !important;
+    position: fixed;
   }
 
   ::-webkit-scrollbar       { width: 6px; height: 6px; }

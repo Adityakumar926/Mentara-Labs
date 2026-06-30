@@ -37,14 +37,34 @@ const CSS = `
     --color-text-primary: #f4f4f5;
     --color-text-secondary: #a1a1aa;
     --color-text-muted: #71717a;
+    --local-lavender: #C4B5FD;
+  }
+
+  html.light .al-root, .light .al-root {
+    background: #F8FAFC;
+    --color-navy: #F8FAFC;
+    --color-surface: #FFFFFF;
+    --color-surface-card: #FFFFFF;
+    --color-surface-border: #CBD5E1;
+    --color-surface-hover: #E2E8F0;
+    --local-navy: #F8FAFC;
+    --local-navy2: #F1F5F9;
+    --local-card-bg: #FFFFFF;
+    --local-card-bdr: #94A3B8;
+    --local-cream: #0F172A;
+    --local-muted: #334155;
+    --color-text-primary: #0F172A;
+    --color-text-secondary: #334155;
+    --color-text-muted: #475569;
+    --local-lavender: #4F46E5;
   }
 
   /* ── SIDEBAR ── */
   .al-aside {
     width: 232px; flex-shrink: 0;
     display: flex; flex-direction: column;
-    background: rgba(255, 255, 255, 0.015);
-    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    background: var(--local-card-bg);
+    border-right: 1px solid var(--local-card-bdr);
     position: relative; overflow: hidden;
   }
   /* Subtle ambient glow behind sidebar */
@@ -58,6 +78,9 @@ const CSS = `
     pointer-events: none;
     animation: al-blob 12s ease-in-out infinite alternate;
   }
+  .light .al-aside::before {
+    background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%);
+  }
   .al-aside::after {
     content: '';
     position: absolute;
@@ -67,6 +90,9 @@ const CSS = `
     bottom: 40px; right: -60px;
     pointer-events: none;
     animation: al-blob 15s ease-in-out infinite alternate-reverse;
+  }
+  .light .al-aside::after {
+    background: radial-gradient(circle, rgba(0,212,255,0.07) 0%, transparent 70%);
   }
   @keyframes al-blob { from{transform:translate(0,0)} to{transform:translate(15px,-12px)} }
 
@@ -119,16 +145,22 @@ const CSS = `
     border: 1px solid transparent;
   }
   .al-nav-item:hover {
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.03);
-    border-color: rgba(255, 255, 255, 0.06);
+    color: var(--color-text-primary);
+    background: var(--color-surface-hover);
+    border-color: var(--color-surface-border);
   }
   .al-nav-item.active {
     color: #22d3ee;
     background: rgba(34, 211, 238, 0.08);
     border-color: rgba(34, 211, 238, 0.2);
   }
+  .light .al-nav-item.active {
+    color: var(--color-text-primary);
+    background: rgba(79, 70, 229, 0.08);
+    border-color: rgba(79, 70, 229, 0.2);
+  }
   .al-nav-item.active .al-nav-icon { color: #22d3ee; }
+  .light .al-nav-item.active .al-nav-icon { color: var(--local-lavender); }
   /* Active left accent */
   .al-nav-item.active::before {
     content: '';
@@ -136,6 +168,13 @@ const CSS = `
     width: 3.5px; border-radius: 0 3px 3px 0;
     background: linear-gradient(180deg, #22d3ee, #34d399);
     box-shadow: 0 0 10px rgba(34, 211, 238, 0.7);
+  }
+  .light .al-nav-item.active::before {
+    content: '';
+    position: absolute; left: 0; top: 20%; bottom: 20%;
+    width: 3px; border-radius: 0 3px 3px 0;
+    background: linear-gradient(180deg, #7C3AED, #00D4FF);
+    box-shadow: 0 0 8px rgba(124,58,237,0.8);
   }
   .al-nav-icon { color: var(--color-text-muted); transition: color 0.2s; flex-shrink: 0; }
   .al-nav-item:hover .al-nav-icon { color: var(--color-text-secondary); }
@@ -190,7 +229,7 @@ const CSS = `
 
   /* ── MAIN ── */
   .al-main {
-    flex: 1; overflow-y: auto;
+    flex: 1; overflow-y: auto; overflow-x: hidden;
     background: var(--color-navy);
   }
   .al-main::-webkit-scrollbar { width: 6px; }

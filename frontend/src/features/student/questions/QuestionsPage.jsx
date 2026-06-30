@@ -26,6 +26,7 @@ const CSS = `
     --muted:    var(--local-muted, rgba(245,240,232,0.45));
     font-family: 'Inter', sans-serif;
     color: var(--cream);
+    overflow-x: hidden;
   }
   .q-root *, .q-root *::before, .q-root *::after { box-sizing: border-box; }
 
@@ -39,6 +40,26 @@ const CSS = `
     overflow: hidden;
     backdrop-filter: blur(16px);
     margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .q-header-image {
+    width: 320px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 16px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  @media (max-width: 767px) {
+    .q-header-image { display: none; }
+  }
+  .light .q-header {
+    background: linear-gradient(135deg, rgba(34, 211, 238, 0.12) 0%, rgba(124, 58, 237, 0.18) 60%, rgba(248, 250, 252, 0.8) 100%);
+    border-color: #D2D6FF;
   }
   .q-header-blob {
     position: absolute; border-radius: 50%; filter: blur(70px); pointer-events: none;
@@ -863,7 +884,7 @@ export default function StudentQuestionsPage() {
           animate={{ opacity: 1, y: 0 }} 
           transition={{ duration: 0.4 }}
         >
-          <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ position: 'relative', zIndex: 1, flex: 1 }}>
             <div className="q-eyebrow">
               <span className="eyebrow-dot" />
               Practice Bank
@@ -877,6 +898,7 @@ export default function StudentQuestionsPage() {
               )}
             </p>
           </div>
+          <img src="/header-questions.png" alt="" className="q-header-image" />
         </motion.div>
 
         {/* ── Search + type filter ── */}

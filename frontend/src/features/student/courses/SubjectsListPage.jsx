@@ -38,7 +38,22 @@ const CSS = `
     overflow: hidden;
     backdrop-filter: blur(16px);
     margin-bottom: 1.5rem;
-    display: flex; align-items: center; gap: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .subj-header-image {
+    width: 320px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 16px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  @media (max-width: 767px) {
+    .subj-header-image { display: none; }
   }
   .subj-blob {
     position: absolute; border-radius: 50%; filter: blur(70px); pointer-events: none;
@@ -189,6 +204,33 @@ const CSS = `
   }
   .subj-empty-title { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--cream); }
   .subj-empty-desc  { font-size: 0.78rem; color: var(--muted); max-width: 260px; line-height: 1.55; font-weight: 600; }
+
+  /* ── Light Mode Overrides ── */
+  .light .subj-header {
+    background: linear-gradient(135deg, rgba(34, 211, 238, 0.12) 0%, rgba(124, 58, 237, 0.18) 60%, rgba(248, 250, 252, 0.8) 100%);
+    border-color: #D2D6FF;
+  }
+  .light .subj-card {
+    background: #F3F4FD;
+    border-color: #D2D6FF;
+  }
+  .light .subj-card:hover {
+    border-color: #B2B9FF;
+    background: #EBEFFF;
+    box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.08);
+  }
+  .light .subj-card-name {
+    color: #0F172A;
+  }
+  .light .subj-back-btn {
+    background: #FFFFFF;
+    border-color: #CBD5E1;
+    color: #475569;
+  }
+  .light .subj-back-btn:hover {
+    background: #F1F5F9;
+    color: #0F172A;
+  }
 `;
 
 const listContainer = {
@@ -246,6 +288,7 @@ export default function SubjectsListPage() {
               {loading ? '' : `${list.length} subject${list.length !== 1 ? 's' : ''}`}
             </p>
           </div>
+          <img src="/header-courses.png" alt="" className="subj-header-image" />
         </motion.div>
 
         {/* ── Subject list ── */}

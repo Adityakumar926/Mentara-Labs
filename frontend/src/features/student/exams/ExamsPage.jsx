@@ -29,6 +29,7 @@ const CSS = `
     --muted:      var(--local-muted, rgba(245,240,232,0.45));
     font-family: 'Inter', sans-serif;
     color: var(--cream);
+    overflow-x: hidden;
   }
   .exams-root *, .exams-root *::before, .exams-root *::after { box-sizing: border-box; }
 
@@ -42,6 +43,22 @@ const CSS = `
     overflow: hidden;
     backdrop-filter: blur(16px);
     margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .exams-header-image {
+    width: 320px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 16px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  @media (max-width: 767px) {
+    .exams-header-image { display: none; }
   }
   .exams-header-blob {
     position: absolute; border-radius: 50%; filter: blur(70px); pointer-events: none;
@@ -374,6 +391,62 @@ const CSS = `
   .exams-filter-btn.active {
     color: #22d3ee;
     background: rgba(34, 211, 238, 0.08);
+  }
+
+  /* ── Light Mode Overrides ── */
+  .light .exams-tab-btn.active {
+    color: #FFFFFF !important;
+  }
+  .light .exams-tab-indicator {
+    background: linear-gradient(135deg, #0891B2 0%, #4F46E5 100%);
+    border: 1px solid #4F46E5;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+  }
+  .light .exams-filters-row {
+    background: #FFFFFF;
+    border-color: #E2E8F0;
+  }
+  .light .exams-filter-select {
+    background: #F1F5F9;
+    border-color: #CBD5E1;
+    color: #0F172A;
+  }
+  .light .exams-filter-select option {
+    background: #FFFFFF;
+    color: #0F172A;
+  }
+  .light .exams-filter-btn-group {
+    background: #F1F5F9;
+    border-color: #CBD5E1;
+  }
+  .light .exams-filter-btn {
+    color: #475569;
+  }
+  .light .exams-filter-btn:hover {
+    color: #0F172A;
+  }
+  .light .exams-filter-btn.active {
+    color: #FFFFFF !important;
+    background: linear-gradient(135deg, #0891B2 0%, #4F46E5 100%) !important;
+  }
+  .light .exam-card {
+    background: #F3F4FD;
+    border-color: #D2D6FF;
+  }
+  .light .exam-card:hover {
+    border-color: #B2B9FF;
+    background: #EBEFFF;
+    box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.08);
+  }
+  .light .exam-card-title {
+    color: #0F172A;
+  }
+  .light .exam-card-foot {
+    border-top: 1px solid #D2D6FF !important;
+  }
+  .light .exams-header {
+    background: linear-gradient(135deg, rgba(34, 211, 238, 0.12) 0%, rgba(124, 58, 237, 0.18) 60%, rgba(248, 250, 252, 0.8) 100%);
+    border-color: #D2D6FF;
   }
 `;
 
@@ -856,7 +929,7 @@ export default function StudentExamsPage() {
           animate={{ opacity: 1, y: 0 }} 
           transition={{ duration: 0.4 }}
         >
-          <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ position: 'relative', zIndex: 1, flex: 1 }}>
             <div className="exams-eyebrow">
               <span className="eyebrow-dot" />
               Assessments
@@ -864,6 +937,7 @@ export default function StudentExamsPage() {
             <h1 className="exams-page-title">My Exams</h1>
             <p className="exams-page-sub">Live, upcoming, and past exams from your batches</p>
           </div>
+          <img src="/header-exams.png" alt="" className="exams-header-image" />
         </motion.div>
 
         {/* Filters and Tabs row */}

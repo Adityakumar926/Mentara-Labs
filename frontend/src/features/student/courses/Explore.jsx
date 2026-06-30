@@ -47,6 +47,22 @@ const CSS = `
     overflow: hidden;
     backdrop-filter: blur(16px);
     margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .ex-header-image {
+    width: 320px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 16px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  @media (max-width: 767px) {
+    .ex-header-image { display: none; }
   }
   .ex-header-blob {
     position: absolute; border-radius: 50%; filter: blur(70px); pointer-events: none;
@@ -230,6 +246,78 @@ const CSS = `
   .ex-mat-icon-notes { background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.18); color: var(--lavender); }
   .ex-mat-icon-video { background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.18); color: var(--cyan); }
   .ex-mat-icon-worksheet { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.18); color: var(--amber); }
+
+  /* ── Light Mode Overrides ── */
+  .light .ex-search {
+    background: #FFFFFF;
+    border-color: #CBD5E1;
+    color: #0F172A;
+  }
+  .light .ex-search::placeholder {
+    color: #94A3B8;
+  }
+  .light .ex-search:focus {
+    border-color: #4F46E5;
+    background: #FFFFFF;
+  }
+  .light .ex-tabs-bar {
+    background: #F1F5F9;
+    border-color: #CBD5E1;
+  }
+  .light .ex-tab-btn.active {
+    color: #FFFFFF !important;
+    background: linear-gradient(135deg, #0891B2 0%, #4F46E5 100%);
+    border: 1px solid #4F46E5;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+  }
+  .light .ex-subject-pill {
+    background: #FFFFFF;
+    border-color: #CBD5E1;
+    color: #475569;
+  }
+  .light .ex-subject-pill:hover {
+    color: #0F172A;
+    border-color: #4F46E5;
+  }
+  .light .ex-subject-pill.active {
+    color: #FFFFFF !important;
+    background: linear-gradient(135deg, #0891B2 0%, #059669 100%);
+    border-color: #059669;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+  }
+  .light .ex-mat-btn {
+    background: #FFFFFF;
+    border-color: #CBD5E1;
+    color: #475569;
+  }
+  .light .ex-mat-btn:hover {
+    color: #0F172A;
+    border-color: #4F46E5;
+  }
+  .light .ex-mat-btn.active {
+    color: #FFFFFF !important;
+    background: linear-gradient(135deg, #0891B2 0%, #4F46E5 100%);
+    border-color: #4F46E5;
+  }
+  .light .ex-card {
+    background: #F3F4FD;
+    border-color: #D2D6FF;
+  }
+  .light .ex-card:hover {
+    border-color: #B2B9FF;
+    background: #EBEFFF;
+    box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.08);
+  }
+  .light .ex-card-title {
+    color: #0F172A;
+  }
+  .light .ex-card-foot {
+    border-top: 1px solid #D2D6FF !important;
+  }
+  .light .ex-header {
+    background: linear-gradient(135deg, rgba(34, 211, 238, 0.12) 0%, rgba(124, 58, 237, 0.18) 60%, rgba(248, 250, 252, 0.8) 100%);
+    border-color: #D2D6FF;
+  }
 `;
 
 export default function Explore() {
@@ -620,7 +708,7 @@ export default function Explore() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ position: 'relative', zIndex: 1, flex: 1 }}>
             <div className="ex-eyebrow">
               <span className="ex-eyebrow-dot" />
               Resource Central
@@ -628,6 +716,7 @@ export default function Explore() {
             <h1 className="ex-title">Explore Content</h1>
             <p className="ex-subtitle">Discover interactive widgets, study materials, and practice exams designed for your curriculum.</p>
           </div>
+          <img src="/header-explore.png" alt="" className="ex-header-image" />
         </motion.div>
 
         {/* ── CONTROLS ROW ── */}
