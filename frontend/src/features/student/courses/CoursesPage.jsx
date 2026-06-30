@@ -46,10 +46,9 @@ const CSS = `
     gap: 1.5rem;
   }
   .cp-header-image {
-    width: 320px;
-    height: 130px;
-    object-fit: cover;
-    border-radius: 16px;
+    width: 180px;
+    height: 120px;
+    object-fit: contain;
     flex-shrink: 0;
     position: relative;
     z-index: 1;
@@ -368,7 +367,7 @@ export default function CoursesPage() {
               )}
             </div>
           </div>
-          <img src="/header-courses.png" alt="" className="cp-header-image" />
+          <img src="/courses.png?v=2" alt="" className="cp-header-image" />
         </motion.div>
 
         {/* Grid */}

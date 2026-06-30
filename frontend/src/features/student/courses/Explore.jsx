@@ -53,10 +53,9 @@ const CSS = `
     gap: 1.5rem;
   }
   .ex-header-image {
-    width: 320px;
-    height: 130px;
-    object-fit: cover;
-    border-radius: 16px;
+    width: 230px;
+    height: 180px;
+    object-fit: contain;
     flex-shrink: 0;
     position: relative;
     z-index: 1;
@@ -716,7 +715,7 @@ export default function Explore() {
             <h1 className="ex-title">Explore Content</h1>
             <p className="ex-subtitle">Discover interactive widgets, study materials, and practice exams designed for your curriculum.</p>
           </div>
-          <img src="/header-explore.png" alt="" className="ex-header-image" />
+          <img src="/explore.png?v=2" alt="" className="ex-header-image" />
         </motion.div>
 
         {/* ── CONTROLS ROW ── */}

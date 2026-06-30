@@ -8,7 +8,7 @@ import useAuthStore from '@/store/authStore';
 
 /* ─── CSS ─── */
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 
   .subj-root {
     --navy:     var(--local-navy, #0A0E1A);
@@ -44,10 +44,9 @@ const CSS = `
     gap: 1.5rem;
   }
   .subj-header-image {
-    width: 320px;
-    height: 130px;
-    object-fit: cover;
-    border-radius: 16px;
+    width: 230px;
+    height: 180px;
+    object-fit: contain;
     flex-shrink: 0;
     position: relative;
     z-index: 1;
@@ -59,18 +58,15 @@ const CSS = `
     position: absolute; border-radius: 50%; filter: blur(70px); pointer-events: none;
   }
   .subj-blob-1 {
-    width: 300px; height: 300px;
-    background: radial-gradient(circle, rgba(124,58,237,0.2) 0%, transparent 70%);
-    top: -90px; right: -50px;
-    animation: subj-drift 11s ease-in-out infinite alternate;
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, rgba(0,212,255,0.15) 0%, transparent 70%);
+    top: -60px; left: -40px;
   }
   .subj-blob-2 {
-    width: 180px; height: 180px;
-    background: radial-gradient(circle, rgba(0,212,255,0.12) 0%, transparent 70%);
-    bottom: -40px; left: 30%;
-    animation: subj-drift 14s ease-in-out infinite alternate-reverse;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%);
+    bottom: -50px; right: -20px;
   }
-  @keyframes subj-drift { from{transform:translate(0,0)} to{transform:translate(20px,-14px)} }
 
   .subj-back-btn {
     display: flex; align-items: center; justify-content: center;
@@ -85,29 +81,32 @@ const CSS = `
 
   .subj-header-text { position: relative; z-index: 1; flex: 1; min-width: 0; }
   .subj-eyebrow {
-    display: inline-flex; align-items: center; gap: 0.45rem;
-    background: rgba(124,58,237,0.15); border: 2px solid rgba(124,58,237,0.35);
-    padding: 0.22rem 0.75rem; border-radius: 50px;
-    font-size: 0.67rem; font-weight: 700; color: var(--lavender);
-    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.4rem;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2);
+    padding: 0.3rem 0.85rem; border-radius: 50px;
+    font-size: 0.65rem; font-weight: 700; color: var(--cyan);
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.6rem;
   }
   .subj-eyebrow-dot {
-    width: 5px; height: 5px; border-radius: 50%;
-    background: var(--cyan); box-shadow: 0 0 7px var(--cyan);
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--cyan); box-shadow: 0 0 8px var(--cyan);
     animation: subj-blink 2s ease infinite;
   }
-  @keyframes subj-blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+  @keyframes subj-blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
   .subj-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: clamp(1.15rem, 2.2vw, 1.55rem);
-    font-weight: 700; letter-spacing: -0.02em;
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
     background: linear-gradient(135deg, var(--cream) 0%, var(--lavender) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    line-height: 1.2; margin-bottom: 0.1rem;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.35rem;
   }
-  .subj-subtitle { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+  .subj-subtitle { font-size: 0.85rem; color: var(--muted); font-weight: 500; }
 
   /* ── SUBJECT CARDS ── */
   .subj-grid {
@@ -288,7 +287,7 @@ export default function SubjectsListPage() {
               {loading ? '' : `${list.length} subject${list.length !== 1 ? 's' : ''}`}
             </p>
           </div>
-          <img src="/header-courses.png" alt="" className="subj-header-image" />
+          <img src="/courses.png?v=2" alt="" className="subj-header-image" />
         </motion.div>
 
         {/* ── Subject list ── */}

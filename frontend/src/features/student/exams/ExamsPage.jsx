@@ -30,6 +30,9 @@ const CSS = `
     font-family: 'Inter', sans-serif;
     color: var(--cream);
     overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
   }
   .exams-root *, .exams-root *::before, .exams-root *::after { box-sizing: border-box; }
 
@@ -49,10 +52,9 @@ const CSS = `
     gap: 1.5rem;
   }
   .exams-header-image {
-    width: 320px;
-    height: 130px;
-    object-fit: cover;
-    border-radius: 16px;
+    width: 230px;
+    height: 180px;
+    object-fit: contain;
     flex-shrink: 0;
     position: relative;
     z-index: 1;
@@ -914,9 +916,9 @@ export default function StudentExamsPage() {
   const filteredHistory = useMemo(() => historyList.filter(e => filterExam(e, true)), [historyList, selectedSubject, selectedTopic, selectedSubtopic, attemptFilter, allowedTopicNames]);
 
   return (
-    <PageWrapper>
+    <PageWrapper className="p-6">
       <style>{CSS}</style>
-      <div className="exams-root" style={{ padding: '1.5rem', maxWidth: '860px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      <div className="exams-root">
 
         {/* Ambient background blur blobs */}
         <div className="exams-header-blob exams-blob-1" />
@@ -937,7 +939,7 @@ export default function StudentExamsPage() {
             <h1 className="exams-page-title">My Exams</h1>
             <p className="exams-page-sub">Live, upcoming, and past exams from your batches</p>
           </div>
-          <img src="/header-exams.png" alt="" className="exams-header-image" />
+          <img src="/exam.png?v=2" alt="" className="exams-header-image" />
         </motion.div>
 
         {/* Filters and Tabs row */}

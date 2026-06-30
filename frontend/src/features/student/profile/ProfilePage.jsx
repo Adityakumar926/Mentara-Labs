@@ -36,13 +36,31 @@ const CSS = `
     font-family: 'Inter', sans-serif;
     color: var(--cream);
     overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
   }
   .light .prof-root, :global(.light) .prof-root, :root.light .prof-root {
-    --local-heat-0: #E2E8F0;
-    --local-heat-1: #DDD6FE;
-    --local-heat-2: #C4B5FD;
-    --local-heat-3: #A78BFA;
-    --local-heat-4: #7C3AED;
+    --local-heat-0: #94A3B8;
+    --local-heat-1: #7C3AED;
+    --local-heat-2: #5B21B6;
+    --local-heat-3: #4C1D95;
+    --local-heat-4: #2E1065;
+  }
+  .light .prof-root .heat-cell,
+  :root.light .prof-root .heat-cell {
+    border: 1px solid rgba(0,0,0,0.2);
+  }
+  .light .prof-root .cal-day:not(.active),
+  :root.light .prof-root .cal-day:not(.active) {
+    background: #CBD5E1;
+    border: 1px solid #94A3B8;
+  }
+  .light .prof-root .cal-day.active,
+  :root.light .prof-root .cal-day.active {
+    background: #7C3AED;
+    border: 2px solid #5B21B6;
+    color: #ffffff;
   }
   .prof-root *, .prof-root *::before, .prof-root *::after { box-sizing: border-box; }
 
@@ -54,6 +72,21 @@ const CSS = `
     padding: 2rem 2.25rem;
     overflow: hidden;
     backdrop-filter: blur(16px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .prof-hero-image {
+    width: 180px;
+    height: 120px;
+    object-fit: contain;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  @media (max-width: 767px) {
+    .prof-hero-image { display: none; }
   }
   .prof-hero::before {
     content: '';
@@ -282,12 +315,13 @@ const CSS = `
   /* ── CALENDAR ── */
   .cal-day {
     aspect-ratio: 1;
-    border-radius: 12px;
+    border-radius: 8px;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 2px;
     transition: all 0.15s;
     cursor: default;
     position: relative;
+    padding: 2px;
   }
   .cal-day.active { background: var(--local-heat-1); border: 2px solid var(--local-heat-3); color: var(--color-text-primary); font-weight: 700; }
   .cal-day.today { outline: 2px solid var(--violet); outline-offset: 1px; }
@@ -549,10 +583,10 @@ export default function ProfilePage() {
   ];
 
   return (
-    <PageWrapper>
+    <PageWrapper className="p-6">
       <style>{CSS}</style>
 
-      <div className="prof-root" style={{ padding: '1.5rem', maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      <div className="prof-root">
 
         {/* ── HERO HEADER ── */}
         <motion.div
@@ -1118,7 +1152,7 @@ export default function ProfilePage() {
               {/* Monthly calendar */}
               <motion.div
                 className="prof-card"
-                style={{ padding: '1.5rem' }}
+                style={{ padding: '1.5rem', maxWidth: '480px' }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
@@ -1157,7 +1191,7 @@ export default function ProfilePage() {
                     </div>
 
                     {/* Day grid */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.3rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.2rem' }}>
                       {Array(firstDayOfWeek).fill(null).map((_, i) => <div key={`e-${i}`} />)}
                       {Array(daysInMonth).fill(null).map((_, i) => {
                         const day   = i + 1;
@@ -1175,7 +1209,7 @@ export default function ProfilePage() {
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: i * 0.01 }}
                           >
-                            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: active ? 'var(--lavender)' : 'var(--muted)' }}>
+                            <span style={{ fontSize: '0.65rem', fontWeight: 600, color: active ? 'var(--lavender)' : 'var(--muted)' }}>
                               {day}
                             </span>
                             {active && types.length > 0 && (

@@ -27,6 +27,9 @@ const CSS = `
     font-family: 'Inter', sans-serif;
     color: var(--cream);
     overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
   }
   .q-root *, .q-root *::before, .q-root *::after { box-sizing: border-box; }
 
@@ -46,10 +49,9 @@ const CSS = `
     gap: 1.5rem;
   }
   .q-header-image {
-    width: 320px;
-    height: 130px;
-    object-fit: cover;
-    border-radius: 16px;
+    width: 230px;
+    height: 180px;
+    object-fit: contain;
     flex-shrink: 0;
     position: relative;
     z-index: 1;
@@ -869,9 +871,9 @@ export default function StudentQuestionsPage() {
   );
 
   return (
-    <PageWrapper>
+    <PageWrapper className="p-6">
       <style>{CSS}</style>
-      <div className="q-root" style={{ padding: '1.5rem', maxWidth: '860px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      <div className="q-root">
 
         {/* Ambient background blur blobs */}
         <div className="q-header-blob q-blob-1" />
@@ -898,7 +900,7 @@ export default function StudentQuestionsPage() {
               )}
             </p>
           </div>
-          <img src="/header-questions.png" alt="" className="q-header-image" />
+          <img src="/question.png?v=2" alt="" className="q-header-image" />
         </motion.div>
 
         {/* ── Search + type filter ── */}
