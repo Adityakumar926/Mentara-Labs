@@ -29,17 +29,53 @@ const CSS = `
   }
   .q-root *, .q-root *::before, .q-root *::after { box-sizing: border-box; }
 
-  /* ── PAGE TITLE ── */
-  .q-page-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: clamp(1.4rem, 3vw, 1.8rem);
-    font-weight: 700;
-    letter-spacing: -0.02em;
+  /* ── PAGE HEADER ── */
+  .q-header {
+    position: relative;
+    background: linear-gradient(135deg, rgba(0,212,255,0.07) 0%, rgba(124,58,237,0.1) 60%, rgba(10,14,26,0) 100%);
+    border: 1px solid var(--card-bdr);
+    border-radius: 24px;
+    padding: 2rem 2.25rem;
+    overflow: hidden;
+    backdrop-filter: blur(16px);
+    margin-bottom: 1.5rem;
+  }
+  .q-header-blob {
+    position: absolute; border-radius: 50%; filter: blur(70px); pointer-events: none;
+  }
+  .q-blob-1 {
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, rgba(0,212,255,0.15) 0%, transparent 70%);
+    top: -60px; left: -40px;
+  }
+  .q-blob-2 {
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%);
+    bottom: -50px; right: -20px;
+  }
+  .q-eyebrow {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(34, 211, 238, 0.08); border: 1px solid rgba(34, 211, 238, 0.2);
+    padding: 0.3rem 0.85rem; border-radius: 50px;
+    font-size: 0.65rem; font-weight: 700; color: var(--cyan);
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.6rem;
+  }
+  .eyebrow-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--cyan); box-shadow: 0 0 8px var(--cyan);
+    animation: q-blink 2s ease infinite;
+  }
+  @keyframes q-blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .q-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.3rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
     background: linear-gradient(135deg, var(--cream) 0%, var(--lavender) 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    margin-bottom: 0.3rem;
   }
-  .q-page-sub { font-size: 0.83rem; color: var(--muted); margin-top: 0.2rem; }
-  .q-page-sub .premium-count { color: var(--amber); font-weight: 600; }
+  .q-subtitle { font-size: 0.8rem; color: var(--muted); }
 
   /* ── SEARCH BAR ── */
   .q-search-wrap {
@@ -816,16 +852,31 @@ export default function StudentQuestionsPage() {
       <style>{CSS}</style>
       <div className="q-root" style={{ padding: '1.5rem', maxWidth: '860px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
+        {/* Ambient background blur blobs */}
+        <div className="q-header-blob q-blob-1" />
+        <div className="q-header-blob q-blob-2" />
+
         {/* ── Page header ── */}
-        <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-          <h1 className="q-page-title">Questions</h1>
-          <p className="q-page-sub">
-            {loading ? 'Loading…' : (
-              <>
-                {totalFree} free · <span className="premium-count">{totalPremium} premium</span> from your curriculum
-              </>
-            )}
-          </p>
+        <motion.div 
+          className="q-header"
+          initial={{ opacity: 0, y: -12 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.4 }}
+        >
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div className="q-eyebrow">
+              <span className="eyebrow-dot" />
+              Practice Bank
+            </div>
+            <h1 className="q-title">Questions</h1>
+            <p className="q-subtitle">
+              {loading ? 'Loading…' : (
+                <>
+                  {totalFree} free · <span style={{ color: 'var(--amber)', fontWeight: 600 }}>{totalPremium} premium</span> from your curriculum
+                </>
+              )}
+            </p>
+          </div>
         </motion.div>
 
         {/* ── Search + type filter ── */}

@@ -31,10 +31,10 @@ const CSS = `
   /* ── HEADER ── */
   .subj-header {
     position: relative;
-    background: linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(0,212,255,0.06) 60%, rgba(10,14,26,0) 100%);
-    border: 2px solid var(--card-bdr);
-    border-radius: 28px;
-    padding: 1.75rem 2.25rem;
+    background: linear-gradient(135deg, rgba(0,212,255,0.07) 0%, rgba(124,58,237,0.1) 60%, rgba(10,14,26,0) 100%);
+    border: 1px solid var(--card-bdr);
+    border-radius: 24px;
+    padding: 2rem 2.25rem;
     overflow: hidden;
     backdrop-filter: blur(16px);
     margin-bottom: 1.5rem;

@@ -46,13 +46,12 @@ const CSS = `
   }
   .prof-root *, .prof-root *::before, .prof-root *::after { box-sizing: border-box; }
 
-  /* ── HEADER CARD ── */
   .prof-hero {
     position: relative;
-    background: linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(0,212,255,0.06) 50%, rgba(10,14,26,0) 100%);
+    background: linear-gradient(135deg, rgba(0,212,255,0.07) 0%, rgba(124,58,237,0.1) 60%, rgba(10,14,26,0) 100%);
     border: 1px solid var(--card-bdr);
-    border-radius: 28px;
-    padding: 2rem 2.5rem;
+    border-radius: 24px;
+    padding: 2rem 2.25rem;
     overflow: hidden;
     backdrop-filter: blur(16px);
   }

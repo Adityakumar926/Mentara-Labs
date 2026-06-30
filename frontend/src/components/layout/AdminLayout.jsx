@@ -21,16 +21,30 @@ const CSS = `
 
   .al-root {
     display: flex; height: 100vh; overflow: hidden;
-    background: var(--color-navy);
+    background: #09090b;
     font-family: 'Inter', sans-serif;
+    --color-navy: #09090b;
+    --color-surface: #0f0f13;
+    --color-surface-card: rgba(255, 255, 255, 0.015);
+    --color-surface-border: rgba(255, 255, 255, 0.06);
+    --color-surface-hover: rgba(255, 255, 255, 0.035);
+    --local-navy: #09090b;
+    --local-navy2: #0f0f13;
+    --local-card-bg: rgba(255, 255, 255, 0.015);
+    --local-card-bdr: rgba(255, 255, 255, 0.06);
+    --local-cream: #f4f4f5;
+    --local-muted: #71717a;
+    --color-text-primary: #f4f4f5;
+    --color-text-secondary: #a1a1aa;
+    --color-text-muted: #71717a;
   }
 
   /* ── SIDEBAR ── */
   .al-aside {
     width: 232px; flex-shrink: 0;
     display: flex; flex-direction: column;
-    background: var(--local-card-bg);
-    border-right: 1px solid var(--local-card-bdr);
+    background: rgba(255, 255, 255, 0.015);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
     position: relative; overflow: hidden;
   }
   /* Subtle ambient glow behind sidebar */
@@ -39,7 +53,7 @@ const CSS = `
     position: absolute;
     width: 280px; height: 280px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(34,211,238,0.08) 0%, transparent 70%);
     top: -80px; left: -80px;
     pointer-events: none;
     animation: al-blob 12s ease-in-out infinite alternate;
@@ -49,7 +63,7 @@ const CSS = `
     position: absolute;
     width: 200px; height: 200px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(0,212,255,0.07) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(52,211,153,0.06) 0%, transparent 70%);
     bottom: 40px; right: -60px;
     pointer-events: none;
     animation: al-blob 15s ease-in-out infinite alternate-reverse;
@@ -105,22 +119,23 @@ const CSS = `
     border: 1px solid transparent;
   }
   .al-nav-item:hover {
-    color: var(--color-text-primary);
-    background: var(--color-surface-hover);
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.06);
   }
   .al-nav-item.active {
-    color: var(--color-text-primary);
-    background: rgba(124,58,237,0.14);
-    border-color: rgba(124,58,237,0.25);
+    color: #22d3ee;
+    background: rgba(34, 211, 238, 0.08);
+    border-color: rgba(34, 211, 238, 0.2);
   }
-  .al-nav-item.active .al-nav-icon { color: #C4B5FD; }
+  .al-nav-item.active .al-nav-icon { color: #22d3ee; }
   /* Active left accent */
   .al-nav-item.active::before {
     content: '';
     position: absolute; left: 0; top: 20%; bottom: 20%;
-    width: 3px; border-radius: 0 3px 3px 0;
-    background: linear-gradient(180deg, #7C3AED, #00D4FF);
-    box-shadow: 0 0 8px rgba(124,58,237,0.8);
+    width: 3.5px; border-radius: 0 3px 3px 0;
+    background: linear-gradient(180deg, #22d3ee, #34d399);
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.7);
   }
   .al-nav-icon { color: var(--color-text-muted); transition: color 0.2s; flex-shrink: 0; }
   .al-nav-item:hover .al-nav-icon { color: var(--color-text-secondary); }

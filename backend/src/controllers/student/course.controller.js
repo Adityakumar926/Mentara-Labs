@@ -468,12 +468,14 @@ exports.getLiveExams = async (req, res) => {
          e.total_marks, e.passing_marks, e.is_premium,
          e.scheduled_at, e.ends_at,
          s.name AS subject_name,
+         t.name AS topic_name,
          EXISTS (
            SELECT 1 FROM exam_submissions es
            WHERE es.exam_id = e.id AND es.student_id = $1
          ) AS already_attempted
        FROM exams e
        JOIN subjects s ON s.id = e.subject_id
+       LEFT JOIN topics t ON t.id = e.topic_id
        WHERE s.class_id = $2
          AND e.status = 'live'
        ORDER BY e.ends_at ASC`,
@@ -497,13 +499,15 @@ exports.getScheduledExams = async (req, res) => {
          e.id, e.title, e.description, e.duration_minutes,
          e.total_marks, e.passing_marks, e.is_premium,
          e.scheduled_at, e.ends_at,
-         s.name AS subject_name
+         s.name AS subject_name,
+         t.name AS topic_name
        FROM exams e
        JOIN subjects s ON s.id = e.subject_id
-       WHERE s.class_id = $2
+       LEFT JOIN topics t ON t.id = e.topic_id
+       WHERE s.class_id = $1
          AND e.status = 'scheduled'
        ORDER BY e.scheduled_at ASC`,
-      [req.user.id, req.user.class_id]
+      [req.user.class_id]
     );
     res.json({ success: true, data: rows });
   } catch (err) {

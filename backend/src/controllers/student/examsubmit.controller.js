@@ -475,6 +475,7 @@ exports.getMyExamHistory = async (req, res) => {
          e.id               AS exam_id,
          e.title,
          s.name             AS subject_name,
+         t.name             AS topic_name,
          es.score,
          es.total_marks,
          es.percentage,
@@ -492,6 +493,7 @@ exports.getMyExamHistory = async (req, res) => {
        FROM exam_submissions es
        JOIN exams    e ON e.id = es.exam_id
        LEFT JOIN subjects s ON s.id = e.subject_id
+       LEFT JOIN topics t ON t.id = e.topic_id
        WHERE es.student_id = $1 AND es.status = 'submitted'
        ORDER BY es.submitted_at DESC`,
       [req.user.id]

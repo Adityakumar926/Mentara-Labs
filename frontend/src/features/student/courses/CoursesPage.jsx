@@ -8,7 +8,7 @@ import useAuthStore from '@/store/authStore';
 
 /* ─── Design tokens (mirror ProfilePage / LandingPage) ─── */
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 
   .cp-root {
     --navy:       var(--local-navy, #0A0E1A);
@@ -19,55 +19,47 @@ const CSS = `
     --cream:      var(--local-cream, #F5F0E8);
     --lavender:   var(--local-lavender, #C4B5FD);
     --muted:      var(--local-muted, rgba(245,240,232,0.45));
-    --card-bg:    var(--local-card-bg, rgba(255,255,255,0.04));
-    --card-bdr:   var(--local-card-bdr, rgba(255,255,255,0.08));
+    --card-bg:    rgba(255, 255, 255, 0.015);
+    --card-bdr:   rgba(255, 255, 255, 0.06);
     font-family: 'Inter', sans-serif;
     color: var(--cream);
+    background-image: 
+      linear-gradient(to right, rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+    background-size: 30px 30px;
   }
   .cp-root *, .cp-root *::before, .cp-root *::after { box-sizing: border-box; }
 
   /* ── PAGE HEADER ── */
   .cp-header {
     position: relative;
-    background: linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(0,212,255,0.06) 100%);
+    background: linear-gradient(135deg, rgba(0,212,255,0.07) 0%, rgba(124,58,237,0.1) 60%, rgba(10,14,26,0) 100%);
     border: 1px solid var(--card-bdr);
-    border-radius: 28px;
-    padding: 2rem 2.5rem;
+    border-radius: 24px;
+    padding: 2rem 2.25rem;
     overflow: hidden;
     backdrop-filter: blur(16px);
-    margin-bottom: 1.75rem;
+    margin-bottom: 1.5rem;
   }
   .cp-header-blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(60px);
-    pointer-events: none;
+    position: absolute; border-radius: 50%; filter: blur(70px); pointer-events: none;
   }
   .cp-header-blob-1 {
-    width: 320px; height: 320px;
-    background: radial-gradient(circle, rgba(124,58,237,0.22) 0%, transparent 70%);
-    top: -80px; right: -80px;
-    animation: cp-drift 10s ease-in-out infinite alternate;
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, rgba(0,212,255,0.15) 0%, transparent 70%);
+    top: -60px; left: -40px;
   }
   .cp-header-blob-2 {
-    width: 200px; height: 200px;
-    background: radial-gradient(circle, rgba(0,212,255,0.15) 0%, transparent 70%);
-    bottom: -40px; left: 20%;
-    animation: cp-drift 13s ease-in-out infinite alternate-reverse;
-  }
-  @keyframes cp-drift {
-    from { transform: translate(0,0) scale(1); }
-    to   { transform: translate(20px,-15px) scale(1.08); }
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%);
+    bottom: -50px; right: -20px;
   }
   .cp-eyebrow {
     display: inline-flex; align-items: center; gap: 0.5rem;
-    background: rgba(124,58,237,0.15);
-    border: 1px solid rgba(124,58,237,0.3);
-    padding: 0.3rem 0.9rem; border-radius: 50px;
-    font-size: 0.7rem; font-weight: 700;
-    color: var(--lavender);
-    letter-spacing: 0.1em; text-transform: uppercase;
-    margin-bottom: 0.75rem;
+    background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2);
+    padding: 0.3rem 0.85rem; border-radius: 50px;
+    font-size: 0.65rem; font-weight: 700; color: var(--cyan);
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.6rem;
   }
   .eyebrow-dot {
     width: 6px; height: 6px; border-radius: 50%;
@@ -75,12 +67,17 @@ const CSS = `
     animation: cp-blink 2s ease infinite;
   }
   @keyframes cp-blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  
   .cp-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: clamp(1.5rem, 3vw, 2rem);
-    font-weight: 700; line-height: 1.15; letter-spacing: -0.02em;
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
     background: linear-gradient(135deg, var(--cream) 0%, var(--lavender) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin-bottom: 0.35rem;
   }
   .cp-subtitle { font-size: 0.85rem; color: var(--muted); font-weight: 500; }
@@ -89,26 +86,29 @@ const CSS = `
   .cp-card {
     position: relative;
     background: var(--card-bg);
-    border: 2px solid var(--card-bdr);
+    border: 1px solid var(--card-bdr);
     border-radius: 24px;
     overflow: hidden;
-    backdrop-filter: blur(12px);
-    transition: border-color 0.2s, box-shadow 0.2s;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
     display: flex; flex-direction: column;
     text-decoration: none; color: inherit;
     cursor: pointer;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
   }
   .cp-card:hover {
-    border-color: var(--violet);
-    box-shadow: 0 8px 30px rgba(10,14,26,0.3);
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 30px -10px rgba(34, 211, 238, 0.15), 0 4px 30px rgba(0, 0, 0, 0.15);
   }
   .cp-card::before {
     content: '';
     position: absolute; inset: 0;
-    background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(124,58,237,0.06) 0%, transparent 60%);
+    background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(34, 211, 238, 0.08) 0%, transparent 60%);
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.2s;
+    transition: opacity 0.25s;
   }
   .cp-card:hover::before { opacity: 1; }
 

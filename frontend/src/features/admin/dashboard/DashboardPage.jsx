@@ -5,9 +5,8 @@ import { PageWrapper, Skeleton } from '@/components/ui';
 import { useApi } from '@/hooks/useApi';
 import { adminApi } from '@/api/services';
 
-/* ─── CSS ─── */
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 
   .db-root {
     --navy:     var(--local-navy, #0A0E1A);
@@ -21,36 +20,42 @@ const CSS = `
     --amber:    var(--local-amber, #F59E0B);
     --red:      var(--local-red, #EF4444);
     --muted:    var(--local-muted, rgba(245,240,232,0.45));
-    --card-bg:  var(--local-card-bg, rgba(255,255,255,0.04));
-    --card-bdr: var(--local-card-bdr, rgba(255,255,255,0.08));
+    --card-bg:  rgba(255, 255, 255, 0.015);
+    --card-bdr: rgba(255, 255, 255, 0.06);
     font-family: 'Inter', sans-serif;
     color: var(--cream);
+    background-image: 
+      linear-gradient(to right, rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+    background-size: 30px 30px;
   }
   .db-root *, .db-root *::before, .db-root *::after { box-sizing: border-box; }
 
   /* ── PAGE HEADER ── */
   .db-header {
     position: relative;
-    background: linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(0,212,255,0.06) 60%, rgba(10,14,26,0) 100%);
+    background: linear-gradient(135deg, rgba(34, 211, 238, 0.08) 0%, rgba(124, 58, 237, 0.06) 60%, rgba(10, 14, 26, 0) 100%);
     border: 1px solid var(--card-bdr);
     border-radius: 28px;
     padding: 2rem 2.5rem;
     overflow: hidden;
-    backdrop-filter: blur(16px);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     margin-bottom: 1.75rem;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
   }
   .db-hblob {
     position: absolute; border-radius: 50%; filter: blur(70px); pointer-events: none;
   }
   .db-hblob-1 {
     width: 340px; height: 340px;
-    background: radial-gradient(circle, rgba(124,58,237,0.22) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(34, 211, 238, 0.16) 0%, transparent 70%);
     top: -100px; right: -80px;
     animation: db-drift 11s ease-in-out infinite alternate;
   }
   .db-hblob-2 {
     width: 220px; height: 220px;
-    background: radial-gradient(circle, rgba(0,212,255,0.14) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(52, 211, 153, 0.1) 0%, transparent 70%);
     bottom: -50px; left: 30%;
     animation: db-drift 14s ease-in-out infinite alternate-reverse;
   }
@@ -58,9 +63,9 @@ const CSS = `
 
   .db-eyebrow {
     display: inline-flex; align-items: center; gap: 0.5rem;
-    background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3);
+    background: rgba(34, 211, 238, 0.08); border: 1px solid rgba(34, 211, 238, 0.2);
     padding: 0.3rem 0.9rem; border-radius: 50px;
-    font-size: 0.7rem; font-weight: 700; color: var(--lavender);
+    font-size: 0.7rem; font-weight: 700; color: #22d3ee;
     letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem;
   }
   .db-eyebrow-dot {
@@ -69,14 +74,26 @@ const CSS = `
     animation: db-blink 2s ease infinite;
   }
   @keyframes db-blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+  
   .db-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: clamp(1.5rem,3vw,2rem); font-weight: 700; letter-spacing: -0.025em;
-    background: linear-gradient(135deg, var(--cream) 0%, var(--lavender) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    background: linear-gradient(90deg, #22d3ee, #34d399, #a855f7, #22d3ee);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: db-title-rgb 5s linear infinite;
     margin-bottom: 0.3rem;
   }
-  .db-subtitle { font-size: 0.85rem; color: var(--muted); }
+  @keyframes db-title-rgb {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+  }
+  .db-subtitle { font-size: 0.85rem; color: var(--muted); font-weight: 500; }
 
   /* ── STAT CARDS ── */
   .db-stats-grid {
@@ -90,12 +107,16 @@ const CSS = `
     background: var(--card-bg);
     border: 1px solid var(--card-bdr);
     border-radius: 22px; padding: 1.25rem 1.25rem 1.1rem;
-    overflow: hidden; backdrop-filter: blur(12px);
-    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    overflow: hidden; backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
     cursor: default;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
   }
   .db-stat:hover {
-    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.35);
   }
   .db-stat-glow {
     position: absolute; border-radius: 50%; filter: blur(40px); pointer-events: none;
@@ -108,8 +129,8 @@ const CSS = `
     border: 1px solid;
   }
   .db-stat-val {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.65rem; font-weight: 700; line-height: 1;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.85rem; font-weight: 800; line-height: 1;
     background: linear-gradient(135deg, var(--cream) 0%, var(--lavender) 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     margin-bottom: 0.3rem;
@@ -119,32 +140,38 @@ const CSS = `
   /* Stat color variants */
   .db-stat-violet .db-stat-glow { background: radial-gradient(circle, rgba(124,58,237,0.5) 0%, transparent 70%); }
   .db-stat-violet .db-stat-icon-wrap { background: rgba(124,58,237,0.12); border-color: rgba(124,58,237,0.25); }
-  .db-stat-violet:hover { border-color: rgba(124,58,237,0.4); box-shadow: 0 8px 32px rgba(124,58,237,0.12); }
+  .db-stat-violet:hover { border-color: rgba(124,58,237,0.4); box-shadow: 0 12px 30px -10px rgba(124,58,237,0.18), 0 4px 30px rgba(0, 0, 0, 0.15); }
 
   .db-stat-amber .db-stat-glow { background: radial-gradient(circle, rgba(245,158,11,0.5) 0%, transparent 70%); }
   .db-stat-amber .db-stat-icon-wrap { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); }
-  .db-stat-amber:hover { border-color: rgba(245,158,11,0.35); box-shadow: 0 8px 32px rgba(245,158,11,0.1); }
+  .db-stat-amber:hover { border-color: rgba(245,158,11,0.35); box-shadow: 0 12px 30px -10px rgba(245,158,11,0.18), 0 4px 30px rgba(0, 0, 0, 0.15); }
 
   .db-stat-green .db-stat-glow { background: radial-gradient(circle, rgba(16,185,129,0.5) 0%, transparent 70%); }
   .db-stat-green .db-stat-icon-wrap { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); }
-  .db-stat-green:hover { border-color: rgba(16,185,129,0.35); box-shadow: 0 8px 32px rgba(16,185,129,0.1); }
+  .db-stat-green:hover { border-color: rgba(16,185,129,0.35); box-shadow: 0 12px 30px -10px rgba(16,185,129,0.18), 0 4px 30px rgba(0, 0, 0, 0.15); }
 
   .db-stat-cyan .db-stat-glow { background: radial-gradient(circle, rgba(0,212,255,0.4) 0%, transparent 70%); }
   .db-stat-cyan .db-stat-icon-wrap { background: rgba(0,212,255,0.08); border-color: rgba(0,212,255,0.2); }
-  .db-stat-cyan:hover { border-color: rgba(0,212,255,0.3); box-shadow: 0 8px 32px rgba(0,212,255,0.08); }
+  .db-stat-cyan:hover { border-color: rgba(0,212,255,0.3); box-shadow: 0 12px 30px -10px rgba(0,212,255,0.15), 0 4px 30px rgba(0, 0, 0, 0.15); }
 
   /* ── GLASS CARD (shared container) ── */
   .db-card {
     background: var(--card-bg);
     border: 1px solid var(--card-bdr);
     border-radius: 24px; padding: 1.5rem;
-    backdrop-filter: blur(12px);
-    transition: border-color 0.3s;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
   }
-  .db-card:hover { border-color: rgba(124,58,237,0.18); }
+  .db-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 30px -10px rgba(124,58,237,0.12), 0 4px 30px rgba(0, 0, 0, 0.15);
+  }
   .db-card-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.88rem; font-weight: 700; color: var(--cream);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.95rem; font-weight: 700; color: var(--cream);
     display: flex; align-items: center; gap: 0.5rem;
     margin-bottom: 1.1rem;
   }
