@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { User, Lock, TrendingUp, Award, BookOpen, Flame, Calendar, Activity, Camera, Shield, ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import { User, Lock, TrendingUp, Award, BookOpen, Flame, Calendar, Activity, Camera, Shield, ChevronLeft, ChevronRight, Star, BarChart3, LineChart } from 'lucide-react';
 import { motion, AnimatePresence, useSpring, useMotionValue, useTransform } from 'framer-motion';
 import { PageWrapper, Button, Input, Badge, Skeleton } from '@/components/ui';
 import { useApi, useMutation } from '@/hooks/useApi';
 import { studentApi } from '@/api/services';
 import useAuthStore from '@/store/authStore';
 import clsx from 'clsx';
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar } from 'recharts';
 
 /* ─────────────────────────────────────────────
    DESIGN TOKENS  (mirror LandingPage vars)
@@ -33,6 +34,12 @@ const CSS = `
     --local-heat-2: rgba(124,58,237,0.45);
     --local-heat-3: rgba(124,58,237,0.65);
     --local-heat-4: #7C3AED;
+    --chart-grid: rgba(255, 255, 255, 0.05);
+    --chart-text: rgba(255, 255, 255, 0.4);
+    --chart-tooltip-bg: #0F1629;
+    --chart-tooltip-border: rgba(255, 255, 255, 0.08);
+    --chart-tooltip-text: #F5F0E8;
+    --chart-tooltip-item: #00D4FF;
     font-family: 'Inter', sans-serif;
     color: var(--cream);
     overflow-x: hidden;
@@ -41,11 +48,11 @@ const CSS = `
     gap: 1.25rem;
   }
   .light .prof-root, :global(.light) .prof-root, :root.light .prof-root {
-    --local-heat-0: #94A3B8;
-    --local-heat-1: #7C3AED;
-    --local-heat-2: #5B21B6;
-    --local-heat-3: #4C1D95;
-    --local-heat-4: #2E1065;
+    --local-heat-0: #CBD5E1;
+    --local-heat-1: #A78BFA;
+    --local-heat-2: #7C3AED;
+    --local-heat-3: #5B21B6;
+    --local-heat-4: #3B0764;
   }
   .light .prof-root .heat-cell,
   :root.light .prof-root .heat-cell {
@@ -61,6 +68,54 @@ const CSS = `
     background: #7C3AED;
     border: 2px solid #5B21B6;
     color: #ffffff;
+  }
+  .light .prof-card {
+    background: #F8FAFC !important;
+    border: 2px solid #D1D5DB !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
+  }
+  .light .prof-card:hover {
+    border-color: var(--violet) !important;
+  }
+  .light .stat-chip {
+    background: #F8FAFC !important;
+    border-color: #D1D5DB !important;
+  }
+  .light .stat-chip-val {
+    background: linear-gradient(135deg, #0F172A 0%, #4F46E5 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+  }
+  .light .tab-strip {
+    background: #F3F4FD !important;
+    border-color: #D2D6FF !important;
+  }
+  .light .tab-btn {
+    color: #64748B !important;
+  }
+  .light .tab-btn.active {
+    color: #FFFFFF !important;
+  }
+  .light .streak-stat {
+    background: #F8FAFC !important;
+    border-color: #D1D5DB !important;
+  }
+  .light .streak-stat:hover {
+    border-color: var(--violet) !important;
+    background: #F1F5F9 !important;
+  }
+  .light .prof-root {
+    color: #0F172A !important;
+  }
+  .light .prof-hero-stats-grid {
+    color: #0F172A !important;
+  }
+  .light .prof-hero h1 {
+    color: #0F172A !important;
+  }
+  .light .prof-hero p {
+    color: #475569 !important;
   }
   .prof-root *, .prof-root *::before, .prof-root *::after { box-sizing: border-box; }
 
@@ -434,6 +489,16 @@ export default function ProfilePage() {
   const { user, fetchMe } = useAuthStore();
   const [tab, setTab]     = useState('profile');
   const now = new Date();
+
+  const [isLight, setIsLight] = useState(document.documentElement.classList.contains('light'));
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsLight(document.documentElement.classList.contains('light'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   const [profileForm, setProfileForm] = useState({
     full_name: user?.full_name ?? '',
@@ -912,130 +977,244 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 <>
-                  {/* Curriculum cards */}
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                      <BookOpen size={15} color="var(--violet-l)" />
-                      <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '0.9rem', fontWeight: 700 }}>Curriculum Progress</span>
-                    </div>
+                  {(() => {
+                    const chartData = (progress?.recent_exams ?? [])
+                      .map(e => ({
+                        name: e.title.length > 10 ? e.title.substring(0, 8) + '..' : e.title,
+                        Score: e.percentage,
+                        date: e.submitted_at ? new Date(e.submitted_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : ''
+                      }))
+                      .reverse();
 
-                    {(progress?.curriculums ?? []).length === 0 ? (
-                      <div className="prof-card" style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--muted)', fontSize: '0.85rem' }}>
-                        You're not enrolled in any curriculum yet.
-                      </div>
-                    ) : (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                        {(progress?.curriculums ?? []).map((c, ci) => {
-                          const examPct = c.total_exams > 0
-                            ? Math.round((c.completed_exams / c.total_exams) * 100)
-                            : 0;
-                          const scoreColor = c.avg_exam_score >= 75 ? 'var(--green)'
-                            : c.avg_exam_score >= 50 ? 'var(--amber)' : 'var(--red)';
+                    const studyActivityData = (() => {
+                      const dates = [];
+                      for (let i = 6; i >= 0; i--) {
+                        const d = new Date();
+                        d.setDate(d.getDate() - i);
+                        const iso = d.toISOString().split('T')[0];
+                        // check activity log matching date
+                        const log = (progress?.last_7_days ?? []).find(x => x.date === iso);
+                        dates.push({
+                          date: d.toLocaleDateString('en-IN', { weekday: 'short' }),
+                          Activities: log ? log.types.length : 0
+                        });
+                      }
+                      return dates;
+                    })();
 
-                          return (
-                            <motion.div
-                              key={c.id}
-                              className="prof-card"
-                              style={{ padding: '1.5rem' }}
-                              initial={{ opacity: 0, y: 8 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: ci * 0.07 }}
-                            >
-                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-                                <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: '1rem' }}>{c.name}</span>
-                                {c.avg_exam_score != null && (
-                                  <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.1rem', fontWeight: 700, color: scoreColor }}>
-                                    <AnimatedNumber value={c.avg_exam_score} suffix="%" /> avg
-                                  </span>
-                                )}
+                    const gridColor = isLight ? 'rgba(15, 23, 42, 0.08)' : 'rgba(255, 255, 255, 0.05)';
+                    const textColor = isLight ? '#475569' : 'rgba(255, 255, 255, 0.4)';
+                    const tooltipBg = isLight ? '#FFFFFF' : '#0F1629';
+                    const tooltipBdr = isLight ? 'rgba(15, 23, 42, 0.12)' : 'rgba(255, 255, 255, 0.08)';
+                    const tooltipTxt = isLight ? '#0F172A' : '#F5F0E8';
+                    const tooltipItemColor = isLight ? '#7C3AED' : '#00D4FF';
+
+                    return (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        
+                        {/* ── TOP SECTION: CURRICULUMS & EXAM TREND ── */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+                          
+                          {/* Left: Curriculum Progress */}
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                              <BookOpen size={15} color="var(--violet-l)" />
+                              <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '0.9rem', fontWeight: 700 }}>Curriculum Progress</span>
+                            </div>
+
+                            {(progress?.curriculums ?? []).length === 0 ? (
+                              <div className="prof-card" style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--muted)', fontSize: '0.85rem' }}>
+                                You're not enrolled in any curriculum yet.
                               </div>
+                            ) : (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                {(progress?.curriculums ?? []).map((c, ci) => {
+                                  const examPct = c.total_exams > 0
+                                    ? Math.round((c.completed_exams / c.total_exams) * 100)
+                                    : 0;
+                                  const scoreColor = c.avg_exam_score >= 75 ? 'var(--green)'
+                                    : c.avg_exam_score >= 50 ? 'var(--amber)' : 'var(--red)';
 
-                              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', marginBottom: '1rem', textAlign: 'center' }}>
-                                {[
-                                  { label: 'Subjects', val: c.total_subjects },
-                                  { label: 'Studied',  val: c.studied_content },
-                                  { label: 'Exams done', val: `${c.completed_exams}/${c.total_exams}` },
-                                ].map((m) => (
-                                  <div key={m.label} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: '0.6rem' }}>
-                                    <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: '1rem' }}>{m.val}</div>
-                                    <div style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: 2 }}>{m.label}</div>
-                                  </div>
-                                ))}
-                              </div>
-
-                              {c.total_exams > 0 && (
-                                <div>
-                                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--muted)', marginBottom: '0.4rem' }}>
-                                    <span>Exam completion</span>
-                                    <span style={{ color: 'var(--lavender)', fontWeight: 600 }}>{examPct}%</span>
-                                  </div>
-                                  <div className="prog-track">
+                                  return (
                                     <motion.div
-                                      className="prog-fill"
-                                      initial={{ scaleX: 0 }}
-                                      animate={{ scaleX: examPct / 100 }}
-                                      transition={{ duration: 1, delay: ci * 0.1, ease: [0.4,0,0.2,1] }}
-                                    />
-                                  </div>
+                                      key={c.id}
+                                      className="prof-card"
+                                      style={{ padding: '1.5rem' }}
+                                      initial={{ opacity: 0, y: 8 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      transition={{ delay: ci * 0.07 }}
+                                    >
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                                        <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: '0.95rem' }}>{c.name}</span>
+                                        {c.avg_exam_score != null && (
+                                          <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1rem', fontWeight: 700, color: scoreColor }}>
+                                            <AnimatedNumber value={c.avg_exam_score} suffix="%" /> avg
+                                          </span>
+                                        )}
+                                      </div>
+
+                                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', marginBottom: '1rem', textAlign: 'center' }}>
+                                        {[
+                                          { label: 'Subjects', val: c.total_subjects },
+                                          { label: 'Studied',  val: c.studied_content },
+                                          { label: 'Exams done', val: `${c.completed_exams}/${c.total_exams}` },
+                                        ].map((m) => (
+                                          <div key={m.label} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: '0.5rem 0.25rem' }}>
+                                            <div style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: '0.9rem' }}>{m.val}</div>
+                                            <div style={{ fontSize: '0.65rem', color: 'var(--muted)', marginTop: 2 }}>{m.label}</div>
+                                          </div>
+                                        ))}
+                                      </div>
+
+                                      {c.total_exams > 0 && (
+                                        <div>
+                                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: 'var(--muted)', marginBottom: '0.3rem' }}>
+                                            <span>Exam completion</span>
+                                            <span style={{ color: 'var(--lavender)', fontWeight: 600 }}>{examPct}%</span>
+                                          </div>
+                                          <div className="prog-track">
+                                            <motion.div
+                                              className="prog-fill"
+                                              initial={{ scaleX: 0 }}
+                                              animate={{ scaleX: examPct / 100 }}
+                                              transition={{ duration: 1, delay: ci * 0.1, ease: [0.4,0,0.2,1] }}
+                                            />
+                                          </div>
+                                        </div>
+                                      )}
+                                    </motion.div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Right: Exam Performance Trend Chart */}
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                              <LineChart size={15} color="var(--cyan)" />
+                              <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '0.9rem', fontWeight: 700 }}>Exam Performance Trend</span>
+                            </div>
+
+                            <div className="prof-card" style={{ padding: '1.25rem', height: '228px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                              {chartData.length === 0 ? (
+                                <div style={{ textAlign: 'center', color: 'var(--muted)', fontSize: '0.8rem' }}>
+                                  No exam scores available yet. Complete exams to plot score trends.
+                                </div>
+                              ) : (
+                                <div style={{ width: '100%', height: '100%' }}>
+                                  <ResponsiveContainer width="100%" height={180}>
+                                    <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                                      <defs>
+                                        <linearGradient id="scoreColor" x1="0" y1="0" x2="0" y2="1">
+                                          <stop offset="5%" stopColor="var(--cyan)" stopOpacity={0.2}/>
+                                          <stop offset="95%" stopColor="var(--cyan)" stopOpacity={0}/>
+                                        </linearGradient>
+                                      </defs>
+                                      <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
+                                      <XAxis dataKey="name" stroke={textColor} fontSize={10} tickLine={false} />
+                                      <YAxis stroke={textColor} domain={[0, 100]} fontSize={10} tickLine={false} />
+                                      <Tooltip 
+                                        contentStyle={{ backgroundColor: tooltipBg, border: `1px solid ${tooltipBdr}`, borderRadius: 12 }} 
+                                        labelStyle={{ color: tooltipTxt, fontSize: 10, fontWeight: 700 }}
+                                        itemStyle={{ color: tooltipItemColor, fontSize: 11 }}
+                                      />
+                                      <Area type="monotone" dataKey="Score" stroke="var(--cyan)" strokeWidth={2} fillOpacity={1} fill="url(#scoreColor)" />
+                                    </AreaChart>
+                                  </ResponsiveContainer>
                                 </div>
                               )}
-                            </motion.div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
+                            </div>
+                          </div>
 
-                  {/* Recent exams */}
-                  {(progress?.recent_exams ?? []).length > 0 && (
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                        <Award size={15} color="#F59E0B" />
-                        <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '0.9rem', fontWeight: 700 }}>Recent Exams</span>
-                      </div>
+                        </div>
 
-                      <div className="prof-card" style={{ overflow: 'hidden' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
-                          <thead>
-                            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-                              {['Exam', 'Score', '%', 'Date'].map((h) => (
-                                <th key={h} style={{ textAlign: 'left', padding: '0.85rem 1.25rem', color: 'var(--muted)', fontWeight: 600, fontSize: '0.72rem', letterSpacing: '0.06em' }}>{h.toUpperCase()}</th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {(progress?.recent_exams ?? []).map((e, i) => {
-                              const pctColor = e.percentage >= 75 ? 'var(--green)' : e.percentage >= 50 ? 'var(--amber)' : 'var(--red)';
-                              const pctBg   = e.percentage >= 75 ? 'rgba(16,185,129,0.12)' : e.percentage >= 50 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)';
-                              return (
-                                <motion.tr
-                                  key={i}
-                                  className="exam-row"
-                                  initial={{ opacity: 0, x: -8 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  transition={{ delay: i * 0.04 }}
-                                  style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
-                                >
-                                  <td style={{ padding: '0.85rem 1.25rem', fontWeight: 600, maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{e.title}</td>
-                                  <td style={{ padding: '0.85rem 1.25rem', color: 'var(--muted)' }}>{e.score}/{e.total_marks}</td>
-                                  <td style={{ padding: '0.85rem 1.25rem' }}>
-                                    <span className="score-pill" style={{ background: pctBg, color: pctColor }}>
-                                      {e.percentage}%
-                                    </span>
-                                  </td>
-                                  <td style={{ padding: '0.85rem 1.25rem', color: 'var(--muted)' }}>
-                                    {e.submitted_at
-                                      ? new Date(e.submitted_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
-                                      : '—'}
-                                  </td>
-                                </motion.tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
+                        {/* ── BOTTOM SECTION: STUDY VELOCITY & RECENT EXAMS ── */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+                          
+                          {/* Left: Study Velocity (Bar Chart) */}
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                              <BarChart3 size={15} color="var(--violet-l)" />
+                              <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '0.9rem', fontWeight: 700 }}>Weekly Study Velocity</span>
+                            </div>
+
+                            <div className="prof-card" style={{ padding: '1.25rem', height: '260px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                              <div style={{ width: '100%', height: '100%' }}>
+                                <ResponsiveContainer width="100%" height={210}>
+                                  <BarChart data={studyActivityData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
+                                    <XAxis dataKey="date" stroke={textColor} fontSize={10} tickLine={false} />
+                                    <YAxis stroke={textColor} fontSize={10} tickLine={false} allowDecimals={false} />
+                                    <Tooltip 
+                                      contentStyle={{ backgroundColor: tooltipBg, border: `1px solid ${tooltipBdr}`, borderRadius: 12 }} 
+                                      labelStyle={{ color: tooltipTxt, fontSize: 10, fontWeight: 700 }}
+                                      itemStyle={{ color: tooltipItemColor, fontSize: 11 }}
+                                    />
+                                    <Bar dataKey="Activities" fill="var(--violet)" radius={[4, 4, 0, 0]} maxBarSize={30} />
+                                  </BarChart>
+                                </ResponsiveContainer>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Right: Recent Exams */}
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                              <Award size={15} color="#F59E0B" />
+                              <span style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '0.9rem', fontWeight: 700 }}>Recent Exams</span>
+                            </div>
+
+                            {(progress?.recent_exams ?? []).length === 0 ? (
+                              <div className="prof-card" style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--muted)', fontSize: '0.85rem', height: '260px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                No recent exam scores.
+                              </div>
+                            ) : (
+                              <div className="prof-card" style={{ overflow: 'hidden', height: '260px', overflowY: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
+                                  <thead>
+                                    <tr style={{ borderBottom: '1px solid var(--card-bdr)', background: 'var(--local-card-bg)', position: 'sticky', top: 0, zIndex: 1 }}>
+                                      {['Exam', 'Score', '%', 'Date'].map((h) => (
+                                        <th key={h} style={{ textAlign: 'left', padding: '0.65rem 1rem', color: 'var(--muted)', fontWeight: 600, fontSize: '0.68rem', letterSpacing: '0.06em' }}>{h.toUpperCase()}</th>
+                                      ))}
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {(progress?.recent_exams ?? []).map((e, i) => {
+                                      const pctColor = e.percentage >= 75 ? 'var(--green)' : e.percentage >= 50 ? 'var(--amber)' : 'var(--red)';
+                                      const pctBg   = e.percentage >= 75 ? 'rgba(16,185,129,0.12)' : e.percentage >= 50 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)';
+                                      return (
+                                        <tr
+                                          key={i}
+                                          className="exam-row"
+                                          style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+                                        >
+                                          <td style={{ padding: '0.65rem 1rem', fontWeight: 600, maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={e.title}>{e.title}</td>
+                                          <td style={{ padding: '0.65rem 1rem', color: 'var(--muted)' }}>{e.score}/{e.total_marks}</td>
+                                          <td style={{ padding: '0.65rem 1rem' }}>
+                                            <span className="score-pill" style={{ background: pctBg, color: pctColor }}>
+                                              {e.percentage}%
+                                            </span>
+                                          </td>
+                                          <td style={{ padding: '0.65rem 1rem', color: 'var(--muted)' }}>
+                                            {e.submitted_at
+                                              ? new Date(e.submitted_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })
+                                              : '—'}
+                                          </td>
+                                        </tr>
+                                      );
+                                    })}
+                                  </tbody>
+                                </table>
+                              </div>
+                            )}
+                          </div>
+
+                        </div>
+
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
                 </>
               )}
             </motion.div>
