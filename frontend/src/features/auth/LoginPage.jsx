@@ -28,9 +28,9 @@ const inputBase = (hasError) => ({
 });
 
 const QUOTES = [
-  { text: 'My Physics score went from 54% to 87% in three weeks.', author: 'Arjun M.', role: 'JEE Aspirant' },
-  { text: 'Managing 4 batches used to take hours. Now it takes minutes.', author: 'Priya S.', role: 'Science Teacher' },
-  { text: 'I finally understand Organic Chemistry — the animations are incredible.', author: 'Ritika J.', role: 'NEET Prep' },
+  { text: 'My son\'s math score went from 54% to 87% in three weeks.', author: 'Arjun M.', role: 'Primary Parent' },
+  { text: 'Teaching primary classes is so much fun now. Roster management takes seconds.', author: 'Priya S.', role: 'Primary Teacher' },
+  { text: 'I finally understand fractions and shadows — the animations are incredible!', author: 'Ritika J.', role: 'Primary Student' },
 ];
 
 export default function LoginPage() {

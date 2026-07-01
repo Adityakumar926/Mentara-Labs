@@ -69,6 +69,7 @@ export default function LandingPage() {
         <Header />
         <Hero />
         <CurriculumStrip />
+        <Showcase />
         <FeaturesBento />
         <LearningJourney />
         <SubjectsGrid />
@@ -217,20 +218,20 @@ function Hero() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" />
             </span>
             <span className="font-mono-label text-[10px] uppercase tracking-[0.22em] text-zinc-300">
-              Built for Cambridge · IB DP · MYP
+              Built for Cambridge Primary
             </span>
           </div>
 
           <h1 className="font-display font-black text-5xl sm:text-6xl lg:text-7xl leading-[0.95] tracking-tighter text-white">
             The new operating system for{" "}
             <span className="bg-gradient-to-r from-cyan-300 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
-              global curricula.
+              Cambridge Primary.
             </span>
           </h1>
 
           <p className="mt-7 text-lg leading-relaxed text-zinc-400 max-w-xl">
-            Mentara Labs delivers premium, institution-grade learning for Cambridge IGCSE, A-Level
-            and IB Diploma students — powered by interactive simulations, drawable worksheets and
+            Mentara Labs delivers premium, institution-grade learning for Cambridge Primary
+            students — powered by interactive simulations, drawable worksheets and
             timed exam engines that mirror the real thing.
           </p>
 
@@ -340,7 +341,7 @@ function Hero() {
               <div className="flex items-center gap-2 mb-2.5">
                 <Timer className="h-3.5 w-3.5 text-cyan-400" />
                 <span className="font-mono-label text-[10px] uppercase tracking-[0.18em] text-zinc-400">
-                  Paper 2 · IB Physics HL
+                  Checkpoint Prep · Cambridge Primary
                 </span>
               </div>
               <div className="font-display text-2xl font-black tabular-nums text-white">
@@ -397,12 +398,12 @@ function Hero() {
 /* ── 3. CURRICULUM STRIP ── */
 function CurriculumStrip() {
   const BADGES = [
-    { icon: Globe, label: "Cambridge IGCSE" },
-    { icon: GraduationCap, label: "Cambridge A-Level" },
-    { icon: BookOpen, label: "IB Diploma" },
-    { icon: Compass, label: "IB MYP" },
-    { icon: Award, label: "Examiner-Reviewed" },
-    { icon: Library, label: "Global Standards" },
+    { icon: Globe, label: "Cambridge Primary Science" },
+    { icon: GraduationCap, label: "Cambridge Primary Math" },
+    { icon: BookOpen, label: "Primary Science Labs" },
+    { icon: Compass, label: "Primary Math Labs" },
+    { icon: Award, label: "Primary Checkpoint Prep" },
+    { icon: Library, label: "Primary English Labs" },
   ];
 
   return (
@@ -467,8 +468,8 @@ function FeaturesBento() {
             className="md:col-span-2 lg:col-span-2 lg:row-span-2"
             tag="01 · Interactive simulations"
             tagColor="text-cyan-400"
-            title="Drag, tweak, break things — then learn why."
-            description="240+ Physics, Chemistry & Biology simulations rendered in real time. Adjust variables, watch outcomes change, build genuine intuition."
+            title="Drag, tweak, explore — built for curiosity."
+            description="120+ Cambridge Primary Science & Mathematics interactive models rendered in real time. Drag light sources, adjust variables, watch shadows move, and build genuine intuition."
             testid="feature-simulations"
           >
             <div className="mt-6 relative h-56 rounded-xl border border-white/10 overflow-hidden bg-zinc-950">
@@ -481,9 +482,9 @@ function FeaturesBento() {
               <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
                 <div>
                   <div className="font-mono-label text-[10px] uppercase tracking-[0.18em] text-cyan-400">
-                    Live · Chemistry · Titration
+                    Live · Primary Science · Light & Shadows
                   </div>
-                  <div className="font-display text-lg font-bold text-white mt-1">pH Curve · NaOH ⇌ HCl</div>
+                  <div className="font-display text-lg font-bold text-white mt-1">Shadow Length ⇌ Torch Distance</div>
                 </div>
                 <div className="px-3 py-1 rounded-full border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-mono-label text-[9px] font-bold">
                   RUNNING
@@ -562,6 +563,7 @@ function FeaturesBento() {
 
           {/* Analytics */}
           <BentoCard
+            className="md:col-span-2 lg:col-span-2"
             tag="05 · Analytics"
             tagColor="text-cyan-400"
             title="See mastery gaps early."
@@ -569,14 +571,73 @@ function FeaturesBento() {
             icon={<BarChart3 className="h-5 w-5 text-cyan-400" />}
             testid="feature-analytics"
           >
-            <div className="mt-4 flex items-end gap-1.5 h-16">
-              {[40, 65, 30, 80, 55, 90, 70, 95].map((h, i) => (
-                <div
-                  key={i}
-                  className="flex-1 rounded-sm bg-gradient-to-t from-cyan-500/40 to-cyan-400"
-                  style={{ height: `${h}%` }}
-                />
-              ))}
+            <div className="mt-6 grid sm:grid-cols-2 gap-4 items-stretch">
+              {/* Mini Curriculum Progress Card */}
+              <div className="p-4 rounded-xl border border-white/5 bg-zinc-950/60 flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="font-display font-bold text-xs text-white">Cambridge Primary</span>
+                  <span className="font-mono-label text-[10px] text-rose-500 font-bold">88% avg</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  <div className="bg-white/[0.02] border border-white/5 rounded-lg p-2 text-center">
+                    <div className="font-display text-sm font-bold text-white">3</div>
+                    <div className="text-[8px] text-zinc-500 font-mono-label uppercase tracking-wider">Subjects</div>
+                  </div>
+                  <div className="bg-white/[0.02] border border-white/5 rounded-lg p-2 text-center">
+                    <div className="font-display text-sm font-bold text-white">12</div>
+                    <div className="text-[8px] text-zinc-500 font-mono-label uppercase tracking-wider">Studied</div>
+                  </div>
+                  <div className="bg-white/[0.02] border border-white/5 rounded-lg p-2 text-center">
+                    <div className="font-display text-sm font-bold text-white">15/15</div>
+                    <div className="text-[8px] text-zinc-500 font-mono-label uppercase tracking-wider">Tasks</div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-[8px] text-zinc-500 font-mono-label mb-1">
+                    <span>PROGRESS</span>
+                    <span>100%</span>
+                  </div>
+                  <div className="h-2 w-full rounded-full bg-zinc-900 overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-violet-500 via-purple-500 to-cyan-400" style={{ width: "100%" }} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Mini Weekly Study Velocity Bar Chart */}
+              <div className="p-4 rounded-xl border border-white/5 bg-zinc-950/60 relative overflow-hidden flex flex-col justify-between">
+                <div className="absolute inset-0 flex flex-col justify-between p-3 pointer-events-none opacity-20">
+                  <div className="w-full h-px bg-white/10" />
+                  <div className="w-full h-px bg-white/10" />
+                  <div className="w-full h-px bg-white/10" />
+                </div>
+                
+                <div className="relative flex items-end justify-between gap-1.5 h-16 mt-2">
+                  {[0, 0, 2, 2, 2, 2, 0].map((val, idx) => {
+                    const days = ["Fri", "Sat", "Sun", "Mon", "Tue", "Wed", "Thu"];
+                    const heightPercent = val === 2 ? "70%" : "8%";
+                    return (
+                      <div key={idx} className="flex-1 flex flex-col items-center gap-1 group/bar relative">
+                        <div className="absolute -top-7 scale-0 group-hover/bar:scale-100 transition-all duration-200 bg-zinc-900 border border-white/10 text-[9px] px-1.5 py-0.5 rounded text-white font-mono-label z-10">
+                          {val} hrs
+                        </div>
+                        <div 
+                          className={`w-full rounded-md transition-all duration-300 ${
+                            val > 0 
+                              ? "bg-violet-600 shadow-[0_0_12px_rgba(139,92,246,0.35)] group-hover/bar:shadow-[0_0_20px_rgba(139,92,246,0.65)]" 
+                              : "bg-white/5"
+                          }`}
+                          style={{ height: heightPercent }}
+                        />
+                      </div>
+                    )
+                  })}
+                </div>
+                <div className="mt-3 flex items-center justify-between text-[8px] font-mono-label text-zinc-500 font-bold">
+                  {["Fri", "Sat", "Sun", "Mon", "Tue", "Wed", "Thu"].map(d => (
+                    <span key={d}>{d}</span>
+                  ))}
+                </div>
+              </div>
             </div>
           </BentoCard>
         </div>
@@ -633,13 +694,13 @@ function LearningJourney() {
   const STEPS = [
     {
       n: "01",
-      title: "Pick your curriculum.",
-      body: "Choose Cambridge IGCSE, A-Level, IB DP or MYP. We unlock the exact syllabus you need.",
+      title: "Pick your grade level.",
+      body: "Choose your Cambridge Primary grade. We unlock the exact syllabus you need.",
     },
     {
       n: "02",
       title: "Learn with simulations.",
-      body: "Read examiner-reviewed notes, then explore the concept in a live, interactive simulation.",
+      body: "Read syllabus-matched notes, then explore the concept in a live, interactive simulation.",
     },
     {
       n: "03",
@@ -664,7 +725,7 @@ function LearningJourney() {
             From first lesson to exam day — in four deliberate steps.
           </h2>
           <p className="text-zinc-400 mt-5 leading-relaxed">
-            Our methodology is built on years of working with top-scoring IB and Cambridge students.
+            Our methodology is built on years of working with top-scoring Cambridge international students.
             No fluff, no filler.
           </p>
         </div>
@@ -705,14 +766,12 @@ function LearningJourney() {
 /* ── 6. SUBJECTS GRID ── */
 function SubjectsGrid() {
   const SUBJECTS = [
-    { name: "Physics", icon: Atom, topics: 14, accent: "cyan" },
-    { name: "Chemistry", icon: FlaskConical, topics: 12, accent: "emerald" },
-    { name: "Biology", icon: Dna, topics: 16, accent: "emerald" },
+    { name: "Science", icon: FlaskConical, topics: 16, accent: "emerald" },
     { name: "Mathematics", icon: Sigma, topics: 18, accent: "cyan" },
-    { name: "Computer Science", icon: Code2, topics: 9, accent: "cyan" },
-    { name: "Economics", icon: LineChart, topics: 11, accent: "emerald" },
-    { name: "Geography", icon: Globe2, topics: 10, accent: "cyan" },
-    { name: "English Lit.", icon: BookText, topics: 8, accent: "emerald" },
+    { name: "English", icon: BookText, topics: 14, accent: "emerald" },
+    { name: "Global Perspectives", icon: Globe2, topics: 8, accent: "cyan" },
+    { name: "Digital Literacy", icon: Code2, topics: 10, accent: "cyan" },
+    { name: "Art & Design", icon: PenTool, topics: 6, accent: "emerald" },
   ];
 
   const ACCENT = {
@@ -737,11 +796,11 @@ function SubjectsGrid() {
               · Subjects
             </span>
             <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tighter mt-3 leading-[1.05] text-white">
-              Every subject. Every exam board. One platform.
+              Syllabus-aligned subjects.
             </h2>
           </div>
           <p className="text-zinc-500 text-sm max-w-sm font-semibold">
-            Currently 8 core subjects live. Adding 12 more across humanities and languages by next academic cycle.
+            Interactive labs, drawing worksheets and mock checkpoint papers for all core primary subjects.
           </p>
         </div>
 
@@ -759,7 +818,7 @@ function SubjectsGrid() {
                 </div>
                 <div className="font-display text-lg font-bold text-white tracking-tight">{s.name}</div>
                 <div className="font-mono-label text-[10px] uppercase tracking-wider text-zinc-500 mt-1 font-bold">
-                  {s.topics} Topics · Cambridge · IB
+                  {s.topics} Topics · Cambridge Curriculum
                 </div>
               </div>
             );
@@ -774,21 +833,21 @@ function SubjectsGrid() {
 function Testimonials() {
   const TESTIMONIAL_DATA = [
     {
-      quote: "I went from a 5 to a 7 in IB Physics HL in one term. The simulations are unreal — I actually get circular motion now.",
+      quote: "My son struggled with fractions, but after using the interactive visuals and worksheets, he got an A in his Cambridge Primary checkpoint tests!",
       name: "Aanya Sharma",
-      role: "IB DP Y13 · Singapore",
+      role: "Parent · Cambridge Primary Grade 5",
       img: "https://images.pexels.com/photos/13538613/pexels-photo-13538613.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=65&w=65",
     },
     {
-      quote: "The auto-timed mocks feel exactly like the real exam. My daughter walked into A-Levels with zero panic.",
+      quote: "The checkpoint prep mock tests feel exactly like the real exam. My daughter walked into Grade 6 with zero panic.",
       name: "Marcus Hale",
-      role: "Parent · Cambridge A-Level",
+      role: "Parent · Cambridge Primary",
       img: "https://images.pexels.com/photos/36608621/pexels-photo-36608621.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=65&w=65",
     },
     {
-      quote: "Finally a platform that respects how rigorous IB actually is. The draw worksheets save me printing hours.",
+      quote: "I got a top grade in my Cambridge Primary Science checkpoint exam thanks to these simulations! Annotating worksheets directly saves hours.",
       name: "Liang Wei",
-      role: "IB DP Y12 · Hong Kong",
+      role: "Cambridge Primary Student",
       img: "https://images.pexels.com/photos/8085257/pexels-photo-8085257.jpeg?auto=compress&cs=tinysrgb&w=100",
     },
   ];
@@ -847,14 +906,14 @@ function Pricing() {
       name: "Scholar",
       price: "$24",
       sub: "/ month",
-      description: "Everything a serious Cambridge or IB student needs to top their cohort.",
+      description: "Everything a serious Cambridge Primary student needs to top their checkpoint tests.",
       features: [
-        "Unlimited simulations",
-        "All subjects · all syllabi",
+        "Unlimited primary simulations",
+        "All Primary subjects & checkpoints",
         "Drawable worksheets",
-        "Auto-timed exams + analytics",
-        "Past papers (10+ years)",
-        "Priority support",
+        "Auto-timed mocks & checkpoints",
+        "Checkpoint practice papers",
+        "Priority parent/student support",
       ],
       cta: "Start 7-day trial",
       highlight: true,
@@ -863,7 +922,7 @@ function Pricing() {
       name: "Institution",
       price: "Custom",
       sub: "Per cohort",
-      description: "For schools, tuition centers and academies running global curricula.",
+      description: "For primary schools, learning hubs and academies running Cambridge Primary.",
       features: ["Bulk seats & rosters", "Teacher dashboards", "Custom branding", "Dedicated success manager"],
       cta: "Talk to sales",
       highlight: false,
@@ -942,8 +1001,8 @@ function Pricing() {
 function FAQ() {
   const FAQS = [
     {
-      q: "Which exam boards do you support?",
-      a: "Today we fully support Cambridge IGCSE, Cambridge A-Level, and IB Diploma Programme (HL & SL). IB MYP is in beta. We add new boards based on student demand.",
+      q: "Which curriculum do you support?",
+      a: "Today we fully and exclusively support the Cambridge Primary curriculum (Grades 1 to 5) covering Primary Science, Mathematics, and English.",
     },
     {
       q: "Are the simulations syllabus-aligned?",
@@ -1016,7 +1075,7 @@ function FAQItem({ q, a, i }) {
 function Footer() {
   const COLS = [
     { title: "Platform", links: ["Simulations", "Worksheets", "Auto Exams", "Analytics"] },
-    { title: "Curriculum", links: ["Cambridge IGCSE", "Cambridge A-Level", "IB Diploma", "IB MYP"] },
+    { title: "Curriculum", links: ["Cambridge Primary Science", "Cambridge Primary Math", "Cambridge Primary English"] },
     { title: "Company", links: ["About", "Educators", "Careers", "Press"] },
     { title: "Resources", links: ["Blog", "Help center", "Status", "Changelog"] },
   ];
@@ -1115,5 +1174,124 @@ function Footer() {
         </div>
       </div>
     </footer>
+  );
+}
+
+/* ── 11. INTERACTIVE APPS SHOWCASE ── */
+function Showcase() {
+  const [activeTab, setActiveTab] = useState(0);
+
+  const SLIDES = [
+    {
+      title: "Interactive Simulations & Labs",
+      badge: "Physics · Chemistry · Biology",
+      desc: "Run virtual experiment modules directly inside the browser. Tweak variables, analyze data in real-time, and build intuitive scientific knowledge.",
+      img: "/cam1.png",
+      color: "from-cyan-500/20 to-transparent",
+      accent: "text-cyan-400"
+    },
+    {
+      title: "Digital Drawing Worksheets",
+      badge: "Coursework Annotations",
+      desc: "Complete coursework assignments on a digital canvas. Draw, solve, and sketch directly on top of system worksheets using built-in drawing tools.",
+      img: "/cam2.png",
+      color: "from-emerald-500/20 to-transparent",
+      accent: "text-emerald-400"
+    },
+    {
+      title: "Simulated Exam Engines & Analytics",
+      badge: "Performance Tracking",
+      desc: "Practice with mock examination papers built around the official curriculum timings, tracking performance analytics on your dashboard.",
+      img: "/cam3.png",
+      color: "from-violet-500/20 to-transparent",
+      accent: "text-violet-400"
+    }
+  ];
+
+  // Smooth Auto-sliding effect
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveTab((prev) => (prev + 1) % SLIDES.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [SLIDES.length]);
+
+  return (
+    <section className="py-24 bg-zinc-950/40 relative border-b border-white/5">
+      <div className="absolute inset-0 -z-10 bg-grid opacity-10 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]" />
+      
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
+            · Live Interface
+          </span>
+          <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mt-3 text-white">
+            Explore the Virtual Classroom
+          </h2>
+          <p className="text-zinc-400 mt-4 text-sm sm:text-base">
+            Take a look inside the modern student learning suite built specifically for Cambridge curriculums.
+          </p>
+        </div>
+
+        {/* Tab Selection */}
+        <div className="flex justify-center gap-2 mb-10 flex-wrap">
+          {SLIDES.map((slide, idx) => (
+            <button
+              key={slide.title}
+              onClick={() => setActiveTab(idx)}
+              className={`px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-all border ${
+                activeTab === idx
+                  ? "bg-white/10 border-white/20 text-white shadow-lg"
+                  : "bg-transparent border-white/5 text-zinc-500 hover:text-zinc-300"
+              }`}
+            >
+              {slide.title}
+            </button>
+          ))}
+        </div>
+
+        {/* Dynamic Display Panel */}
+        <div className="grid lg:grid-cols-12 gap-8 items-center bg-zinc-900/40 border border-white/5 rounded-3xl p-8 backdrop-blur-md relative overflow-hidden">
+          <div className={`absolute inset-0 bg-gradient-to-br ${SLIDES[activeTab].color} opacity-40 blur-3xl -z-10`} />
+
+          {/* Left panel: Info */}
+          <div className="lg:col-span-4 flex flex-col justify-center">
+            <span className={`font-mono-label text-[9px] uppercase tracking-[0.2em] ${SLIDES[activeTab].accent} font-bold mb-2`}>
+              {SLIDES[activeTab].badge}
+            </span>
+            <h3 className="font-display text-2xl font-bold text-white mb-4">
+              {SLIDES[activeTab].title}
+            </h3>
+            <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed mb-6 font-medium">
+              {SLIDES[activeTab].desc}
+            </p>
+            <Link
+              to="/register"
+              className="inline-flex items-center gap-2 text-xs font-semibold text-white hover:text-cyan-400 transition-colors w-fit"
+            >
+              Get Started Now <ArrowUpRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          {/* Right panel: Showcase Image */}
+          <div className="lg:col-span-8">
+            <div className="relative rounded-2xl border border-white/10 overflow-hidden bg-zinc-950/80 shadow-2xl">
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={activeTab}
+                  src={SLIDES[activeTab].img}
+                  alt={SLIDES[activeTab].title}
+                  initial={{ opacity: 0, x: 25, filter: 'blur(8px)' }}
+                  animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+                  exit={{ opacity: 0, x: -25, filter: 'blur(8px)' }}
+                  transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+                  className="w-full h-auto object-cover max-h-[460px] aspect-[16/10]"
+                />
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
