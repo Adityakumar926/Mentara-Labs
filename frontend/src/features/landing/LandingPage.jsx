@@ -1186,7 +1186,7 @@ function Showcase() {
       title: "Interactive Simulations & Labs",
       badge: "Physics · Chemistry · Biology",
       desc: "Run virtual experiment modules directly inside the browser. Tweak variables, analyze data in real-time, and build intuitive scientific knowledge.",
-      img: "/cam1.png",
+      img: "/cam1.webp",
       color: "from-cyan-500/20 to-transparent",
       accent: "text-cyan-400"
     },
@@ -1194,7 +1194,7 @@ function Showcase() {
       title: "Digital Drawing Worksheets",
       badge: "Coursework Annotations",
       desc: "Complete coursework assignments on a digital canvas. Draw, solve, and sketch directly on top of system worksheets using built-in drawing tools.",
-      img: "/cam2.png",
+      img: "/cam2.webp",
       color: "from-emerald-500/20 to-transparent",
       accent: "text-emerald-400"
     },
@@ -1202,7 +1202,7 @@ function Showcase() {
       title: "Simulated Exam Engines & Analytics",
       badge: "Performance Tracking",
       desc: "Practice with mock examination papers built around the official curriculum timings, tracking performance analytics on your dashboard.",
-      img: "/cam3.png",
+      img: "/cam3.webp",
       color: "from-violet-500/20 to-transparent",
       accent: "text-violet-400"
     }
