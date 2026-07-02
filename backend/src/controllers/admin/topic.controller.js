@@ -9,7 +9,7 @@ exports.getAll = async (req, res) => {
               (SELECT COUNT(*) FROM content c WHERE c.topic_id = t.id) AS resource_count
        FROM topics t
        WHERE t.subject_id = $1
-       ORDER BY t.parent_topic_id ASC NULLS FIRST, t.order_index ASC, t.created_at DESC`,
+       ORDER BY t.parent_topic_id ASC NULLS FIRST, t.order_index ASC, t.created_at ASC`,
       [subjectId]
     );
     res.json({ success: true, data: rows });

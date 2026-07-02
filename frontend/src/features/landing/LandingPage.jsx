@@ -63,6 +63,18 @@ export default function LandingPage() {
           background-clip: text;
           animation: header-rgb 4s linear infinite;
         }
+        @keyframes torch-move {
+          0%, 100% { transform: translateX(0px); }
+          50% { transform: translateX(70px); }
+        }
+        @keyframes shadow-scale {
+          0%, 100% { transform: scaleY(0.7) scaleX(1); opacity: 0.4; }
+          50% { transform: scaleY(1.9) scaleX(1.4); opacity: 0.95; }
+        }
+        @keyframes beam-stretch {
+          0%, 100% { transform: scaleX(1); }
+          50% { transform: scaleX(0.7) translateX(30px); }
+        }
       `}</style>
 
       <main className="relative min-h-screen bg-zinc-950 text-zinc-100 overflow-hidden font-sans">
@@ -192,6 +204,24 @@ function Header() {
 
 /* ── 2. HERO ── */
 function Hero() {
+  const [torchDist, setTorchDist] = useState(1.2);
+  const [shadowHt, setShadowHt] = useState(32);
+
+  useEffect(() => {
+    let forward = true;
+    const timer = setInterval(() => {
+      setTorchDist((d) => {
+        let next = forward ? d - 0.1 : d + 0.1;
+        if (next <= 0.5) { forward = false; next = 0.5; }
+        if (next >= 1.5) { forward = true; next = 1.5; }
+        // Calculate scientifically accurate shadow height: H_shadow = 18 / distance
+        setShadowHt(Math.round(18 / next));
+        return parseFloat(next.toFixed(1));
+      });
+    }, 600);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <section data-testid="hero-section" className="relative pt-32 pb-24 lg:pt-40 lg:pb-32 overflow-hidden bg-zinc-950">
       {/* Animated background orbs */}
@@ -279,11 +309,11 @@ function Hero() {
             {/* Glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-emerald-500/10 blur-2xl pointer-events-none" />
 
-            {/* Projectile simulation Card */}
+            {/* Light & Shadows simulation Card */}
             <motion.div
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-2 left-0 right-4 rounded-2xl border border-white/10 bg-zinc-900/65 backdrop-blur-2xl p-5 shadow-2xl"
+              className="absolute top-2 left-2 right-2 rounded-2xl border border-white/10 bg-zinc-900/65 backdrop-blur-2xl p-5 shadow-2xl"
               data-testid="hero-mock-simulation"
             >
               <div className="flex items-center justify-between mb-4">
@@ -293,35 +323,102 @@ function Hero() {
                   <div className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
                 </div>
                 <span className="font-mono-label text-[10px] uppercase tracking-[0.18em] text-zinc-500">
-                  physics · projectile motion
+                  science · light & shadows
                 </span>
               </div>
               <div className="relative h-40 rounded-lg bg-zinc-950/80 border border-white/5 overflow-hidden">
                 <svg viewBox="0 0 320 180" className="w-full h-full">
                   <defs>
-                    <linearGradient id="trail" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#22d3ee" stopOpacity="0" />
-                      <stop offset="100%" stopColor="#22d3ee" stopOpacity="1" />
+                    <linearGradient id="beam-grad" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.35" />
+                      <stop offset="100%" stopColor="#22d3ee" stopOpacity="0.02" />
                     </linearGradient>
                   </defs>
+                  
+                  {/* Grid Lines */}
                   {[...Array(8)].map((_, i) => (
-                    <line key={`v${i}`} x1={i * 40} y1="0" x2={i * 40} y2="180" stroke="rgba(255,255,255,0.03)" />
+                    <line key={`v${i}`} x1={i * 40} y1="0" x2={i * 40} y2="180" stroke="rgba(255,255,255,0.02)" />
                   ))}
                   {[...Array(5)].map((_, i) => (
-                    <line key={`h${i}`} x1="0" y1={i * 40} x2="320" y2={i * 40} stroke="rgba(255,255,255,0.03)" />
+                    <line key={`h${i}`} x1="0" y1={i * 40} x2="320" y2={i * 40} stroke="rgba(255,255,255,0.02)" />
                   ))}
-                  <path d="M10 150 Q 110 -10 300 130" stroke="url(#trail)" strokeWidth="2" fill="none" />
-                  <circle cx="200" cy="60" r="5" fill="#22d3ee">
-                    <animate attributeName="cx" values="10;300;10" dur="4s" repeatCount="indefinite" />
-                    <animate attributeName="cy" values="150;30;150" dur="4s" repeatCount="indefinite" />
-                  </circle>
+
+                  {/* Ground line */}
+                  <line x1="10" y1="130" x2="310" y2="130" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
+                  
+                  {/* Wall line */}
+                  <line x1="260" y1="20" x2="260" y2="130" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
+
+                  {/* Symmetrical Light Beam Cone (stretches from torch to wall, calculated dynamically) */}
+                  <polygon fill="url(#beam-grad)">
+                    <animate 
+                      attributeName="points"
+                      values="50,103 260,91 260,130 50,117; 125,103 260,75 260,130 125,117; 50,103 260,91 260,130 50,117"
+                      dur="5s"
+                      repeatCount="indefinite"
+                      keyTimes="0; 0.5; 1"
+                      calcMode="spline"
+                      keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"
+                    />
+                  </polygon>
+
+                  {/* Mathematically Cast Shadow (changes y & height in sync with light angle) */}
+                  <rect x="260" fill="rgba(15, 23, 42, 0.85)" rx="1">
+                    <animate 
+                      attributeName="y"
+                      values="91; 75; 91"
+                      dur="5s"
+                      repeatCount="indefinite"
+                      keyTimes="0; 0.5; 1"
+                      calcMode="spline"
+                      keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"
+                    />
+                    <animate 
+                      attributeName="height"
+                      values="39; 55; 39"
+                      dur="5s"
+                      repeatCount="indefinite"
+                      keyTimes="0; 0.5; 1"
+                      calcMode="spline"
+                      keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"
+                    />
+                    <animate 
+                      attributeName="width"
+                      values="8; 14; 8"
+                      dur="5s"
+                      repeatCount="indefinite"
+                      keyTimes="0; 0.5; 1"
+                      calcMode="spline"
+                      keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"
+                    />
+                  </rect>
+
+                  {/* Fixed Obstacle Block (Primary science) */}
+                  <rect x="160" y="100" width="16" height="30" fill="#f59e0b" rx="3" className="shadow-md" />
+
+                  {/* Torch (Flashlight) translate animation */}
+                  <g>
+                    <animateTransform 
+                      attributeName="transform" 
+                      type="translate" 
+                      values="0,0; 75,0; 0,0" 
+                      dur="5s" 
+                      repeatCount="indefinite" 
+                      keyTimes="0; 0.5; 1"
+                      calcMode="spline"
+                      keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"
+                    />
+                    <rect x="20" y="104" width="25" height="12" fill="#71717a" rx="2" />
+                    <polygon points="45,100 50,96 50,124 45,120" fill="#a1a1aa" />
+                    <circle cx="25" cy="110" r="2.5" fill="#f43f5e" />
+                  </g>
                 </svg>
               </div>
               <div className="mt-4 grid grid-cols-3 gap-2.5">
                 {[
-                  { label: "Velocity", value: "42 m/s" },
-                  { label: "Angle", value: "37°" },
-                  { label: "Range", value: "184 m" },
+                  { label: "Torch Dist.", value: `${torchDist} m` },
+                  { label: "Shadow Ht.", value: `${shadowHt} cm` },
+                  { label: "Light Status", value: "Active" },
                 ].map((m) => (
                   <div key={m.label} className="rounded-lg border border-white/5 bg-white/[0.01] px-3 py-2">
                     <div className="font-mono-label text-[9px] uppercase tracking-wider text-zinc-500">{m.label}</div>
@@ -335,7 +432,7 @@ function Hero() {
             <motion.div
               animate={{ y: [0, 8, 0] }}
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
-              className="absolute bottom-4 -left-6 w-56 rounded-xl border border-cyan-500/20 bg-zinc-900/80 backdrop-blur-2xl p-4 shadow-[0_0_35px_rgba(34,211,238,0.12)]"
+              className="absolute bottom-4 left-2 w-56 rounded-xl border border-cyan-500/20 bg-zinc-900/80 backdrop-blur-2xl p-4 shadow-[0_0_35px_rgba(34,211,238,0.12)]"
               data-testid="hero-mock-timer"
             >
               <div className="flex items-center gap-2 mb-2.5">
@@ -356,7 +453,7 @@ function Hero() {
             <motion.div
               animate={{ y: [0, -6, 0] }}
               transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
-              className="absolute top-1/2 -right-4 w-48 rounded-xl border border-emerald-500/20 bg-zinc-900/80 backdrop-blur-2xl p-4 shadow-[0_0_35px_rgba(52,211,153,0.1)]"
+              className="absolute bottom-4 right-2 w-48 rounded-xl border border-emerald-500/20 bg-zinc-900/80 backdrop-blur-2xl p-4 shadow-[0_0_35px_rgba(52,211,153,0.1)]"
               data-testid="hero-mock-worksheet"
             >
               <div className="flex items-center gap-2 mb-2">

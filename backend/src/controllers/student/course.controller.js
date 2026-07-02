@@ -96,7 +96,7 @@ exports.getSubjectTopics = async (req, res) => {
        FROM topics t
        LEFT JOIN user_progress up ON up.topic_id = t.id AND up.user_id = $1
        WHERE t.subject_id = $2
-       ORDER BY t.parent_topic_id ASC NULLS FIRST, t.order_index ASC`,
+       ORDER BY t.parent_topic_id ASC NULLS FIRST, t.order_index ASC, t.created_at ASC`,
       [req.user.id, subjectId]
     );
     res.json({ success: true, data: rows });
