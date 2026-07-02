@@ -372,13 +372,24 @@ export default function RegisterPage() {
           color: #34d399;
         }
         .md-hidden { display: none; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
+        /* ── RGB rotating border on Google button ── */
+        @property --rgb-angle {
+          syntax: '<angle>';
+          initial-value: 0deg;
+          inherits: false;
+        }
+        @keyframes rgb-spin {
+          to { --rgb-angle: 360deg; }
+        }
         .google-btn-wrapper {
           position: relative;
-          padding: 3.5px;
+          padding: 2px;
           border-radius: 50px;
-          background: linear-gradient(90deg, #22d3ee, #34d399, #a855f7, #22d3ee);
-          background-size: 300% 100%;
-          animation: rgb-glow 3s linear infinite;
+          background: conic-gradient(
+            from var(--rgb-angle),
+            #22d3ee, #a855f7, #f43f5e, #fbbf24, #34d399, #22d3ee
+          );
+          animation: rgb-spin 3s linear infinite;
           display: flex;
           justify-content: center;
           align-items: center;
@@ -386,10 +397,23 @@ export default function RegisterPage() {
           max-width: 100%;
           height: 48px;
           margin: 1.25rem auto 0 auto;
-          box-shadow: 0 0 20px rgba(34, 211, 238, 0.15);
           box-sizing: border-box;
           overflow: hidden;
           cursor: pointer;
+        }
+        .google-btn-wrapper::before {
+          content: '';
+          position: absolute;
+          inset: -5px;
+          border-radius: 54px;
+          background: conic-gradient(
+            from var(--rgb-angle),
+            rgba(34,211,238,0.3), rgba(168,85,247,0.3), rgba(244,63,94,0.3),
+            rgba(251,191,36,0.3), rgba(52,211,153,0.3), rgba(34,211,238,0.3)
+          );
+          filter: blur(10px);
+          z-index: -1;
+          animation: rgb-spin 3s linear infinite;
         }
         .custom-google-btn {
           width: 100%;
@@ -421,10 +445,7 @@ export default function RegisterPage() {
           width: 100% !important;
           height: 100% !important;
         }
-        @keyframes rgb-glow {
-          0% { background-position: 0% 50%; }
-          100% { background-position: 100% 50%; }
-        }
+
         @media (max-width: 768px) {
           .auth-shell { grid-template-columns: 1fr; }
           .auth-panel { display: none; }
