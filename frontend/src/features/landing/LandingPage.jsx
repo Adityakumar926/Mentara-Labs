@@ -1280,28 +1280,31 @@ function Showcase() {
 
   const SLIDES = [
     {
-      title: "Interactive Simulations & Labs",
-      badge: "Physics · Chemistry · Biology",
-      desc: "Run virtual experiment modules directly inside the browser. Tweak variables, analyze data in real-time, and build intuitive scientific knowledge.",
+      title: "Cambridge Primary",
+      badge: "World-Class Learning for Tomorrow's Leaders",
+      desc: "Delivering an engaging Cambridge Primary education through interactive lessons, intelligent assessments, immersive animations, and beautifully designed learning experiences that inspire curiosity and academic excellence.",
       img: "/cam1.webp",
       color: "from-cyan-500/20 to-transparent",
-      accent: "text-cyan-400"
+      accent: "text-cyan-400",
+      btnText: "Explore Learning →"
     },
     {
-      title: "Digital Drawing Worksheets",
-      badge: "Coursework Annotations",
-      desc: "Complete coursework assignments on a digital canvas. Draw, solve, and sketch directly on top of system worksheets using built-in drawing tools.",
+      title: "International Curriculum",
+      badge: "Learn with Confidence. Grow with Excellence.",
+      desc: "Aligned with the Cambridge Primary framework, every lesson is thoughtfully crafted to help students strengthen conceptual understanding, develop critical thinking, and achieve their full potential.",
       img: "/cam2.webp",
       color: "from-emerald-500/20 to-transparent",
-      accent: "text-emerald-400"
+      accent: "text-emerald-400",
+      btnText: "View Curriculum →"
     },
     {
-      title: "Simulated Exam Engines & Analytics",
-      badge: "Performance Tracking",
-      desc: "Practice with mock examination papers built around the official curriculum timings, tracking performance analytics on your dashboard.",
+      title: "Mentara Learning Experience",
+      badge: "Modern Education, Timeless Excellence.",
+      desc: "Experience a new generation of digital learning with expertly designed worksheets, real-time assessments, progress insights, and interactive educational resources—all built around the Cambridge Primary curriculum.",
       img: "/cam3.webp",
       color: "from-violet-500/20 to-transparent",
-      accent: "text-violet-400"
+      accent: "text-violet-400",
+      btnText: "Start Your Journey →"
     }
   ];
 
@@ -1366,7 +1369,7 @@ function Showcase() {
               to="/register"
               className="inline-flex items-center gap-2 text-xs font-semibold text-white hover:text-cyan-400 transition-colors w-fit"
             >
-              Get Started Now <ArrowUpRight className="h-3.5 w-3.5" />
+              {SLIDES[activeTab].btnText}
             </Link>
           </div>
 
