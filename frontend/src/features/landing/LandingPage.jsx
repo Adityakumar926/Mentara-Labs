@@ -464,7 +464,7 @@ function Hero() {
               </div>
               <svg viewBox="0 0 200 80" className="w-full">
                 <path d="M10 50 Q 40 10 70 40 T 130 35 T 190 55" stroke="#34d399" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-                <text x="10" y="75" fontFamily="monospace" fontSize="8" fill="#71717a">f(x) = sin(x)</text>
+                <text x="10" y="75" fontFamily="monospace" fontSize="8" fill="#71717a">Angle of Incidence = Angle of Reflection</text>
               </svg>
             </motion.div>
 
@@ -604,7 +604,7 @@ function FeaturesBento() {
                 <path d="M10 70 Q 40 10 80 40 T 160 30 T 215 60" stroke="#34d399" strokeWidth="2.5" fill="none" strokeLinecap="round" />
                 <path d="M10 80 L 215 80" stroke="rgba(255,255,255,0.08)" />
                 <circle cx="80" cy="40" r="3" fill="#22d3ee" />
-                <text x="88" y="36" fontFamily="monospace" fontSize="8" fill="#a1a1aa">peak</text>
+                <text x="88" y="36" fontFamily="monospace" fontSize="8" fill="#a1a1aa">shadow path</text>
               </svg>
               <div className="flex items-center gap-1 mt-2">
                 {["#22d3ee", "#34d399", "#f59e0b", "#f43f5e"].map((c) => (
@@ -626,9 +626,9 @@ function FeaturesBento() {
           >
             <div className="mt-5 space-y-2">
               {[
-                { c: "Mechanics", p: 92 },
-                { c: "Electromagnetism", p: 78 },
-                { c: "Quantum Theory", p: 64 },
+                { c: "Primary Science (Forces, Plants, Materials)", p: 92 },
+                { c: "Primary Mathematics (Fractions, Geometry)", p: 78 },
+                { c: "Primary English (Phonics, Comprehension)", p: 84 },
               ].map((t) => (
                 <div key={t.c}>
                   <div className="flex justify-between text-[10px] font-mono-label text-zinc-500 uppercase tracking-wider font-semibold">

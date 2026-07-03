@@ -74,7 +74,7 @@ exports.getOne = async (req, res) => {
                'explanation', q.explanation,
                'marks', eq.marks,
                'order_index', eq.order_index
-             ) ORDER BY eq.order_index
+             ) ORDER BY eq.order_index ASC, q.created_at ASC
            ) FILTER (WHERE q.id IS NOT NULL),
            '[]'
          ) AS questions

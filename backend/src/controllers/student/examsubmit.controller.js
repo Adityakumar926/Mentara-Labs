@@ -133,7 +133,7 @@ exports.getExamQuestions = async (req, res) => {
        FROM exam_questions eq
        JOIN questions q ON q.id = eq.question_id
        WHERE eq.exam_id = $1
-       ORDER BY eq.order_index`,
+       ORDER BY eq.order_index ASC, q.created_at ASC`,
       [examId]
     );
 

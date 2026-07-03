@@ -435,7 +435,22 @@ export default function ExamDetail() {
   const { data: hierarchy } = useApi(adminApi.getHierarchy);
 
   const { mutate: addQs, loading: adding } = useMutation(
-    () => adminApi.addExamQuestions(id, { questions: selected.map((qid) => ({ question_id: qid, marks: 1 })) }),
+    () => {
+      // Find the highest order_index in the current exam questions to append to the end
+      const currentQuestions = exam?.questions ?? [];
+      const startOrderIndex = currentQuestions.length > 0
+        ? Math.max(...currentQuestions.map(q => q.order_index ?? 0)) + 1
+        : 0;
+
+      const payload = {
+        questions: selected.map((qid, idx) => ({
+          question_id: qid,
+          marks: 1,
+          order_index: startOrderIndex + idx
+        }))
+      };
+      return adminApi.addExamQuestions(id, payload);
+    },
     { onSuccess: () => { setAddQModal(false); setSelected([]); refetch(); }, successMsg: 'Questions added' }
   );
   const { mutate: removeQ } = useMutation(
