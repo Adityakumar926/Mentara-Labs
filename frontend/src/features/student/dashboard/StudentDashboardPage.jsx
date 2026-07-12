@@ -12,100 +12,96 @@ import MuxPlayer from '@mux/mux-player-react';
 import toast from 'react-hot-toast';
 
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Outfit:wght@500;600;700&display=swap');
 
   .sd-root {
-    --navy:     #0A0E1A;
-    --navy2:    #0F1629;
-    --violet:   #7C3AED;
-    --violet-l: #9D6FEF;
-    --cyan:     #00D4FF;
-    --cream:    #F4F4F5;
-    --muted:    rgba(244, 244, 245, 0.45);
+    --navy:     #080b11;
+    --navy2:    #0f1420;
+    --violet:   #8b5cf6;
+    --violet-l: #a78bfa;
+    --cyan:     #06b6d4;
+    --cream:    #f4f4f5;
+    --muted:    #94a3b8;
     --card-bg:  rgba(255, 255, 255, 0.035);
     --card-bdr: rgba(255, 255, 255, 0.08);
-    font-family: 'Inter', sans-serif;
+    font-family: 'Quicksand', sans-serif;
     color: var(--cream);
   }
 
   html.light .sd-root {
-    --navy:     #F8FAFC;
-    --navy2:    #F1F5F9;
-    --violet:   #6D28D9;
-    --violet-l: #8B5CF6;
-    --cyan:     #06B6D4;
-    --cream:    #0F172A;
-    --muted:    #64748B;
-    --card-bg:  #FFFFFF;
-    --card-bdr: #E2E8F0;
+    --navy:     #f8fafc;
+    --navy2:    #ffffff;
+    --violet:   #6d28d9;
+    --violet-l: #8b5cf6;
+    --cyan:     #0891b2;
+    --cream:    #0f172a;
+    --muted:    #475569;
+    --card-bg:  #f1f5f9;
+    --card-bdr: #e2e8f0;
   }
 
   .sd-welcome-card {
     position: relative;
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(6, 182, 212, 0.08) 100%);
-    border: 1px solid var(--card-bdr);
-    border-radius: 24px;
-    padding: 2.25rem 2.5rem;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(6, 182, 212, 0.15) 100%);
+    border: 2px solid rgba(139, 92, 246, 0.2);
+    border-radius: 28px;
+    padding: 2.5rem;
     overflow: hidden;
     margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.1);
   }
 
   .sd-grid-3 {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.25rem;
+    gap: 1.5rem;
     margin-bottom: 2rem;
   }
 
   .sd-subject-card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-bdr);
-    border-radius: 20px;
+    background: var(--navy2);
+    border: 2px solid var(--card-bdr);
+    border-radius: 24px;
     padding: 1.5rem;
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.25rem;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
   }
 
   .sd-subject-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(6, 182, 212, 0.4);
-    box-shadow: 0 8px 30px rgba(6, 182, 212, 0.08);
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(139, 92, 246, 0.15);
   }
 
   .sd-subject-card.active {
-    border-color: var(--cyan);
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, rgba(124, 58, 237, 0.04) 100%);
-    box-shadow: 0 8px 30px rgba(6, 182, 212, 0.12);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+    box-shadow: 0 12px 30px rgba(139, 92, 246, 0.25);
   }
 
   .sd-subject-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(124, 58, 237, 0.1);
-    color: var(--violet-l);
-    border: 1px solid rgba(124, 58, 237, 0.2);
+    font-size: 1.5rem;
+    transition: transform 0.3s ease;
   }
 
-  .sd-subject-card.active .sd-subject-icon {
-    background: rgba(6, 182, 212, 0.15);
-    color: var(--cyan);
-    border-color: rgba(6, 182, 212, 0.3);
+  .sd-subject-card:hover .sd-subject-icon {
+    transform: rotate(10deg) scale(1.1);
   }
 
-  /* Split layout when subject is selected */
   .sd-dashboard-layout {
     display: grid;
-    grid-template-columns: 320px 1fr;
-    gap: 1.5rem;
+    grid-template-columns: 300px 1fr;
+    gap: 1.75rem;
     align-items: start;
   }
 
@@ -117,114 +113,151 @@ const CSS = `
 
   .sd-topic-item {
     background: var(--card-bg);
-    border: 1px solid var(--card-bdr);
-    border-radius: 14px;
-    padding: 1rem 1.25rem;
+    border: 2px solid var(--card-bdr);
+    border-radius: 18px;
+    padding: 1.15rem 1.35rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0.65rem;
+    margin-bottom: 0.75rem;
   }
 
   .sd-topic-item:hover {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(124, 58, 237, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--violet);
+    transform: scale(1.01);
   }
 
   .sd-topic-item.active {
     border-color: var(--violet);
-    background: linear-gradient(90deg, rgba(124, 58, 237, 0.08) 0%, transparent 100%);
+    background: linear-gradient(90deg, rgba(139, 92, 246, 0.15) 0%, transparent 100%);
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.1);
   }
 
   .sd-tabs-bar {
     display: flex;
-    gap: 0.5rem;
-    border-bottom: 1px solid var(--card-bdr);
-    padding-bottom: 0.75rem;
-    margin-bottom: 1.5rem;
+    gap: 0.75rem;
+    border-bottom: 2px solid var(--card-bdr);
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
     overflow-x: auto;
+    scrollbar-width: none;
+  }
+  
+  .sd-tabs-bar::-webkit-scrollbar {
+    display: none;
   }
 
   .sd-tab-btn {
-    padding: 0.5rem 1rem;
-    border-radius: 10px;
-    font-size: 0.85rem;
-    font-weight: 600;
+    padding: 0.65rem 1.25rem;
+    border-radius: 16px;
+    font-size: 0.9rem;
+    font-weight: 700;
     color: var(--muted);
-    background: transparent;
-    border: 1px solid transparent;
+    background: rgba(255, 255, 255, 0.02);
+    border: 2px solid var(--card-bdr);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     white-space: nowrap;
   }
 
   .sd-tab-btn:hover {
     color: var(--cream);
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
   }
 
   .sd-tab-btn.active {
     color: #fff;
     background: linear-gradient(135deg, var(--violet) 0%, var(--violet-l) 100%);
-    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+    border-color: var(--violet);
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
+    transform: translateY(-2px) scale(1.03);
   }
 
   .sd-resource-card {
-    background: var(--card-bg);
-    border: 1px solid var(--card-bdr);
-    border-radius: 16px;
-    padding: 1.15rem 1.35rem;
+    background: var(--navy2);
+    border: 2px solid var(--card-bdr);
+    border-radius: 22px;
+    padding: 1.25rem 1.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    transition: all 0.2s;
-    margin-bottom: 0.75rem;
+    transition: all 0.25s ease;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   }
 
   .sd-resource-card:hover {
-    border-color: rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(139, 92, 246, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.1);
   }
 
   .sd-res-icon-wrapper {
-    width: 42px;
-    height: 42px;
-    border-radius: 10px;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    font-size: 1.3rem;
   }
 
   .sd-res-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--card-bdr);
-    padding: 0.5rem 1rem;
-    border-radius: 10px;
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--cream);
+    background: linear-gradient(135deg, var(--violet) 0%, var(--violet-l) 100%);
+    border: none;
+    padding: 0.65rem 1.25rem;
+    border-radius: 14px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #ffffff;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    transition: all 0.2s;
+    gap: 8px;
+    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
   }
 
   .sd-res-btn:hover {
-    background: #ffffff;
-    color: #000000;
-    border-color: #ffffff;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35);
   }
 `;
+
+
+const getSubjectStyle = (name) => {
+  const n = name.toLowerCase();
+  if (n.includes('science')) {
+    return {
+      iconBg: 'rgba(16, 185, 129, 0.15)',
+      color: '#10B981',
+      avatar: '🧪',
+    };
+  }
+  if (n.includes('math') || n.includes('arithmetic')) {
+    return {
+      iconBg: 'rgba(245, 158, 11, 0.15)',
+      color: '#F59E0B',
+      avatar: '🧮',
+    };
+  }
+  return {
+    iconBg: 'rgba(139, 92, 246, 0.15)',
+    color: '#A78BFA',
+    avatar: '📚',
+  };
+};
 
 export default function StudentDashboardPage() {
   const { user } = useAuthStore();
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [selectedTopic, setSelectedTopic] = useState(null);
-  const [activeTab, setActiveTab] = useState('notes'); // 'notes', 'simulators', 'worksheets', 'exams'
+  const [activeTab, setActiveTab] = useState('exams'); // 'exams', 'worksheets', 'simulators', 'notes'
 
   // Modal view states
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -558,35 +591,35 @@ export default function StudentDashboardPage() {
         
         {/* Welcome Header */}
         <div className="sd-welcome-card">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem' }}>
             <div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', background: 'rgba(6,182,212,0.12)', border: '1px solid rgba(6,182,212,0.25)', padding: '0.3rem 0.8rem', borderRadius: '50px', fontSize: '0.68rem', fontWeight: 700, color: '#00D4FF', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#00D4FF', boxShadow: '0 0 8px #00D4FF' }} />
-                Student Portal
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(139,92,246,0.15)', border: '2px solid rgba(139,92,246,0.3)', padding: '0.4rem 1rem', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 700, color: '#a78bfa', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>
+                <span className="h-2 w-2 rounded-full bg-violet-400 animate-pulse" />
+                🏆 Primary Learning Quest
               </div>
-              <h1 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '2rem', fontWeight: 700, margin: 0 }}>
+              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '2.5rem', fontWeight: 700, margin: 0, background: 'linear-gradient(135deg, #ffffff 0%, #a78bfa 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 Hello, {user?.full_name?.split(' ')[0] || 'Learner'}! 👋
               </h1>
-              <p style={{ color: 'var(--muted)', fontSize: '0.9rem', marginTop: '0.35rem', margin: 0 }}>
-                Select a subject below to begin exploring animations, lessons, worksheets, and mock tests.
+              <p style={{ color: 'var(--muted)', fontSize: '1.05rem', marginTop: '0.5rem', margin: 0, fontWeight: 500 }}>
+                Ready for a learning adventure? Select a subject below to explore interactive simulations, coloring sheets, mock checkpoints, and more! 🚀⭐
               </p>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'var(--card-bg)', border: '1px solid var(--card-bdr)', padding: '0.75rem 1.25rem', borderRadius: '16px' }}>
-              <GraduationCap size={24} style={{ color: 'var(--cyan)' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', background: 'rgba(255, 255, 255, 0.04)', border: '2px solid var(--card-bdr)', padding: '0.85rem 1.5rem', borderRadius: '22px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
+              <div className="text-2xl">🎓</div>
               <div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 600 }}>Active curriculum</div>
-                <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>Cambridge Primary</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 700 }}>Curriculum</div>
+                <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--cyan)' }}>Cambridge Primary</div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Subjects List Grid */}
-        <h2 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '1.25rem', fontWeight: 700, marginBottom: '1rem' }}>Subjects</h2>
+        <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.25rem' }}>Select a Subject 🚀</h2>
         {loadingSubjects ? (
           <div className="sd-grid-3">
             {Array(3).fill(0).map((_, i) => (
-              <Skeleton key={i} style={{ height: 90, borderRadius: 20 }} />
+              <Skeleton key={i} style={{ height: 90, borderRadius: 24 }} />
             ))}
           </div>
         ) : subjects.length === 0 ? (
@@ -595,18 +628,30 @@ export default function StudentDashboardPage() {
           <div className="sd-grid-3">
             {subjects.map((sub) => {
               const isActive = selectedSubject?.id === sub.id;
+              const style = getSubjectStyle(sub.name);
               return (
                 <div
                   key={sub.id}
                   className={`sd-subject-card ${isActive ? 'active' : ''}`}
+                  style={{
+                    borderColor: isActive ? 'var(--cyan)' : 'var(--card-bdr)',
+                    background: isActive ? 'linear-gradient(135deg, rgba(6, 182, 212, 0.12) 0%, rgba(124, 58, 237, 0.06) 100%)' : 'var(--card-bg)'
+                  }}
                   onClick={() => setSelectedSubject(isActive ? null : sub)}
                 >
-                  <div className="sd-subject-icon">
-                    <BookOpen size={20} />
+                  <div 
+                    className="sd-subject-icon shadow-inner"
+                    style={{
+                      background: style.iconBg,
+                      color: style.color,
+                      border: '1px solid rgba(255,255,255,0.06)'
+                    }}
+                  >
+                    {style.avatar}
                   </div>
                   <div>
-                    <h3 style={{ fontSize: '0.95rem', fontWeight: 700, margin: 0 }}>{sub.name}</h3>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.2rem', margin: 0 }}>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>{sub.name}</h3>
+                    <p style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.25rem', margin: 0 }}>
                       {sub.description || 'Access worksheets and lessons'}
                     </p>
                   </div>
@@ -627,22 +672,22 @@ export default function StudentDashboardPage() {
               transition={{ duration: 0.3 }}
             >
               {/* Sidebar: Topics */}
-              <div style={{ background: 'var(--navy2)', border: '1px solid var(--card-bdr)', borderRadius: '20px', padding: '1.25rem' }}>
+              <div style={{ background: 'var(--navy2)', border: '2px solid var(--card-bdr)', borderRadius: '24px', padding: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.25rem' }}>
                   <Activity size={18} style={{ color: 'var(--violet-l)' }} />
-                  <h3 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '1rem', fontWeight: 700, margin: 0 }}>
-                    Topics
+                  <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
+                    Adventure Topics 🎯
                   </h3>
                 </div>
 
                 {loadingTopics ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     {Array(4).fill(0).map((_, i) => (
-                      <Skeleton key={i} style={{ height: 45, borderRadius: 10 }} />
+                      <Skeleton key={i} style={{ height: 45, borderRadius: 18 }} />
                     ))}
                   </div>
                 ) : topics.length === 0 ? (
-                  <p style={{ fontSize: '0.8rem', color: 'var(--muted)', textAlign: 'center', padding: '1rem 0' }}>No topics found under this subject.</p>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--muted)', textAlign: 'center', padding: '1rem 0' }}>No topics found under this subject.</p>
                 ) : (
                   <div>
                     {topics.map((t) => {
@@ -653,8 +698,8 @@ export default function StudentDashboardPage() {
                           className={`sd-topic-item ${isAct ? 'active' : ''}`}
                           onClick={() => setSelectedTopic(t)}
                         >
-                          <span style={{ fontSize: '0.82rem', fontWeight: 600 }}>{t.name}</span>
-                          <ChevronRight size={13} style={{ color: 'var(--muted)' }} />
+                          <span style={{ fontSize: '0.88rem', fontWeight: 700 }}>{t.name}</span>
+                          <ChevronRight size={14} style={{ color: 'var(--muted)' }} />
                         </div>
                       );
                     })}
@@ -663,23 +708,23 @@ export default function StudentDashboardPage() {
               </div>
 
               {/* Main Contents Panel */}
-              <div style={{ background: 'var(--navy2)', border: '1px solid var(--card-bdr)', borderRadius: '20px', padding: '1.5rem 1.75rem' }}>
+              <div style={{ background: 'var(--navy2)', border: '2px solid var(--card-bdr)', borderRadius: '24px', padding: '1.75rem' }}>
                 {selectedTopic ? (
                   <>
-                    <h3 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.25rem' }}>
+                    <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.35rem', fontWeight: 700, marginBottom: '0.35rem' }}>
                       {selectedTopic.name}
                     </h3>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginBottom: '1.5rem' }}>
-                      {selectedTopic.description || 'Notes, drawing worksheets, animations & mock checkpoints.'}
+                    <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '1.5rem', fontWeight: 500 }}>
+                      {selectedTopic.description || 'Coloring worksheets, interactive game simulations & challenge mock check points.'}
                     </p>
 
                     {/* Tab Navigation */}
                     <div className="sd-tabs-bar">
                       {[
-                        { id: 'notes', label: 'Notes & Videos', count: notesAndVideos.length },
-                        { id: 'simulators', label: 'Animations', count: simulators.length },
-                        { id: 'worksheets', label: 'Worksheets', count: worksheets.length },
-                        { id: 'exams', label: 'Exams & Mock Tests', count: exams.length }
+                        { id: 'exams', label: '🏆 Mock Quests', count: exams.length },
+                        { id: 'worksheets', label: '🎨 Coloring Sheets', count: worksheets.length },
+                        { id: 'simulators', label: '🎮 Play Simulators', count: simulators.length },
+                        { id: 'notes', label: '📖 Study Adventure', count: notesAndVideos.length }
                       ].map((t) => (
                         <button
                           key={t.id}
@@ -695,32 +740,38 @@ export default function StudentDashboardPage() {
                     {loadingContents ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                         {Array(3).fill(0).map((_, i) => (
-                          <Skeleton key={i} style={{ height: 60, borderRadius: 16 }} />
+                          <Skeleton key={i} style={{ height: 60, borderRadius: 22 }} />
                         ))}
                       </div>
                     ) : (
                       <div style={{ minHeight: '200px' }}>
                         {activeTab === 'notes' && (
                           notesAndVideos.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)' }}>No note documents or video tutorials available.</div>
+                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)' }}>No study guides or lessons available yet.</div>
                           ) : (
                             notesAndVideos.map((c) => (
                               <div key={c.id} className="sd-resource-card">
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                  <div className="sd-res-icon-wrapper" style={{ background: c.content_type === 'video' ? 'rgba(124, 58, 237, 0.12)' : 'rgba(6, 182, 212, 0.12)' }}>
-                                    {c.content_type === 'video' ? <Video size={18} style={{ color: 'var(--violet-l)' }} /> : <FileText size={18} style={{ color: 'var(--cyan)' }} />}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                  <div className="sd-res-icon-wrapper" style={{ background: c.content_type === 'video' ? 'rgba(139, 92, 246, 0.15)' : 'rgba(6, 182, 212, 0.15)' }}>
+                                    {c.content_type === 'video' ? '🎥' : '📖'}
                                   </div>
                                   <div>
-                                    <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>{c.title}</div>
-                                    <div style={{ fontSize: '0.72rem', color: 'var(--muted)', textTransform: 'capitalize' }}>{c.content_type} lesson</div>
+                                    <div style={{ fontSize: '0.92rem', fontWeight: 700 }}>{c.title}</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600 }}>
+                                      {c.content_type === 'video' ? '🎬 Watch Video Story' : '📘 Read Illustrated Story Book'}
+                                    </div>
                                   </div>
                                 </div>
                                 <button
                                   className="sd-res-btn"
+                                  style={{
+                                    background: c.content_type === 'video' ? 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)' : 'linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%)',
+                                    boxShadow: c.content_type === 'video' ? '0 4px 12px rgba(139, 92, 246, 0.2)' : '0 4px 12px rgba(6, 182, 212, 0.2)'
+                                  }}
                                   onClick={() => c.content_type === 'video' ? handleOpenVideo(c) : handleOpenNote(c)}
                                 >
                                   {c.content_type === 'video' ? <Play size={13} /> : <Eye size={13} />}
-                                  {c.content_type === 'video' ? 'Play Video' : 'Read Note'}
+                                  {c.content_type === 'video' ? 'Watch Story' : 'Read Story'}
                                 </button>
                               </div>
                             ))
@@ -729,21 +780,25 @@ export default function StudentDashboardPage() {
 
                         {activeTab === 'simulators' && (
                           simulators.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)' }}>No interactive simulators available.</div>
+                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)' }}>No game simulators available yet.</div>
                           ) : (
                             simulators.map((c) => (
                               <div key={c.id} className="sd-resource-card">
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                  <div className="sd-res-icon-wrapper" style={{ background: 'rgba(16, 185, 129, 0.12)' }}>
-                                    <Sparkles size={18} style={{ color: '#10B981' }} />
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                  <div className="sd-res-icon-wrapper" style={{ background: 'rgba(16, 185, 129, 0.15)' }}>
+                                    🎮
                                   </div>
                                   <div>
-                                    <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>{c.title}</div>
-                                    <div style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>Interactive 3D simulation</div>
+                                    <div style={{ fontSize: '0.92rem', fontWeight: 700 }}>{c.title}</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600 }}>🚀 Playful 3D Simulation Game</div>
                                   </div>
                                 </div>
-                                <button className="sd-res-btn" onClick={() => handleOpenAnimation(c)}>
-                                  <Play size={13} /> Run Simulation
+                                <button 
+                                  className="sd-res-btn" 
+                                  style={{ background: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)' }}
+                                  onClick={() => handleOpenAnimation(c)}
+                                >
+                                  <Play size={13} /> Play Game
                                 </button>
                               </div>
                             ))
@@ -752,21 +807,25 @@ export default function StudentDashboardPage() {
 
                         {activeTab === 'worksheets' && (
                           worksheets.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)' }}>No worksheets available.</div>
+                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)' }}>No worksheets available yet.</div>
                           ) : (
                             worksheets.map((c) => (
                               <div key={c.id} className="sd-resource-card">
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                  <div className="sd-res-icon-wrapper" style={{ background: 'rgba(245, 158, 11, 0.12)' }}>
-                                    <Image size={18} style={{ color: '#F59E0B' }} />
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                  <div className="sd-res-icon-wrapper" style={{ background: 'rgba(245, 158, 11, 0.15)' }}>
+                                    🎨
                                   </div>
                                   <div>
-                                    <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>{c.title}</div>
-                                    <div style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>Practice worksheet</div>
+                                    <div style={{ fontSize: '0.92rem', fontWeight: 700 }}>{c.title}</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600 }}>🖍️ Drawable Coloring Sheet</div>
                                   </div>
                                 </div>
-                                <button className="sd-res-btn" onClick={() => handleOpenWorksheet(c)}>
-                                  <Eye size={13} /> Open Drawing Sheet
+                                <button 
+                                  className="sd-res-btn" 
+                                  style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.2)' }}
+                                  onClick={() => handleOpenWorksheet(c)}
+                                >
+                                  <Eye size={13} /> Start Sketching
                                 </button>
                               </div>
                             ))
@@ -775,24 +834,25 @@ export default function StudentDashboardPage() {
 
                         {activeTab === 'exams' && (
                           exams.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)' }}>No mock checkpoints found.</div>
+                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)' }}>No mock quests found.</div>
                           ) : (
                             exams.map((e) => (
                               <div key={e.id} className="sd-resource-card">
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                  <div className="sd-res-icon-wrapper" style={{ background: 'rgba(239, 68, 68, 0.12)' }}>
-                                    <Clock size={18} style={{ color: '#EF4444' }} />
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                  <div className="sd-res-icon-wrapper" style={{ background: 'rgba(239, 68, 68, 0.15)' }}>
+                                    🏆
                                   </div>
                                   <div>
-                                    <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>{e.title}</div>
-                                    <div style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>{e.duration_minutes} mins Mock Exam</div>
+                                    <div style={{ fontSize: '0.92rem', fontWeight: 700 }}>{e.title}</div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600 }}>⏱️ {e.duration_minutes} Mins Challenge Quest</div>
                                   </div>
                                 </div>
                                 <button
                                   className="sd-res-btn"
+                                  style={{ background: 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)' }}
                                   onClick={() => window.open(`/exams/${e.id}/take`, '_blank')}
                                 >
-                                  <CheckCircle size={13} /> Start Mock Test
+                                  <CheckCircle size={13} /> Start Quest
                                 </button>
                               </div>
                             ))
@@ -802,7 +862,7 @@ export default function StudentDashboardPage() {
                     )}
                   </>
                 ) : (
-                  <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--muted)' }}>
+                  <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--muted)', fontWeight: 600 }}>
                     Please select a topic from the sidebar.
                   </div>
                 )}

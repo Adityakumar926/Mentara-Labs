@@ -54,15 +54,24 @@ const CSS = `
   }
 
   .sl-aside {
-    width: 280px; height: 100%; background: var(--color-surface);
+    width: 68px; height: 100%; background: var(--color-surface);
     border-right: 1px solid var(--color-surface-border);
     display: flex; flex-direction: column; flex-shrink: 0;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    position: relative;
+    z-index: 40;
+  }
+  .sl-aside:hover {
+    width: 280px;
   }
   .sl-logo {
-    padding: 1.5rem 1.25rem; display: flex; align-items: center; justify-content: space-between;
+    padding: 1.5rem 1rem; display: flex; align-items: center; justify-content: flex-start; gap: 0.75rem;
     border-bottom: 1px solid var(--color-surface-border);
+    height: 73px;
+    overflow: hidden;
   }
-  .sl-logo-left { display: flex; align-items: center; gap: 0.75rem; }
+  .sl-logo-left { display: flex; align-items: center; gap: 0.75rem; min-width: 220px; }
   .sl-logo-mark {
     width: 34px; height: 34px;
     display: flex; align-items: center; justify-content: center;
@@ -71,14 +80,20 @@ const CSS = `
   .sl-logo-text {
     font-family: 'Space Grotesk', sans-serif; font-weight: 700;
     font-size: 1.15rem; color: var(--local-cream); letter-spacing: -0.025em;
+    transition: opacity 0.2s;
   }
-  .sl-nav { padding: 1.5rem 1rem; display: flex; flex-direction: column; gap: 0.35rem; flex: 1; overflow-y: auto; }
+  .sl-aside:not(:hover) .sl-logo-text { opacity: 0; pointer-events: none; }
+  .sl-aside:not(:hover) [title="Switch to dark theme"], 
+  .sl-aside:not(:hover) [title="Switch to light theme"] { display: none; }
+
+  .sl-nav { padding: 1.5rem 0.5rem; display: flex; flex-direction: column; gap: 0.35rem; flex: 1; overflow-y: auto; overflow-x: hidden; }
   .sl-nav-item {
     display: flex; align-items: center; gap: 0.85rem;
     padding: 0.75rem 0.9rem; border-radius: 12px;
     color: var(--color-text-secondary); font-size: 0.85rem; font-weight: 550;
     text-decoration: none; transition: all 0.2s ease;
     border: 1px solid transparent;
+    min-width: 220px;
   }
   .sl-nav-item:hover {
     color: var(--local-cream); background: var(--color-surface-hover);
@@ -91,27 +106,35 @@ const CSS = `
   }
   .sl-nav-icon { flex-shrink: 0; transition: transform 0.2s; }
   .sl-nav-item.active .sl-nav-icon { color: #22d3ee; }
-  .sl-nav-label { flex: 1; }
+  .sl-nav-label { flex: 1; transition: opacity 0.2s; }
+  .sl-aside:not(:hover) .sl-nav-label { opacity: 0; pointer-events: none; }
   .sl-nav-chevron { opacity: 0; transition: opacity 0.2s, transform 0.2s; color: var(--color-text-muted); }
   .sl-nav-item:hover .sl-nav-chevron { opacity: 0.5; }
   .sl-nav-item.active .sl-nav-chevron { opacity: 0.8; color: #22d3ee; transform: translateX(2px); }
+  .sl-aside:not(:hover) .sl-nav-chevron { display: none; }
 
   .sl-premium {
-    margin: 0 1rem 1rem; padding: 1rem; border-radius: 14px;
+    margin: 0 0.5rem 1rem; padding: 0.75rem; border-radius: 14px;
     background: linear-gradient(135deg, rgba(245,158,11,0.06) 0%, rgba(251,191,36,0.02) 100%);
     border: 1px solid rgba(245,158,11,0.15);
     display: flex; align-items: center; gap: 0.75rem;
+    overflow: hidden;
+    min-height: 52px;
   }
-  .sl-premium-star { font-size: 1.1rem; }
-  .sl-premium-text { font-size: 0.82rem; font-weight: 600; color: #FBBF24; }
+  .sl-premium-star { font-size: 1.1rem; flex-shrink: 0; }
+  .sl-premium-text { font-size: 0.82rem; font-weight: 600; color: #FBBF24; white-space: nowrap; transition: opacity 0.2s; }
+  .sl-aside:not(:hover) .sl-premium-text { opacity: 0; pointer-events: none; }
 
   .sl-upgrade {
-    margin: 0 1rem 1rem; padding: 1rem; border-radius: 14px;
+    margin: 0 0.5rem 1rem; padding: 0.75rem; border-radius: 14px;
     background: linear-gradient(135deg, rgba(34,211,238,0.06) 0%, rgba(168,85,247,0.06) 100%);
     border: 1px solid rgba(34,211,238,0.15);
     display: flex; align-items: center; gap: 0.75rem; text-align: left;
     cursor: pointer; transition: border-color 0.2s, transform 0.2s;
-    width: calc(100% - 2rem);
+    width: calc(100% - 1rem);
+    min-width: 52px;
+    overflow: hidden;
+    min-height: 52px;
   }
   .sl-upgrade:hover {
     border-color: rgba(34,211,238,0.3); transform: translateY(-1px);
@@ -121,22 +144,31 @@ const CSS = `
     background: rgba(34,211,238,0.15); display: flex; align-items: center; justify-content: center;
     color: #22d3ee; flex-shrink: 0;
   }
-  .sl-upgrade-copy { display: flex; flex-direction: column; gap: 2px; }
-  .sl-upgrade-title { font-size: 0.8rem; font-weight: 700; color: var(--local-cream); }
-  .sl-upgrade-sub { font-size: 0.68rem; color: var(--color-text-muted); }
+  .sl-upgrade-copy { display: flex; flex-direction: column; gap: 2px; transition: opacity 0.2s; }
+  .sl-aside:not(:hover) .sl-upgrade-copy { opacity: 0; pointer-events: none; }
+  .sl-upgrade-title { font-size: 0.8rem; font-weight: 700; color: var(--local-cream); white-space: nowrap; }
+  .sl-upgrade-sub { font-size: 0.68rem; color: var(--color-text-muted); white-space: nowrap; }
 
   .sl-footer {
-    padding: 1rem; border-top: 1px solid var(--color-surface-border);
+    padding: 0.75rem 0.5rem; border-top: 1px solid var(--color-surface-border);
+    overflow: hidden;
   }
   .sl-user-row {
     display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem; border-radius: 12px;
     transition: background 0.2s;
+    min-width: 220px;
   }
+  .sl-user-details {
+    flex: 1; min-width: 0; transition: opacity 0.2s;
+  }
+  .sl-aside:not(:hover) .sl-user-details { opacity: 0; pointer-events: none; }
+  .sl-aside:not(:hover) .sl-logout { display: none; }
   .sl-avatar {
     width: 34px; height: 34px; border-radius: 50%; background: var(--color-surface-hover);
     display: flex; align-items: center; justify-content: center;
     font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: var(--local-lavender);
     border: 1px solid var(--color-surface-border); overflow: hidden;
+    flex-shrink: 0;
   }
   .sl-avatar img { width: 100%; height: 100%; object-fit: cover; }
   .sl-user-name { font-size: 0.8rem; font-weight: 600; color: var(--local-cream); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -329,7 +361,7 @@ export default function StudentUserLayout() {
                   initial
                 )}
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="sl-user-details">
                 <div className="sl-user-name">{user?.full_name}</div>
                 <div className="sl-user-email">{user?.email}</div>
               </div>

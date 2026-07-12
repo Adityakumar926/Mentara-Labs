@@ -84,11 +84,12 @@ export default function LandingPage() {
         <Hero />
         <CurriculumStrip />
         <Showcase />
+        <ProductDetails />
+        <Pricing />
         <FeaturesBento />
         <LearningJourney />
         <SubjectsGrid />
         <Testimonials />
-        <Pricing />
         <FAQ />
         <Footer />
       </main>
@@ -225,7 +226,7 @@ function Hero() {
   }, []);
 
   return (
-    <section data-testid="hero-section" className="relative pt-32 pb-24 lg:pt-40 lg:pb-32 overflow-hidden bg-zinc-950">
+    <section data-testid="hero-section" className="relative pt-20 pb-12 lg:pt-24 lg:pb-16 overflow-hidden bg-zinc-950">
       {/* Animated background orbs */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-1/4 -left-32 h-[480px] w-[480px] rounded-full bg-cyan-500/20 blur-[120px] animate-blob" />
@@ -506,7 +507,7 @@ function CurriculumStrip() {
   ];
 
   return (
-    <section id="curriculum" data-testid="curriculum-strip" className="relative py-20 border-y border-white/5 bg-zinc-950">
+    <section id="curriculum" data-testid="curriculum-strip" className="relative py-10 border-y border-white/5 bg-zinc-950">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-12">
           <div className="max-w-md">
@@ -543,7 +544,7 @@ function CurriculumStrip() {
 /* ── 4. FEATURES BENTO ── */
 function FeaturesBento() {
   return (
-    <section id="features" data-testid="features-section" className="relative py-28 lg:py-36 bg-zinc-950/20">
+    <section id="features" data-testid="features-section" className="relative py-12 lg:py-14 bg-zinc-950/20">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="max-w-2xl mb-16">
           <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-emerald-400">
@@ -814,7 +815,7 @@ function LearningJourney() {
   ];
 
   return (
-    <section data-testid="journey-section" className="relative py-28 lg:py-32 bg-zinc-950 border-y border-white/5">
+    <section data-testid="journey-section" className="relative py-12 lg:py-14 bg-zinc-950 border-y border-white/5">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 grid lg:grid-cols-12 gap-12">
         <div className="lg:col-span-4 lg:sticky lg:top-32 lg:self-start">
           <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
@@ -887,7 +888,7 @@ function SubjectsGrid() {
   };
 
   return (
-    <section id="subjects" data-testid="subjects-section" className="relative py-28 lg:py-32 bg-zinc-950/10">
+    <section id="subjects" data-testid="subjects-section" className="relative py-12 lg:py-14 bg-zinc-950/10">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
           <div className="max-w-xl">
@@ -952,7 +953,7 @@ function Testimonials() {
   ];
 
   return (
-    <section data-testid="testimonials-section" className="relative py-28 lg:py-32 bg-zinc-950 border-y border-white/5">
+    <section data-testid="testimonials-section" className="relative py-12 lg:py-14 bg-zinc-950 border-y border-white/5">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="max-w-2xl mb-14">
           <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
@@ -1066,7 +1067,7 @@ function Pricing() {
       sub: billingPeriod,
       description: "Everything a serious Cambridge Primary student needs to top their checkpoint tests.",
       features: [
-        "Unlimited simulations & animations",
+        "Unlimited access to the simulations",
         "All subjects & auto-timed checkpoints",
         "Drawable worksheets with sketch tools",
         "Full PDF notes & video lessons",
@@ -1098,9 +1099,9 @@ function Pricing() {
   ];
 
   return (
-    <section id="pricing" data-testid="pricing-section" className="relative py-28 lg:py-36 bg-zinc-950/20">
+    <section id="pricing" data-testid="pricing-section" className="relative pt-4 pb-12 bg-zinc-950/20">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="max-w-2xl mb-14">
+        <div className="max-w-2xl mb-6">
           <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-emerald-400">
             · Pricing
           </span>
@@ -1251,7 +1252,7 @@ function FAQ() {
   ];
 
   return (
-    <section id="faq" data-testid="faq-section" className="relative py-28 lg:py-32 bg-zinc-950 border-t border-white/5">
+    <section id="faq" data-testid="faq-section" className="relative py-12 lg:py-14 bg-zinc-950 border-t border-white/5">
       <div className="max-w-4xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-14">
           <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
@@ -1305,13 +1306,13 @@ function Footer() {
   ];
 
   return (
-    <footer data-testid="site-footer" className="relative pt-28 pb-12 bg-black border-t border-white/5 overflow-hidden">
+    <footer data-testid="site-footer" className="relative pt-14 pb-8 bg-black border-t border-white/5 overflow-hidden">
       {/* Glow */}
       <div className="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[60%] bg-gradient-to-r from-cyan-500/10 via-cyan-500/5 to-emerald-500/10 blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 relative">
         {/* CTA Banner */}
-        <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-cyan-500/[0.08] via-zinc-900/40 to-emerald-500/[0.08] backdrop-blur-2xl p-10 lg:p-14 mb-24">
+        <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-cyan-500/[0.08] via-zinc-900/40 to-emerald-500/[0.08] backdrop-blur-2xl p-10 lg:p-14 mb-12">
           <div className="grid lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-7">
               <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
@@ -1444,11 +1445,11 @@ function Showcase() {
   }, [SLIDES.length]);
 
   return (
-    <section className="py-24 bg-zinc-950/40 relative border-b border-white/5">
+    <section className="py-12 bg-zinc-950/40 relative border-b border-white/5">
       <div className="absolute inset-0 -z-10 bg-grid opacity-10 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]" />
       
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="text-center max-w-3xl mx-auto mb-10">
           <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
             · Live Interface
           </span>
@@ -1517,6 +1518,586 @@ function Showcase() {
               </AnimatePresence>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── 12. INTERACTIVE PRODUCT DETAILS (LAPTOP MOCKUP WITH CONNECTORS) ── */
+function ProductDetails() {
+  const [hoveredItem, setHoveredItem] = useState(null);
+  const [cycleIndex, setCycleIndex] = useState(0);
+
+  const CYCLE_ITEMS = ["curriculum", "worksheets", "simulations", "exams", "papers", "analytics"];
+
+  useEffect(() => {
+    if (hoveredItem) return; // Pause cycle on hover
+    const timer = setInterval(() => {
+      setCycleIndex((prev) => (prev + 1) % CYCLE_ITEMS.length);
+    }, 4000); // Shift every 4 seconds
+    return () => clearInterval(timer);
+  }, [hoveredItem]);
+
+  const activeItem = hoveredItem || CYCLE_ITEMS[cycleIndex];
+
+  const FEATURE_ITEMS = [
+    {
+      id: "curriculum",
+      title: "Curriculum Aligned",
+      desc: "100% aligned with Cambridge Primary Stage 1-5.",
+      icon: BookOpen,
+      color: "text-cyan-400",
+      bg: "bg-cyan-500/10",
+      bdr: "border-cyan-500/30",
+      x: 10, y: 70,
+      side: "left"
+    },
+    {
+      id: "worksheets",
+      title: "Digital Worksheets",
+      desc: "Interactive drawable worksheets to practice concepts.",
+      icon: PenTool,
+      color: "text-emerald-400",
+      bg: "bg-emerald-500/10",
+      bdr: "border-emerald-500/30",
+      x: 10, y: 210,
+      side: "left"
+    },
+    {
+      id: "simulations",
+      title: "Simulations",
+      desc: "Live 3D environments making lessons effective.",
+      icon: Atom,
+      color: "text-indigo-400",
+      bg: "bg-indigo-500/10",
+      bdr: "border-indigo-500/30",
+      x: 10, y: 350,
+      side: "left"
+    },
+    {
+      id: "exams",
+      title: "Timed Exams",
+      desc: "Practice with mock checkpoints under standard rules.",
+      icon: Timer,
+      color: "text-rose-400",
+      bg: "bg-rose-500/10",
+      bdr: "border-rose-500/30",
+      x: 410, y: 70,
+      side: "right"
+    },
+    {
+      id: "papers",
+      title: "Past Papers",
+      desc: "Access verified exam items with mark schemes.",
+      icon: Layers,
+      color: "text-amber-400",
+      bg: "bg-amber-500/10",
+      bdr: "border-amber-500/30",
+      x: 410, y: 210,
+      side: "right"
+    },
+    {
+      id: "analytics",
+      title: "Learning Analytics",
+      desc: "Granular reporting mapping masteries and velocity.",
+      icon: LineChart,
+      color: "text-violet-400",
+      bg: "bg-violet-500/10",
+      bdr: "border-violet-500/30",
+      x: 410, y: 350,
+      side: "right"
+    }
+  ];
+
+  return (
+    <section className="pt-12 pb-2 bg-zinc-950/60 relative border-b border-white/5">
+      
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="text-center max-w-3xl mx-auto mb-10">
+          <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
+            · PLATFORM HIGHLIGHTS
+          </span>
+          <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mt-3 text-white leading-tight">
+            Everything Your Child Needs to <span className="bg-gradient-to-r from-cyan-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">Learn, Practice & Excel</span>
+          </h2>
+          <p className="text-zinc-400 mt-4 text-sm sm:text-base max-w-xl mx-auto">
+            Mentara Labs brings the complete Cambridge Primary learning experience onto one smart, interactive platform.
+          </p>
+        </div>
+
+        {/* Feature Dashboard Layout Grid */}
+        <div className="grid lg:grid-cols-12 gap-8 items-center min-h-[580px] bg-zinc-900/10 border border-white/5 rounded-3xl p-8 backdrop-blur-md relative overflow-hidden">
+          
+          {/* SVG Connecting Lines Overlay (High-Tech Circuit & Glowing Pulse Effect) */}
+          <svg 
+            className="absolute inset-0 pointer-events-none z-10 hidden lg:block overflow-visible" 
+            viewBox="0 0 1000 500"
+            width="100%"
+            height="100%"
+            style={{ mixBlendMode: 'screen' }}
+          >
+            <defs>
+              {/* Intense Neon Blur Filter */}
+              <filter id="cyber-glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="4" result="blur1" />
+                <feGaussianBlur stdDeviation="8" result="blur2" />
+                <feMerge>
+                  <feMergeNode in="blur2" />
+                  <feMergeNode in="blur1" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+              
+              {/* Gradients */}
+              <linearGradient id="left-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.8" />
+                <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.3" />
+              </linearGradient>
+              <linearGradient id="right-gradient" x1="100%" y1="0%" x2="0%" y2="0%">
+                <stop offset="0%" stopColor="#a855f7" stopOpacity="0.8" />
+                <stop offset="100%" stopColor="#6366f1" stopOpacity="0.3" />
+              </linearGradient>
+            </defs>
+
+            {FEATURE_ITEMS.map((f) => {
+              const isActive = activeItem === f.id;
+              
+              // Calculate side index based on filtered side elements to prevent indexing offsets
+              const sideItems = FEATURE_ITEMS.filter(item => item.side === f.side);
+              const sideIndex = sideItems.findIndex(item => item.id === f.id);
+              
+              // Circuit coordinates aligned with card border edges
+              const startX = f.side === "left" ? 275 : 725;
+              const startY = 80 + sideIndex * 170;
+                
+              const targetX = f.side === "left" ? 385 : 615;
+              const targetY = 250; // Centralized target y to land on center laptop height
+              
+              // Midpoint offset to draw the circuit orthogonal bend
+              const midX = f.side === "left" ? startX + 30 : startX - 30;
+              const pathData = `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${targetY} L ${targetX} ${targetY}`;
+              
+              // Robotic sleek colors: thin cybernetic accents
+              const baseColor = f.side === "left" ? "#06b6d4" : "#a855f7";
+              const gradientId = f.side === "left" ? "url(#left-gradient)" : "url(#right-gradient)";
+
+              return (
+                <g key={f.id} className="transition-all duration-500">
+                  {/* Circuit Board Trace Lines (Robotic Slate/Gray Wire style) */}
+                  <path
+                    d={pathData}
+                    stroke={isActive ? baseColor : "rgba(255,255,255,0.06)"}
+                    strokeWidth={isActive ? "1.2" : "0.6"}
+                    fill="none"
+                    className="transition-all duration-300"
+                  />
+
+                  {/* Micro Cyber Neon Glow Overlay (Low Opacity for Sleek HUD Aesthetic) */}
+                  {isActive && (
+                    <>
+                      <path
+                        d={pathData}
+                        stroke={baseColor}
+                        strokeWidth="2.2"
+                        fill="none"
+                        filter="url(#cyber-glow)"
+                        opacity="0.35"
+                        strokeLinecap="round"
+                      />
+                      
+                      {/* Animated Tiny Data Pulse Point */}
+                      <circle r="2.5" fill="#ffffff" style={{ filter: 'drop-shadow(0 0 4px ' + baseColor + ')' }}>
+                        <animateMotion
+                          path={pathData}
+                          dur="3s"
+                          repeatCount="indefinite"
+                          keyPoints="0;1"
+                          keyTimes="0;1"
+                        />
+                      </circle>
+                    </>
+                  )}
+
+                  {/* Micro circuit terminal node dot on the laptop screen edge */}
+                  <circle
+                    cx={targetX}
+                    cy={targetY}
+                    r={isActive ? 3.5 : 1.5}
+                    fill={isActive ? "#ffffff" : "rgba(255,255,255,0.1)"}
+                    stroke={baseColor}
+                    strokeWidth="1"
+                    className="transition-all duration-300"
+                    opacity={isActive ? 0.9 : 0.2}
+                  />
+                  
+                  {/* Subtle outer ping ring around active screen terminal node */}
+                  {isActive && (
+                    <circle
+                      cx={targetX}
+                      cy={targetY}
+                      r="7"
+                      fill="none"
+                      stroke={baseColor}
+                      strokeWidth="0.8"
+                      className="animate-ping"
+                      opacity="0.3"
+                    />
+                  )}
+                </g>
+              );
+            })}
+          </svg>
+
+          {/* Left Column Features */}
+          <div className="lg:col-span-3 flex flex-col gap-6 order-2 lg:order-1">
+            {FEATURE_ITEMS.filter(f => f.side === "left").map((f) => {
+              const Icon = f.icon;
+              const isCardActive = activeItem === f.id;
+              return (
+                <div 
+                  key={f.id}
+                  onMouseEnter={() => setHoveredItem(f.id)}
+                  onMouseLeave={() => setHoveredItem(null)}
+                  className={`flex gap-4 p-4 rounded-xl border transition-all duration-300 cursor-pointer ${
+                    isCardActive 
+                      ? "bg-white/[0.04] border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.08)] translate-x-2" 
+                      : "bg-white/[0.01] border-white/5"
+                  }`}
+                >
+                  <div className={`h-10 w-10 rounded-lg flex items-center justify-center border shrink-0 transition-all ${isCardActive ? "scale-110 shadow-lg" : ""} ${f.bg} ${f.bdr}`}>
+                    <Icon className={`h-5 w-5 ${f.color}`} />
+                  </div>
+                  <div>
+                    <h4 className={`font-display text-sm font-bold transition-colors ${isCardActive ? "text-cyan-400" : "text-white"}`}>{f.title}</h4>
+                    <p className="text-zinc-500 text-xs mt-1 leading-relaxed font-medium">{f.desc}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Center Column: Interactive Laptop Diagram with SVG Connecting Lines */}
+          <div className="lg:col-span-6 flex justify-center items-center order-1 lg:order-2 py-8 relative">
+            
+            {/* Laptop Vector Wrap */}
+            <div className="w-[310px] sm:w-[410px] md:w-[460px] flex flex-col items-center">
+              {/* Screen Body */}
+              <div className="w-full aspect-[16/10] bg-zinc-900 rounded-t-2xl p-2.5 border-t border-x border-white/10 shadow-2xl relative">
+                {/* Internal Screen Content (Dashboard Simulation Panels) */}
+                <div className="w-full h-full bg-zinc-950 rounded-lg overflow-hidden border border-white/5 relative flex">
+                  <AnimatePresence mode="wait">
+
+
+                  {/* Active Curriculum Preview (Realistic Checklist mapping) */}
+                    {activeItem === "curriculum" && (
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 bg-[#08090d] flex flex-col p-3.5 justify-between z-10"
+                      >
+                        <div className="text-[7.5px] font-mono font-bold text-cyan-400 tracking-wider">04 · CURRICULUM SYLLABUS MAPPING</div>
+                        <div className="flex-1 flex flex-col gap-2 mt-2 bg-zinc-950/60 rounded-xl border border-white/5 p-2.5">
+                          <div className="flex justify-between items-center border-b border-white/5 pb-1.5">
+                            <span className="text-[9px] font-bold text-white">Cambridge Primary Syllabus</span>
+                            <span className="text-[6px] px-1 py-0.5 rounded bg-cyan-400/10 text-cyan-400 border border-cyan-400/20 font-bold">Stages 1-5</span>
+                          </div>
+                          
+                          <div className="flex flex-col gap-1.5 justify-center flex-1">
+                            {[
+                              { sub: "Mathematics Labs", status: "100% Mapped", active: true },
+                              { sub: "Science Interactive Labs", status: "100% Mapped", active: true },
+                              { sub: "English Language Exercises", status: "95% Mapped", active: false }
+                            ].map((item, idx) => (
+                              <div key={idx} className="flex justify-between items-center bg-white/[0.02] p-1.5 rounded border border-white/5">
+                                <div className="flex items-center gap-1.5">
+                                  <span className={`w-1.5 h-1.5 rounded-full ${item.active ? "bg-cyan-400" : "bg-zinc-500"}`} />
+                                  <span className="text-[7px] text-zinc-300 font-semibold">{item.sub}</span>
+                                </div>
+                                <span className="text-[6px] text-zinc-500 font-bold">{item.status}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                  {/* Active Past Papers Preview (List of Past Exam Papers & Questions) */}
+                    {activeItem === "papers" && (
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 bg-[#08090d] flex flex-col p-3.5 justify-between z-10"
+                      >
+                        <div className="text-[7.5px] font-mono font-bold text-amber-400 tracking-wider">05 · PAST PAPERS REPOSITORY</div>
+                        
+                        <div className="flex-1 flex flex-col gap-2 mt-2 bg-zinc-950/60 rounded-xl border border-white/5 p-2.5 overflow-hidden">
+                          <div className="flex items-center justify-between border-b border-white/5 pb-1">
+                            <span className="text-[8px] font-bold text-white">Select Year & Paper</span>
+                            <span className="text-[6.5px] font-semibold text-amber-400">Past Papers</span>
+                          </div>
+
+                          <div className="flex-1 flex flex-col gap-1.5 justify-center overflow-y-auto">
+                            {[
+                              { code: "Oct 2023 - P1", q: "Q12: Forces & Light Reflection", mark: "Solved (4/4 M)", active: true },
+                              { code: "May 2023 - P2", q: "Q8: Plants & Photosynthesis", mark: "Solved (3/3 M)", active: true },
+                              { code: "Oct 2022 - P1", q: "Q4: Friction & Materials", mark: "Unsolved", active: false }
+                            ].map((paper, idx) => (
+                              <div key={idx} className="flex justify-between items-center bg-white/[0.02] p-2 rounded border border-white/5">
+                                <div className="flex flex-col gap-0.5">
+                                  <span className="text-[7px] text-zinc-300 font-bold leading-none">{paper.code}</span>
+                                  <span className="text-[5.5px] text-zinc-500 leading-none">{paper.q}</span>
+                                </div>
+                                <span className={`text-[6px] px-1 py-0.5 rounded-sm font-bold ${paper.active ? "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20" : "text-zinc-500 bg-white/5"}`}>
+                                  {paper.mark}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                  {/* Active Analytics Preview */}
+                    {activeItem === "analytics" && (
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 bg-zinc-950 flex flex-col justify-center items-center p-4 z-10"
+                      >
+                        <div className="absolute top-2 left-2 text-[7px] font-mono font-bold text-violet-400 tracking-wider">06 · REALTIME LEARNING METRICS</div>
+                        <div className="w-[140px] bg-white/[0.01] border border-white/10 rounded-xl p-3 flex gap-2 items-end justify-around h-[70px] shadow-2xl">
+                          <motion.div className="w-2.5 bg-violet-500/80 rounded-t" initial={{ height: 0 }} animate={{ height: 28 }} transition={{ duration: 1 }} />
+                          <motion.div className="w-2.5 bg-cyan-500/80 rounded-t" initial={{ height: 0 }} animate={{ height: 42 }} transition={{ duration: 1, delay: 0.15 }} />
+                          <motion.div className="w-2.5 bg-emerald-500/80 rounded-t" initial={{ height: 0 }} animate={{ height: 35 }} transition={{ duration: 1, delay: 0.3 }} />
+                          <motion.div className="w-2.5 bg-rose-500/80 rounded-t" initial={{ height: 0 }} animate={{ height: 18 }} transition={{ duration: 1, delay: 0.45 }} />
+                        </div>
+                        <span className="text-[7px] text-zinc-500 font-bold mt-2 uppercase tracking-wide">Accuracy & mastery trends</span>
+                      </motion.div>
+                    )}
+
+                  {/* Active Simulation Preview (Realistic Solar System Orbit Animation) */}
+                    {activeItem === "simulations" && (
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 bg-[#010103] flex flex-col items-center justify-center z-10 overflow-hidden"
+                      >
+                        <div className="absolute top-2 left-2 text-[7px] font-mono font-bold text-amber-400 tracking-wider">01 · ACTIVE SOLAR SYSTEM SIMULATOR</div>
+                        
+                        {/* Interactive Space Container */}
+                        <div className="w-[180px] h-[115px] relative flex items-center justify-center">
+                          {/* Rich Stars Field */}
+                          <div className="absolute inset-0 opacity-40 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.2)_1px,transparent_1px)] bg-[size:10px_10px]" />
+                          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,#ffffff_1.2px,transparent_1.2px)] bg-[size:24px_24px]" />
+                          
+                          {/* Sun (Realistic Glowing Core with flares) */}
+                          <div className="w-9 h-9 rounded-full bg-gradient-to-r from-yellow-300 via-amber-400 to-orange-500 shadow-[0_0_30px_rgba(253,224,71,0.8),0_0_60px_rgba(245,158,11,0.4)] z-10 absolute flex items-center justify-center">
+                            {/* Inner core brightness */}
+                            <div className="w-6 h-6 rounded-full bg-white/40 blur-[1px]" />
+                          </div>
+
+                          {/* Earth Orbit Ring (Glowing elliptical path) */}
+                          <div className="absolute border border-cyan-500/10 rounded-full w-[120px] h-[80px] rotate-[-12deg]" />
+
+                          {/* Earth & Moon System container (revolving around Sun) */}
+                          <motion.div 
+                            className="absolute w-[120px] h-[80px] rotate-[-12deg] flex items-center"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 16, repeat: Infinity, ease: "linear" }}
+                          >
+                            {/* Earth body (with day/night shadow boundary matching Sun direction) */}
+                            <div className="absolute right-0 w-4 h-4 rounded-full bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.5)] flex items-center justify-center overflow-hidden border border-cyan-400/20">
+                              {/* Green continent details */}
+                              <div className="absolute -left-1 w-2.5 h-2 bg-emerald-500 rounded-full opacity-60 blur-[0.5px]" />
+                              <div className="absolute bottom-0 right-0 w-2 h-1.5 bg-emerald-500 rounded-full opacity-50 blur-[0.5px]" />
+                              
+                              {/* Night shadow side (overlay) - always faces away from the Sun (left side is illuminated as Earth orbits, but since it revolves inside container, we align the gradient dynamically to point outward) */}
+                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-black/25 to-black/90 pointer-events-none" />
+                            </div>
+
+                            {/* Moon System (positioned relative to Earth offset) */}
+                            <div className="absolute right-[-6px] w-[28px] h-[28px] flex items-center justify-center">
+                              {/* Moon Orbit Ring */}
+                              <div className="absolute border border-white/5 rounded-full w-6 h-6" />
+                              
+                              {/* Moon body container revolving around Earth */}
+                              <motion.div 
+                                className="absolute w-6 h-6 flex items-center"
+                                animate={{ rotate: -360 }}
+                                transition={{ duration: 3.5, repeat: Infinity, ease: "linear" }}
+                              >
+                                {/* Cratered Moon body with shadow overlay */}
+                                <div className="absolute right-0 w-1.5 h-1.5 rounded-full bg-zinc-300 shadow-[0_0_3px_#fff] flex items-center justify-center overflow-hidden">
+                                  {/* Craters */}
+                                  <div className="w-[1px] h-[1px] bg-zinc-500 rounded-full absolute top-[1px] left-[1px]" />
+                                  <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/80" />
+                                </div>
+                              </motion.div>
+                            </div>
+                          </motion.div>
+                        </div>
+                      </motion.div>
+                    )}
+
+                  {/* Active Worksheets Preview (Child-Friendly Primary Tracing & Drawing) */}
+                    {activeItem === "worksheets" && (
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 bg-[#0b0c10] flex flex-col z-10 p-3"
+                      >
+                        <div className="text-[7px] font-mono font-bold text-emerald-400 tracking-wider mb-1.5">02 · PRIMARY MATH WORK SHEET</div>
+                        <div className="flex-1 border border-white/5 bg-zinc-950/90 rounded-lg relative overflow-hidden p-2 flex flex-col justify-between">
+                          {/* Worksheet ruling/graph helper background */}
+                          <div className="absolute inset-0 bg-grid opacity-[0.04] pointer-events-none" />
+                          
+                          {/* Fun Primary Heading */}
+                          <div className="flex justify-between items-center z-10 mb-0.5">
+                            <span className="text-[7.5px] font-bold text-zinc-300">Activity: Count and Sum the Stars! 🌟</span>
+                            <span className="text-[6px] font-bold text-emerald-400 bg-emerald-500/10 px-1 rounded-sm border border-emerald-500/20">Stage 1</span>
+                          </div>
+                          
+                          {/* Main drawing display */}
+                          <div className="flex-1 relative flex items-center justify-center">
+                            <svg viewBox="0 0 120 50" className="w-full h-full">
+                              {/* Left star container */}
+                              <g fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="0.8">
+                                <circle cx="20" cy="22" r="10" />
+                                {/* Star 1 */}
+                                <polygon points="20,15 22,20 27,20 23,23 25,28 20,25 15,28 17,23 13,20 18,20" fill="#F59E0B" opacity="0.8" />
+                              </g>
+                              <text x="35" y="25" fill="rgba(255,255,255,0.4)" className="text-[10px] font-bold">+</text>
+
+                              {/* Right stars container */}
+                              <g fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="0.8">
+                                <circle cx="55" cy="22" r="10" />
+                                {/* Stars */}
+                                <polygon points="52,16 53,19 56,19 54,21 55,24 52,22 49,24 50,21 48,19 51,19" fill="#10B981" opacity="0.8" />
+                                <polygon points="59,22 60,25 63,25 61,27 62,30 59,28 56,30 57,27 55,25 58,25" fill="#3B82F6" opacity="0.8" />
+                              </g>
+                              <text x="70" y="25" fill="rgba(255,255,255,0.4)" className="text-[10px] font-bold">=</text>
+
+                              {/* Sum Output boxes: 1 + 2 = 3 */}
+                              {/* Hand-drawn number 3 */}
+                              <motion.path 
+                                d="M 85,15 C 92,15 92,20 85,20 C 92,20 92,25 85,25"
+                                fill="none" 
+                                stroke="#10B981" 
+                                strokeWidth="2" 
+                                strokeLinecap="round" 
+                                initial={{ pathLength: 0 }}
+                                animate={{ pathLength: 1 }}
+                                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                              />
+
+                              {/* Hand-drawn correction tick */}
+                              <motion.path 
+                                d="M 98,18 L 102,23 L 110,13"
+                                fill="none" 
+                                stroke="#34D399" 
+                                strokeWidth="1.5" 
+                                strokeLinecap="round" 
+                                initial={{ pathLength: 0 }}
+                                animate={{ pathLength: 1 }}
+                                transition={{ duration: 1.5, repeat: Infinity, delay: 1.8 }}
+                              />
+                            </svg>
+
+                            {/* Magic crayon marker tracing */}
+                            <motion.div 
+                              className="absolute w-2.5 h-2.5 pointer-events-none"
+                              animate={{ 
+                                x: [23, 23, 31, 23],
+                                y: [-6, -6, 4, -6]
+                              }}
+                              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                            >
+                              <div className="w-1.5 h-1.5 bg-[#10B981] rounded-full shadow-[0_0_10px_#10B981]" />
+                            </motion.div>
+                          </div>
+
+                          <div className="flex justify-between items-center text-[5.5px] text-zinc-500 font-semibold border-t border-white/5 pt-1 z-10">
+                            <span>Status: Interactive Tracing</span>
+                            <span className="text-[#34D399] animate-pulse">Good Job! +10xp</span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                    {/* Active Exams Preview (Auto time submission overlay) */}
+                    {activeItem === "exams" && (
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 bg-zinc-950 flex flex-col justify-center items-center z-10 p-4"
+                      >
+                        <div className="absolute top-2 left-2 text-[7px] font-mono font-bold text-rose-400 tracking-wider">03 · MOCK CHECKPOINT PAPERS</div>
+                        
+                        <div className="flex-col items-center gap-1 flex">
+                          <span className="text-[8px] text-zinc-500 font-bold uppercase">TIMER COUNTDOWN</span>
+                          <span className="text-xl font-bold font-mono text-white tracking-widest animate-pulse">00:00:03</span>
+                          
+                          {/* Progress bar fill */}
+                          <div className="w-[120px] h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5 mt-1">
+                            <motion.div 
+                              className="h-full bg-rose-500" 
+                              initial={{ width: "100%" }}
+                              animate={{ width: "0%" }}
+                              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                            />
+                          </div>
+                          <span className="text-[8px] text-rose-400 font-bold mt-2">Auto-submitting paper soon...</span>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                </div>
+              </div>
+              
+              {/* Keyboard Bottom Base */}
+              <div className="w-[108%] h-3 bg-zinc-800 border-x border-b border-white/20 rounded-b-xl shadow-xl relative" style={{ perspective: '500px' }}>
+                <div className="absolute top-0 inset-x-6 h-0.5 bg-zinc-900" />
+                {/* Keypad indent */}
+                <div className="absolute top-[2px] left-1/2 transform -translate-x-1/2 w-8 h-1 bg-zinc-900/40 rounded-sm" />
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column Features */}
+          <div className="lg:col-span-3 flex flex-col gap-6 order-3">
+            {FEATURE_ITEMS.filter(f => f.side === "right").map((f) => {
+              const Icon = f.icon;
+              const isCardActive = activeItem === f.id;
+              return (
+                <div 
+                  key={f.id}
+                  onMouseEnter={() => setHoveredItem(f.id)}
+                  onMouseLeave={() => setHoveredItem(null)}
+                  className={`flex gap-4 p-4 rounded-xl border transition-all duration-300 cursor-pointer ${
+                    isCardActive 
+                      ? "bg-white/[0.04] border-purple-500/30 shadow-[0_0_15px_rgba(157,111,239,0.08)] -translate-x-2" 
+                      : "bg-white/[0.01] border-white/5"
+                  }`}
+                >
+                  <div className={`h-10 w-10 rounded-lg flex items-center justify-center border shrink-0 transition-all ${isCardActive ? "scale-110 shadow-lg" : ""} ${f.bg} ${f.bdr}`}>
+                    <Icon className={`h-5 w-5 ${f.color}`} />
+                  </div>
+                  <div>
+                    <h4 className={`font-display text-sm font-bold transition-colors ${isCardActive ? "text-purple-400" : "text-white"}`}>{f.title}</h4>
+                    <p className="text-zinc-500 text-xs mt-1 leading-relaxed font-medium">{f.desc}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
         </div>
       </div>
     </section>
