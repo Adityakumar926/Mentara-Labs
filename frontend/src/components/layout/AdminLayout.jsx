@@ -3,16 +3,17 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard, BookOpen, HelpCircle, FileText,
-  Sparkles, Users, LogOut, ChevronRight, Settings, Sun, Moon
+  Sparkles, Users, LogOut, ChevronRight, Settings, Sun, Moon, FolderOpen
 } from 'lucide-react';
 import useAuthStore from '@/store/authStore';
 
 const NAV = [
   { to: '/admin',            icon: LayoutDashboard, label: 'Dashboard',    exact: true },
   { to: '/admin/curriculum', icon: BookOpen,        label: 'Curriculum'   },
+  { to: '/admin/materials',  icon: FolderOpen,      label: 'Materials Explorer' },
   { to: '/admin/questions',  icon: HelpCircle,      label: 'Question Bank'},
   { to: '/admin/exams',      icon: FileText,        label: 'Exams'        },
-  { to: '/admin/students',   icon: Users,           label: 'Students'     },
+  { to: '/admin/students',   icon: Users,           label: 'Teachers'     },
   { to: '/admin/settings',   icon: Settings,        label: 'Settings'     },
 ];
 

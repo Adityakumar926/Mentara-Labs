@@ -271,25 +271,71 @@ const CSS = `
   .qp-image-dropzone:hover { border-color: rgba(124,58,237,0.45); color: var(--cream); background: rgba(124,58,237,0.06); }
   .qp-image-dropzone.uploading { cursor: wait; }
   .qp-image-hint { font-size: 0.68rem; color: var(--muted); font-weight: 400; }
-  .qp-spinner {
-    width: 18px; height: 18px; border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.15);
-    border-top-color: var(--lavender);
-    animation: ui-spin 0.7s linear infinite;
+  /* ── LIGHT THEME COMPATIBILITY ── */
+  html.light .qp-root, .light .qp-root {
+    --cream: #0F172A;
+    --muted: #475569;
+    --card-bg: #FFFFFF;
+    --card-bdr: #CBD5E1;
   }
-  .qp-image-preview-wrap { position: relative; width: 100%; max-width: 240px; }
-  .qp-image-preview {
-    width: 100%; border-radius: 14px; border: 1px solid var(--card-bdr);
-    display: block; object-fit: cover; max-height: 160px;
+  html.light .qp-search-input, .light .qp-search-input {
+    background: #FFFFFF;
+    border-color: #CBD5E1;
+    color: #0F172A;
   }
-  .qp-image-remove-btn {
-    position: absolute; top: 8px; right: 8px;
-    width: 26px; height: 26px; border-radius: 8px; border: none;
-    background: rgba(10,14,26,0.75); backdrop-filter: blur(6px);
-    color: var(--cream); display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: background 0.2s, color 0.2s;
+  html.light .qp-select, .light .qp-select {
+    background-color: #FFFFFF;
+    border-color: #CBD5E1;
+    color: #0F172A;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(15,23,42,0.6)' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   }
-  .qp-image-remove-btn:hover { background: rgba(239,68,68,0.7); }
+  html.light .qp-select option, .light .qp-select option {
+    background: #FFFFFF;
+    color: #0F172A;
+  }
+  html.light .qp-row, .light .qp-row {
+    background: #FFFFFF;
+    border-color: #CBD5E1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  }
+  html.light .qp-row:hover, .light .qp-row:hover {
+    background: #F8FAFC;
+    border-color: #94A3B8;
+  }
+  html.light .qp-q-text, .light .qp-q-text {
+    color: #0F172A;
+  }
+  html.light .qp-subject-tag, .light .qp-subject-tag {
+    color: #475569;
+  }
+  html.light .qp-icon-btn:hover, .light .qp-icon-btn:hover {
+    background: #F1F5F9;
+    color: #0F172A;
+  }
+  html.light .qp-option-input, .light .qp-option-input {
+    background: #FFFFFF;
+    border-color: #CBD5E1;
+    color: #0F172A;
+  }
+  html.light .qp-radio-wrap, .light .qp-radio-wrap {
+    border-color: #CBD5E1;
+  }
+  html.light .qp-format-btn, .light .qp-format-btn {
+    background: #FFFFFF;
+    border-color: #CBD5E1;
+    color: #475569;
+  }
+  html.light .qp-format-btn:hover, .light .qp-format-btn:hover {
+    color: #0F172A;
+    background: #F1F5F9;
+  }
+  html.light .qp-image-dropzone, .light .qp-image-dropzone {
+    background: #FFFFFF;
+    border-color: #CBD5E1;
+  }
+  html.light .qp-skel, .light .qp-skel {
+    background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
+  }
 `;
 
 const fadeUp = (delay = 0) => ({

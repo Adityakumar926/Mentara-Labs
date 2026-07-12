@@ -34,66 +34,61 @@ const CSS = `
   /* ── PAGE HEADER ── */
   .db-header {
     position: relative;
-    background: linear-gradient(135deg, rgba(34, 211, 238, 0.08) 0%, rgba(124, 58, 237, 0.06) 60%, rgba(10, 14, 26, 0) 100%);
+    background: linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(0,212,255,0.06) 60%, transparent 100%);
     border: 1px solid var(--card-bdr);
     border-radius: 28px;
     padding: 2rem 2.5rem;
     overflow: hidden;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    margin-bottom: 1.75rem;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(16px);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
   }
   .db-hblob {
     position: absolute; border-radius: 50%; filter: blur(70px); pointer-events: none;
   }
   .db-hblob-1 {
     width: 340px; height: 340px;
-    background: radial-gradient(circle, rgba(34, 211, 238, 0.16) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(124,58,237,0.22) 0%, transparent 70%);
     top: -100px; right: -80px;
     animation: db-drift 11s ease-in-out infinite alternate;
   }
   .db-hblob-2 {
-    width: 220px; height: 220px;
-    background: radial-gradient(circle, rgba(52, 211, 153, 0.1) 0%, transparent 70%);
-    bottom: -50px; left: 30%;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(0,212,255,0.14) 0%, transparent 70%);
+    bottom: -50px; left: 28%;
     animation: db-drift 14s ease-in-out infinite alternate-reverse;
   }
   @keyframes db-drift { from{transform:translate(0,0)} to{transform:translate(22px,-16px)} }
+  @keyframes db-blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
 
   .db-eyebrow {
     display: inline-flex; align-items: center; gap: 0.5rem;
-    background: rgba(34, 211, 238, 0.08); border: 1px solid rgba(34, 211, 238, 0.2);
+    background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3);
     padding: 0.3rem 0.9rem; border-radius: 50px;
-    font-size: 0.7rem; font-weight: 700; color: #22d3ee;
-    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.75rem;
+    font-size: 0.7rem; font-weight: 700; color: var(--lavender);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.55rem;
   }
   .db-eyebrow-dot {
     width: 6px; height: 6px; border-radius: 50%;
     background: var(--cyan); box-shadow: 0 0 8px var(--cyan);
     animation: db-blink 2s ease infinite;
   }
-  @keyframes db-blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
   
   .db-title {
-    font-family: 'Outfit', sans-serif;
-    font-size: clamp(1.8rem, 3.5vw, 2.5rem);
-    font-weight: 900;
-    letter-spacing: -0.03em;
-    line-height: 1.1;
-    background: linear-gradient(90deg, #22d3ee, #34d399, #a855f7, #22d3ee);
-    background-size: 300% 100%;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(1.4rem, 3vw, 1.9rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    background: linear-gradient(135deg, var(--cream) 0%, var(--lavender) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    animation: db-title-rgb 5s linear infinite;
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.2rem;
   }
-  @keyframes db-title-rgb {
-    0% { background-position: 0% 50%; }
-    100% { background-position: 100% 50%; }
-  }
-  .db-subtitle { font-size: 0.85rem; color: var(--muted); font-weight: 500; }
+  .db-subtitle { font-size: 0.82rem; color: var(--muted); }
 
   /* ── STAT CARDS ── */
   .db-stats-grid {

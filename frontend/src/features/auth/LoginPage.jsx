@@ -47,7 +47,7 @@ export default function LoginPage() {
     try {
       const user = await loginWithGoogle(response.credential);
       toast.success(`Welcome, ${user.full_name.split(' ')[0]}!`);
-      navigate(user.role === 'admin' ? '/admin' : '/courses');
+      navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
     } catch (err) {
       toast.error(err.message);
     }
@@ -102,7 +102,7 @@ export default function LoginPage() {
     try {
       const user = await login(form);
       toast.success(`Welcome back, ${user.full_name.split(' ')[0]}!`);
-      navigate(user.role === 'admin' ? '/admin' : '/courses');
+      navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
     } catch (err) {
       toast.error(err.message);
     }

@@ -210,32 +210,61 @@ const CSS = `
   .cp-icon-btn.delete:hover { color: #F87171; background: rgba(239,68,68,0.08); }
 
   /* ── SHIMMER SKELETON ── */
-  .cp-skel {
-    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 75%);
-    background-size: 200% 100%;
-    animation: cp-shimmer 1.6s ease infinite;
-    border-radius: 16px;
+  /* ── LIGHT THEME COMPATIBILITY ── */
+  html.light .cp-root, .light .cp-root {
+    --cream: #0F172A;
+    --muted: #475569;
+    --card-bg: #FFFFFF;
+    --card-bdr: #CBD5E1;
   }
-  @keyframes cp-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-
-  /* ── EMPTY STATE ── */
-  .cp-empty {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 1rem; padding: 4rem 2rem;
-    border: 1px dashed rgba(124,58,237,0.2); border-radius: 24px;
-    background: rgba(124,58,237,0.03);
-    text-align: center;
+  html.light .cp-card, .light .cp-card {
+    background: #FFFFFF;
+    border-color: #CBD5E1;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
   }
-  .cp-empty-icon {
-    width: 60px; height: 60px; border-radius: 18px;
-    background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.2);
-    display: flex; align-items: center; justify-content: center;
+  html.light .cp-card-name, .light .cp-card-name {
+    color: #0F172A;
   }
-  .cp-empty-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1rem; font-weight: 700; color: var(--cream);
+  html.light .cp-card-desc, .light .cp-card-desc,
+  html.light .cp-stat-chip, .light .cp-stat-chip {
+    color: #475569;
   }
-  .cp-empty-desc { font-size: 0.8rem; color: var(--muted); max-width: 280px; line-height: 1.55; }
+  html.light .cp-badge-draft, .light .cp-badge-draft {
+    background: #F1F5F9;
+    border-color: #E2E8F0;
+    color: #475569;
+  }
+  html.light .cp-card-footer, .light .cp-card-footer {
+    border-top-color: #F1F5F9;
+  }
+  html.light .cp-manage-link, .light .cp-manage-link {
+    color: #4F46E5;
+  }
+  html.light .cp-manage-link:hover, .light .cp-manage-link:hover {
+    background: rgba(79, 70, 229, 0.08);
+    color: #4F46E5;
+  }
+  html.light .cp-icon-btn:hover, .light .cp-icon-btn:hover {
+    background: #F1F5F9;
+    color: #0F172A;
+  }
+  html.light .cp-icon-btn.edit:hover, .light .cp-icon-btn.edit:hover {
+    color: #4F46E5;
+    background: rgba(79, 70, 229, 0.08);
+  }
+  html.light .cp-empty, .light .cp-empty {
+    background: #F8FAFC;
+    border-color: #CBD5E1;
+  }
+  html.light .cp-empty-title, .light .cp-empty-title {
+    color: #0F172A;
+  }
+  html.light .cp-empty-desc, .light .cp-empty-desc {
+    color: #475569;
+  }
+  html.light .cp-skel, .light .cp-skel {
+    background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
+  }
 `;
 
 const BLANK = { name: '', description: '', thumbnail_url: '', is_active: true };

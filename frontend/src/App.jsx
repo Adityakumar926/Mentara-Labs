@@ -4,9 +4,10 @@ import { AnimatePresence } from 'framer-motion';
 import useAuthStore from '@/store/authStore';
 
 // Layouts
-import AdminLayout   from '@/components/layout/AdminLayout';
-import StudentLayout from '@/components/layout/StudentLayout';
-import AuthLayout    from '@/components/layout/AuthLayout';
+import AdminLayout       from '@/components/layout/AdminLayout';
+import StudentLayout     from '@/components/layout/StudentLayout';
+import StudentUserLayout from '@/components/layout/StudentUserLayout';
+import AuthLayout        from '@/components/layout/AuthLayout';
 
 // Guards
 import ProtectedRoute from '@/components/shared/ProtectedRoute';
@@ -28,8 +29,11 @@ import ExamDetail       from '@/features/admin/exams/ExamDetail';
 import StudentsPage     from '@/features/admin/students/StudentsPage';
 import SettingsPage     from '@/features/admin/settings/SettingsPage';
 
+import MaterialsPage    from '@/features/admin/curriculum/MaterialsPage';
+
 // Student pages
 import OnboardingPage       from '@/features/auth/OnboardingPage';
+import StudentDashboardPage from '@/features/student/dashboard/StudentDashboardPage';
 import SubjectsListPage     from '@/features/student/courses/SubjectsListPage';
 import CoursesPage          from '@/features/student/courses/CoursesPage';
 import TopicsPage           from '@/features/student/courses/TopicsPage';
@@ -79,6 +83,7 @@ export default function App() {
             <Route path="/admin"                element={<AdminDashboard />} />
             <Route path="/admin/curriculum"     element={<CurriculumPage />} />
             <Route path="/admin/curriculum/:id" element={<CurriculumDetail />} />
+            <Route path="/admin/materials"      element={<MaterialsPage />} />
             <Route path="/admin/questions"      element={<QuestionsPage />} />
             <Route path="/admin/exams"          element={<ExamsAdminPage />} />
             <Route path="/admin/exams/:id"      element={<ExamDetail />} />
@@ -87,13 +92,13 @@ export default function App() {
           </Route>
         </Route>
 
-        {/* ── Student Onboarding (no layout) ───────────────────────────────── */}
-        <Route element={<ProtectedRoute role="student" />}>
+        {/* ── Onboarding (no layout) ───────────────────────────────── */}
+        <Route element={<ProtectedRoute role={['student', 'teacher']} />}>
           <Route path="/onboarding" element={<OnboardingPage />} />
         </Route>
 
-        {/* ── Student Dashboard & Learning ────────────────────────────────── */}
-        <Route element={<ProtectedRoute role="student" />}>
+        {/* ── Teacher Dashboard & Learning ────────────────────────────────── */}
+        <Route element={<ProtectedRoute role="teacher" />}>
           <Route element={<StudentLayout />}>
             <Route path="/courses/:curriculumId/subjects"                    element={<SubjectsListPage />} />
             <Route path="/courses"                                           element={<CoursesPage />} />
@@ -106,6 +111,15 @@ export default function App() {
             <Route path="/exams/:id/result"                                  element={<ResultPage />} />
             <Route path="/profile"                                           element={<ProfilePage />} />
             <Route path="/premium"                                           element={<PremiumPage />} />
+          </Route>
+        </Route>
+
+        {/* ── Student Dashboard & Learning ────────────────────────────────── */}
+        <Route element={<ProtectedRoute role="student" />}>
+          <Route element={<StudentUserLayout />}>
+            <Route path="/student/dashboard" element={<StudentDashboardPage />} />
+            <Route path="/student/profile"   element={<ProfilePage />} />
+            <Route path="/student/premium"   element={<PremiumPage />} />
           </Route>
         </Route>
 

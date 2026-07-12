@@ -3,7 +3,7 @@ const db = require('../../config/db');
 exports.getStats = async (req, res) => {
   try {
     const [students, exams, questions, premium, recentExams, weeklyActivity] = await Promise.all([
-      db.query("SELECT COUNT(*) FROM users WHERE role = 'student'"),
+      db.query("SELECT COUNT(*) FROM users WHERE role IN ('student', 'teacher')"),
       db.query("SELECT COUNT(*), status FROM exams GROUP BY status"),
       db.query("SELECT COUNT(*), question_type FROM questions GROUP BY question_type"),
       db.query("SELECT COUNT(*) FROM users WHERE is_premium = true"),

@@ -20,6 +20,11 @@ for (const [name, ctrl] of Object.entries(controllers)) {
   }
 }
 
+const settingsCtrl = require('../controllers/student/settings.controller');
+
+// Public routes (do not require token)
+router.get('/settings', settingsCtrl.getSettings);
+
 router.use(protect);
 
 // ─── PROFILE ──────────────────────────────────────────────────────────────────
@@ -94,8 +99,5 @@ if (typeof examsubmitCtrl.savePhotoAnswer === 'function') {
 if (typeof examsubmitCtrl.submitExam       === 'function') router.post('/exams/:examId/submissions/:submissionId/submit',  examsubmitCtrl.submitExam);
 if (typeof examsubmitCtrl.getMyResult      === 'function') router.get('/exams/:examId/result',                             examsubmitCtrl.getMyResult);
 if (typeof examsubmitCtrl.getMyExamHistory === 'function') router.get('/results',                                          examsubmitCtrl.getMyExamHistory);
-
-const settingsCtrl = require('../controllers/student/settings.controller');
-router.get('/settings', settingsCtrl.getSettings);
 
 module.exports = router;

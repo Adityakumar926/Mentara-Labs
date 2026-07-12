@@ -39,8 +39,8 @@ exports.protect = async (req, res, next) => {
       user.is_premium = false;
     }
 
-    // Auto-resolve missing class_id for students with valid curriculum
-    if (user.role === 'student' && user.curriculum_id && !user.class_id) {
+    // Auto-resolve missing class_id for students/teachers with valid curriculum
+    if (['student', 'teacher'].includes(user.role) && user.curriculum_id && !user.class_id) {
       const { rows: classes } = await db.query(
         'SELECT id FROM classes WHERE curriculum_id = $1 ORDER BY order_index ASC, created_at ASC LIMIT 1',
         [user.curriculum_id]

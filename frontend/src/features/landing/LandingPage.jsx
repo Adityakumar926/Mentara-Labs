@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import useAuthStore from "@/store/authStore";
 import { motion, AnimatePresence } from "framer-motion";
+import { studentApi } from "@/api/services";
 import { 
   ArrowUpRight, Play, Timer, Atom, PenTool, Sparkles, ChevronRight, 
   Globe, BookOpen, GraduationCap, Award, Library, Compass, X, Menu,
@@ -13,10 +14,11 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
+
   // Redirect already-authenticated users
   useEffect(() => {
     if (user) {
-      navigate(user.role === "admin" ? "/admin" : "/courses", { replace: true });
+      navigate(user.role === "admin" ? "/admin" : user.role === "teacher" ? "/courses" : "/student/dashboard", { replace: true });
     }
   }, [user, navigate]);
 
@@ -989,39 +991,108 @@ function Testimonials() {
 
 /* ── 8. PRICING ── */
 function Pricing() {
+  const [dynSettings, setDynSettings] = React.useState({
+    premium_price: "65",
+    premium_currency: "$",
+    premium_billing_period: "/ year",
+    premium_discount: "40",
+    student_premium_price: "39",
+    student_premium_discount: "40"
+  });
+
+  React.useEffect(() => {
+    studentApi.getSettings()
+      .then(res => {
+        const data = res.data?.data ?? res.data;
+        if (data) {
+          setDynSettings({
+            premium_price: data.premium_price || "65",
+            premium_currency: data.premium_currency || "$",
+            premium_billing_period: data.premium_billing_period || "/ year",
+            premium_discount: data.premium_discount || "40",
+            student_premium_price: data.student_premium_price || "39",
+            student_premium_discount: data.student_premium_discount || "40"
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const currency = dynSettings.premium_currency;
+  const billingPeriod = dynSettings.premium_billing_period;
+
+  // Teacher pricing
+  const teacherOriginal = parseFloat(dynSettings.premium_price) || 0;
+  const teacherDiscountPct = parseFloat(dynSettings.premium_discount) || 0;
+  const teacherHasDiscount = teacherDiscountPct > 0 && teacherDiscountPct <= 100;
+  const teacherDiscounted = teacherHasDiscount ? Math.round(teacherOriginal * (1 - teacherDiscountPct / 100)) : teacherOriginal;
+  const teacherSavings = teacherOriginal - teacherDiscounted;
+
+  // Student pricing
+  const studentOriginal = parseFloat(dynSettings.student_premium_price) || 0;
+  const studentDiscountPct = parseFloat(dynSettings.student_premium_discount) || 0;
+  const studentHasDiscount = studentDiscountPct > 0 && studentDiscountPct <= 100;
+  const studentDiscounted = studentHasDiscount ? Math.round(studentOriginal * (1 - studentDiscountPct / 100)) : studentOriginal;
+  const studentSavings = studentOriginal - studentDiscounted;
+
   const PLANS = [
     {
+      id: "free",
       name: "Explorer",
+      badge: null,
       price: "Free",
+      originalPrice: null,
+      discountBadge: null,
+      savingsAmount: null,
       sub: "Forever",
       description: "Get a taste of the platform. Perfect for trying out a few simulations and lessons.",
-      features: ["3 simulations / month", "1 subject sandbox", "Community support", "Basic exam timer"],
+      features: [
+        "3 simulations / month",
+        "1 subject sandbox",
+        "Community support",
+        "Basic exam timer",
+      ],
       cta: "Start free",
       highlight: false,
     },
     {
-      name: "Scholar",
-      price: "$24",
-      sub: "/ month",
+      id: "student",
+      name: "Student",
+      badge: "Most Popular",
+      price: `${currency}${studentDiscounted}`,
+      originalPrice: studentHasDiscount ? `${currency}${studentOriginal}` : null,
+      discountBadge: studentHasDiscount ? `${studentDiscountPct}% OFF` : null,
+      savingsAmount: studentHasDiscount ? `${currency}${studentSavings}` : null,
+      sub: billingPeriod,
       description: "Everything a serious Cambridge Primary student needs to top their checkpoint tests.",
       features: [
-        "Unlimited primary simulations",
-        "All Primary subjects & checkpoints",
-        "Drawable worksheets",
-        "Auto-timed mocks & checkpoints",
-        "Checkpoint practice papers",
-        "Priority parent/student support",
+        "Unlimited simulations & animations",
+        "All subjects & auto-timed checkpoints",
+        "Drawable worksheets with sketch tools",
+        "Full PDF notes & video lessons",
+        "Priority student support",
       ],
-      cta: "Start 7-day trial",
+      cta: "Get started as a student",
       highlight: true,
     },
     {
-      name: "Institution",
-      price: "Custom",
-      sub: "Per cohort",
-      description: "For primary schools, learning hubs and academies running Cambridge Primary.",
-      features: ["Bulk seats & rosters", "Teacher dashboards", "Custom branding", "Dedicated success manager"],
-      cta: "Talk to sales",
+      id: "teacher",
+      name: "Teacher",
+      badge: null,
+      price: `${currency}${teacherDiscounted}`,
+      originalPrice: teacherHasDiscount ? `${currency}${teacherOriginal}` : null,
+      discountBadge: teacherHasDiscount ? `${teacherDiscountPct}% OFF` : null,
+      savingsAmount: teacherHasDiscount ? `${currency}${teacherSavings}` : null,
+      sub: billingPeriod,
+      description: "Equip your classroom with interactive teaching tools, drawable explanations, and real-time simulators.",
+      features: [
+        "All student features included",
+        "Interactive explanation whiteboard",
+        "Teacher dashboard & analytics",
+        "Advanced simulation playbacks",
+        "Priority teacher support",
+      ],
+      cta: "Get started as a teacher",
       highlight: false,
     },
   ];
@@ -1039,38 +1110,86 @@ function Pricing() {
               honestly priced.
             </span>
           </h2>
-          <p className="text-zinc-400 mt-5 text-lg">No hidden fees. Cancel anytime. Built for students, not investors.</p>
+          <p className="text-zinc-400 mt-5 text-lg">No hidden fees. Cancel anytime. Built for learners and teachers alike.</p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-5">
           {PLANS.map((p) => (
             <div
-              key={p.name}
-              data-testid={`plan-${p.name.toLowerCase()}`}
-              className={`relative rounded-2xl border p-8 backdrop-blur-2xl transition-all duration-300 ${
+              key={p.id}
+              data-testid={`plan-${p.id}`}
+              className={`relative rounded-2xl border p-8 backdrop-blur-2xl transition-all duration-300 flex flex-col ${
                 p.highlight
                   ? "border-cyan-500/50 bg-gradient-to-br from-cyan-500/[0.07] via-zinc-900/40 to-emerald-500/[0.07] shadow-[0_0_60px_-15px_rgba(34,211,238,0.35)]"
+                  : p.id === "teacher"
+                  ? "border-violet-500/30 bg-gradient-to-br from-violet-500/[0.05] via-zinc-900/40 to-purple-500/[0.04] hover:border-violet-400/40"
                   : "border-white/10 bg-white/[0.02] hover:border-white/20"
               }`}
             >
-              {p.highlight && (
+              {/* Badge */}
+              {p.badge && (
                 <div className="absolute -top-3 left-8 px-3 py-1 rounded-full text-[10px] font-mono-label uppercase tracking-[0.18em] bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 font-bold">
-                  Most popular
+                  {p.badge}
                 </div>
               )}
-              <div className="font-mono-label text-[10px] uppercase tracking-[0.22em] text-zinc-500 font-bold">{p.name}</div>
-              <div className="mt-4 flex items-baseline gap-1.5">
-                <span className="font-display text-5xl font-black tracking-tighter text-white">{p.price}</span>
-                <span className="text-sm text-zinc-500 font-semibold">{p.sub}</span>
+
+              {/* Plan name */}
+              <div className={`font-mono-label text-[10px] uppercase tracking-[0.22em] font-bold ${
+                p.highlight ? "text-cyan-400" : p.id === "teacher" ? "text-violet-400" : "text-zinc-500"
+              }`}>
+                {p.name}
               </div>
+
+              {/* Price block */}
+              <div className="mt-4 flex flex-col gap-2">
+                {p.originalPrice ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl line-through text-zinc-500 font-medium">{p.originalPrice}</span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase tracking-wider">
+                        {p.discountBadge}
+                      </span>
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className={`font-display text-6xl font-extrabold tracking-tight drop-shadow-[0_0_20px_rgba(52,211,153,0.15)] ${
+                        p.highlight
+                          ? "bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent"
+                          : "bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent"
+                      }`}>
+                        {p.price}
+                      </span>
+                      <span className="text-sm text-zinc-400 font-semibold">{p.sub}</span>
+                    </div>
+                    {p.savingsAmount && (
+                      <div className={`text-xs font-semibold flex items-center gap-1.5 mt-1 rounded-lg py-1.5 px-3 w-fit border ${
+                        p.highlight
+                          ? "text-emerald-400 bg-emerald-500/5 border-emerald-500/10"
+                          : "text-violet-400 bg-violet-500/5 border-violet-500/10"
+                      }`}>
+                        <span>🎉 You save {p.savingsAmount} instantly</span>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-display text-5xl font-black tracking-tighter text-white">{p.price}</span>
+                    <span className="text-sm text-zinc-500 font-semibold">{p.sub}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Description */}
               <p className="text-sm text-zinc-400 mt-3 leading-relaxed min-h-[3rem]">{p.description}</p>
 
+              {/* CTA */}
               <Link
                 to="/register"
-                data-testid={`plan-cta-${p.name.toLowerCase()}`}
+                data-testid={`plan-cta-${p.id}`}
                 className={`mt-7 inline-flex w-full items-center justify-center gap-2 px-5 py-3 rounded-full font-semibold text-sm transition-all ${
                   p.highlight
                     ? "bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 hover:shadow-[0_0_30px_rgba(34,211,238,0.45)]"
+                    : p.id === "teacher"
+                    ? "bg-gradient-to-r from-violet-500/20 to-purple-500/20 border border-violet-500/40 text-violet-200 hover:from-violet-500/30 hover:to-purple-500/30 hover:border-violet-400/60"
                     : "border border-white/15 text-white hover:bg-white/5"
                 }`}
               >
@@ -1078,10 +1197,18 @@ function Pricing() {
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
 
-              <ul className="mt-7 space-y-3">
+              {/* Divider */}
+              <div className={`mt-7 mb-5 h-px w-full ${
+                p.highlight ? "bg-cyan-500/20" : p.id === "teacher" ? "bg-violet-500/20" : "bg-white/5"
+              }`} />
+
+              {/* Features */}
+              <ul className="space-y-3 flex-1">
                 {p.features.map((f) => (
                   <li key={f} className="flex items-start gap-3 text-sm text-zinc-300">
-                    <Check className={`h-4 w-4 mt-0.5 shrink-0 ${p.highlight ? "text-cyan-400" : "text-emerald-400"}`} />
+                    <Check className={`h-4 w-4 mt-0.5 shrink-0 ${
+                      p.highlight ? "text-cyan-400" : p.id === "teacher" ? "text-violet-400" : "text-emerald-400"
+                    }`} />
                     <span className="font-medium">{f}</span>
                   </li>
                 ))}
@@ -1329,7 +1456,7 @@ function Showcase() {
             Explore the Virtual Classroom
           </h2>
           <p className="text-zinc-400 mt-4 text-sm sm:text-base">
-            Take a look inside the modern student learning suite built specifically for Cambridge curriculums.
+            Take a look inside the modern teacher learning suite built specifically for Cambridge curriculums.
           </p>
         </div>
 

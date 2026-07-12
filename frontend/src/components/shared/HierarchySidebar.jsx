@@ -92,8 +92,44 @@ const CSS = `
     border-left: 1px dashed rgba(255, 255, 255, 0.04);
     margin-left: 0.45rem;
   }
-  .hs-all-btn {
-    margin-bottom: 0.5rem;
+  /* ── LIGHT THEME COMPATIBILITY ── */
+  html.light .hs-root, .light .hs-root {
+    background: #FFFFFF;
+    border-right-color: #E2E8F0;
+  }
+  html.light .hs-header, .light .hs-header {
+    border-bottom-color: #E2E8F0;
+  }
+  html.light .hs-title, .light .hs-title {
+    color: #475569;
+  }
+  html.light .hs-item, .light .hs-item {
+    color: #475569;
+  }
+  html.light .hs-item:hover, .light .hs-item:hover {
+    color: #0F172A;
+    background: #F1F5F9;
+  }
+  html.light .hs-item.active, .light .hs-item.active {
+    color: #0F172A;
+    background: rgba(124, 58, 237, 0.08);
+    border-color: rgba(124, 58, 237, 0.22);
+  }
+  html.light .hs-item.active .hs-icon, .light .hs-item.active .hs-icon {
+    color: #7C3AED;
+  }
+  html.light .hs-icon, .light .hs-icon {
+    color: #64748B;
+  }
+  html.light .hs-chevron, .light .hs-chevron {
+    color: #94A3B8;
+  }
+  html.light .hs-chevron:hover, .light .hs-chevron:hover {
+    background: #E2E8F0;
+    color: #0F172A;
+  }
+  html.light .hs-nested, .light .hs-nested {
+    border-left-color: #CBD5E1;
   }
 `;
 

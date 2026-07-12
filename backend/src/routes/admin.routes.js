@@ -161,7 +161,7 @@ router.get('/students', async (req, res) => {
     if (!Number.isFinite(limit) || limit < 1) limit = 20;
 
     const offset = (page - 1) * limit;
-    const conditions = ["role = 'student'"];
+    const conditions = ["role IN ('student', 'teacher')"];
     const params = [];
 
     if (search) {
@@ -176,7 +176,7 @@ router.get('/students', async (req, res) => {
     params.push(limit, offset);
 
     const { rows } = await db.query(
-      `SELECT id, email, full_name, is_premium, premium_expires_at, avatar_url, created_at
+      `SELECT id, email, full_name, role, is_premium, premium_expires_at, avatar_url, created_at
        FROM users
        WHERE ${conditions.join(' AND ')}
        ORDER BY created_at DESC
@@ -196,7 +196,7 @@ router.patch('/students/:id/premium', async (req, res) => {
     const { rows } = await db.query(
       `UPDATE users
        SET is_premium = $1, premium_expires_at = $2, updated_at = NOW()
-       WHERE id = $3 AND role = 'student'
+       WHERE id = $3 AND role IN ('student', 'teacher')
        RETURNING id, email, full_name, is_premium, premium_expires_at`,
       [is_premium, premium_expires_at, req.params.id]
     );

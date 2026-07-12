@@ -427,8 +427,8 @@ export default function ExamDetail() {
   
   const { data: allQuestions } = useApi(
     adminApi.getQuestions,
-    useMemo(() => ({ subject_id: exam?.subject_id, limit: 1000 }), [exam?.subject_id]),
-    [exam?.subject_id]
+    useMemo(() => ({ limit: 10000 }), []),
+    []
   );
   
   const { data: results } = useApi(() => adminApi.getExamResults(id), null, [id]);

@@ -247,8 +247,17 @@ export default function PremiumPage() {
   const { user } = useAuthStore();
   const [upgrading, setUpgrading] = useState(false);
   const { data: settings, loading } = useApi(studentApi.getSettings);
-  const price = settings?.premium_price || '499';
+  const isStudent = user?.role === 'student';
+  const price = isStudent ? (settings?.student_premium_price || '39') : (settings?.premium_price || '65');
   const durationMonths = settings?.premium_duration_months || '1';
+  const currency = settings?.premium_currency || '$';
+  const billingPeriod = settings?.premium_billing_period || '/ year';
+  const discountPct = parseFloat(isStudent ? (settings?.student_premium_discount || '40') : (settings?.premium_discount || '40')) || 0;
+
+  const originalVal = parseFloat(price) || 0;
+  const hasDiscount = discountPct > 0 && discountPct <= 100;
+  const discountedVal = hasDiscount ? Math.round(originalVal * (1 - discountPct / 100)) : originalVal;
+  const savingsVal = originalVal - discountedVal;
 
   const handleUpgrade = async () => {
     setUpgrading(true);
@@ -260,7 +269,7 @@ export default function PremiumPage() {
         useAuthStore.setState({ user: res.data.user });
 
         toast.success('Congratulations! Mentara Labs Premium is now active.');
-        navigate('/explore');
+        navigate(res.data.user.role === 'student' ? '/student/dashboard' : '/explore');
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Upgrade failed. Please try again.');
@@ -357,9 +366,38 @@ export default function PremiumPage() {
                   animation: 'pr-pulse 1.5s infinite'
                 }} />
               ) : (
-                <div className="pr-price-tag">₹{price}<span style={{ fontSize: '1.1rem', color: 'var(--muted)', fontWeight: 500 }}> / {durationMonths} month{parseInt(durationMonths, 10) !== 1 ? 's' : ''}</span></div>
+                <div className="flex flex-col items-center gap-1.5">
+                  {hasDiscount ? (
+                    <>
+                      {/* Original Price & Discount Tag */}
+                      <div className="flex items-center gap-2 justify-center">
+                        <span className="text-lg line-through text-zinc-500 font-medium">{currency}{price}</span>
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase tracking-wider">
+                          {discountPct}% OFF
+                        </span>
+                      </div>
+
+                      {/* New Discounted Price */}
+                      <div className="text-5xl font-black tracking-tight text-white flex items-baseline justify-center gap-1.5">
+                        <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(52,211,153,0.15)]">
+                          {currency}{discountedVal}
+                        </span>
+                        <span className="text-sm text-zinc-500 font-semibold">{billingPeriod}</span>
+                      </div>
+
+                      {/* Savings message */}
+                      <div className="text-[11px] font-bold text-emerald-400 bg-emerald-500/5 border border-emerald-500/10 rounded-lg py-1 px-2.5 mt-1">
+                        🎉 You save {currency}{savingsVal} instantly
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-5xl font-black tracking-tight text-white flex items-baseline justify-center gap-1.5">
+                      <span>{currency}{price}</span>
+                      <span className="text-sm text-zinc-500 font-semibold">{billingPeriod}</span>
+                    </div>
+                  )}
+                </div>
               )}
-              <div className="pr-price-sub">Instant access. Cancel any time.</div>
             </div>
 
             {isPremium ? (

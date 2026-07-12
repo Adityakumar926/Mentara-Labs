@@ -28,8 +28,8 @@ exports.register = async (req, res) => {
       return res.status(400).json({ success: false, message: 'email, password and full_name are required' });
     if (password.length < 8)
       return res.status(400).json({ success: false, message: 'Password must be at least 8 characters' });
-    if (!['admin', 'student'].includes(role))
-      return res.status(400).json({ success: false, message: 'role must be admin or student' });
+    if (!['admin', 'student', 'teacher'].includes(role))
+      return res.status(400).json({ success: false, message: 'role must be admin, student or teacher' });
 
     const hash = await bcrypt.hash(password, 12);
 
@@ -221,6 +221,9 @@ exports.googleLogin = async (req, res) => {
     const email = payload.email.toLowerCase().trim();
     const full_name = payload.name || 'Google User';
 
+    const roleInput = req.body.role || 'student';
+    const role = ['student', 'teacher'].includes(roleInput) ? roleInput : 'student';
+
     let { rows } = await db.query(
       `SELECT id, email, full_name, role, is_premium,
               premium_expires_at, avatar_url, curriculum_id, class_id, onboarded, created_at 
@@ -231,15 +234,15 @@ exports.googleLogin = async (req, res) => {
     let user = rows[0];
 
     if (!user) {
-      // Register new student user
+      // Register new user with the selected role
       const dummyPassword = Math.random().toString(36).substring(2, 15);
       const hash = await bcrypt.hash(dummyPassword, 12);
       
       const insertRes = await db.query(
         `INSERT INTO users (email, password_hash, full_name, role, onboarded)
-         VALUES ($1, $2, $3, 'student', false)
+         VALUES ($1, $2, $3, $4, false)
          RETURNING id, email, full_name, role, is_premium, premium_expires_at, avatar_url, curriculum_id, class_id, onboarded, created_at`,
-        [email, hash, full_name]
+        [email, hash, full_name, role]
       );
       user = insertRes.rows[0];
     }

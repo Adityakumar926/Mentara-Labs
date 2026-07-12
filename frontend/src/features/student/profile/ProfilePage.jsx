@@ -709,7 +709,7 @@ export default function ProfilePage() {
                   }}
                   title={user?.full_name}
                 >
-                  {user?.full_name ?? 'Student'}
+                  {user?.full_name ?? 'Teacher'}
                 </motion.h1>
                 <motion.p
                   initial={{ opacity: 0 }}

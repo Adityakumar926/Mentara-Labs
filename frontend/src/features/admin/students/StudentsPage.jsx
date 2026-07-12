@@ -178,7 +178,86 @@ const CSS = `
   .sp-badge-premium { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3); color: #FCD34D; }
   .sp-badge-free    { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: var(--muted); }
 
-  .sp-date { color: var(--muted); }
+  html.light .sp-student-name, .light .sp-student-name {
+    color: #0F172A;
+  }
+  html.light .sp-empty-title, .light .sp-empty-title {
+    color: #0F172A;
+  }
+  html.light .sp-student-email, .light .sp-student-email,
+  html.light .sp-empty-desc, .light .sp-empty-desc,
+  html.light .sp-subtitle, .light .sp-subtitle,
+  html.light .sp-date, .light .sp-date {
+    color: #475569;
+  }
+  html.light .sp-modal-student .sp-student-name, .light .sp-modal-student .sp-student-name {
+    color: #0F172A;
+  }
+  html.light .sp-modal-student .sp-student-email, .light .sp-modal-student .sp-student-email {
+    color: #475569;
+  }
+  html.light .text-text-muted, .light .text-text-muted {
+    color: #475569 !important;
+  }
+  html.light [data-testid="modal"] h2, .light .modal h2, html.light .modal-title, .light .modal-title {
+    color: #0F172A !important;
+  }
+  html.light .sp-table td button, .light .sp-table td button {
+    background: #F1F5F9 !important;
+    border-color: #CBD5E1 !important;
+  }
+  html.light .sp-table td button:hover, .light .sp-table td button:hover {
+    background: #E2E8F0 !important;
+  }
+
+  /* ── LIGHT THEME COMPATIBILITY ── */
+  html.light .sp-root, .light .sp-root {
+    --cream: #0F172A;
+    --muted: #475569;
+    --card-bg: #FFFFFF;
+    --card-bdr: #CBD5E1;
+  }
+  html.light .sp-input, .light .sp-input,
+  html.light .sp-select, .light .sp-select {
+    background: #FFFFFF;
+    color: #0F172A;
+    border-color: #CBD5E1;
+  }
+  html.light .sp-select option, .light .sp-select option {
+    background: #FFFFFF;
+    color: #0F172A;
+  }
+  html.light .sp-table-card, .light .sp-table-card {
+    background: #FFFFFF;
+    border-color: #CBD5E1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  }
+  html.light .sp-table thead tr, .light .sp-table thead tr {
+    border-bottom: 1px solid #E2E8F0;
+  }
+  html.light .sp-table tbody tr, .light .sp-table tbody tr {
+    border-bottom: 1px solid #F1F5F9;
+  }
+  html.light .sp-table tbody tr:hover, .light .sp-table tbody tr:hover {
+    background: #F8FAFC;
+  }
+  html.light .sp-avatar, .light .sp-avatar {
+    background: rgba(124, 58, 237, 0.08);
+    border-color: rgba(124, 58, 237, 0.2);
+  }
+  html.light .sp-badge-free, .light .sp-badge-free {
+    background: #F1F5F9;
+    border-color: #E2E8F0;
+    color: #475569;
+  }
+  html.light .sp-modal-student, .light .sp-modal-student {
+    background: #F8FAFC;
+    border-color: #E2E8F0;
+  }
+  html.light .sp-empty, .light .sp-empty {
+    background: #F8FAFC;
+    border-color: #CBD5E1;
+  }
 
   /* star action */
   .sp-star-btn {
@@ -197,6 +276,9 @@ const CSS = `
     background-size: 200% 100%;
     animation: sp-shimmer 1.6s ease infinite;
     border-radius: 12px;
+  }
+  html.light .sp-skel, .light .sp-skel {
+    background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
   }
   @keyframes sp-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
@@ -236,6 +318,7 @@ const CSS = `
   @media (max-width: 1024px) {
     .sp-hide-lg { display: none !important; }
   }
+
 `;
 
 export default function StudentsPage() {
@@ -294,7 +377,7 @@ export default function StudentsPage() {
               <span className="sp-eyebrow-dot" />
               Admin
             </div>
-            <h1 className="sp-title">Students</h1>
+            <h1 className="sp-title">Teachers</h1>
             <p className="sp-subtitle">
               {loading ? 'Loading…' : `${list.length} result${list.length !== 1 ? 's' : ''}`}
             </p>
@@ -322,7 +405,7 @@ export default function StudentsPage() {
             value={premFilter}
             onChange={(e) => setPremFilter(e.target.value)}
           >
-            <option value="">All Students</option>
+            <option value="">All Teachers</option>
             <option value="true">Premium only</option>
             <option value="false">Free only</option>
           </select>
@@ -352,7 +435,7 @@ export default function StudentsPage() {
             <div className="sp-empty-icon">
               <Users size={26} style={{ color: 'var(--violet-l)' }} />
             </div>
-            <p className="sp-empty-title">No students found</p>
+            <p className="sp-empty-title">No teachers found</p>
             <p className="sp-empty-desc">Try adjusting your search or filters.</p>
           </motion.div>
         ) : (
@@ -365,7 +448,7 @@ export default function StudentsPage() {
             <table className="sp-table">
               <thead>
                 <tr>
-                  <th>Student</th>
+                  <th>Teacher</th>
                   <th className="sp-hide-md">Joined</th>
                   <th>Plan</th>
                   <th className="sp-hide-lg">Expires</th>
@@ -426,7 +509,7 @@ export default function StudentsPage() {
                             padding: '0.35rem 0.75rem',
                             fontSize: '0.72rem',
                             fontWeight: 600,
-                            color: s.is_premium ? 'var(--amber)' : '#F5F0E8',
+                            color: s.is_premium ? 'var(--amber)' : 'var(--cream)',
                             cursor: 'pointer',
                             transition: 'all 0.2s',
                           }}

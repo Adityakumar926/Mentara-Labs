@@ -9,7 +9,7 @@ exports.getAll = async (req, res) => {
         c.*,
         (SELECT COUNT(*)::int FROM classes cl WHERE cl.curriculum_id = c.id) AS class_count,
         (SELECT COUNT(*)::int FROM subjects s JOIN classes cl ON cl.id = s.class_id WHERE cl.curriculum_id = c.id) AS subject_count,
-        (SELECT COUNT(*)::int FROM users u WHERE u.curriculum_id = c.id AND u.role = 'student') AS student_count
+        (SELECT COUNT(*)::int FROM users u WHERE u.curriculum_id = c.id AND u.role IN ('student', 'teacher')) AS student_count
       FROM curriculums c
       ORDER BY c.created_at DESC
     `);

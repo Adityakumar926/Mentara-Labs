@@ -23,18 +23,21 @@ const QUOTES = [
   { text: 'I finally understand fractions and shadows — the animations are incredible!', author: 'Ritika J.', role: 'Primary Student' },
 ];
 
+import { BookOpen, GraduationCap } from 'lucide-react';
+
 export default function RegisterPage() {
   const { loginWithGoogle, loading } = useAuthStore();
   const navigate = useNavigate();
 
   const [quoteIdx, setQuoteIdx]     = useState(0);
   const [quoteVisible, setQuoteVisible] = useState(true);
+  const [selectedRole, setSelectedRole] = useState('student');
 
   const handleGoogleCallback = async (response) => {
     try {
-      const user = await loginWithGoogle(response.credential);
+      const user = await loginWithGoogle(response.credential, selectedRole);
       toast.success(`Account resolved! Welcome, ${user.full_name.split(' ')[0]}!`);
-      navigate(user.role === 'admin' ? '/admin' : '/courses');
+      navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
     } catch (err) {
       toast.error(err.message);
     }
@@ -507,7 +510,70 @@ export default function RegisterPage() {
 
             <div className="form-eyebrow">Create Account</div>
             <h1 className="form-title">Sign up</h1>
-            <p className="form-sub" style={{ marginBottom: '2.5rem' }}>Sign up using Google to start learning.</p>
+            <p className="form-sub" style={{ marginBottom: '1.5rem' }}>Select your role to register your account.</p>
+
+            {/* Role selector */}
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+              <div
+                onClick={() => setSelectedRole('student')}
+                style={{
+                  flex: 1,
+                  padding: '1.25rem 1rem',
+                  borderRadius: '16px',
+                  border: `2px solid ${selectedRole === 'student' ? 'rgba(34,211,238,0.7)' : 'rgba(255,255,255,0.06)'}`,
+                  background: selectedRole === 'student' ? 'rgba(34,211,238,0.08)' : 'rgba(255,255,255,0.02)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  textAlign: 'center',
+                  transition: 'all 0.2s ease',
+                  boxShadow: selectedRole === 'student' ? '0 0 20px rgba(34,211,238,0.15)' : 'none'
+                }}
+              >
+                <div style={{
+                  width: '40px', height: '40px', borderRadius: '12px',
+                  background: selectedRole === 'student' ? 'rgba(34,211,238,0.15)' : 'rgba(255,255,255,0.05)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  border: `1px solid ${selectedRole === 'student' ? 'rgba(34,211,238,0.3)' : 'transparent'}`
+                }}>
+                  <BookOpen size={20} style={{ color: selectedRole === 'student' ? '#22d3ee' : 'rgba(255,255,255,0.5)' }} />
+                </div>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#ffffff' }}>I am a Student</div>
+                <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', lineHeight: 1.25 }}>Access simple primary tools, animations & worksheets</div>
+              </div>
+
+              <div
+                onClick={() => setSelectedRole('teacher')}
+                style={{
+                  flex: 1,
+                  padding: '1.25rem 1rem',
+                  borderRadius: '16px',
+                  border: `2px solid ${selectedRole === 'teacher' ? 'rgba(168,85,247,0.7)' : 'rgba(255,255,255,0.06)'}`,
+                  background: selectedRole === 'teacher' ? 'rgba(168,85,247,0.08)' : 'rgba(255,255,255,0.02)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  textAlign: 'center',
+                  transition: 'all 0.2s ease',
+                  boxShadow: selectedRole === 'teacher' ? '0 0 20px rgba(168,85,247,0.15)' : 'none'
+                }}
+              >
+                <div style={{
+                  width: '40px', height: '40px', borderRadius: '12px',
+                  background: selectedRole === 'teacher' ? 'rgba(168,85,247,0.15)' : 'rgba(255,255,255,0.05)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  border: `1px solid ${selectedRole === 'teacher' ? 'rgba(168,85,247,0.3)' : 'transparent'}`
+                }}>
+                  <GraduationCap size={20} style={{ color: selectedRole === 'teacher' ? '#a855f7' : 'rgba(255,255,255,0.5)' }} />
+                </div>
+                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#ffffff' }}>I am a Teacher</div>
+                <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', lineHeight: 1.25 }}>Teach with interactive controls, whiteboard & calculators</div>
+              </div>
+            </div>
 
             <div className="google-btn-wrapper">
               <div className="custom-google-btn">
