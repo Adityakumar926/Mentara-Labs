@@ -34,17 +34,19 @@ import MaterialsPage    from '@/features/admin/curriculum/MaterialsPage';
 // Student pages
 import OnboardingPage       from '@/features/auth/OnboardingPage';
 import StudentDashboardPage from '@/features/student/dashboard/StudentDashboardPage';
-import SubjectsListPage     from '@/features/student/courses/SubjectsListPage';
-import CoursesPage          from '@/features/student/courses/CoursesPage';
-import TopicsPage           from '@/features/student/courses/TopicsPage';
-import SubjectPage          from '@/features/student/courses/SubjectPage';
-import ExamsStudentPage     from '@/features/student/exams/ExamsPage';
-import ExamTakePage         from '@/features/student/exams/ExamTakePage';
-import ResultPage           from '@/features/student/exams/ResultPage';
 import ProfilePage          from '@/features/student/profile/ProfilePage';
-import ExplorePage          from '@/features/student/courses/Explore';
-import StudentQuestionsPage from '@/features/student/questions/QuestionsPage';
 import PremiumPage          from '@/features/student/premium/PremiumPage';
+
+// Teacher pages
+import SubjectsListPage     from '@/features/teacher/courses/SubjectsListPage';
+import CoursesPage          from '@/features/teacher/courses/CoursesPage';
+import TopicsPage           from '@/features/teacher/courses/TopicsPage';
+import SubjectPage          from '@/features/teacher/courses/SubjectPage';
+import ExamsStudentPage     from '@/features/teacher/exams/ExamsPage';
+import ExamTakePage         from '@/features/teacher/exams/ExamTakePage';
+import ResultPage           from '@/features/teacher/exams/ResultPage';
+import ExplorePage          from '@/features/teacher/courses/Explore';
+import StudentQuestionsPage from '@/features/teacher/questions/QuestionsPage';
 
 export default function App() {
   const fetchMe = useAuthStore((s) => s.fetchMe);
