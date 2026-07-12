@@ -24,6 +24,11 @@ const CSS = `
     --muted:    #94a3b8;
     --card-bg:  rgba(255, 255, 255, 0.035);
     --card-bdr: rgba(255, 255, 255, 0.08);
+    --welcome-title-from: #ffffff;
+    --welcome-title-to: #a78bfa;
+    --welcome-badge-bg: rgba(139,92,246,0.15);
+    --welcome-badge-color: #a78bfa;
+    --welcome-badge-border: rgba(139,92,246,0.3);
     font-family: 'Quicksand', sans-serif;
     color: var(--cream);
   }
@@ -38,6 +43,11 @@ const CSS = `
     --muted:    #475569;
     --card-bg:  #f1f5f9;
     --card-bdr: #e2e8f0;
+    --welcome-title-from: #1e1b4b;
+    --welcome-title-to: #6d28d9;
+    --welcome-badge-bg: rgba(109,40,217,0.08);
+    --welcome-badge-color: #6d28d9;
+    --welcome-badge-border: rgba(109,40,217,0.2);
   }
 
   .sd-welcome-card {
@@ -593,11 +603,11 @@ export default function StudentDashboardPage() {
         <div className="sd-welcome-card">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem' }}>
             <div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(139,92,246,0.15)', border: '2px solid rgba(139,92,246,0.3)', padding: '0.4rem 1rem', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 700, color: '#a78bfa', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>
-                <span className="h-2 w-2 rounded-full bg-violet-400 animate-pulse" />
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'var(--welcome-badge-bg)', border: '2px solid var(--welcome-badge-border)', padding: '0.4rem 1rem', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--welcome-badge-color)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>
+                <span className="h-2 w-2 rounded-full bg-violet-450 animate-pulse" />
                 🏆 Primary Learning Quest
               </div>
-              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '2.5rem', fontWeight: 700, margin: 0, background: 'linear-gradient(135deg, #ffffff 0%, #a78bfa 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '2.5rem', fontWeight: 700, margin: 0, background: 'linear-gradient(135deg, var(--welcome-title-from) 0%, var(--welcome-title-to) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 Hello, {user?.full_name?.split(' ')[0] || 'Learner'}! 👋
               </h1>
               <p style={{ color: 'var(--muted)', fontSize: '1.05rem', marginTop: '0.5rem', margin: 0, fontWeight: 500 }}>
