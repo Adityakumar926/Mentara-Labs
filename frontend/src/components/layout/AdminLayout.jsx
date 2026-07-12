@@ -13,7 +13,7 @@ const NAV = [
   { to: '/admin/materials',  icon: FolderOpen,      label: 'Materials Explorer' },
   { to: '/admin/questions',  icon: HelpCircle,      label: 'Question Bank'},
   { to: '/admin/exams',      icon: FileText,        label: 'Exams'        },
-  { to: '/admin/students',   icon: Users,           label: 'Teachers'     },
+  { to: '/admin/students',   icon: Users,           label: 'Users'        },
   { to: '/admin/settings',   icon: Settings,        label: 'Settings'     },
 ];
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Users, Star } from 'lucide-react';
+import { Search, Users, Star, Filter } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageWrapper, Badge, Skeleton, EmptyState, Modal, Input, Button, ConfirmDialog } from '@/components/ui';
 import { useApi, useMutation } from '@/hooks/useApi';
@@ -83,6 +83,7 @@ const CSS = `
   .sp-filters {
     display: flex; flex-wrap: wrap; gap: 0.75rem;
     margin-bottom: 1.25rem;
+    align-items: center;
   }
   .sp-search-wrap {
     position: relative; flex: 1; min-width: 220px;
@@ -98,12 +99,9 @@ const CSS = `
     border-radius: 14px;
     padding: 0.62rem 0.9rem 0.62rem 2.4rem;
     color: var(--cream); font-family: 'Inter', sans-serif;
-    font-size: 0.82rem; outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    backdrop-filter: blur(8px);
+    font-size: 0.82rem; outline: none; transition: all 0.2s;
   }
-  .sp-input::placeholder { color: var(--muted); }
-  .sp-input:focus { border-color: rgba(124,58,237,0.45); box-shadow: 0 0 0 3px rgba(124,58,237,0.1); }
+  .sp-input:focus { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
 
   .sp-select {
     background: var(--card-bg);
@@ -112,41 +110,31 @@ const CSS = `
     padding: 0.62rem 2rem 0.62rem 0.9rem;
     color: var(--cream); font-family: 'Inter', sans-serif;
     font-size: 0.82rem; outline: none; cursor: pointer;
-    backdrop-filter: blur(8px);
-    transition: border-color 0.2s;
-    -webkit-appearance: none; appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(245,240,232,0.4)' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 0.7rem center;
-    min-width: 160px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(245,240,232,0.45)' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.8rem center;
+    background-size: 0.85rem;
+    min-width: 150px;
   }
-  .sp-select option { background: #0F1629; color: var(--cream); }
-  .sp-select:focus { border-color: rgba(124,58,237,0.45); box-shadow: 0 0 0 3px rgba(124,58,237,0.1); }
+  .sp-select option { background: var(--navy2); color: var(--cream); }
 
   /* ── TABLE CARD ── */
   .sp-table-card {
-    background: var(--card-bg);
+    background: rgba(15,22,41,0.5);
     border: 1px solid var(--card-bdr);
-    border-radius: 24px; overflow: hidden;
-    backdrop-filter: blur(12px);
-    transition: border-color 0.3s;
+    border-radius: 24px;
+    overflow: hidden;
+    backdrop-filter: blur(20px);
   }
-  .sp-table-card:hover { border-color: rgba(124,58,237,0.15); }
-
-  .sp-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
-
-  .sp-table thead tr {
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-  }
+  .sp-table { width: 100%; border-collapse: collapse; text-align: left; }
   .sp-table th {
-    text-align: left; padding: 0.85rem 1.25rem;
-    font-size: 0.65rem; font-weight: 700;
-    letter-spacing: 0.07em; text-transform: uppercase;
-    color: var(--muted);
+    padding: 1.1rem 1.25rem; font-size: 0.72rem; font-weight: 700;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--card-bdr);
   }
-  .sp-table th:last-child { text-align: right; }
-
   .sp-table tbody tr {
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.02);
     transition: background 0.18s;
   }
   .sp-table tbody tr:last-child { border-bottom: none; }
@@ -178,37 +166,40 @@ const CSS = `
   .sp-badge-premium { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3); color: #FCD34D; }
   .sp-badge-free    { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: var(--muted); }
 
-  html.light .sp-student-name, .light .sp-student-name {
-    color: #0F172A;
+  /* role badge */
+  .sp-role-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
   }
-  html.light .sp-empty-title, .light .sp-empty-title {
-    color: #0F172A;
+  .sp-role-teacher {
+    background: rgba(124,58,237,0.12);
+    color: #C4B5FD;
+    border: 1px solid rgba(124,58,237,0.25);
   }
+  .sp-role-student {
+    background: rgba(6,182,212,0.12);
+    color: #67E8F9;
+    border: 1px solid rgba(6,182,212,0.25);
+  }
+
+  html.light .sp-student-name, .light .sp-student-name { color: #0F172A; }
+  html.light .sp-empty-title, .light .sp-empty-title { color: #0F172A; }
   html.light .sp-student-email, .light .sp-student-email,
   html.light .sp-empty-desc, .light .sp-empty-desc,
   html.light .sp-subtitle, .light .sp-subtitle,
-  html.light .sp-date, .light .sp-date {
-    color: #475569;
-  }
-  html.light .sp-modal-student .sp-student-name, .light .sp-modal-student .sp-student-name {
-    color: #0F172A;
-  }
-  html.light .sp-modal-student .sp-student-email, .light .sp-modal-student .sp-student-email {
-    color: #475569;
-  }
-  html.light .text-text-muted, .light .text-text-muted {
-    color: #475569 !important;
-  }
-  html.light [data-testid="modal"] h2, .light .modal h2, html.light .modal-title, .light .modal-title {
-    color: #0F172A !important;
-  }
-  html.light .sp-table td button, .light .sp-table td button {
-    background: #F1F5F9 !important;
-    border-color: #CBD5E1 !important;
-  }
-  html.light .sp-table td button:hover, .light .sp-table td button:hover {
-    background: #E2E8F0 !important;
-  }
+  html.light .sp-date, .light .sp-date { color: #475569; }
+  html.light .sp-modal-student .sp-student-name, .light .sp-modal-student .sp-student-name { color: #0F172A; }
+  html.light .sp-modal-student .sp-student-email, .light .sp-modal-student .sp-student-email { color: #475569; }
+  html.light .text-text-muted, .light .text-text-muted { color: #475569 !important; }
+  html.light [data-testid="modal"] h2, .light .modal h2, html.light .modal-title, .light .modal-title { color: #0F172A !important; }
+  html.light .sp-table td button, .light .sp-table td button { background: #F1F5F9 !important; border-color: #CBD5E1 !important; }
+  html.light .sp-table td button:hover, .light .sp-table td button:hover { background: #E2E8F0 !important; }
 
   /* ── LIGHT THEME COMPATIBILITY ── */
   html.light .sp-root, .light .sp-root {
@@ -223,114 +214,34 @@ const CSS = `
     color: #0F172A;
     border-color: #CBD5E1;
   }
-  html.light .sp-select option, .light .sp-select option {
-    background: #FFFFFF;
-    color: #0F172A;
-  }
+  html.light .sp-select option, .light .sp-select option { background: #FFFFFF; color: #0F172A; }
   html.light .sp-table-card, .light .sp-table-card {
     background: #FFFFFF;
     border-color: #CBD5E1;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
   }
-  html.light .sp-table thead tr, .light .sp-table thead tr {
-    border-bottom: 1px solid #E2E8F0;
-  }
-  html.light .sp-table tbody tr, .light .sp-table tbody tr {
-    border-bottom: 1px solid #F1F5F9;
-  }
-  html.light .sp-table tbody tr:hover, .light .sp-table tbody tr:hover {
-    background: #F8FAFC;
-  }
-  html.light .sp-avatar, .light .sp-avatar {
-    background: rgba(124, 58, 237, 0.08);
-    border-color: rgba(124, 58, 237, 0.2);
-  }
-  html.light .sp-badge-free, .light .sp-badge-free {
-    background: #F1F5F9;
-    border-color: #E2E8F0;
-    color: #475569;
-  }
-  html.light .sp-modal-student, .light .sp-modal-student {
-    background: #F8FAFC;
-    border-color: #E2E8F0;
-  }
-  html.light .sp-empty, .light .sp-empty {
-    background: #F8FAFC;
-    border-color: #CBD5E1;
-  }
-
-  /* star action */
-  .sp-star-btn {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 32px; height: 32px; border-radius: 10px;
-    background: transparent; border: none; cursor: pointer;
-    transition: background 0.18s, color 0.18s;
-  }
-  .sp-star-btn.is-premium { color: #FCD34D; }
-  .sp-star-btn:not(.is-premium) { color: var(--muted); }
-  .sp-star-btn:hover { background: rgba(245,158,11,0.1); color: #FCD34D; }
-
-  /* ── SHIMMER ── */
-  .sp-skel {
-    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 75%);
-    background-size: 200% 100%;
-    animation: sp-shimmer 1.6s ease infinite;
-    border-radius: 12px;
-  }
-  html.light .sp-skel, .light .sp-skel {
-    background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
-  }
-  @keyframes sp-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-
-  /* ── EMPTY ── */
-  .sp-empty {
-    display: flex; flex-direction: column; align-items: center; gap: 1rem;
-    padding: 4rem 2rem; border: 1px dashed rgba(124,58,237,0.2);
-    border-radius: 24px; background: rgba(124,58,237,0.02); text-align: center;
-  }
-  .sp-empty-icon {
-    width: 60px; height: 60px; border-radius: 18px;
-    background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.2);
-    display: flex; align-items: center; justify-content: center;
-  }
-  .sp-empty-title { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; color: var(--cream); }
-  .sp-empty-desc  { font-size: 0.8rem; color: var(--muted); max-width: 260px; line-height: 1.55; }
-
-  /* ── MODAL STUDENT CARD ── */
-  .sp-modal-student {
-    display: flex; align-items: center; gap: 0.85rem;
-    padding: 0.9rem 1rem; border-radius: 16px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    margin-bottom: 0.25rem;
-  }
-  .sp-modal-avatar {
-    width: 40px; height: 40px; border-radius: 50%;
-    background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;
-    font-weight: 700; color: var(--violet-l); flex-shrink: 0;
-  }
-
-  @media (max-width: 768px) {
-    .sp-hide-md { display: none !important; }
-  }
-  @media (max-width: 1024px) {
-    .sp-hide-lg { display: none !important; }
-  }
-
+  html.light .sp-table thead tr, .light .sp-table thead tr { border-bottom: 1px solid #E2E8F0; }
+  html.light .sp-table tbody tr, .light .sp-table tbody tr { border-bottom: 1px solid #F1F5F9; }
+  html.light .sp-table tbody tr:hover, .light .sp-table tbody tr:hover { background: #F8FAFC; }
+  html.light .sp-avatar, .light .sp-avatar { background: rgba(124, 58, 237, 0.08); border-color: rgba(124, 58, 237, 0.2); }
+  html.light .sp-badge-free, .light .sp-badge-free { background: #F1F5F9; border-color: #E2E8F0; }
 `;
 
 export default function StudentsPage() {
   const [search, setSearch]         = useState('');
   const [premFilter, setPremFilter] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
   const [premModal, setPremModal]   = useState(null);
   const [expiryDate, setExpiryDate] = useState('');
 
   const { data: students, loading, refetch } = useApi(
     adminApi.getStudents,
-    { search: search || undefined, is_premium: premFilter || undefined },
-    [search, premFilter]
+    { 
+      search: search || undefined, 
+      is_premium: premFilter || undefined,
+      role: roleFilter || undefined 
+    },
+    [search, premFilter, roleFilter]
   );
 
   const { mutate: togglePremium, loading: toggling } = useMutation(
@@ -377,9 +288,9 @@ export default function StudentsPage() {
               <span className="sp-eyebrow-dot" />
               Admin
             </div>
-            <h1 className="sp-title">Teachers</h1>
+            <h1 className="sp-title">Users</h1>
             <p className="sp-subtitle">
-              {loading ? 'Loading…' : `${list.length} result${list.length !== 1 ? 's' : ''}`}
+              {loading ? 'Loading…' : `${list.length} user${list.length !== 1 ? 's' : ''}`}
             </p>
           </div>
         </motion.div>
@@ -400,12 +311,25 @@ export default function StudentsPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
+
+          {/* Role Filter */}
+          <select
+            className="sp-select"
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+          >
+            <option value="">All Roles</option>
+            <option value="teacher">Teachers</option>
+            <option value="student">Students</option>
+          </select>
+
+          {/* Premium Filter */}
           <select
             className="sp-select"
             value={premFilter}
             onChange={(e) => setPremFilter(e.target.value)}
           >
-            <option value="">All Teachers</option>
+            <option value="">All Plans</option>
             <option value="true">Premium only</option>
             <option value="false">Free only</option>
           </select>
@@ -435,7 +359,7 @@ export default function StudentsPage() {
             <div className="sp-empty-icon">
               <Users size={26} style={{ color: 'var(--violet-l)' }} />
             </div>
-            <p className="sp-empty-title">No teachers found</p>
+            <p className="sp-empty-title">No users found</p>
             <p className="sp-empty-desc">Try adjusting your search or filters.</p>
           </motion.div>
         ) : (
@@ -448,7 +372,8 @@ export default function StudentsPage() {
             <table className="sp-table">
               <thead>
                 <tr>
-                  <th>Teacher</th>
+                  <th>User</th>
+                  <th>Role</th>
                   <th className="sp-hide-md">Joined</th>
                   <th>Plan</th>
                   <th className="sp-hide-lg">Expires</th>
@@ -466,7 +391,7 @@ export default function StudentsPage() {
                       exit={{ opacity: 0 }}
                       transition={{ delay: i * 0.03, duration: 0.22 }}
                     >
-                      {/* Student */}
+                      {/* Name/Email */}
                       <td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                           <div className="sp-avatar">
@@ -480,6 +405,13 @@ export default function StudentsPage() {
                             <p className="sp-student-email" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.email}</p>
                           </div>
                         </div>
+                      </td>
+
+                      {/* Role */}
+                      <td>
+                        <span className={`sp-role-badge ${s.role === 'teacher' ? 'sp-role-teacher' : 'sp-role-student'}`}>
+                          {s.role === 'teacher' ? 'Teacher' : 'Student'}
+                        </span>
                       </td>
 
                       {/* Joined */}

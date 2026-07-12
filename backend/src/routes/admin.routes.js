@@ -161,8 +161,14 @@ router.get('/students', async (req, res) => {
     if (!Number.isFinite(limit) || limit < 1) limit = 20;
 
     const offset = (page - 1) * limit;
+    const role = req.query.role;
     const conditions = ["role IN ('student', 'teacher')"];
     const params = [];
+
+    if (role && ['student', 'teacher'].includes(role)) {
+      params.push(role);
+      conditions.push(`role = $${params.length}`);
+    }
 
     if (search) {
       params.push(`%${search}%`);
