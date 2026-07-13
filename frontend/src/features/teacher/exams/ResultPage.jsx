@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PageWrapper, Skeleton } from '@/components/ui';
 import { useApi } from '@/hooks/useApi';
 import { studentApi } from '@/api/services';
+import useAuthStore from '@/store/authStore';
 import clsx from 'clsx';
 
 /* ─── CSS ─────────────────────────────────────────────────────────────────── */
@@ -322,6 +323,7 @@ function Confetti() {
 export default function ResultPage() {
   const { id: examId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuthStore();
 
   const { data: result, loading } = useApi(
     () => studentApi.getMyResult(examId), null, [examId]
@@ -418,7 +420,7 @@ export default function ResultPage() {
                 type="button" 
                 className="result-back" 
                 style={{ padding: '0.65rem 2rem', background: 'linear-gradient(135deg, var(--violet), #4F46E5)', color: '#fff', border: 'none', boxShadow: '0 0 20px rgba(124,58,237,0.35)' }} 
-                onClick={() => navigate('/exams')}
+                onClick={() => navigate(user?.role === 'student' ? '/student/dashboard' : '/exams')}
               >
                 Explore More Exams
               </button>
@@ -438,7 +440,7 @@ export default function ResultPage() {
 
         {/* ── Back ── */}
         <motion.div initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}>
-          <button className="result-back" onClick={() => navigate('/exams')}>
+          <button className="result-back" onClick={() => navigate(user?.role === 'student' ? '/student/dashboard' : '/exams')}>
             <ArrowLeft size={14} /> Back to Exams
           </button>
         </motion.div>

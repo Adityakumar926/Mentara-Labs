@@ -4,6 +4,7 @@ import { Clock, ChevronLeft, ChevronRight, Send, AlertTriangle, Maximize2, Minim
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button, Modal } from '@/components/ui';
 import { studentApi } from '@/api/services';
+import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
 
@@ -818,6 +819,7 @@ function StructureCanvas({ imageUrl, strokes = [], onChange }) {
 export default function ExamTakePage() {
   const { id: examId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuthStore();
 
   const [phase, setPhase]                 = useState('loading');
   const [submissionId, setSubmissionId]     = useState(null);
@@ -895,10 +897,10 @@ export default function ExamTakePage() {
         setPhase('taking');
       } catch (err) {
         toast.error(err.response?.data?.message ?? 'Could not start exam');
-        navigate('/exams');
+        navigate(user?.role === 'student' ? '/student/dashboard' : '/exams');
       }
     })();
-  }, [examId, navigate]);
+  }, [examId, navigate, user?.role]);
 
   useEffect(() => {
     if (expired && phase === 'taking') handleSubmit(true);

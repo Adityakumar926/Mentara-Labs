@@ -108,9 +108,7 @@ export default function App() {
             <Route path="/courses/:curriculumId/subjects/:subjectId/topics/:topicId" element={<SubjectPage />} />
             <Route path="/questions"                                         element={<StudentQuestionsPage />} />
             <Route path="/exams"                                             element={<ExamsStudentPage />} />
-            <Route path="/exams/:id/take"                                    element={<ExamTakePage />} />
             <Route path="/explore"                                           element={<ExplorePage />} />
-            <Route path="/exams/:id/result"                                  element={<ResultPage />} />
             <Route path="/profile"                                           element={<ProfilePage />} />
             <Route path="/premium"                                           element={<PremiumPage />} />
           </Route>
@@ -123,6 +121,12 @@ export default function App() {
             <Route path="/student/profile"   element={<ProfilePage />} />
             <Route path="/student/premium"   element={<PremiumPage />} />
           </Route>
+        </Route>
+
+        {/* ── Shared Student/Teacher Exam Attempt & Results (Layout-Free) ── */}
+        <Route element={<ProtectedRoute role={['student', 'teacher']} />}>
+          <Route path="/exams/:id/take"   element={<ExamTakePage />} />
+          <Route path="/exams/:id/result" element={<ResultPage />} />
         </Route>
 
         {/* ── Fallback ──────────────────────────────────────────────────── */}

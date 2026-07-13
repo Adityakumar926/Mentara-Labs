@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BookOpen, FileText, User, LogOut, Compass, HelpCircle, ChevronRight, Sparkles, Sun, Moon, PenTool, Eraser, RotateCcw, Maximize2, Minimize2, Square, Triangle, Circle, Minus, Ruler, Download, Undo, Redo, Trash2, Grid } from 'lucide-react';
+import { BookOpen, FileText, User, LogOut, Compass, HelpCircle, ChevronRight, Sparkles, Sun, Moon, PenTool, Eraser, RotateCcw, Maximize2, Minimize2, Square, Triangle, Circle, Minus, Ruler, Download, Undo, Redo, Trash2, Grid, Zap } from 'lucide-react';
 import useAuthStore from '@/store/authStore';
 import NotificationBell from '@/components/shared/NotificationBell';
 
@@ -538,10 +538,14 @@ export default function StudentLayout() {
 function TeacherWhiteboard() {
   const [isOpen, setIsOpen] = useState(false);
   const canvasRef = useRef(null);
+  const laserCanvasRef = useRef(null);
+  const laserSegmentsRef = useRef([]);
+  const laserAnimationIdRef = useRef(null);
+  
   const [color, setColor] = useState('#22d3ee');
   const [wbTheme, setWbTheme] = useState('dark'); // 'dark', 'light'
   const [wbGrid, setWbGrid] = useState(true); // boolean grid overlay
-  const [tool, setTool] = useState('draw'); // 'draw', 'erase', 'line', 'rect', 'circle', 'triangle'
+  const [tool, setTool] = useState('draw'); // 'draw', 'erase', 'line', 'rect', 'circle', 'triangle', 'laser'
   const [brushSize, setBrushSize] = useState(3);
   
   // Undo/Redo history
@@ -778,6 +782,64 @@ function TeacherWhiteboard() {
     window.addEventListener('touchend', handleUp);
   };
 
+  const drawLaserStrokes = () => {
+    const canvas = laserCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const now = Date.now();
+    // Filter out expired segments (fade lifetime: 2.5 seconds)
+    laserSegmentsRef.current = laserSegmentsRef.current.filter(seg => now - seg.createdAt < seg.life);
+
+    if (laserSegmentsRef.current.length === 0) {
+      laserAnimationIdRef.current = null;
+      return;
+    }
+
+    // Draw active segments
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    laserSegmentsRef.current.forEach(seg => {
+      const age = now - seg.createdAt;
+      const progress = age / seg.life;
+      const alpha = 1 - progress;
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.strokeStyle = seg.color;
+      ctx.lineWidth = seg.width;
+      
+      // Neon glow effect!
+      ctx.shadowBlur = seg.width * 1.5;
+      ctx.shadowColor = seg.color;
+
+      ctx.beginPath();
+      ctx.moveTo(seg.x1, seg.y1);
+      ctx.lineTo(seg.x2, seg.y2);
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    laserAnimationIdRef.current = requestAnimationFrame(drawLaserStrokes);
+  };
+
+  const triggerLaserRedraw = () => {
+    if (!laserAnimationIdRef.current) {
+      laserAnimationIdRef.current = requestAnimationFrame(drawLaserStrokes);
+    }
+  };
+
+  // Clean up laser animation on unmount
+  useEffect(() => {
+    return () => {
+      if (laserAnimationIdRef.current) {
+        cancelAnimationFrame(laserAnimationIdRef.current);
+      }
+    };
+  }, []);
+
   // Resize canvas to window dimensions dynamically
   useEffect(() => {
     if (!isOpen) return;
@@ -800,6 +862,13 @@ function TeacherWhiteboard() {
       
       canvas.width = targetW;
       canvas.height = targetH;
+
+      const laserCanvas = laserCanvasRef.current;
+      if (laserCanvas) {
+        laserCanvas.width = targetW;
+        laserCanvas.height = targetH;
+        triggerLaserRedraw();
+      }
 
       // 3. Restore drawings and brush settings
       ctx.lineCap = 'round';
@@ -1149,6 +1218,9 @@ function TeacherWhiteboard() {
     prevPosRef.current = coords;
     isDrawingRef.current = true;
     
+    if (tool === 'laser') {
+      return;
+    }
     const ctx = canvas.getContext('2d');
     snapshotRef.current = ctx.getImageData(0, 0, canvas.width, canvas.height);
   };
@@ -1158,6 +1230,24 @@ function TeacherWhiteboard() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const coords = getCoordinates(e);
+    
+    if (tool === 'laser') {
+      const segment = {
+        x1: prevPosRef.current.x,
+        y1: prevPosRef.current.y,
+        x2: coords.x,
+        y2: coords.y,
+        color: color,
+        width: brushSize * 2 + 1, // Laser pointer looks better slightly bolder
+        createdAt: Date.now(),
+        life: 2500
+      };
+      laserSegmentsRef.current.push(segment);
+      prevPosRef.current = coords;
+      triggerLaserRedraw();
+      return;
+    }
+
     const ctx = canvas.getContext('2d');
     
     if (tool === 'draw' || tool === 'erase') {
@@ -1216,7 +1306,9 @@ function TeacherWhiteboard() {
   const handleEnd = () => {
     if (isDrawingRef.current) {
       isDrawingRef.current = false;
-      saveState();
+      if (tool !== 'laser') {
+        saveState();
+      }
     }
   };
 
@@ -1233,15 +1325,17 @@ function TeacherWhiteboard() {
       {/* Smart Board Toggle Button in Sidebar */}
       <button
         onClick={() => setIsOpen(true)}
-        className="w-full flex items-center justify-between p-2.5 rounded-xl border border-white/5 bg-zinc-900/40 text-zinc-400 hover:text-white hover:bg-zinc-900/60 transition-all text-xs font-semibold"
+        className="w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all text-xs select-none cursor-pointer
+          border-slate-800 bg-slate-100 text-slate-900 font-extrabold hover:bg-slate-200 hover:text-black hover:border-slate-950 shadow-sm
+          dark:border-cyan-400/10 dark:bg-cyan-500/5 dark:text-cyan-400 dark:hover:bg-cyan-400/10 dark:hover:text-cyan-300 dark:hover:border-cyan-400/20 dark:hover:shadow-[0_0_15px_rgba(6,182,212,0.15)] dark:font-bold dark:font-mono dark:tracking-wide dark:uppercase"
       >
         <div className="flex items-center gap-2">
-          <PenTool size={14} className="text-cyan-400" />
+          <PenTool size={14} className="text-cyan-600 dark:text-cyan-400 stroke-[2.5]" />
           <span>Explanation Board</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
-          <span className="text-[10px] text-zinc-500">Launch</span>
+          <span className="h-1.5 w-1.5 rounded-full bg-cyan-600 dark:bg-cyan-400 animate-pulse" />
+          <span className="text-[9px] text-slate-500 dark:text-cyan-400/60 font-medium">Launch</span>
         </div>
       </button>
 
@@ -1293,12 +1387,23 @@ function TeacherWhiteboard() {
           </div>
 
           {/* Canvas Wrapper */}
-          <div className="relative flex-1 w-full overflow-hidden">
+          <div className="relative flex-1 w-full overflow-hidden touch-none">
             {/* Background CSS Grid Pattern classes */}
             <div className={`absolute inset-0 w-full h-full transition-colors duration-200 ${getBgClass()}`}>
               <canvas
                 ref={canvasRef}
-                className="absolute inset-0 w-full h-full cursor-crosshair"
+                className="absolute inset-0 w-full h-full cursor-crosshair touch-none"
+                onMouseDown={handleStart}
+                onMouseMove={handleDraw}
+                onMouseUp={handleEnd}
+                onMouseLeave={handleEnd}
+                onTouchStart={handleStart}
+                onTouchMove={handleDraw}
+                onTouchEnd={handleEnd}
+              />
+              <canvas
+                ref={laserCanvasRef}
+                className={`absolute inset-0 w-full h-full touch-none ${tool === 'laser' ? 'pointer-events-auto cursor-crosshair z-[10]' : 'pointer-events-none z-[1]'}`}
                 onMouseDown={handleStart}
                 onMouseMove={handleDraw}
                 onMouseUp={handleEnd}
@@ -1580,6 +1685,7 @@ function TeacherWhiteboard() {
               {[
                 { id: 'draw', icon: PenTool, label: 'Free Draw' },
                 { id: 'erase', icon: Eraser, label: 'Eraser' },
+                { id: 'laser', icon: Zap, label: 'Laser Pointer' },
                 { id: 'line', icon: Minus, label: 'Straight Line' },
                 { id: 'rect', icon: Square, label: 'Rectangle' },
                 { id: 'circle', icon: Circle, label: 'Circle' },
