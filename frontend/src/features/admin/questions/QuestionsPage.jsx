@@ -20,6 +20,7 @@ const DIFFICULTY_MAPPING = {
 };
 const BLANK_Q = {
   question_text: '', question_type: 'mcq', difficulty: 'medium',
+  destination: 'shared',
   options: [{ id: 'a', text: '' }, { id: 'b', text: '' }, { id: 'c', text: '' }, { id: 'd', text: '' }],
   correct_answer: '', explanation: '', subject_id: '', curriculum_id: '', class_id: '', is_premium: false,
   photoAnswerFormat: 'mcq', // UI-only: for question_type 'photo', toggles between MCQ options and a text answer
@@ -634,6 +635,21 @@ export default function QuestionsPage() {
                             <Lock size={9} /> Premium
                           </span>
                         )}
+                        {q.destination && (
+                          <span 
+                            className="px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase border"
+                            style={{
+                              background: q.destination === 'shared' ? 'rgba(0,212,255,0.06)' : q.destination === 'student' ? 'rgba(124,58,237,0.06)' : 'rgba(245,158,11,0.06)',
+                              borderColor: q.destination === 'shared' ? 'rgba(0,212,255,0.15)' : q.destination === 'student' ? 'rgba(124,58,237,0.2)' : 'rgba(245,158,11,0.2)',
+                              color: q.destination === 'shared' ? 'var(--cyan)' : q.destination === 'student' ? 'var(--lavender)' : '#F59E0B',
+                              fontSize: '8px',
+                              fontWeight: 800,
+                              letterSpacing: '0.04em'
+                            }}
+                          >
+                            {q.destination}
+                          </span>
+                        )}
                         {(q.curriculum_name || q.class_name || q.subject_name) && (
                           <span className="qp-subject-tag font-medium" style={{ marginLeft: '0.25rem' }}>
                             {q.curriculum_name && `${q.curriculum_name} • `}
@@ -897,6 +913,12 @@ export default function QuestionsPage() {
 
             <Textarea label="Explanation (optional)" rows={2} value={form.explanation}
               onChange={(e) => set('explanation', e.target.value)} />
+
+            <Select label="Destination Audience" value={form.destination} onChange={(e) => set('destination', e.target.value)} disabled={!!editing}>
+              <option value="shared">Shared Question (Both Student & Teacher)</option>
+              <option value="student">Student Question (Student Only)</option>
+              <option value="teacher">Teacher Question (Teacher Only)</option>
+            </Select>
 
             <Toggle label="Premium question" checked={form.is_premium} onChange={(v) => set('is_premium', v)} />
           </div>

@@ -209,9 +209,11 @@ exports.uploadNote = async (req, res) => {
     if (!req.file)
       return res.status(400).json({ success: false, message: 'No file uploaded' });
 
-    const { title, is_premium } = req.body;
+    const { title, is_premium, destination } = req.body;
     if (!title)
       return res.status(400).json({ success: false, message: 'title is required' });
+
+    const targetDestination = ['shared', 'student', 'teacher'].includes(destination) ? destination : 'shared';
 
     const cloudinaryService = require('../../services/cloudinary.service');
     const result = await cloudinaryService.uploadImage(req.file.buffer, 'mentara-labs/notes', {
@@ -229,10 +231,10 @@ exports.uploadNote = async (req, res) => {
 
     const { rows } = await db.query(
       `INSERT INTO content
-         (topic_id, title, content_type, file_url, is_premium, order_index)
-       VALUES ($1, $2, 'note', $3, $4, $5)
+         (topic_id, title, content_type, file_url, is_premium, order_index, destination)
+       VALUES ($1, $2, 'note', $3, $4, $5, $6)
        RETURNING *`,
-      [req.params.topicId, title, file_url, is_premium === 'true', orderRows[0].next_order]
+      [req.params.topicId, title, file_url, is_premium === 'true', orderRows[0].next_order, targetDestination]
     );
 
     res.status(201).json({ success: true, data: rows[0] });
@@ -303,9 +305,11 @@ exports.uploadWorksheet = async (req, res) => {
     if (!req.file)
       return res.status(400).json({ success: false, message: 'No file uploaded' });
 
-    const { title, is_premium } = req.body;
+    const { title, is_premium, destination } = req.body;
     if (!title)
       return res.status(400).json({ success: false, message: 'title is required' });
+
+    const targetDestination = ['shared', 'student', 'teacher'].includes(destination) ? destination : 'shared';
 
     const allowed = ['image/jpeg', 'image/png', 'image/webp'];
     if (!allowed.includes(req.file.mimetype))
@@ -327,10 +331,10 @@ exports.uploadWorksheet = async (req, res) => {
 
     const { rows } = await db.query(
       `INSERT INTO content
-         (topic_id, title, content_type, file_url, is_premium, order_index)
-       VALUES ($1, $2, 'worksheet', $3, $4, $5)
+         (topic_id, title, content_type, file_url, is_premium, order_index, destination)
+       VALUES ($1, $2, 'worksheet', $3, $4, $5, $6)
        RETURNING *`,
-      [req.params.topicId, title, file_url, is_premium === 'true', orderRows[0].next_order]
+      [req.params.topicId, title, file_url, is_premium === 'true', orderRows[0].next_order, targetDestination]
     );
 
     res.status(201).json({ success: true, data: rows[0] });
@@ -402,9 +406,11 @@ exports.replaceWorksheet = async (req, res) => {
 
 exports.createMuxUpload = async (req, res) => {
   try {
-    const { title, is_premium } = req.body;
+    const { title, is_premium, destination } = req.body;
     if (!title)
       return res.status(400).json({ success: false, message: 'title is required' });
+
+    const targetDestination = ['shared', 'student', 'teacher'].includes(destination) ? destination : 'shared';
 
     const muxService = require('../../services/mux.service');
     const { uploadUrl, uploadId } = await muxService.createUploadUrl();
@@ -417,10 +423,10 @@ exports.createMuxUpload = async (req, res) => {
 
     const { rows } = await db.query(
       `INSERT INTO content
-         (topic_id, title, content_type, mux_upload_id, is_premium, order_index)
-       VALUES ($1, $2, 'video', $3, $4, $5)
+         (topic_id, title, content_type, mux_upload_id, is_premium, order_index, destination)
+       VALUES ($1, $2, 'video', $3, $4, $5, $6)
        RETURNING *`,
-      [req.params.topicId, title, uploadId, is_premium === 'true', orderRows[0].next_order]
+      [req.params.topicId, title, uploadId, is_premium === 'true', orderRows[0].next_order, targetDestination]
     );
 
     res.status(201).json({
@@ -496,7 +502,7 @@ exports.confirmMuxUpload = async (req, res) => {
 
 exports.addContent = async (req, res) => {
   try {
-    const { title, content_type, animation_id, is_premium } = req.body;
+    const { title, content_type, animation_id, is_premium, destination } = req.body;
     const topic_id = req.params.topicId;
 
     if (content_type !== 'animation') {
@@ -519,6 +525,8 @@ exports.addContent = async (req, res) => {
     if (!animation_id)
       return res.status(400).json({ success: false, message: 'animation_id is required' });
 
+    const targetDestination = ['shared', 'student', 'teacher'].includes(destination) ? destination : 'shared';
+
     const { rows: orderRows } = await db.query(
       `SELECT COALESCE(MAX(order_index), -1) + 1 AS next_order
        FROM content WHERE topic_id = $1`,
@@ -526,9 +534,9 @@ exports.addContent = async (req, res) => {
     );
     const { rows } = await db.query(
       `INSERT INTO content
-         (topic_id, title, content_type, animation_id, is_premium, order_index)
-       VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
-      [topic_id, title, content_type, animation_id, is_premium, orderRows[0].next_order]
+         (topic_id, title, content_type, animation_id, is_premium, order_index, destination)
+       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
+      [topic_id, title, content_type, animation_id, is_premium, orderRows[0].next_order, targetDestination]
     );
     res.status(201).json({ success: true, data: rows[0] });
   } catch (err) {

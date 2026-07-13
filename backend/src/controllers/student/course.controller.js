@@ -27,6 +27,7 @@ exports.getCurriculumSubjects = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Access denied: not enrolled in this curriculum' });
     }
 
+    const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
     const { rows } = await db.query(
       `SELECT
          s.*,
@@ -37,7 +38,7 @@ exports.getCurriculumSubjects = async (req, res) => {
            SELECT COUNT(*)::int 
            FROM content c 
            JOIN topics t ON t.id = c.topic_id 
-           WHERE t.subject_id = s.id
+           WHERE t.subject_id = s.id AND c.destination IN ('shared', $2)
          ) + (
            SELECT COUNT(*)::int 
            FROM exams e 
@@ -48,7 +49,7 @@ exports.getCurriculumSubjects = async (req, res) => {
            SELECT COUNT(*)::int 
            FROM content c 
            JOIN topics t ON t.id = c.topic_id 
-           WHERE t.subject_id = s.id AND c.is_premium = true
+           WHERE t.subject_id = s.id AND c.is_premium = true AND c.destination IN ('shared', $2)
          ) + (
            SELECT COUNT(*)::int 
            FROM exams e 
@@ -60,7 +61,7 @@ exports.getCurriculumSubjects = async (req, res) => {
        JOIN curriculums curr ON curr.id = cl.curriculum_id
        WHERE s.class_id = $1
        ORDER BY s.order_index`,
-      [req.user.class_id]
+      [req.user.class_id, destination]
     );
     res.json({ success: true, data: rows });
   } catch (err) {
@@ -83,10 +84,11 @@ exports.getSubjectTopics = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Access denied to this subject' });
     }
 
+    const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
     const { rows } = await db.query(
       `SELECT t.*,
               up.completed AS is_completed,
-              (SELECT COUNT(*)::int FROM content c WHERE c.topic_id = t.id) AS resource_count,
+              (SELECT COUNT(*)::int FROM content c WHERE c.topic_id = t.id AND c.destination IN ('shared', $3)) AS resource_count,
               (SELECT COUNT(*)::int FROM exams e WHERE e.topic_id = t.id AND e.status IN ('live', 'scheduled', 'ended')
                  AND (e.batch_id IS NULL OR EXISTS (
                    SELECT 1 FROM batch_students bs
@@ -97,7 +99,7 @@ exports.getSubjectTopics = async (req, res) => {
        LEFT JOIN user_progress up ON up.topic_id = t.id AND up.user_id = $1
        WHERE t.subject_id = $2
        ORDER BY t.parent_topic_id ASC NULLS FIRST, t.order_index ASC, t.created_at ASC`,
-      [req.user.id, subjectId]
+      [req.user.id, subjectId, destination]
     );
     res.json({ success: true, data: rows });
   } catch (err) {
@@ -122,6 +124,7 @@ exports.getTopicContent = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Access denied to this topic' });
     }
 
+    const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
     const { rows: contentRows } = await db.query(
       `SELECT
          c.id,
@@ -136,9 +139,9 @@ exports.getTopicContent = async (req, res) => {
          up.video_progress
        FROM content c
        LEFT JOIN user_progress up ON up.content_id = c.id AND up.user_id = $3
-       WHERE c.topic_id = $1
+       WHERE c.topic_id = $1 AND c.destination IN ('shared', $4)
        ORDER BY c.order_index`,
-      [topicId, isPremium, req.user.id]
+      [topicId, isPremium, req.user.id, destination]
     );
 
     const { rows: examRows } = await db.query(
@@ -186,10 +189,11 @@ exports.getTopicContent = async (req, res) => {
 exports.getNoteUrl = async (req, res) => {
   // PDFs are stored on Cloudinary — return the public URL directly
   try {
+    const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
     const { rows } = await db.query(
       `SELECT c.file_url, c.is_premium FROM content c
-       WHERE c.id = $1 AND c.content_type = 'note'`,
-      [req.params.contentId]
+       WHERE c.id = $1 AND c.content_type = 'note' AND c.destination IN ('shared', $2)`,
+      [req.params.contentId, destination]
     );
     if (!rows[0])
       return res.status(404).json({ success: false, message: 'Note not found' });
@@ -206,10 +210,11 @@ exports.getWorksheetUrl = async (req, res) => {
   // Worksheet images are stored on Cloudinary — return the public URL directly.
   // The student will use this URL to render the drawable worksheet canvas.
   try {
+    const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
     const { rows } = await db.query(
       `SELECT c.file_url, c.is_premium FROM content c
-       WHERE c.id = $1 AND c.content_type = 'worksheet'`,
-      [req.params.contentId]
+       WHERE c.id = $1 AND c.content_type = 'worksheet' AND c.destination IN ('shared', $2)`,
+      [req.params.contentId, destination]
     );
     if (!rows[0])
       return res.status(404).json({ success: false, message: 'Worksheet not found' });
@@ -243,10 +248,11 @@ exports.getAnimation = async (req, res) => {
 
 exports.getVideoToken = async (req, res) => {
   try {
+    const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
     const { rows } = await db.query(
       `SELECT mux_playback_id, is_premium FROM content
-       WHERE id = $1 AND content_type = 'video'`,
-      [req.params.contentId]
+       WHERE id = $1 AND content_type = 'video' AND destination IN ('shared', $2)`,
+      [req.params.contentId, destination]
     );
     if (!rows[0])
       return res.status(404).json({ success: false, message: 'Video not found' });
@@ -266,17 +272,18 @@ exports.getMyQuestions = async (req, res) => {
     const studentId = req.user.id;
     const isPremium = req.user.is_premium;
     const { subject_id, search } = req.query;
+    const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
 
     const extraParams = [];
     const conditions  = [];
 
     if (subject_id) {
       extraParams.push(subject_id);
-      conditions.push(`s.id = $${4 + extraParams.length}`);
+      conditions.push(`s.id = $${5 + extraParams.length}`);
     }
     if (search) {
       extraParams.push(`%${search.toLowerCase()}%`);
-      conditions.push(`LOWER(q.question_text) LIKE $${4 + extraParams.length}`);
+      conditions.push(`LOWER(q.question_text) LIKE $${5 + extraParams.length}`);
     }
 
     const where = conditions.length ? 'AND ' + conditions.join(' AND ') : '';
@@ -299,11 +306,11 @@ exports.getMyQuestions = async (req, res) => {
        JOIN classes     cl ON cl.id           = s.class_id
        JOIN curriculums c  ON c.id            = cl.curriculum_id
        JOIN questions   q  ON q.subject_id    = s.id
-       WHERE c.id = $1 AND cl.id = $3
+       WHERE c.id = $1 AND cl.id = $3 AND q.destination IN ('shared', $4)
          AND c.is_active = true
          ${where}
        ORDER BY s.order_index, q.is_premium ASC, q.created_at DESC`,
-      [req.user.curriculum_id, isPremium, req.user.class_id, ...extraParams]
+      [req.user.curriculum_id, isPremium, req.user.class_id, destination, ...extraParams]
     );
 
     const grouped     = [];
@@ -390,7 +397,7 @@ exports.getExploreContents = async (req, res) => {
       [req.user.class_id]
     );
 
-    // 2. Get all content items of all subjects in this class
+    const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
     const { rows: contents } = await db.query(
       `SELECT c.id,
               c.title,
@@ -409,9 +416,9 @@ exports.getExploreContents = async (req, res) => {
        JOIN topics t ON t.id = c.topic_id
        JOIN subjects s ON s.id = t.subject_id
        LEFT JOIN user_progress up ON up.content_id = c.id AND up.user_id = $3
-       WHERE s.class_id = $1
+       WHERE s.class_id = $1 AND c.destination IN ('shared', $4)
        ORDER BY s.order_index, t.order_index, c.order_index`,
-      [req.user.class_id, isPremium, req.user.id]
+      [req.user.class_id, isPremium, req.user.id, destination]
     );
 
     // 3. Get all live and scheduled exams for this class

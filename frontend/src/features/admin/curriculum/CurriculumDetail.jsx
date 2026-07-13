@@ -552,6 +552,7 @@ const BLANK_SUBJECT = { name: '', description: '' };
 const BLANK_TOPIC = { name: '', description: '', parent_topic_id: '' };
 const BLANK_CONTENT = {
   title: '', content_type: 'note',
+  destination: 'shared',
   noteFile: null,
   videoStage: 'idle',
   videoFile: null,
@@ -793,6 +794,7 @@ export default function CurriculumDetail() {
           const fd = new FormData();
           fd.append('title', f.title);
           fd.append('is_premium', String(f.is_premium));
+          fd.append('destination', f.destination);
           fd.append('file', f.noteFile);
           await adminApi.uploadNote(contentModal, fd);
         }
@@ -823,6 +825,7 @@ export default function CurriculumDetail() {
           content_type: 'animation',
           animation_id: savedAnim.id,
           is_premium: f.is_premium,
+          destination: f.destination,
         };
         if (editingContent) {
           await adminApi.updateContent(editingContent.id, body);
@@ -841,6 +844,7 @@ export default function CurriculumDetail() {
           const fd = new FormData();
           fd.append('title', f.title);
           fd.append('is_premium', String(f.is_premium));
+          fd.append('destination', f.destination);
           fd.append('file', f.worksheetFile);
           await adminApi.uploadWorksheet(contentModal, fd);
         }
@@ -870,6 +874,7 @@ export default function CurriculumDetail() {
       const res = await adminApi.createMuxUpload(contentModal, {
         title: contentForm.title,
         is_premium: String(contentForm.is_premium),
+        destination: contentForm.destination,
       });
       const { uploadUrl, uploadId, content_id } = res.data;
       setContentForm(f => ({ ...f, videoContentId: content_id, videoUploadId: uploadId }));
@@ -948,6 +953,7 @@ export default function CurriculumDetail() {
       ...BLANK_CONTENT,
       title: c.title,
       content_type: c.content_type,
+      destination: c.destination ?? 'shared',
       html_content: c.html_content ?? '',
       is_premium: c.is_premium,
       videoStage: c.content_type === 'video' ? 'done' : 'idle',
@@ -1190,6 +1196,12 @@ export default function CurriculumDetail() {
               <option value="video">Video</option>
               <option value="animation">Animation</option>
               <option value="worksheet">Worksheet (Image)</option>
+            </Select>
+
+            <Select label="Destination Audience" value={contentForm.destination} onChange={(e) => setContentForm({ ...contentForm, destination: e.target.value })} disabled={!!editingContent}>
+              <option value="shared">Shared Content (Both Student & Teacher)</option>
+              <option value="student">Student Content (Student Only)</option>
+              <option value="teacher">Teacher Content (Teacher Only)</option>
             </Select>
 
             {contentForm.content_type === 'note' && (
@@ -1483,6 +1495,21 @@ function TopicContentPanel({ topicId, contentRefreshKey, onEditContent, onDelete
                 <div className={`cd-content-icon ${c.content_type}`}><Icon size={12} /></div>
                 <p className="cd-content-title">{c.title}</p>
                 <span className={`cd-type-badge ${c.content_type}`}>{c.content_type}</span>
+                {c.destination && (
+                  <span 
+                    className="px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase border"
+                    style={{
+                      background: c.destination === 'shared' ? 'rgba(0,212,255,0.06)' : c.destination === 'student' ? 'rgba(124,58,237,0.06)' : 'rgba(245,158,11,0.06)',
+                      borderColor: c.destination === 'shared' ? 'rgba(0,212,255,0.15)' : c.destination === 'student' ? 'rgba(124,58,237,0.2)' : 'rgba(245,158,11,0.2)',
+                      color: c.destination === 'shared' ? 'var(--cyan)' : c.destination === 'student' ? 'var(--lavender)' : '#F59E0B',
+                      fontSize: '8px',
+                      fontWeight: 800,
+                      letterSpacing: '0.04em'
+                    }}
+                  >
+                    {c.destination}
+                  </span>
+                )}
                 {c.is_premium && <span className="cd-premium-tag" title="Premium"><Lock size={11} /></span>}
                 <button onClick={() => onEditContent(c)} className="cd-icon-btn edit" style={{ width: 26, height: 26 }}><Edit2 size={11} /></button>
                 <button onClick={() => onDeleteContent(c.id)} className="cd-icon-btn delete" style={{ width: 26, height: 26 }}><Trash2 size={11} /></button>

@@ -139,6 +139,7 @@ exports.getProgress = async (req, res) => {
     const studentId = req.user.id;
     const curriculumId = req.user.curriculum_id;
     const classId = req.user.class_id || null;
+    const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
 
     const [curriculumsResult, exams, recentActivity] = await Promise.all([
       curriculumId ? db.query(
@@ -160,6 +161,7 @@ exports.getProgress = async (req, res) => {
              WHERE al.student_id = $1 
                AND (($3::uuid IS NULL AND cl.curriculum_id = $2) OR (s.class_id = $3))
                AND al.activity_type IN ('study', 'video', 'animation')
+               AND ct.destination IN ('shared', $4)
            ) AS studied_content,
            (
              SELECT COUNT(*)::integer
@@ -186,7 +188,7 @@ exports.getProgress = async (req, res) => {
            ) AS avg_exam_score
          FROM curriculums c
          WHERE c.id = $2`,
-        [studentId, curriculumId, classId]
+        [studentId, curriculumId, classId, destination]
       ) : Promise.resolve({ rows: [] }),
       db.query(
         `SELECT

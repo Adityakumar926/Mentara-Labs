@@ -4,7 +4,7 @@ const cloudinaryService = require('../../services/cloudinary.service');
 // Whitelist of columns that can be updated via the API
 const UPDATABLE_FIELDS = new Set([
   'subject_id', 'topic_id', 'question_type', 'question_text', 'options',
-  'correct_answer', 'explanation', 'difficulty', 'tags', 'is_premium', 'image_url'
+  'correct_answer', 'explanation', 'difficulty', 'tags', 'is_premium', 'image_url', 'destination'
 ]);
 
 exports.getAll = async (req, res) => {
@@ -52,22 +52,24 @@ exports.create = async (req, res) => {
   try {
     const {
       subject_id, topic_id, question_type, question_text, options,
-      correct_answer, explanation, difficulty, tags, is_premium, image_url
+      correct_answer, explanation, difficulty, tags, is_premium, image_url, destination
     } = req.body;
 
     if (!subject_id || !question_type || !question_text)
       return res.status(400).json({ success: false, message: 'subject_id, question_type and question_text are required' });
 
+    const targetDestination = ['shared', 'student', 'teacher'].includes(destination) ? destination : 'shared';
+
     const { rows } = await db.query(
       `INSERT INTO questions
        (subject_id, topic_id, question_type, question_text, options, correct_answer,
-        explanation, difficulty, tags, is_premium, image_url, created_by)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
+        explanation, difficulty, tags, is_premium, image_url, created_by, destination)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
       [
         subject_id, topic_id || null, question_type, question_text,
         JSON.stringify(options ?? []),
         correct_answer, explanation, difficulty, tags,
-        is_premium ?? false, image_url ?? null, req.user.id
+        is_premium ?? false, image_url ?? null, req.user.id, targetDestination
       ]
     );
     res.status(201).json({ success: true, data: rows[0] });

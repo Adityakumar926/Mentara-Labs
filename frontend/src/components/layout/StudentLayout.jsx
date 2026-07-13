@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BookOpen, FileText, User, LogOut, Compass, HelpCircle, ChevronRight, Sparkles, Sun, Moon, PenTool, Eraser, RotateCcw, Maximize2, Minimize2, Square, Triangle, Circle, Minus, Ruler, Download } from 'lucide-react';
+import { BookOpen, FileText, User, LogOut, Compass, HelpCircle, ChevronRight, Sparkles, Sun, Moon, PenTool, Eraser, RotateCcw, Maximize2, Minimize2, Square, Triangle, Circle, Minus, Ruler, Download, Undo, Redo, Trash2, Grid } from 'lucide-react';
 import useAuthStore from '@/store/authStore';
 import NotificationBell from '@/components/shared/NotificationBell';
 
@@ -539,7 +539,8 @@ function TeacherWhiteboard() {
   const [isOpen, setIsOpen] = useState(false);
   const canvasRef = useRef(null);
   const [color, setColor] = useState('#22d3ee');
-  const [bgType, setBgType] = useState('dark'); // 'dark', 'grid', 'light'
+  const [wbTheme, setWbTheme] = useState('dark'); // 'dark', 'light'
+  const [wbGrid, setWbGrid] = useState(true); // boolean grid overlay
   const [tool, setTool] = useState('draw'); // 'draw', 'erase', 'line', 'rect', 'circle', 'triangle'
   const [brushSize, setBrushSize] = useState(3);
   
@@ -555,6 +556,76 @@ function TeacherWhiteboard() {
   const [rulerState, setRulerState] = useState({ active: false, x: 180, y: 180, angle: 0, scale: 1.0 });
   const [protractorState, setProtractorState] = useState({ active: false, x: 380, y: 180, angle: 0, scale: 1.0 });
 
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [windowPos, setWindowPos] = useState({ x: 120, y: 80 });
+  const [windowSize, setWindowSize] = useState({ width: 750, height: 500 });
+  
+  const isLight = wbTheme === 'light';
+
+  const handleWindowDragStart = (e) => {
+    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+    e.preventDefault();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const startX = clientX;
+    const startY = clientY;
+    const initialX = windowPos.x;
+    const initialY = windowPos.y;
+
+    const handleMove = (moveEvent) => {
+      const mX = moveEvent.touches ? moveEvent.touches[0].clientX : moveEvent.clientX;
+      const mY = moveEvent.touches ? moveEvent.touches[0].clientY : moveEvent.clientY;
+      setWindowPos({
+        x: Math.max(0, initialX + (mX - startX)),
+        y: Math.max(0, initialY + (mY - startY))
+      });
+    };
+
+    const handleUp = () => {
+      window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('mouseup', handleUp);
+      window.removeEventListener('touchmove', handleMove);
+      window.removeEventListener('touchend', handleUp);
+    };
+
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleUp);
+    window.addEventListener('touchmove', handleMove);
+    window.addEventListener('touchend', handleUp);
+  };
+
+  const handleWindowResizeStart = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const startX = clientX;
+    const startY = clientY;
+    const initialW = windowSize.width;
+    const initialH = windowSize.height;
+
+    const handleMove = (moveEvent) => {
+      const mX = moveEvent.touches ? moveEvent.touches[0].clientX : moveEvent.clientX;
+      const mY = moveEvent.touches ? moveEvent.touches[0].clientY : moveEvent.clientY;
+      setWindowSize({
+        width: Math.max(450, initialW + (mX - startX)),
+        height: Math.max(350, initialH + (mY - startY))
+      });
+    };
+
+    const handleUp = () => {
+      window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('mouseup', handleUp);
+      window.removeEventListener('touchmove', handleMove);
+      window.removeEventListener('touchend', handleUp);
+    };
+
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleUp);
+    window.addEventListener('touchmove', handleMove);
+    window.addEventListener('touchend', handleUp);
+  };
+
   const handleDragStart = (e, type) => {
     e.preventDefault();
     const isRuler = type === 'ruler';
@@ -566,6 +637,10 @@ function TeacherWhiteboard() {
     const initialX = state.x;
     const initialY = state.y;
 
+    const canvas = canvasRef.current;
+    const canvasW = canvas ? canvas.width : window.innerWidth;
+    const canvasH = canvas ? canvas.height : window.innerHeight;
+
     const handleMove = (moveEvent) => {
       const mX = moveEvent.touches ? moveEvent.touches[0].clientX : moveEvent.clientX;
       const mY = moveEvent.touches ? moveEvent.touches[0].clientY : moveEvent.clientY;
@@ -573,9 +648,13 @@ function TeacherWhiteboard() {
       const dy = mY - startY;
       
       if (isRuler) {
-        setRulerState(prev => ({ ...prev, x: initialX + dx, y: initialY + dy }));
+        const nextX = Math.max(10, Math.min(initialX + dx, canvasW - 310));
+        const nextY = Math.max(10, Math.min(initialY + dy, canvasH - 70));
+        setRulerState(prev => ({ ...prev, x: nextX, y: nextY }));
       } else {
-        setProtractorState(prev => ({ ...prev, x: initialX + dx, y: initialY + dy }));
+        const nextX = Math.max(10, Math.min(initialX + dx, canvasW - 230));
+        const nextY = Math.max(10, Math.min(initialY + dy, canvasH - 130));
+        setProtractorState(prev => ({ ...prev, x: nextX, y: nextY }));
       }
     };
 
@@ -598,20 +677,35 @@ function TeacherWhiteboard() {
     const isRuler = type === 'ruler';
     const widgetEl = document.getElementById(isRuler ? 'ruler-widget' : 'protractor-widget');
     if (!widgetEl) return;
-    const rect = widgetEl.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = isRuler ? (rect.top + rect.height / 2) : rect.bottom;
+    
+    const parentEl = widgetEl.parentElement;
+    if (!parentEl) return;
+    const parentRect = parentEl.getBoundingClientRect();
+    
+    // Calculate precise center using state coordinates relative to parent container
+    const centerX = isRuler
+      ? parentRect.left + rulerState.x + (160 * rulerState.scale)
+      : parentRect.left + protractorState.x + (120 * protractorState.scale);
+    const centerY = isRuler
+      ? parentRect.top + rulerState.y + (38 * rulerState.scale)
+      : parentRect.top + protractorState.y + (140 * protractorState.scale);
+
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const startAngle = Math.atan2(clientY - centerY, clientX - centerX) * (180 / Math.PI);
+    const initialWidgetAngle = isRuler ? rulerState.angle : protractorState.angle;
 
     const handleMove = (moveEvent) => {
       const mX = moveEvent.touches ? moveEvent.touches[0].clientX : moveEvent.clientX;
       const mY = moveEvent.touches ? moveEvent.touches[0].clientY : moveEvent.clientY;
-      const angleRad = Math.atan2(mY - centerY, mX - centerX);
-      const angleDeg = angleRad * (180 / Math.PI);
+      const currentAngle = Math.atan2(mY - centerY, mX - centerX) * (180 / Math.PI);
+      const angleDiff = currentAngle - startAngle;
+      const nextAngle = (initialWidgetAngle + angleDiff) % 360;
       
       if (isRuler) {
-        setRulerState(prev => ({ ...prev, angle: angleDeg }));
+        setRulerState(prev => ({ ...prev, angle: nextAngle }));
       } else {
-        setProtractorState(prev => ({ ...prev, angle: angleDeg }));
+        setProtractorState(prev => ({ ...prev, angle: nextAngle }));
       }
     };
 
@@ -628,6 +722,61 @@ function TeacherWhiteboard() {
     window.addEventListener('touchend', handleUp);
   };
 
+  const handleScaleStart = (e, type) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const isRuler = type === 'ruler';
+    const widgetEl = document.getElementById(isRuler ? 'ruler-widget' : 'protractor-widget');
+    if (!widgetEl) return;
+
+    const parentEl = widgetEl.parentElement;
+    if (!parentEl) return;
+    const parentRect = parentEl.getBoundingClientRect();
+
+    // Calculate precise center using state coordinates relative to parent container
+    const centerX = isRuler
+      ? parentRect.left + rulerState.x + (160 * rulerState.scale)
+      : parentRect.left + protractorState.x + (120 * protractorState.scale);
+    const centerY = isRuler
+      ? parentRect.top + rulerState.y + (38 * rulerState.scale)
+      : parentRect.top + protractorState.y + (140 * protractorState.scale);
+
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    // Initial distance from cursor to center
+    const startDist = Math.sqrt(Math.pow(clientX - centerX, 2) + Math.pow(clientY - centerY, 2));
+    const initialScale = isRuler ? rulerState.scale : protractorState.scale;
+
+    const handleMove = (moveEvent) => {
+      const mX = moveEvent.touches ? moveEvent.touches[0].clientX : moveEvent.clientX;
+      const mY = moveEvent.touches ? moveEvent.touches[0].clientY : moveEvent.clientY;
+      
+      const currentDist = Math.sqrt(Math.pow(mX - centerX, 2) + Math.pow(mY - centerY, 2));
+      if (startDist === 0) return;
+      
+      const ratio = currentDist / startDist;
+      const nextScale = Math.max(0.5, Math.min(2.5, initialScale * ratio));
+
+      if (isRuler) {
+        setRulerState(prev => ({ ...prev, scale: nextScale }));
+      } else {
+        setProtractorState(prev => ({ ...prev, scale: nextScale }));
+      }
+    };
+
+    const handleUp = () => {
+      window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('mouseup', handleUp);
+      window.removeEventListener('touchmove', handleMove);
+      window.removeEventListener('touchend', handleUp);
+    };
+
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleUp);
+    window.addEventListener('touchmove', handleMove);
+    window.addEventListener('touchend', handleUp);
+  };
 
   // Resize canvas to window dimensions dynamically
   useEffect(() => {
@@ -645,14 +794,29 @@ function TeacherWhiteboard() {
       const tempCtx = tempCanvas.getContext('2d');
       tempCtx.drawImage(canvas, 0, 0);
 
-      // 2. Update size to fit full window viewport
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      // 2. Update size to fit current bounds
+      const targetW = isFullScreen ? window.innerWidth : windowSize.width;
+      const targetH = isFullScreen ? (window.innerHeight - 40) : (windowSize.height - 40); // Subtract header height
+      
+      canvas.width = targetW;
+      canvas.height = targetH;
 
       // 3. Restore drawings and brush settings
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.drawImage(tempCanvas, 0, 0);
+
+      // 4. Clamp geometry tools within new bounds
+      setRulerState(prev => {
+        const nextX = Math.max(10, Math.min(prev.x, targetW - 310));
+        const nextY = Math.max(10, Math.min(prev.y, targetH - 70));
+        return { ...prev, x: nextX, y: nextY };
+      });
+      setProtractorState(prev => {
+        const nextX = Math.max(10, Math.min(prev.x, targetW - 230));
+        const nextY = Math.max(10, Math.min(prev.y, targetH - 130));
+        return { ...prev, x: nextX, y: nextY };
+      });
     };
 
     window.addEventListener('resize', handleResize);
@@ -664,7 +828,7 @@ function TeacherWhiteboard() {
       window.removeEventListener('resize', handleResize);
       clearTimeout(timer);
     };
-  }, [isOpen]);
+  }, [isOpen, isFullScreen, windowSize]);
 
   // Save drawing state to history for undo/redo
   const saveState = () => {
@@ -749,12 +913,46 @@ function TeacherWhiteboard() {
     const exportCtx = exportCanvas.getContext('2d');
 
     // 1. Fill background based on current theme
-    if (bgType === 'light') {
+    if (wbTheme === 'light') {
       exportCtx.fillStyle = '#ffffff';
       exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+      
+      if (wbGrid) {
+        exportCtx.strokeStyle = 'rgba(0, 0, 0, 0.04)';
+        exportCtx.lineWidth = 1;
+        for (let x = 0; x < exportCanvas.width; x += 15) {
+          exportCtx.beginPath();
+          exportCtx.moveTo(x, 0);
+          exportCtx.lineTo(x, exportCanvas.height);
+          exportCtx.stroke();
+        }
+        for (let y = 0; y < exportCanvas.height; y += 15) {
+          exportCtx.beginPath();
+          exportCtx.moveTo(0, y);
+          exportCtx.lineTo(exportCanvas.width, y);
+          exportCtx.stroke();
+        }
+      }
     } else {
       exportCtx.fillStyle = '#09090b'; // zinc-950
       exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+      
+      if (wbGrid) {
+        exportCtx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+        exportCtx.lineWidth = 1;
+        for (let x = 0; x < exportCanvas.width; x += 15) {
+          exportCtx.beginPath();
+          exportCtx.moveTo(x, 0);
+          exportCtx.lineTo(x, exportCanvas.height);
+          exportCtx.stroke();
+        }
+        for (let y = 0; y < exportCanvas.height; y += 15) {
+          exportCtx.beginPath();
+          exportCtx.moveTo(0, y);
+          exportCtx.lineTo(exportCanvas.width, y);
+          exportCtx.stroke();
+        }
+      }
     }
 
     // 2. Draw the whiteboard canvas contents on top
@@ -769,19 +967,19 @@ function TeacherWhiteboard() {
       exportCtx.scale(rulerState.scale, rulerState.scale);
 
       // Background Tint
-      exportCtx.fillStyle = 'rgba(34, 211, 238, 0.05)';
+      exportCtx.fillStyle = isLight ? 'rgba(8, 102, 126, 0.08)' : 'rgba(34, 211, 238, 0.05)';
       exportCtx.fillRect(-160, -38, 320, 76);
 
       // Draw Ruler Border
-      exportCtx.strokeStyle = 'rgba(34, 211, 238, 0.4)';
+      exportCtx.strokeStyle = isLight ? 'rgba(8, 102, 126, 0.6)' : 'rgba(34, 211, 238, 0.4)';
       exportCtx.lineWidth = 1;
       exportCtx.strokeRect(-160, -38, 320, 76);
 
       // Centimeter markings
       const startX = -150;
       const cmStep = 300 / 15;
-      exportCtx.strokeStyle = '#22d3ee';
-      exportCtx.fillStyle = '#22d3ee';
+      exportCtx.strokeStyle = isLight ? '#08667e' : '#22d3ee';
+      exportCtx.fillStyle = isLight ? '#08667e' : '#22d3ee';
       exportCtx.font = 'bold 7px monospace';
       exportCtx.textAlign = 'center';
       exportCtx.textBaseline = 'top';
@@ -812,20 +1010,20 @@ function TeacherWhiteboard() {
       }
 
       // Title
-      exportCtx.fillStyle = 'rgba(34, 211, 238, 0.8)';
+      exportCtx.fillStyle = isLight ? 'rgba(8, 102, 126, 0.9)' : 'rgba(34, 211, 238, 0.8)';
       exportCtx.fillText(`Ruler · ${Math.round(rulerState.angle)}°`, 0, -5);
 
       // Bottom bar
-      exportCtx.fillStyle = '#084d62';
+      exportCtx.fillStyle = isLight ? '#cffafe' : '#084d62';
       exportCtx.fillRect(-160, 18, 320, 20);
       
-      exportCtx.strokeStyle = 'rgba(34, 211, 238, 0.3)';
+      exportCtx.strokeStyle = isLight ? 'rgba(8, 102, 126, 0.3)' : 'rgba(34, 211, 238, 0.3)';
       exportCtx.beginPath();
       exportCtx.moveTo(-160, 18);
       exportCtx.lineTo(160, 18);
       exportCtx.stroke();
 
-      exportCtx.fillStyle = '#22d3ee';
+      exportCtx.fillStyle = isLight ? '#0e7490' : '#22d3ee';
       exportCtx.fillText(`Drag to Move  ·  Scale: ${Math.round(rulerState.scale * 100)}%`, 0, 24);
 
       exportCtx.restore();
@@ -839,7 +1037,7 @@ function TeacherWhiteboard() {
       exportCtx.scale(protractorState.scale, protractorState.scale);
 
       // Background Tint
-      exportCtx.fillStyle = 'rgba(167, 139, 250, 0.05)';
+      exportCtx.fillStyle = isLight ? 'rgba(91, 33, 182, 0.08)' : 'rgba(167, 139, 250, 0.05)';
       exportCtx.beginPath();
       exportCtx.arc(0, -20, 120, Math.PI, 0);
       exportCtx.fill();
@@ -847,8 +1045,15 @@ function TeacherWhiteboard() {
       // Semi-circle Arc
       exportCtx.beginPath();
       exportCtx.arc(0, -20, 120, Math.PI, 0);
-      exportCtx.strokeStyle = 'rgba(167, 139, 250, 0.4)';
+      exportCtx.strokeStyle = isLight ? 'rgba(91, 33, 182, 0.6)' : 'rgba(167, 139, 250, 0.4)';
       exportCtx.lineWidth = 1;
+      exportCtx.stroke();
+
+      // Inner Concentric split line
+      exportCtx.beginPath();
+      exportCtx.arc(0, -20, 84, Math.PI, 0);
+      exportCtx.strokeStyle = isLight ? 'rgba(91, 33, 182, 0.2)' : 'rgba(167, 139, 250, 0.2)';
+      exportCtx.lineWidth = 0.7;
       exportCtx.stroke();
 
       // Flat Edge Line
@@ -858,9 +1063,6 @@ function TeacherWhiteboard() {
       exportCtx.stroke();
 
       // Degrees
-      exportCtx.fillStyle = '#c4b5fd';
-      exportCtx.strokeStyle = 'rgba(196, 181, 253, 0.6)';
-      exportCtx.font = 'bold 7px monospace';
       exportCtx.textAlign = 'center';
       exportCtx.textBaseline = 'middle';
 
@@ -873,33 +1075,47 @@ function TeacherWhiteboard() {
         // Tick Mark
         exportCtx.beginPath();
         exportCtx.moveTo(cos * 120, -20 - sin * 120);
-        exportCtx.lineTo(cos * 110, -20 - sin * 110);
+        exportCtx.lineTo(cos * 105, -20 - sin * 105);
+        exportCtx.strokeStyle = isLight ? 'rgba(91, 33, 182, 0.7)' : 'rgba(196, 181, 253, 0.6)';
+        exportCtx.lineWidth = 1;
         exportCtx.stroke();
 
-        // Label
+        // Dual scale labels
         if (degree % 30 === 0) {
-          const tx = cos * 95;
-          const ty = -20 - sin * 95;
+          // Outer scale text
+          exportCtx.fillStyle = isLight ? '#5b21b6' : '#c4b5fd';
+          exportCtx.font = 'bold 7px monospace';
+          const tx = cos * 92;
+          const ty = -20 - sin * 92;
           exportCtx.fillText(degree.toString(), tx, ty);
+
+          // Inner scale text
+          exportCtx.fillStyle = isLight ? '#7c3aed' : '#a78bfa';
+          exportCtx.font = 'bold 6.5px monospace';
+          const txi = cos * 76;
+          const tyi = -20 - sin * 76;
+          exportCtx.fillText((180 - degree).toString(), txi, tyi);
         }
       }
 
       // Center Vertex
       exportCtx.beginPath();
       exportCtx.arc(0, -20, 2, 0, Math.PI * 2);
+      exportCtx.fillStyle = isLight ? '#5b21b6' : '#c4b5fd';
       exportCtx.fill();
 
       // Bottom Bar
-      exportCtx.fillStyle = '#2e1065';
+      exportCtx.fillStyle = isLight ? '#ede9fe' : '#2e1065';
       exportCtx.fillRect(-120, -20, 240, 20);
 
-      exportCtx.strokeStyle = 'rgba(196, 181, 253, 0.3)';
+      exportCtx.strokeStyle = isLight ? 'rgba(91, 33, 182, 0.3)' : 'rgba(196, 181, 253, 0.3)';
       exportCtx.beginPath();
       exportCtx.moveTo(-120, -20);
       exportCtx.lineTo(120, -20);
       exportCtx.stroke();
 
-      exportCtx.fillStyle = '#c4b5fd';
+      exportCtx.fillStyle = isLight ? '#6d28d9' : '#c4b5fd';
+      exportCtx.font = 'bold 7px monospace';
       exportCtx.fillText(`Protractor · ${Math.round(protractorState.angle)}° · Scale: ${Math.round(protractorState.scale * 100)}%`, 0, -12);
 
       exportCtx.restore();
@@ -1005,9 +1221,11 @@ function TeacherWhiteboard() {
   };
 
   const getBgClass = () => {
-    if (bgType === 'light') return 'wb-grid-light';
-    if (bgType === 'grid') return 'wb-grid-dark';
-    return 'bg-zinc-950';
+    if (wbTheme === 'light') {
+      return wbGrid ? 'wb-grid-light' : 'bg-white';
+    } else {
+      return wbGrid ? 'wb-grid-dark' : 'bg-zinc-950';
+    }
   };
 
   return (
@@ -1027,24 +1245,69 @@ function TeacherWhiteboard() {
         </div>
       </button>
 
-      {/* True Full Screen Whiteboard Overlay */}
+      {/* Draggable & Resizable Whiteboard Window Popup */}
       {isOpen && (
-        <div className="fixed inset-0 z-[9999] bg-zinc-950 select-none overflow-hidden w-screen h-screen">
-          
-          {/* Background CSS Grid Pattern classes */}
-          <div className={`absolute inset-0 w-full h-full transition-colors duration-200 ${getBgClass()}`}>
-            <canvas
-              ref={canvasRef}
-              className="absolute inset-0 w-full h-full cursor-crosshair"
-              onMouseDown={handleStart}
-              onMouseMove={handleDraw}
-              onMouseUp={handleEnd}
-              onMouseLeave={handleEnd}
-              onTouchStart={handleStart}
-              onTouchMove={handleDraw}
-              onTouchEnd={handleEnd}
-            />
+        <div
+          style={{
+            position: 'fixed',
+            left: isFullScreen ? 0 : windowPos.x,
+            top: isFullScreen ? 0 : windowPos.y,
+            width: isFullScreen ? '100vw' : `${windowSize.width}px`,
+            height: isFullScreen ? '100vh' : `${windowSize.height}px`,
+            zIndex: 9999,
+          }}
+          className={`bg-zinc-950/85 backdrop-blur-md select-none overflow-visible shadow-2xl flex flex-col ${
+            isFullScreen ? 'w-screen h-screen' : 'border-2 border-white/10 rounded-2xl'
+          }`}
+        >
+          {/* Draggable Header Bar */}
+          <div
+            onMouseDown={handleWindowDragStart}
+            onTouchStart={handleWindowDragStart}
+            className={`h-10 bg-zinc-900/80 border-b border-white/5 flex items-center justify-between px-4 select-none cursor-move flex-shrink-0 ${
+              isFullScreen ? '' : 'rounded-t-2xl'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+              <span className="text-xs font-bold text-zinc-200 tracking-wide font-mono uppercase">Smart Explanation Board</span>
+            </div>
+            
+            {/* Header controls (Maximize / Close) */}
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setIsFullScreen(!isFullScreen)}
+                title={isFullScreen ? "Restore Popup Size" : "Make Full Screen"}
+                className="h-6 w-6 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white flex items-center justify-center transition-all cursor-pointer border border-white/5 pointer-events-auto"
+              >
+                {isFullScreen ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                title="Close Board"
+                className="h-6 w-6 rounded-lg bg-red-500/10 hover:bg-red-500/30 text-red-400 hover:text-red-300 border border-red-500/20 flex items-center justify-center transition-all cursor-pointer text-xs font-bold pointer-events-auto"
+              >
+                ✕
+              </button>
+            </div>
           </div>
+
+          {/* Canvas Wrapper */}
+          <div className="relative flex-1 w-full overflow-hidden">
+            {/* Background CSS Grid Pattern classes */}
+            <div className={`absolute inset-0 w-full h-full transition-colors duration-200 ${getBgClass()}`}>
+              <canvas
+                ref={canvasRef}
+                className="absolute inset-0 w-full h-full cursor-crosshair"
+                onMouseDown={handleStart}
+                onMouseMove={handleDraw}
+                onMouseUp={handleEnd}
+                onMouseLeave={handleEnd}
+                onTouchStart={handleStart}
+                onTouchMove={handleDraw}
+                onTouchEnd={handleEnd}
+              />
+            </div>
 
           {/* Draggable & Rotatable Ruler Widget */}
           {rulerState.active && (
@@ -1060,15 +1323,23 @@ function TeacherWhiteboard() {
                 height: '76px',
                 touchAction: 'none',
               }}
-              className="z-[10000] flex flex-col justify-between border border-cyan-500/40 bg-transparent rounded shadow-lg select-none pointer-events-none"
+              className={`z-[10000] flex flex-col justify-between border ${
+                isLight ? 'border-cyan-600/60 bg-cyan-50/15 shadow-cyan-800/5' : 'border-cyan-500/40 bg-zinc-950/5'
+              } rounded shadow-lg select-none pointer-events-none`}
             >
               {/* Ruler Markings (centimeters / ticks) - Click Pass-Through */}
               <div className="relative w-full h-[56px] pointer-events-none">
-                <div className="absolute top-0 left-0 right-0 h-4 flex justify-between px-2 pt-0.5 border-b border-white/10">
+                <div className={`absolute top-0 left-0 right-0 h-4 flex justify-between px-2 pt-0.5 border-b ${
+                  isLight ? 'border-cyan-600/10' : 'border-white/10'
+                }`}>
                   {Array.from({ length: 16 }).map((_, i) => (
                     <div key={i} className="flex flex-col items-center">
-                      <span className="text-[7px] text-cyan-400 font-mono font-bold leading-none">{i}</span>
-                      <div className="h-2 w-[1px] bg-cyan-400/40 mt-[1px]" />
+                      <span className={`text-[7px] ${
+                        isLight ? 'text-cyan-800 font-extrabold' : 'text-cyan-400 font-bold'
+                      } font-mono leading-none`}>{i}</span>
+                      <div className={`h-2 w-[1px] ${
+                        isLight ? 'bg-cyan-600' : 'bg-cyan-400/40'
+                      } mt-[1px]`} />
                     </div>
                   ))}
                 </div>
@@ -1078,7 +1349,9 @@ function TeacherWhiteboard() {
                     return (
                       <div
                         key={i}
-                        className="h-1 w-[0.5px] bg-cyan-300"
+                        className={`h-1 w-[0.5px] ${
+                          isLight ? 'bg-cyan-700' : 'bg-cyan-300'
+                        }`}
                         style={{ marginLeft: `${i * 4}px` }}
                       />
                     );
@@ -1086,7 +1359,9 @@ function TeacherWhiteboard() {
                 </div>
 
                 {/* Title & Stats */}
-                <div className="w-full text-center text-[10px] text-cyan-400/80 font-mono font-bold pt-4">
+                <div className={`w-full text-center text-[10px] ${
+                  isLight ? 'text-cyan-800/90' : 'text-cyan-400/80'
+                } font-mono font-bold pt-4`}>
                   Ruler · {Math.round(rulerState.angle)}° · {Math.round(rulerState.scale * 100)}%
                 </div>
               </div>
@@ -1095,7 +1370,9 @@ function TeacherWhiteboard() {
               <div
                 onMouseDown={(e) => handleDragStart(e, 'ruler')}
                 onTouchStart={(e) => handleDragStart(e, 'ruler')}
-                className="w-full h-5 bg-cyan-950/90 border-t border-cyan-500/20 flex items-center justify-between px-2 cursor-move pointer-events-auto rounded-b"
+                className={`w-full h-5 ${
+                  isLight ? 'bg-cyan-100/40 backdrop-blur-sm border-t border-cyan-300' : 'bg-cyan-950/90 border-t border-cyan-500/20'
+                } flex items-center justify-between px-2 cursor-move pointer-events-auto rounded-b`}
               >
                 {/* Close Button */}
                 <button
@@ -1106,36 +1383,34 @@ function TeacherWhiteboard() {
                   ✕
                 </button>
                 
-                <span className="text-[8px] text-cyan-400/70 font-mono font-bold uppercase tracking-wider">Drag to Move</span>
+                <span className={`text-[8px] ${
+                  isLight ? 'text-cyan-700' : 'text-cyan-400/70'
+                } font-mono font-bold uppercase tracking-wider`}>Drag to Move</span>
                 
-                {/* Scale buttons */}
+                {/* Scale & Rotate buttons */}
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={(e) => { e.stopPropagation(); setRulerState(prev => ({ ...prev, scale: Math.max(0.5, prev.scale - 0.1) })) }}
-                    className="h-3.5 w-3.5 bg-cyan-950 border border-cyan-500 text-cyan-400 text-[8px] font-bold flex items-center justify-center rounded cursor-pointer hover:bg-cyan-900 active:scale-95 transition-all"
-                    title="Make smaller"
+                    onMouseDown={(e) => handleScaleStart(e, 'ruler')}
+                    onTouchStart={(e) => handleScaleStart(e, 'ruler')}
+                    className={`h-3.5 px-1 rounded ${
+                      isLight ? 'bg-cyan-50 hover:bg-cyan-200 text-cyan-800 border-cyan-400' : 'bg-cyan-950 hover:bg-cyan-900 text-cyan-400 border-cyan-500'
+                    } border text-[7px] font-extrabold flex items-center justify-center cursor-se-resize active:scale-95 transition-all`}
+                    title="Drag to resize / stretch"
                   >
-                    -
+                    ⤢ Stretch
                   </button>
                   <button
-                    onClick={(e) => { e.stopPropagation(); setRulerState(prev => ({ ...prev, scale: Math.min(2.0, prev.scale + 0.1) })) }}
-                    className="h-3.5 w-3.5 bg-cyan-950 border border-cyan-500 text-cyan-400 text-[8px] font-bold flex items-center justify-center rounded cursor-pointer hover:bg-cyan-900 active:scale-95 transition-all"
-                    title="Make larger"
+                    onMouseDown={(e) => handleRotateStart(e, 'ruler')}
+                    onTouchStart={(e) => handleRotateStart(e, 'ruler')}
+                    className={`h-3.5 w-3.5 rounded ${
+                      isLight ? 'bg-cyan-50 hover:bg-cyan-200 text-cyan-800 border-cyan-400' : 'bg-cyan-950 hover:bg-cyan-900 text-cyan-400 border-cyan-500'
+                    } border text-[8px] font-bold flex items-center justify-center cursor-alias active:scale-95 transition-all`}
+                    title="Rotate ruler"
                   >
-                    +
+                    ↻
                   </button>
                 </div>
               </div>
-
-              {/* Rotate Knob (Positioned on the side) */}
-              <button
-                onMouseDown={(e) => handleRotateStart(e, 'ruler')}
-                onTouchStart={(e) => handleRotateStart(e, 'ruler')}
-                className="absolute -right-3 top-6 h-6 w-6 rounded-full bg-cyan-950 border border-cyan-500 text-cyan-400 flex items-center justify-center cursor-alias shadow-md hover:bg-cyan-900 active:scale-95 transition-all z-10 pointer-events-auto"
-                title="Drag to rotate"
-              >
-                ↻
-              </button>
             </div>
           )}
 
@@ -1153,55 +1428,88 @@ function TeacherWhiteboard() {
                 height: '140px',
                 touchAction: 'none',
               }}
-              className="z-[10000] border-t border-x border-violet-500/40 bg-transparent rounded-t-full shadow-lg select-none pointer-events-none flex flex-col justify-end"
+              className={`z-[10000] border-t border-x ${
+                isLight ? 'border-violet-600/60 bg-violet-50/15 shadow-violet-800/5' : 'border-violet-500/40 bg-zinc-950/5'
+              } rounded-t-full shadow-lg select-none pointer-events-none flex flex-col justify-end`}
             >
               {/* Semi-circular markings SVG - Click Pass-Through */}
               <div className="relative w-full h-[120px] pointer-events-none">
                 <svg className="absolute inset-0 w-full h-full" viewBox="0 0 240 120">
+                  {/* Concentric Splitter line */}
+                  <path
+                    d="M 36 112 A 84 84 0 0 1 204 112"
+                    fill="none"
+                    stroke={isLight ? 'rgba(109, 40, 217, 0.2)' : 'rgba(196, 181, 253, 0.2)'}
+                    strokeWidth="0.7"
+                  />
+                  {/* Protractor baseline */}
+                  <line
+                    x1="12"
+                    y1="112"
+                    x2="228"
+                    y2="112"
+                    stroke={isLight ? 'rgba(109, 40, 217, 0.5)' : 'rgba(196, 181, 253, 0.4)'}
+                    strokeWidth="1"
+                  />
                   {Array.from({ length: 19 }).map((_, i) => {
                     const degree = i * 10;
                     const angleRad = (180 - degree) * (Math.PI / 180);
                     const radius = 105;
                     const x = 120 + radius * Math.cos(angleRad);
-                    const y = 120 - radius * Math.sin(angleRad);
-                    
-                    const textRadius = 88;
-                    const tx = 120 + textRadius * Math.cos(angleRad);
-                    const ty = 120 - textRadius * Math.sin(angleRad);
+                    const y = 112 - radius * Math.sin(angleRad);
                     
                     return (
                       <g key={degree}>
                         <line
                           x1={120 + 115 * Math.cos(angleRad)}
-                          y1={120 - 115 * Math.sin(angleRad)}
+                          y1={112 - 115 * Math.sin(angleRad)}
                           x2={x}
                           y2={y}
-                          stroke="rgba(196, 181, 253, 0.6)"
+                          stroke={isLight ? 'rgba(109, 40, 217, 0.7)' : 'rgba(196, 181, 253, 0.6)'}
                           strokeWidth="1"
                         />
                         {degree % 30 === 0 && (
-                          <text
-                            x={tx}
-                            y={ty}
-                            fill="#C4B5FD"
-                            fontSize="7"
-                            fontFamily="monospace"
-                            fontWeight="bold"
-                            textAnchor="middle"
-                            alignmentBaseline="middle"
-                          >
-                            {degree}
-                          </text>
+                          <g>
+                            {/* Outer reading text (0 to 180 Left-to-Right) */}
+                            <text
+                              x={120 + 92 * Math.cos(angleRad)}
+                              y={112 - 92 * Math.sin(angleRad)}
+                              fill={isLight ? '#5b21b6' : '#C4B5FD'}
+                              fontSize="7"
+                              fontFamily="monospace"
+                              fontWeight="bold"
+                              textAnchor="middle"
+                              alignmentBaseline="middle"
+                            >
+                              {degree}
+                            </text>
+                            {/* Inner reading text (180 to 0 Left-to-Right / 0 to 180 Right-to-Left) */}
+                            <text
+                              x={120 + 76 * Math.cos(angleRad)}
+                              y={112 - 76 * Math.sin(angleRad)}
+                              fill={isLight ? '#7c3aed' : '#a78bfa'}
+                              fontSize="6.5"
+                              fontFamily="monospace"
+                              fontWeight="bold"
+                              textAnchor="middle"
+                              alignmentBaseline="middle"
+                              opacity="0.8"
+                            >
+                              {180 - degree}
+                            </text>
+                          </g>
                         )}
                       </g>
                     );
                   })}
-                  <circle cx="120" cy="120" r="3" fill="#C4B5FD" />
-                  <line x1="120" y1="120" x2="120" y2="40" stroke="rgba(196, 181, 253, 0.3)" strokeDasharray="2,2" />
+                  <circle cx="120" cy="112" r="3" fill={isLight ? '#5b21b6' : '#C4B5FD'} />
+                  <line x1="120" y1="112" x2="120" y2="32" stroke={isLight ? 'rgba(109, 40, 217, 0.3)' : 'rgba(196, 181, 253, 0.3)'} strokeDasharray="2,2" />
                 </svg>
 
                 {/* Title & Stats */}
-                <div className="absolute bottom-2 left-0 right-0 text-center text-[10px] text-violet-400/80 font-mono font-bold">
+                <div className={`absolute bottom-2 left-0 right-0 text-center text-[10px] ${
+                  isLight ? 'text-violet-800' : 'text-violet-400/80'
+                } font-mono font-bold`}>
                   Protractor · {Math.round(protractorState.angle)}° · {Math.round(protractorState.scale * 100)}%
                 </div>
               </div>
@@ -1210,7 +1518,9 @@ function TeacherWhiteboard() {
               <div
                 onMouseDown={(e) => handleDragStart(e, 'protractor')}
                 onTouchStart={(e) => handleDragStart(e, 'protractor')}
-                className="w-full h-6 bg-violet-950/90 border-t border-violet-500/20 flex items-center justify-between px-2 cursor-move pointer-events-auto rounded-b"
+                className={`w-full h-6 ${
+                  isLight ? 'bg-violet-100/40 backdrop-blur-sm border-t border-violet-300' : 'bg-violet-950/90 border-t border-violet-500/20'
+                } flex items-center justify-between px-2 cursor-move pointer-events-auto rounded-b`}
               >
                 {/* Close Button */}
                 <button
@@ -1220,57 +1530,53 @@ function TeacherWhiteboard() {
                 >
                   ✕
                 </button>
-
-                {/* Rotate Knob (Moved from top to here!) */}
-                <button
-                  onMouseDown={(e) => handleRotateStart(e, 'protractor')}
-                  onTouchStart={(e) => handleRotateStart(e, 'protractor')}
-                  className="h-4.5 w-4.5 rounded-lg bg-violet-900 border border-violet-500 text-violet-300 flex items-center justify-center cursor-alias hover:text-white active:scale-95 transition-all text-[10px]"
-                  title="Drag to rotate"
-                >
-                  ↻
-                </button>
                 
-                <span className="text-[8px] text-violet-400/70 font-mono font-bold uppercase tracking-wider">Drag to Move</span>
+                <span className={`text-[8px] ${
+                  isLight ? 'text-violet-700' : 'text-violet-400/70'
+                } font-mono font-bold uppercase tracking-wider`}>Drag to Move</span>
 
-                {/* Scale buttons */}
+                {/* Scale & Rotate buttons */}
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={(e) => { e.stopPropagation(); setProtractorState(prev => ({ ...prev, scale: Math.max(0.5, prev.scale - 0.1) })) }}
-                    className="h-3.5 w-3.5 bg-violet-950 border border-violet-500 text-violet-400 text-[8px] font-bold flex items-center justify-center rounded cursor-pointer hover:bg-violet-900 active:scale-95 transition-all"
-                    title="Make smaller"
+                    onMouseDown={(e) => handleScaleStart(e, 'protractor')}
+                    onTouchStart={(e) => handleScaleStart(e, 'protractor')}
+                    className={`h-3.5 px-1 rounded ${
+                      isLight ? 'bg-violet-50 hover:bg-violet-200 text-violet-800 border-violet-450' : 'bg-violet-950 border border-violet-500 text-violet-400'
+                    } border text-[7px] font-extrabold flex items-center justify-center cursor-se-resize active:scale-95 transition-all`}
+                    title="Drag to resize / stretch"
                   >
-                    -
+                    ⤢ Stretch
                   </button>
                   <button
-                    onClick={(e) => { e.stopPropagation(); setProtractorState(prev => ({ ...prev, scale: Math.min(2.0, prev.scale + 0.1) })) }}
-                    className="h-3.5 w-3.5 bg-violet-950 border border-violet-500 text-violet-400 text-[8px] font-bold flex items-center justify-center rounded cursor-pointer hover:bg-violet-900 active:scale-95 transition-all"
-                    title="Make larger"
+                    onMouseDown={(e) => handleRotateStart(e, 'protractor')}
+                    onTouchStart={(e) => handleRotateStart(e, 'protractor')}
+                    className={`h-3.5 w-3.5 rounded ${
+                      isLight ? 'bg-violet-50 hover:bg-violet-200 text-violet-800 border-violet-450' : 'bg-violet-950 border border-violet-500 text-violet-400'
+                    } border text-[8px] font-bold flex items-center justify-center cursor-alias active:scale-95 transition-all`}
+                    title="Rotate protractor"
                   >
-                    +
+                    ↻
                   </button>
                 </div>
               </div>
             </div>
           )}
 
+          </div>
 
-
-          {/* Floating Close / Minimize Button (Top Right) */}
-          <button
-            onClick={() => setIsOpen(false)}
-            className="fixed top-1.5 right-6 z-[10001] flex items-center justify-center h-8 w-8 rounded-full bg-red-500/10 hover:bg-red-500/25 border border-red-500/30 text-red-400 hover:text-red-300 transition-all shadow-lg backdrop-blur-md"
-            title="Minimize Whiteboard"
+          {/* Floating Cybernetic Dock Toolbar (Right Side Centered) - Compact Design */}
+          <div
+            style={{
+              position: isFullScreen ? 'fixed' : 'absolute',
+              right: isFullScreen ? '24px' : '-94px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+            }}
+            className="z-[10001] flex flex-col items-center gap-4 px-2.5 py-4 bg-zinc-900/80 border border-white/10 rounded-xl backdrop-blur-md shadow-2xl w-20"
           >
-            <Minimize2 size={14} />
-          </button>
-
-
-          {/* Floating Cybernetic Dock Toolbar (Right Side Centered) */}
-          <div className="fixed right-6 top-[53%] -translate-y-1/2 z-[10001] flex flex-col items-center gap-4 px-3 py-4 bg-zinc-900/80 border border-white/10 rounded-2xl backdrop-blur-md shadow-2xl w-24">
             
             {/* Draw mode icons - 2 Column Grid */}
-            <div className="grid grid-cols-2 gap-1 bg-zinc-950/60 p-1 rounded-xl border border-white/5 w-full">
+            <div className="grid grid-cols-2 gap-1 bg-zinc-950/60 p-0.5 rounded-lg border border-white/5 w-full">
               {[
                 { id: 'draw', icon: PenTool, label: 'Free Draw' },
                 { id: 'erase', icon: Eraser, label: 'Eraser' },
@@ -1285,129 +1591,157 @@ function TeacherWhiteboard() {
                     key={t.id}
                     onClick={() => setTool(t.id)}
                     title={t.label}
-                    className={`flex items-center justify-center p-2 rounded-lg transition-all ${
+                    className={`flex items-center justify-center p-2 rounded transition-all ${
                       tool === t.id
                         ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
                         : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
                     }`}
                   >
-                    <Icon size={14} />
+                    <Icon size={16} />
                   </button>
                 );
               })}
             </div>
 
-            {/* Colors picker - Column Layout */}
-            <div className="flex flex-col items-center gap-2 bg-zinc-950/60 p-2 rounded-xl border border-white/5 w-full">
-              {['#22d3ee', '#34d399', '#f59e0b', '#f43f5e', '#ffffff'].map((c) => (
+            {/* Colors picker - Compact Grid */}
+            <div className="grid grid-cols-2 gap-1.5 bg-zinc-950/60 p-1.5 rounded-lg border border-white/5 w-full justify-items-center">
+              {['#22d3ee', '#34d399', '#f59e0b', '#f43f5e', '#ffffff', '#000000'].map((c) => (
                 <button
                   key={c}
                   onClick={() => setColor(c)}
                   className="h-5 w-5 rounded-full border border-black/30 transition-all hover:scale-110"
                   style={{
                     backgroundColor: c,
-                    boxShadow: color === c ? `0 0 8px ${c}` : 'none',
-                    border: color === c ? '2px solid #ffffff' : '1px solid rgba(255,255,255,0.2)'
+                    boxShadow: color === c ? `0 0 6px ${c}` : 'none',
+                    border: color === c ? '1.5px solid #ffffff' : '1px solid rgba(255,255,255,0.2)'
                   }}
                 />
               ))}
             </div>
 
             {/* Geometry Tools - 2 Column Grid */}
-            <div className="grid grid-cols-2 gap-1 bg-zinc-950/60 p-1 rounded-xl border border-white/5 w-full">
+            <div className="grid grid-cols-2 gap-1 bg-zinc-950/60 p-0.5 rounded-lg border border-white/5 w-full">
               <button
                 onClick={() => setRulerState(prev => ({ ...prev, active: !prev.active }))}
                 title="Toggle Ruler"
-                className={`flex items-center justify-center p-2 rounded-lg transition-all ${
+                className={`flex items-center justify-center p-2 rounded transition-all ${
                   rulerState.active
                     ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
                     : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
                 }`}
               >
-                <Ruler size={14} />
+                <Ruler size={16} />
               </button>
               <button
                 onClick={() => setProtractorState(prev => ({ ...prev, active: !prev.active }))}
                 title="Toggle Protractor"
-                className={`flex items-center justify-center p-2 rounded-lg transition-all ${
+                className={`flex items-center justify-center p-2 rounded transition-all ${
                   protractorState.active
                     ? 'bg-violet-500/20 text-violet-400 border border-violet-500/30'
                     : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
                 }`}
               >
-                <Compass size={14} />
+                <Compass size={16} />
               </button>
             </div>
 
-            {/* Size brush selector - Stacked */}
-            <div className="flex flex-col items-center gap-1.5 bg-zinc-950/60 p-2 rounded-xl border border-white/5 text-[9px] w-full">
-              <span className="text-zinc-500 font-bold uppercase tracking-wider">Size</span>
+            {/* Size brush selector - Compact */}
+            <div className="flex flex-col items-center gap-1 bg-zinc-950/60 p-1.5 rounded-lg border border-white/5 w-full">
               <input
                 type="range"
                 min="1"
                 max="25"
                 value={brushSize}
                 onChange={(e) => setBrushSize(parseInt(e.target.value))}
-                className="w-16 h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                className="w-14 h-0.5 bg-zinc-800 rounded appearance-none cursor-pointer accent-cyan-400"
+                title={`Brush Size: ${brushSize}px`}
               />
-              <span className="text-white font-mono font-bold">{brushSize}px</span>
+              <span className="text-[8px] text-white font-mono font-bold leading-none">{brushSize}px</span>
             </div>
 
-            {/* Board Background select - Column layout */}
-            <div className="flex flex-col gap-1 bg-zinc-950/60 p-1 rounded-xl border border-white/5 w-full">
-              {[
-                { id: 'dark', label: 'Dark' },
-                { id: 'grid', label: 'Grid' },
-                { id: 'light', label: 'Light' }
-              ].map((b) => (
-                <button
-                  key={b.id}
-                  onClick={() => setBgType(b.id)}
-                  className={`py-1 rounded-lg text-[10px] font-semibold transition-all ${
-                    bgType === b.id
-                      ? 'bg-zinc-800 text-white shadow'
-                      : 'text-zinc-400 hover:text-zinc-200'
-                  }`}
-                >
-                  {b.label}
-                </button>
-              ))}
+            {/* Board Theme & Grid Toggles (Unified row of icons) */}
+            <div className="grid grid-cols-2 gap-1 bg-zinc-950/60 p-0.5 rounded-lg border border-white/5 w-full">
+              <button
+                onClick={() => setWbTheme(prev => prev === 'dark' ? 'light' : 'dark')}
+                title={wbTheme === 'dark' ? "Switch to Light Theme" : "Switch to Dark Theme"}
+                className={`flex items-center justify-center p-2 rounded transition-all ${
+                  wbTheme === 'light' ? 'bg-amber-500/20 text-amber-400' : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                {wbTheme === 'light' ? <Sun size={15} /> : <Moon size={15} />}
+              </button>
+              <button
+                onClick={() => setWbGrid(!wbGrid)}
+                title={wbGrid ? "Disable Grid Overlay" : "Enable Grid Overlay"}
+                className={`flex items-center justify-center p-2 rounded transition-all ${
+                  wbGrid ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                {wbGrid ? <Grid size={15} /> : <Square size={15} />}
+              </button>
             </div>
 
-            {/* Undo / Redo / Reset */}
-            <div className="flex flex-col gap-1.5 w-full">
-              <div className="flex gap-1 w-full">
+            {/* Actions: Undo/Redo & Save/Trash */}
+            <div className="flex flex-col gap-1 w-full">
+              <div className="grid grid-cols-2 gap-1 w-full">
                 <button
                   onClick={undo}
                   disabled={historyIndex <= 0}
-                  className="flex-1 py-1 rounded-lg text-[10px] font-semibold bg-zinc-950/60 border border-white/5 text-zinc-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors text-center"
+                  className="flex items-center justify-center p-2 rounded bg-zinc-950/60 border border-white/5 text-zinc-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                  title="Undo last stroke"
                 >
-                  Undo
+                  <Undo size={14} />
                 </button>
                 <button
                   onClick={redo}
                   disabled={historyIndex >= history.length - 1}
-                  className="flex-1 py-1 rounded-lg text-[10px] font-semibold bg-zinc-950/60 border border-white/5 text-zinc-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors text-center"
+                  className="flex items-center justify-center p-2 rounded bg-zinc-950/60 border border-white/5 text-zinc-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                  title="Redo next stroke"
                 >
-                  Redo
+                  <Redo size={14} />
                 </button>
               </div>
-              <button
-                onClick={downloadBoard}
-                className="w-full py-1.5 rounded-lg text-[10px] font-bold border border-cyan-500/20 bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/25 transition-all text-center flex items-center justify-center gap-1"
-                title="Download drawing as image"
-              >
-                <Download size={11} />
-                <span>Save PNG</span>
-              </button>
-              <button
-                onClick={resetBoard}
-                className="w-full py-1.5 rounded-lg text-[10px] font-bold border border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500/25 transition-all text-center"
-              >
-                Clear All
-              </button>
+              <div className="grid grid-cols-2 gap-1 w-full">
+                <button
+                  onClick={downloadBoard}
+                  className="flex items-center justify-center p-2 rounded border border-cyan-500/20 bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/25 transition-all"
+                  title="Save drawing as PNG image"
+                >
+                  <Download size={14} />
+                </button>
+                <button
+                  onClick={resetBoard}
+                  className="flex items-center justify-center p-2 rounded border border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500/25 transition-all"
+                  title="Clear whiteboard canvas"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
             </div>
           </div>
+
+          {/* Draggable Resize Handle (Only shown in Windowed Mode in bottom right corner) */}
+          {!isFullScreen && (
+            <div
+              onMouseDown={handleWindowResizeStart}
+              onTouchStart={handleWindowResizeStart}
+              style={{
+                position: 'absolute',
+                right: '0',
+                bottom: '0',
+                width: '28px',
+                height: '28px',
+                cursor: 'se-resize',
+                zIndex: 10002,
+                pointerEvents: 'auto',
+              }}
+              className="flex items-end justify-end p-1.5"
+            >
+              <svg width="10" height="10" viewBox="0 0 10 10" className="text-zinc-500 fill-current opacity-70">
+                <path d="M10,0 L0,10 L10,10 Z" />
+              </svg>
+            </div>
+          )}
 
         </div>
       )}

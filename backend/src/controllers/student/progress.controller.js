@@ -38,14 +38,15 @@ exports.trackResourceCompletion = async (req, res) => {
       [req.user.id, contentId, contentTopicId, completed === true]
     );
 
+    const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
     // Check if all resources under this topic are completed
     const { rows: progressCount } = await db.query(
       `SELECT 
-         (SELECT COUNT(*) FROM content WHERE topic_id = $1) AS total_resources,
+         (SELECT COUNT(*) FROM content WHERE topic_id = $1 AND destination IN ('shared', $3)) AS total_resources,
          (SELECT COUNT(*) FROM user_progress up 
           JOIN content c ON c.id = up.content_id 
-          WHERE c.topic_id = $1 AND up.user_id = $2 AND up.completed = true) AS completed_resources`,
-      [contentTopicId, req.user.id]
+          WHERE c.topic_id = $1 AND up.user_id = $2 AND up.completed = true AND c.destination IN ('shared', $3)) AS completed_resources`,
+      [contentTopicId, req.user.id, destination]
     );
 
     const total = parseInt(progressCount[0].total_resources || 0);
@@ -95,13 +96,14 @@ exports.trackVideoProgress = async (req, res) => {
 
     // Recheck topic completion if video was completed
     if (completed === true) {
+      const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
       const { rows: progressCount } = await db.query(
         `SELECT 
-           (SELECT COUNT(*) FROM content WHERE topic_id = $1) AS total_resources,
+           (SELECT COUNT(*) FROM content WHERE topic_id = $1 AND destination IN ('shared', $3)) AS total_resources,
            (SELECT COUNT(*) FROM user_progress up 
             JOIN content c ON c.id = up.content_id 
-            WHERE c.topic_id = $1 AND up.user_id = $2 AND up.completed = true) AS completed_resources`,
-        [topicId, req.user.id]
+            WHERE c.topic_id = $1 AND up.user_id = $2 AND up.completed = true AND c.destination IN ('shared', $3)) AS completed_resources`,
+        [topicId, req.user.id, destination]
       );
 
       const total = parseInt(progressCount[0].total_resources || 0);
@@ -133,6 +135,8 @@ exports.getProgressSummary = async (req, res) => {
       });
     }
 
+    const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
+
     // Get total topics and resources in student's class
     const { rows: totals } = await db.query(
       `SELECT 
@@ -142,8 +146,8 @@ exports.getProgressSummary = async (req, res) => {
          (SELECT COUNT(*) FROM content c 
           JOIN topics t ON t.id = c.topic_id 
           JOIN subjects s ON s.id = t.subject_id 
-          WHERE s.class_id = $1) AS total_resources`,
-      [req.user.class_id]
+          WHERE s.class_id = $1 AND c.destination IN ('shared', $2)) AS total_resources`,
+      [req.user.class_id, destination]
     );
 
     // Get completed counts
@@ -157,8 +161,8 @@ exports.getProgressSummary = async (req, res) => {
           JOIN content c ON c.id = up.content_id
           JOIN topics t ON t.id = c.topic_id
           JOIN subjects s ON s.id = t.subject_id
-          WHERE up.user_id = $1 AND s.class_id = $2 AND up.completed = true) AS completed_resources`,
-      [req.user.id, req.user.class_id]
+          WHERE up.user_id = $1 AND s.class_id = $2 AND up.completed = true AND c.destination IN ('shared', $3)) AS completed_resources`,
+      [req.user.id, req.user.class_id, destination]
     );
 
     const totalTopics = parseInt(totals[0].total_topics || 0);
