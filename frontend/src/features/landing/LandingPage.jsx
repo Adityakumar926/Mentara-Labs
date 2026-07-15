@@ -1421,13 +1421,13 @@ function Showcase() {
       btnText: "Explore Features →"
     },
     {
-      title: "Mentara Learning Experience",
-      badge: "Modern Education, Timeless Excellence.",
-      desc: "Experience a new generation of digital learning with expertly designed worksheets, real-time assessments, progress insights, and interactive educational resources—all built around the Cambridge Primary curriculum.",
-      img: "/cam3.webp",
+      title: "Learn with Confidence. Grow with Excellence.",
+      badge: "Smart Learning Dashboard",
+      desc: "Track progress, complete interactive worksheets, explore immersive simulations, take auto-submitted assessments, and gain real-time insights through a beautifully designed learning dashboard built for Cambridge Primary students and teachers.",
+      img: "/dashboard.webp",
       color: "from-violet-500/20 to-transparent",
       accent: "text-violet-400",
-      btnText: "Start Your Journey →"
+      btnText: "View Dashboard →"
     }
   ];
 
@@ -1509,7 +1509,9 @@ function Showcase() {
                   exit={{ opacity: 0, x: -25, filter: 'blur(8px)' }}
                   transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
                   className={`w-full h-auto max-h-[460px] aspect-[16/10] ${
-                    SLIDES[activeTab].img === "/feature.webp" ? "object-contain bg-zinc-950/90 p-4" : "object-cover"
+                    SLIDES[activeTab].img === "/feature.webp" || SLIDES[activeTab].img === "/dashboard.webp"
+                      ? "object-contain bg-zinc-950/90 p-4"
+                      : "object-cover"
                   }`}
                 />
               </AnimatePresence>
