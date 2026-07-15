@@ -273,9 +273,9 @@ exports.replaceNote = async (req, res) => {
 
       // Clean up the old note file on Cloudinary
       if (existing[0].file_url && existing[0].file_url.includes('cloudinary')) {
-        const match = existing[0].file_url.match(/\/upload\/v\d+\/(.+)\.[a-z]+$/i);
+        const match = existing[0].file_url.match(/\/upload\/(?:v\d+\/)?([^\s?]+)$/);
         if (match) {
-          cloudinaryService.deleteImage(match[1]).catch(() => {});
+          cloudinaryService.deleteImage(match[1], { resource_type: 'raw' }).catch(() => {});
         }
       }
     }
@@ -377,7 +377,7 @@ exports.replaceWorksheet = async (req, res) => {
 
       // Clean up the old worksheet file on Cloudinary
       if (existing[0].file_url && existing[0].file_url.includes('cloudinary')) {
-        const match = existing[0].file_url.match(/\/upload\/v\d+\/(.+)\.[a-z]+$/i);
+        const match = existing[0].file_url.match(/\/upload\/(?:v\d+\/)?([^\s?.]+)(?:\.[a-z0-9]+)?$/i);
         if (match) {
           cloudinaryService.deleteImage(match[1]).catch(() => {});
         }
@@ -575,14 +575,31 @@ exports.deleteContent = async (req, res) => {
 
     if (existing[0]?.content_type === 'note' && existing[0]?.file_url) {
       try {
-        const b2Service = require('../../services/b2.service');
-        const key = new URL(existing[0].file_url).pathname.slice(1);
-        await b2Service.deleteFile(key);
+        if (existing[0].file_url.includes('cloudinary')) {
+          const match = existing[0].file_url.match(/\/upload\/(?:v\d+\/)?([^\s?]+)$/);
+          if (match) {
+            const cloudinaryService = require('../../services/cloudinary.service');
+            await cloudinaryService.deleteImage(match[1], { resource_type: 'raw' });
+          }
+        } else {
+          const b2Service = require('../../services/b2.service');
+          const key = new URL(existing[0].file_url).pathname.slice(1);
+          await b2Service.deleteFile(key);
+        }
       } catch (_) { /* Non-fatal */ }
     }
 
-    // Worksheet images on Cloudinary — deletion is non-fatal / optional
-    // (Cloudinary auto-cleans via lifecycle rules; add explicit delete here if needed)
+    if (existing[0]?.content_type === 'worksheet' && existing[0]?.file_url) {
+      try {
+        if (existing[0].file_url.includes('cloudinary')) {
+          const match = existing[0].file_url.match(/\/upload\/(?:v\d+\/)?([^\s?.]+)(?:\.[a-z0-9]+)?$/i);
+          if (match) {
+            const cloudinaryService = require('../../services/cloudinary.service');
+            await cloudinaryService.deleteImage(match[1]);
+          }
+        }
+      } catch (_) { /* Non-fatal */ }
+    }
 
     if (existing[0]?.content_type === 'video' && existing[0]?.mux_asset_id) {
       try {

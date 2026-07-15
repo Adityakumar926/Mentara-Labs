@@ -29,6 +29,6 @@ exports.uploadImage = (buffer, folder, options = {}) => {
  * Deletes an image from Cloudinary by its public_id.
  * Store the publicId returned from uploadImage if you need to delete later.
  */
-exports.deleteImage = async (publicId) => {
-  return cloudinary.uploader.destroy(publicId);
+exports.deleteImage = async (publicId, options = {}) => {
+  return cloudinary.uploader.destroy(publicId, options);
 };

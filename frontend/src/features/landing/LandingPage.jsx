@@ -7,7 +7,8 @@ import {
   ArrowUpRight, Play, Timer, Atom, PenTool, Sparkles, ChevronRight, 
   Globe, BookOpen, GraduationCap, Award, Library, Compass, X, Menu,
   Dna, Sigma, Code2, LineChart, Globe2, BookText, Check, Quote,
-  Github, Twitter, Linkedin, Youtube, Star, BarChart3, Layers, FlaskConical
+  Github, Twitter, Linkedin, Youtube, Star, BarChart3, Layers, FlaskConical,
+  Presentation, Zap
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -87,10 +88,8 @@ export default function LandingPage() {
         <ProductDetails />
         <Pricing />
         <FeaturesBento />
-        <LearningJourney />
         <SubjectsGrid />
         <Testimonials />
-        <FAQ />
         <Footer />
       </main>
     </>
@@ -113,7 +112,6 @@ function Header() {
     { label: "Features", href: "#features" },
     { label: "Subjects", href: "#subjects" },
     { label: "Pricing", href: "#pricing" },
-    { label: "FAQ", href: "#faq" },
   ];
 
   return (
@@ -544,7 +542,7 @@ function CurriculumStrip() {
 /* ── 4. FEATURES BENTO ── */
 function FeaturesBento() {
   return (
-    <section id="features" data-testid="features-section" className="relative py-12 lg:py-14 bg-zinc-950/20">
+    <section id="features" data-testid="features-section" className="relative py-8 lg:py-10 bg-zinc-950/20">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="max-w-2xl mb-16">
           <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-emerald-400">
@@ -618,30 +616,61 @@ function FeaturesBento() {
             </div>
           </BentoCard>
 
-          {/* Premium content */}
+          {/* Laser Pointer */}
           <BentoCard
-            tag="03 · Premium content"
+            tag="03 · Student Dashboard"
             tagColor="text-cyan-400"
-            title="Written by examiners. Reviewed by teachers."
-            description="Every topic, every subtopic, every command term — covered to syllabus depth."
-            icon={<Sparkles className="h-5 w-5 text-cyan-400" />}
-            testid="feature-content"
+            title="Everything in one place."
+            description="An interactive hub for students to track streaks, study progress, and launch simulations."
+            icon={<GraduationCap className="h-5 w-5 text-cyan-400" />}
+            testid="feature-studentdashboard"
           >
-            <div className="mt-5 space-y-2">
-              {[
-                { c: "Primary Science (Forces, Plants, Materials)", p: 92 },
-                { c: "Primary Mathematics (Fractions, Geometry)", p: 78 },
-                { c: "Primary English (Phonics, Comprehension)", p: 84 },
-              ].map((t) => (
-                <div key={t.c}>
-                  <div className="flex justify-between text-[10px] font-mono-label text-zinc-500 uppercase tracking-wider font-semibold">
-                    <span>{t.c}</span><span>{t.p}%</span>
+            <div className="mt-5 rounded-lg border border-white/10 bg-zinc-950 p-4 relative overflow-hidden flex flex-col justify-center h-[120px]">
+              {/* Pulsing indicator */}
+              <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-full">
+                <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                <span className="text-[8px] font-mono text-cyan-400 font-bold uppercase tracking-wider">Student Hub</span>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2 mt-2 h-[80px]">
+                {/* Left Card: Streak */}
+                <div className="rounded-xl border border-white/5 bg-white/[0.01] p-2.5 flex flex-col justify-between">
+                  <div className="flex items-center gap-1">
+                    <svg className="w-3.5 h-3.5 text-amber-500 fill-amber-500" viewBox="0 0 24 24">
+                      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3.5z"/>
+                    </svg>
+                    <span className="text-[8px] font-mono-label text-zinc-400 font-bold">STREAK</span>
                   </div>
-                  <div className="h-1.5 rounded-full bg-zinc-800 mt-1 overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-cyan-400 to-emerald-400" style={{ width: `${t.p}%` }} />
+                  <div>
+                    <div className="text-sm font-display font-black text-white leading-none">5 Days</div>
+                    <span className="text-[6.5px] text-zinc-500 font-semibold mt-0.5 block leading-none">Daily Goals Met</span>
                   </div>
                 </div>
-              ))}
+
+                {/* Right Card: Progress Circle */}
+                <div className="rounded-xl border border-white/5 bg-white/[0.01] p-2.5 flex items-center gap-2">
+                  <div className="relative w-8 h-8 flex-shrink-0">
+                    <svg className="w-full h-full transform -rotate-90">
+                      <circle cx="16" cy="16" r="13" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="2.5" />
+                      <motion.circle 
+                        cx="16" cy="16" r="13" 
+                        fill="none" 
+                        stroke="#22d3ee" 
+                        strokeWidth="2.5" 
+                        strokeDasharray={2 * Math.PI * 13}
+                        initial={{ strokeDashoffset: 2 * Math.PI * 13 }}
+                        animate={{ strokeDashoffset: 2 * Math.PI * 13 * (1 - 0.78) }}
+                        transition={{ duration: 2, ease: "easeOut" }}
+                      />
+                    </svg>
+                    <span className="absolute inset-0 flex items-center justify-center text-[7.5px] font-mono font-bold text-cyan-400">78%</span>
+                  </div>
+                  <div>
+                    <div className="text-[8px] font-mono-label text-zinc-400 font-bold">MASTERY</div>
+                    <span className="text-[6.5px] text-zinc-500 font-semibold block leading-tight mt-0.5">Syllabus complete</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </BentoCard>
 
@@ -866,12 +895,9 @@ function LearningJourney() {
 /* ── 6. SUBJECTS GRID ── */
 function SubjectsGrid() {
   const SUBJECTS = [
-    { name: "Science", icon: FlaskConical, topics: 16, accent: "emerald" },
-    { name: "Mathematics", icon: Sigma, topics: 18, accent: "cyan" },
     { name: "English", icon: BookText, topics: 14, accent: "emerald" },
-    { name: "Global Perspectives", icon: Globe2, topics: 8, accent: "cyan" },
-    { name: "Digital Literacy", icon: Code2, topics: 10, accent: "cyan" },
-    { name: "Art & Design", icon: PenTool, topics: 6, accent: "emerald" },
+    { name: "Mathematics", icon: Sigma, topics: 18, accent: "cyan" },
+    { name: "Science", icon: FlaskConical, topics: 16, accent: "emerald" },
   ];
 
   const ACCENT = {
@@ -888,9 +914,9 @@ function SubjectsGrid() {
   };
 
   return (
-    <section id="subjects" data-testid="subjects-section" className="relative py-12 lg:py-14 bg-zinc-950/10">
+    <section id="subjects" data-testid="subjects-section" className="relative py-8 lg:py-10 bg-zinc-950/10">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-14">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8">
           <div className="max-w-xl">
             <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-emerald-400">
               · Subjects
@@ -904,14 +930,14 @@ function SubjectsGrid() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6">
           {SUBJECTS.map((s) => {
             const a = ACCENT[s.accent];
             return (
               <div
                 key={s.name}
                 data-testid={`subject-${s.name.toLowerCase().replace(/[^a-z]/g, "")}`}
-                className={`group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-md p-5 ${a.border} hover:-translate-y-0.5 transition-all duration-300 cursor-pointer`}
+                className={`group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-md p-6 ${a.border} hover:-translate-y-0.5 transition-all duration-300 cursor-pointer`}
               >
                 <div className={`h-10 w-10 rounded-lg border ${a.iconWrap} grid place-items-center mb-4 transition-colors`}>
                   <s.icon className={`h-5 w-5 ${a.icon}`} />
@@ -953,9 +979,9 @@ function Testimonials() {
   ];
 
   return (
-    <section data-testid="testimonials-section" className="relative py-12 lg:py-14 bg-zinc-950 border-y border-white/5">
+    <section data-testid="testimonials-section" className="relative py-8 lg:py-10 bg-zinc-950 border-y border-white/5">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="max-w-2xl mb-14">
+        <div className="max-w-2xl mb-8">
           <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
             · Student stories
           </span>
@@ -1099,7 +1125,7 @@ function Pricing() {
   ];
 
   return (
-    <section id="pricing" data-testid="pricing-section" className="relative pt-4 pb-12 bg-zinc-950/20">
+    <section id="pricing" data-testid="pricing-section" className="relative pt-4 pb-8 bg-zinc-950/20">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="max-w-2xl mb-6">
           <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-emerald-400">
@@ -1111,7 +1137,7 @@ function Pricing() {
               honestly priced.
             </span>
           </h2>
-          <p className="text-zinc-400 mt-5 text-lg">No hidden fees. Cancel anytime. Built for learners and teachers alike.</p>
+          <p className="text-zinc-400 mt-5 text-lg">No hidden fees. Built for learners and teachers alike.</p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-5">
@@ -1119,7 +1145,7 @@ function Pricing() {
             <div
               key={p.id}
               data-testid={`plan-${p.id}`}
-              className={`relative rounded-2xl border p-8 backdrop-blur-2xl transition-all duration-300 flex flex-col ${
+              className={`relative rounded-2xl border p-6 backdrop-blur-2xl transition-all duration-300 flex flex-col ${
                 p.highlight
                   ? "border-cyan-500/50 bg-gradient-to-br from-cyan-500/[0.07] via-zinc-900/40 to-emerald-500/[0.07] shadow-[0_0_60px_-15px_rgba(34,211,238,0.35)]"
                   : p.id === "teacher"
@@ -1180,13 +1206,13 @@ function Pricing() {
               </div>
 
               {/* Description */}
-              <p className="text-sm text-zinc-400 mt-3 leading-relaxed min-h-[3rem]">{p.description}</p>
+              <p className="text-sm text-zinc-400 mt-2 leading-relaxed min-h-[2.5rem]">{p.description}</p>
 
               {/* CTA */}
               <Link
                 to="/register"
                 data-testid={`plan-cta-${p.id}`}
-                className={`mt-7 inline-flex w-full items-center justify-center gap-2 px-5 py-3 rounded-full font-semibold text-sm transition-all ${
+                className={`mt-4 inline-flex w-full items-center justify-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm transition-all ${
                   p.highlight
                     ? "bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 hover:shadow-[0_0_30px_rgba(34,211,238,0.45)]"
                     : p.id === "teacher"
@@ -1199,12 +1225,12 @@ function Pricing() {
               </Link>
 
               {/* Divider */}
-              <div className={`mt-7 mb-5 h-px w-full ${
+              <div className={`mt-4 mb-4 h-px w-full ${
                 p.highlight ? "bg-cyan-500/20" : p.id === "teacher" ? "bg-violet-500/20" : "bg-white/5"
               }`} />
 
               {/* Features */}
-              <ul className="space-y-3 flex-1">
+              <ul className="space-y-2 flex-1">
                 {p.features.map((f) => (
                   <li key={f} className="flex items-start gap-3 text-sm text-zinc-300">
                     <Check className={`h-4 w-4 mt-0.5 shrink-0 ${
@@ -1306,44 +1332,13 @@ function Footer() {
   ];
 
   return (
-    <footer data-testid="site-footer" className="relative pt-14 pb-8 bg-black border-t border-white/5 overflow-hidden">
+    <footer data-testid="site-footer" className="relative pt-8 pb-6 bg-black border-t border-white/5 overflow-hidden">
       {/* Glow */}
       <div className="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[60%] bg-gradient-to-r from-cyan-500/10 via-cyan-500/5 to-emerald-500/10 blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 relative">
-        {/* CTA Banner */}
-        <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-cyan-500/[0.08] via-zinc-900/40 to-emerald-500/[0.08] backdrop-blur-2xl p-10 lg:p-14 mb-12">
-          <div className="grid lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-7">
-              <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
-                · Get started
-              </span>
-              <h3 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tighter mt-3 leading-[1.05] text-white">
-                Study smarter, not louder. Try Mentara Labs free.
-              </h3>
-            </div>
-            <div className="lg:col-span-5 flex flex-col sm:flex-row gap-3 lg:justify-end">
-              <Link
-                to="/register"
-                data-testid="footer-cta-start"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 font-semibold text-sm hover:shadow-[0_0_30px_rgba(34,211,238,0.45)] transition-shadow"
-              >
-                Start free trial
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
-              <Link
-                to="/register"
-                data-testid="footer-cta-demo"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full border border-white/15 text-white font-medium text-sm hover:bg-white/5 transition-all"
-              >
-                Book a demo
-              </Link>
-            </div>
-          </div>
-        </div>
-
         {/* Links grid */}
-        <div className="grid lg:grid-cols-12 gap-10 pb-16">
+        <div className="grid lg:grid-cols-12 gap-10 pb-8">
           <div className="lg:col-span-4">
             <div className="flex items-center gap-3 mb-5">
               <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-9 w-9 object-contain" />
@@ -1417,13 +1412,13 @@ function Showcase() {
       btnText: "Explore Learning →"
     },
     {
-      title: "International Curriculum",
-      badge: "Learn with Confidence. Grow with Excellence.",
-      desc: "Aligned with the Cambridge Primary framework, every lesson is thoughtfully crafted to help students strengthen conceptual understanding, develop critical thinking, and achieve their full potential.",
-      img: "/cam2.webp",
+      title: "Modern Education, Powered by Innovation",
+      badge: "Mentara Learning Platform",
+      desc: "Transform every lesson into an engaging digital experience with interactive whiteboards, smart assessments, 3D simulations, drawable worksheets, and powerful teaching tools—all designed for Cambridge Primary classrooms.",
+      img: "/feature.webp",
       color: "from-emerald-500/20 to-transparent",
       accent: "text-emerald-400",
-      btnText: "View Curriculum →"
+      btnText: "Explore Features →"
     },
     {
       title: "Mentara Learning Experience",
@@ -1445,7 +1440,7 @@ function Showcase() {
   }, [SLIDES.length]);
 
   return (
-    <section className="py-12 bg-zinc-950/40 relative border-b border-white/5">
+    <section className="py-8 bg-zinc-950/40 relative border-b border-white/5">
       <div className="absolute inset-0 -z-10 bg-grid opacity-10 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]" />
       
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -1513,7 +1508,9 @@ function Showcase() {
                   animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
                   exit={{ opacity: 0, x: -25, filter: 'blur(8px)' }}
                   transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-                  className="w-full h-auto object-cover max-h-[460px] aspect-[16/10]"
+                  className={`w-full h-auto max-h-[460px] aspect-[16/10] ${
+                    SLIDES[activeTab].img === "/feature.webp" ? "object-contain bg-zinc-950/90 p-4" : "object-cover"
+                  }`}
                 />
               </AnimatePresence>
             </div>
@@ -1544,9 +1541,9 @@ function ProductDetails() {
   const FEATURE_ITEMS = [
     {
       id: "curriculum",
-      title: "Curriculum Aligned",
-      desc: "100% aligned with Cambridge Primary Stage 1-5.",
-      icon: BookOpen,
+      title: "Interactive Board",
+      desc: "Write, draw, and explain live with drawing and laser pens.",
+      icon: Presentation,
       color: "text-cyan-400",
       bg: "bg-cyan-500/10",
       bdr: "border-cyan-500/30",
@@ -1577,9 +1574,9 @@ function ProductDetails() {
     },
     {
       id: "exams",
-      title: "Timed Exams",
-      desc: "Practice with mock checkpoints under standard rules.",
-      icon: Timer,
+      title: "Geometry Tools",
+      desc: "Draw angles and measure lengths with virtual rulers and protractors.",
+      icon: Compass,
       color: "text-rose-400",
       bg: "bg-rose-500/10",
       bdr: "border-rose-500/30",
@@ -1588,9 +1585,9 @@ function ProductDetails() {
     },
     {
       id: "papers",
-      title: "Past Papers",
-      desc: "Access verified exam items with mark schemes.",
-      icon: Layers,
+      title: "Difficulty Levels",
+      desc: "Questions aligned with Foundation, Developing, and Secure stages.",
+      icon: BarChart3,
       color: "text-amber-400",
       bg: "bg-amber-500/10",
       bdr: "border-amber-500/30",
@@ -1611,7 +1608,7 @@ function ProductDetails() {
   ];
 
   return (
-    <section className="pt-12 pb-2 bg-zinc-950/60 relative border-b border-white/5">
+    <section className="pt-8 pb-2 bg-zinc-950/60 relative border-b border-white/5">
       
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-10">
@@ -1619,10 +1616,10 @@ function ProductDetails() {
             · PLATFORM HIGHLIGHTS
           </span>
           <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mt-3 text-white leading-tight">
-            Everything Your Child Needs to <span className="bg-gradient-to-r from-cyan-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">Learn, Practice & Excel</span>
+            Everything You Need to <span className="bg-gradient-to-r from-cyan-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">Teach, Learn, Practice & Excel</span>
           </h2>
           <p className="text-zinc-400 mt-4 text-sm sm:text-base max-w-xl mx-auto">
-            Mentara Labs brings the complete Cambridge Primary learning experience onto one smart, interactive platform.
+            Mentara Labs brings the complete Cambridge Primary suite onto one smart, interactive platform built for both educators and students.
           </p>
         </div>
 
@@ -1787,9 +1784,7 @@ function ProductDetails() {
                 {/* Internal Screen Content (Dashboard Simulation Panels) */}
                 <div className="w-full h-full bg-zinc-950 rounded-lg overflow-hidden border border-white/5 relative flex">
                   <AnimatePresence mode="wait">
-
-
-                  {/* Active Curriculum Preview (Realistic Checklist mapping) */}
+                    {/* Active Curriculum Preview (Interactive Whiteboard Mockup) */}
                     {activeItem === "curriculum" && (
                       <motion.div 
                         initial={{ opacity: 0 }}
@@ -1797,33 +1792,35 @@ function ProductDetails() {
                         exit={{ opacity: 0 }}
                         className="absolute inset-0 bg-[#08090d] flex flex-col p-3.5 justify-between z-10"
                       >
-                        <div className="text-[7.5px] font-mono font-bold text-cyan-400 tracking-wider">04 · CURRICULUM SYLLABUS MAPPING</div>
-                        <div className="flex-1 flex flex-col gap-2 mt-2 bg-zinc-950/60 rounded-xl border border-white/5 p-2.5">
-                          <div className="flex justify-between items-center border-b border-white/5 pb-1.5">
-                            <span className="text-[9px] font-bold text-white">Cambridge Primary Syllabus</span>
-                            <span className="text-[6px] px-1 py-0.5 rounded bg-cyan-400/10 text-cyan-400 border border-cyan-400/20 font-bold">Stages 1-5</span>
+                        <div className="text-[7.5px] font-mono font-bold text-cyan-400 tracking-wider">04 · TEACHER INTERACTIVE WHITEBOARD</div>
+                        <div className="flex-1 flex flex-col gap-2 mt-2 bg-zinc-950/60 rounded-xl border border-white/5 p-2 relative overflow-hidden">
+                          {/* Toolbar overlay */}
+                          <div className="absolute left-1.5 top-1.5 flex flex-col gap-1 bg-zinc-900/90 border border-white/10 p-1 rounded z-20">
+                            <span className="w-2 h-2 rounded bg-cyan-400" />
+                            <span className="w-2 h-2 rounded bg-emerald-400" />
+                            <span className="w-2 h-2 rounded bg-white/20" />
                           </div>
-                          
-                          <div className="flex flex-col gap-1.5 justify-center flex-1">
-                            {[
-                              { sub: "Mathematics Labs", status: "100% Mapped", active: true },
-                              { sub: "Science Interactive Labs", status: "100% Mapped", active: true },
-                              { sub: "English Language Exercises", status: "95% Mapped", active: false }
-                            ].map((item, idx) => (
-                              <div key={idx} className="flex justify-between items-center bg-white/[0.02] p-1.5 rounded border border-white/5">
-                                <div className="flex items-center gap-1.5">
-                                  <span className={`w-1.5 h-1.5 rounded-full ${item.active ? "bg-cyan-400" : "bg-zinc-500"}`} />
-                                  <span className="text-[7px] text-zinc-300 font-semibold">{item.sub}</span>
-                                </div>
-                                <span className="text-[6px] text-zinc-500 font-bold">{item.status}</span>
-                              </div>
-                            ))}
+                          {/* Board drawing simulator */}
+                          <div className="flex-1 flex flex-col justify-center items-center relative">
+                            {/* SVG drawing simulation */}
+                            <svg className="w-full h-full absolute inset-0 text-cyan-400/80" viewBox="0 0 200 100">
+                              <motion.path 
+                                d="M 30 50 Q 100 20 170 50" 
+                                fill="none" 
+                                stroke="currentColor" 
+                                strokeWidth="1.5"
+                                initial={{ pathLength: 0 }}
+                                animate={{ pathLength: 1 }}
+                                transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+                              />
+                              <text x="50" y="80" fill="#a1a1aa" fontSize="7" fontWeight="bold">Concept: Friction & Gravity</text>
+                            </svg>
                           </div>
                         </div>
                       </motion.div>
                     )}
 
-                  {/* Active Past Papers Preview (List of Past Exam Papers & Questions) */}
+                    {/* Active Past Papers Preview (Topic & Question Difficulty Levels) */}
                     {activeItem === "papers" && (
                       <motion.div 
                         initial={{ opacity: 0 }}
@@ -1831,27 +1828,27 @@ function ProductDetails() {
                         exit={{ opacity: 0 }}
                         className="absolute inset-0 bg-[#08090d] flex flex-col p-3.5 justify-between z-10"
                       >
-                        <div className="text-[7.5px] font-mono font-bold text-amber-400 tracking-wider">05 · PAST PAPERS REPOSITORY</div>
+                        <div className="text-[7.5px] font-mono font-bold text-amber-400 tracking-wider">05 · DIFFICULTY LEVEL ALIGNMENT</div>
                         
                         <div className="flex-1 flex flex-col gap-2 mt-2 bg-zinc-950/60 rounded-xl border border-white/5 p-2.5 overflow-hidden">
                           <div className="flex items-center justify-between border-b border-white/5 pb-1">
-                            <span className="text-[8px] font-bold text-white">Select Year & Paper</span>
-                            <span className="text-[6.5px] font-semibold text-amber-400">Past Papers</span>
+                            <span className="text-[8px] font-bold text-white">Syllabus Progress Stages</span>
+                            <span className="text-[6.5px] font-semibold text-amber-400">Levels</span>
                           </div>
 
-                          <div className="flex-1 flex flex-col gap-1.5 justify-center overflow-y-auto">
+                          <div className="flex-1 flex flex-col gap-1.5 justify-center">
                             {[
-                              { code: "Oct 2023 - P1", q: "Q12: Forces & Light Reflection", mark: "Solved (4/4 M)", active: true },
-                              { code: "May 2023 - P2", q: "Q8: Plants & Photosynthesis", mark: "Solved (3/3 M)", active: true },
-                              { code: "Oct 2022 - P1", q: "Q4: Friction & Materials", mark: "Unsolved", active: false }
-                            ].map((paper, idx) => (
-                              <div key={idx} className="flex justify-between items-center bg-white/[0.02] p-2 rounded border border-white/5">
-                                <div className="flex flex-col gap-0.5">
-                                  <span className="text-[7px] text-zinc-300 font-bold leading-none">{paper.code}</span>
-                                  <span className="text-[5.5px] text-zinc-500 leading-none">{paper.q}</span>
+                              { stage: "Foundation Stage", desc: "Core concepts & simple items", badge: "Easy", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
+                              { stage: "Developing Stage", desc: "Syllabus practice & workflows", badge: "Medium", color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20" },
+                              { stage: "Secure Stage", desc: "Complex problems & checkpoint items", badge: "Hard", color: "text-amber-400 bg-amber-500/10 border-amber-500/20" }
+                            ].map((level, idx) => (
+                              <div key={idx} className="flex justify-between items-center bg-white/[0.02] p-1.5 rounded border border-white/5">
+                                <div className="flex flex-col">
+                                  <span className="text-[7px] text-zinc-300 font-bold leading-none">{level.stage}</span>
+                                  <span className="text-[5.5px] text-zinc-500 leading-none mt-0.5">{level.desc}</span>
                                 </div>
-                                <span className={`text-[6px] px-1 py-0.5 rounded-sm font-bold ${paper.active ? "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20" : "text-zinc-500 bg-white/5"}`}>
-                                  {paper.mark}
+                                <span className={`text-[5px] px-1 py-0.5 rounded-sm font-bold border ${level.color}`}>
+                                  {level.badge}
                                 </span>
                               </div>
                             ))}
@@ -2029,30 +2026,97 @@ function ProductDetails() {
                         </div>
                       </motion.div>
                     )}
-                    {/* Active Exams Preview (Auto time submission overlay) */}
+                    {/* Active Exams Preview (Geometry Tools Mockup) */}
                     {activeItem === "exams" && (
                       <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="absolute inset-0 bg-zinc-950 flex flex-col justify-center items-center z-10 p-4"
+                        className="absolute inset-0 bg-[#08090d] flex flex-col p-3.5 justify-between z-10"
                       >
-                        <div className="absolute top-2 left-2 text-[7px] font-mono font-bold text-rose-400 tracking-wider">03 · MOCK CHECKPOINT PAPERS</div>
+                        <div className="text-[7.5px] font-mono font-bold text-rose-400 tracking-wider">03 · GEOMETRY MATH TOOLS</div>
                         
-                        <div className="flex-col items-center gap-1 flex">
-                          <span className="text-[8px] text-zinc-500 font-bold uppercase">TIMER COUNTDOWN</span>
-                          <span className="text-xl font-bold font-mono text-white tracking-widest animate-pulse">00:00:03</span>
+                        <div className="flex-1 flex flex-col gap-2 mt-2 bg-zinc-950/60 rounded-xl border border-white/5 p-2 relative overflow-hidden flex justify-center items-center">
+                          {/* Grid blueprint pattern */}
+                          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:10px_10px]" />
                           
-                          {/* Progress bar fill */}
-                          <div className="w-[120px] h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5 mt-1">
-                            <motion.div 
-                              className="h-full bg-rose-500" 
-                              initial={{ width: "100%" }}
-                              animate={{ width: "0%" }}
-                              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                            />
-                          </div>
-                          <span className="text-[8px] text-rose-400 font-bold mt-2">Auto-submitting paper soon...</span>
+                          {/* SVG containing the animated ruler and protractor geometry */}
+                          <svg className="w-full h-full text-zinc-400 z-10" viewBox="0 0 200 80">
+                            {/* Animated Protractor (Arc with degree ticks) */}
+                            <g transform="translate(45, 45)">
+                              {/* Semisymmetric arc */}
+                              <path d="M -30 0 A 30 30 0 0 1 30 0 Z" fill="rgba(244, 63, 94, 0.05)" stroke="rgba(244, 63, 94, 0.3)" strokeWidth="1" />
+                              {/* Center dot */}
+                              <circle cx="0" cy="0" r="1.5" fill="#f43f5e" />
+                              
+                              {/* Ticks along the arc */}
+                              {[-60, -30, 0, 30, 60].map((angle, idx) => {
+                                const rad = (angle * Math.PI) / 180;
+                                const x1 = Math.sin(rad) * 27;
+                                const y1 = -Math.cos(rad) * 27;
+                                const x2 = Math.sin(rad) * 30;
+                                const y2 = -Math.cos(rad) * 30;
+                                return (
+                                  <line key={idx} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(244, 63, 94, 0.4)" strokeWidth="0.8" />
+                                );
+                              })}
+
+                              {/* Sweeping angle measuring line */}
+                              <motion.line 
+                                x1="0" y1="0" 
+                                animate={{
+                                  x2: [0, 21, 0],
+                                  y2: [-30, -21, -30]
+                                }}
+                                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                                stroke="#f43f5e" 
+                                strokeWidth="1.5" 
+                                strokeDasharray="2 1"
+                              />
+                              {/* Degree badge */}
+                              <motion.g
+                                animate={{ opacity: [0.5, 1, 0.5] }}
+                                transition={{ duration: 4, repeat: Infinity }}
+                              >
+                                <text x="12" y="-12" fill="#f43f5e" fontSize="7" fontWeight="bold">45°</text>
+                              </motion.g>
+                            </g>
+
+                            {/* Animated Ruler drawing a line */}
+                            <g transform="translate(100, 20)">
+                              {/* Ruler body */}
+                              <rect x="0" y="25" width="80" height="15" rx="2" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
+                              {/* Ruler ticks */}
+                              {[0, 10, 20, 30, 40, 50, 60, 70, 80].map((tick) => (
+                                <line key={tick} x1={tick} y1="25" x2={tick} y2="28" stroke="rgba(255,255,255,0.3)" strokeWidth="0.8" />
+                              ))}
+                              
+                              {/* The line being drawn along the ruler */}
+                              <motion.line
+                                x1="5" y1="22"
+                                animate={{ x2: [5, 75, 5] }}
+                                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                                y2="22"
+                                stroke="#22d3ee"
+                                strokeWidth="1.8"
+                                strokeLinecap="round"
+                              />
+                              
+                              {/* Pencil point drawing the line */}
+                              <motion.polygon
+                                points="0,0 -3,-8 3,-8"
+                                fill="#22d3ee"
+                                animate={{
+                                  transform: [
+                                    "translate(5px, 20px) rotate(15deg)",
+                                    "translate(75px, 20px) rotate(15deg)",
+                                    "translate(5px, 20px) rotate(15deg)"
+                                  ]
+                                }}
+                                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                              />
+                            </g>
+                          </svg>
                         </div>
                       </motion.div>
                     )}

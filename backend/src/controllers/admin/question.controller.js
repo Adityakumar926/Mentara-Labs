@@ -82,6 +82,22 @@ exports.update = async (req, res) => {
   try {
     const { id } = req.params;
 
+    // Check if image_url is being updated/replaced, clean up the old one from Cloudinary
+    if (req.body.hasOwnProperty('image_url')) {
+      const { rows: existing } = await db.query(
+        'SELECT image_url FROM questions WHERE id = $1',
+        [id]
+      );
+      const oldUrl = existing[0]?.image_url;
+      const newUrl = req.body.image_url;
+      if (oldUrl && oldUrl !== newUrl && oldUrl.includes('cloudinary')) {
+        const match = oldUrl.match(/\/upload\/(?:v\d+\/)?([^\s?.]+)(?:\.[a-z0-9]+)?$/i);
+        if (match) {
+          cloudinaryService.deleteImage(match[1]).catch(() => {});
+        }
+      }
+    }
+
     // ── Security: only allow known columns ──────────────────────────────────
     const fields = Object.fromEntries(
       Object.entries(req.body).filter(([k]) => UPDATABLE_FIELDS.has(k))
@@ -110,6 +126,18 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
   try {
+    const { rows: existing } = await db.query(
+      'SELECT image_url FROM questions WHERE id = $1',
+      [req.params.id]
+    );
+
+    if (existing[0]?.image_url && existing[0].image_url.includes('cloudinary')) {
+      const match = existing[0].image_url.match(/\/upload\/(?:v\d+\/)?([^\s?.]+)(?:\.[a-z0-9]+)?$/i);
+      if (match) {
+        cloudinaryService.deleteImage(match[1]).catch(() => {});
+      }
+    }
+
     const { rowCount } = await db.query(
       'DELETE FROM questions WHERE id = $1', [req.params.id]
     );
