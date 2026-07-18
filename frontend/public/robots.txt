@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Block private/auth pages from indexing
+Disallow: /dashboard
+Disallow: /register
+Disallow: /login
+Disallow: /admin
+Disallow: /exams/
+
+# Sitemap location
+Sitemap: https://www.mentp.com/sitemap.xml
