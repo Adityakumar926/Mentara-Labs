@@ -32,7 +32,6 @@ if (typeof profileCtrl.getProfile     === 'function') router.get('/profile',    
 if (typeof profileCtrl.updateProfile  === 'function') router.put('/profile',           profileCtrl.updateProfile);
 if (typeof profileCtrl.changePassword === 'function') router.patch('/change-password', profileCtrl.changePassword);
 if (typeof profileCtrl.getProgress    === 'function') router.get('/progress',          profileCtrl.getProgress);
-if (typeof profileCtrl.upgradePremium   === 'function') router.post('/profile/upgrade-premium', profileCtrl.upgradePremium);
 
 // ─── PROGRESS TRACKING ────────────────────────────────────────────────────────
 router.post('/progress/resource', progressCtrl.trackResourceCompletion);
