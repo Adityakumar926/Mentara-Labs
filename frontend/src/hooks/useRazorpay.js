@@ -45,6 +45,7 @@ const useRazorpay = () => {
         currency: order.currency,
         name: 'Mentara Labs',
         description: order.planLabel,
+        image: 'https://www.mentp.com/mentara-new.png',
         order_id: order.id,
         prefill: {
           name: user?.full_name || '',
