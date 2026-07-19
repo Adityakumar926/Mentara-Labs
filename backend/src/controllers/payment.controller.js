@@ -2,7 +2,8 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const db = require('../config/db');
 
-const razorpay = new Razorpay({
+// Lazy-initialize so env vars are available at call time, not module load time
+const getRazorpay = () => new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
@@ -34,7 +35,7 @@ exports.createOrder = async (req, res) => {
 
     const planConfig = PLANS[plan];
 
-    const order = await razorpay.orders.create({
+    const order = await getRazorpay().orders.create({
       amount: planConfig.amount,
       currency: planConfig.currency,
       receipt: `receipt_${req.user.id}_${Date.now()}`,
