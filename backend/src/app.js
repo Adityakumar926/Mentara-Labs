@@ -15,7 +15,12 @@ app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
     const cleanOrigin = origin.replace(/\/$/, '');
-    const allowed = [process.env.FRONTEND_URL, process.env.CLIENT_URL]
+    const allowed = [
+      process.env.FRONTEND_URL,
+      process.env.CLIENT_URL,
+      'https://www.mentp.com',
+      'https://mentp.com'
+    ]
       .filter(Boolean)
       .map(url => url.replace(/\/$/, ''));
 
