@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '@/api/client';
+import toast from 'react-hot-toast';
 
-const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID;
+const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_TFJan710onN37o';
 
 const loadRazorpay = () => {
   return new Promise((resolve) => {
@@ -28,12 +29,12 @@ const useRazorpay = () => {
       // Load Razorpay SDK
       const loaded = await loadRazorpay();
       if (!loaded) {
-        throw new Error('Failed to load Razorpay. Check your internet connection.');
+        throw new Error('Failed to load Razorpay SDK. Please check your internet connection.');
       }
 
       // Create order on backend
       const { data } = await api.post('/payment/create-order', { plan });
-      if (!data.success) throw new Error(data.message);
+      if (!data.success) throw new Error(data.message || 'Failed to create payment order');
 
       const order = data.order;
 
@@ -72,7 +73,9 @@ const useRazorpay = () => {
               throw new Error(verifyRes.data.message);
             }
           } catch (err) {
-            setError(err.message || 'Payment verification failed');
+            const msg = err.response?.data?.message || err.message || 'Payment verification failed';
+            setError(msg);
+            toast.error(msg);
           }
         },
         modal: {
@@ -82,12 +85,16 @@ const useRazorpay = () => {
 
       const rzp = new window.Razorpay(options);
       rzp.on('payment.failed', (response) => {
-        setError(response.error.description || 'Payment failed');
+        const msg = response.error?.description || 'Payment failed';
+        setError(msg);
+        toast.error(msg);
         setLoading(false);
       });
       rzp.open();
     } catch (err) {
-      setError(err.message || 'Payment failed. Please try again.');
+      const msg = err.response?.data?.message || err.message || 'Payment failed. Please try again.';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
