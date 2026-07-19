@@ -2,11 +2,12 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const db = require('../config/db');
 
-// Lazy-initialize so env vars are available at call time, not module load time
-const getRazorpay = () => new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+// Lazy-initialize so env vars are available at call time, with safe fallbacks
+const getRazorpay = () => {
+  const key_id = process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder';
+  const key_secret = process.env.RAZORPAY_KEY_SECRET || 'placeholder_secret';
+  return new Razorpay({ key_id, key_secret });
+};
 
 // Plan config
 const PLANS = {
