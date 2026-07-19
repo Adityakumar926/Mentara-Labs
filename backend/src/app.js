@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const authRoutes = require('./routes/auth.routes');
 const adminRoutes = require('./routes/admin.routes');
 const studentRoutes = require('./routes/student.routes');
+const paymentRoutes = require('./routes/payment.routes');
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use(morgan('dev'));
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/student', studentRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // Health check
 app.get('/health', (req, res) => res.json({ status: 'ok' }));

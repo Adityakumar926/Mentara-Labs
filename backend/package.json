@@ -27,6 +27,7 @@
     "multer": "^2.2.0",
     "nodemon": "^3.0.1",
     "pg": "^8.21.0",
+    "razorpay": "^2.9.8",
     "socket.io": "^4.8.3",
     "streamifier": "^0.1.1"
   }

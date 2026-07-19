@@ -14,6 +14,7 @@ import ProtectedRoute from '@/components/shared/ProtectedRoute';
 
 // Landing
 import LandingPage from '@/features/landing/LandingPage';
+import PaymentSuccess from '@/features/payment/PaymentSuccess';
 
 // Auth pages
 import LoginPage    from '@/features/auth/LoginPage';
@@ -128,6 +129,9 @@ export default function App() {
           <Route path="/exams/:id/take"   element={<ExamTakePage />} />
           <Route path="/exams/:id/result" element={<ResultPage />} />
         </Route>
+
+        {/* ── Payment ───────────────────────────────────────────────────── */}
+        <Route path="/payment/success" element={<PaymentSuccess />} />
 
         {/* ── Fallback ──────────────────────────────────────────────────── */}
         <Route path="*" element={<Navigate to="/login" replace />} />
