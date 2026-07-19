@@ -6,6 +6,7 @@ import { PageWrapper } from '@/components/ui';
 import { studentApi } from '@/api/services';
 import { useApi } from '@/hooks/useApi';
 import useAuthStore from '@/store/authStore';
+import useRazorpay from '@/hooks/useRazorpay';
 import toast from 'react-hot-toast';
 
 /* ─── Premium Modern CSS ─── */
@@ -245,7 +246,7 @@ const CSS = `
 export default function PremiumPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const [upgrading, setUpgrading] = useState(false);
+  const { startPayment, loading: upgrading, error } = useRazorpay();
   const { data: settings, loading } = useApi(studentApi.getSettings);
   const isStudent = user?.role === 'student';
   const price = isStudent ? (settings?.student_premium_price || '39') : (settings?.premium_price || '65');
@@ -260,22 +261,18 @@ export default function PremiumPage() {
   const savingsVal = originalVal - discountedVal;
 
   const handleUpgrade = async () => {
-    setUpgrading(true);
-    try {
-      const res = await studentApi.upgradePremium();
-      if (res.data.success) {
-        // Update user inside localStorage & Zustand store immediately
-        localStorage.setItem('user', JSON.stringify(res.data.user));
-        useAuthStore.setState({ user: res.data.user });
-
+    const selectedPlan = isStudent ? 'student' : 'teacher';
+    await startPayment({
+      plan: selectedPlan,
+      user,
+      onSuccess: (updatedUser) => {
+        if (updatedUser) {
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+          useAuthStore.setState({ user: updatedUser });
+        }
         toast.success('Congratulations! Mentara Labs Premium is now active.');
-        navigate(res.data.user.role === 'student' ? '/student/dashboard' : '/explore');
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Upgrade failed. Please try again.');
-    } finally {
-      setUpgrading(false);
-    }
+      },
+    });
   };
 
   const isPremium = user?.is_premium;
