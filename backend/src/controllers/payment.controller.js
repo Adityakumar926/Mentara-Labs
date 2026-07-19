@@ -36,10 +36,12 @@ exports.createOrder = async (req, res) => {
 
     const planConfig = PLANS[plan];
 
+    // Razorpay receipt field MUST be <= 40 characters
+    const shortUserId = String(req.user?.id || 'usr').slice(0, 10);
     const order = await getRazorpay().orders.create({
       amount: planConfig.amount,
       currency: planConfig.currency,
-      receipt: `receipt_${req.user.id}_${Date.now()}`,
+      receipt: `r_${shortUserId}_${Date.now().toString().slice(-8)}`,
       notes: {
         userId: req.user.id,
         plan: plan,
