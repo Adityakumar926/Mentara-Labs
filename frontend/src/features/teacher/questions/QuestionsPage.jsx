@@ -519,9 +519,11 @@ function QuestionCard({ q, idx }) {
       >
         <span className="q-index">{idx + 1}</span>
 
-        <p className={clsx('q-text', isLocked && 'blurred')}>
-          {isLocked ? 'This is a premium question — unlock to view.' : q.question_text}
-        </p>
+        {(isLocked || q.question_text) && (
+          <p className={clsx('q-text', isLocked && 'blurred')}>
+            {isLocked ? 'This is a premium question — unlock to view.' : q.question_text}
+          </p>
+        )}
 
         <div className="q-meta-right">
           {answered && (

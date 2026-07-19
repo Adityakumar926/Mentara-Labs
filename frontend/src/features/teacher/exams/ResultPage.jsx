@@ -553,7 +553,7 @@ export default function ResultPage() {
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.85rem' }}>
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem', flex: 1, minWidth: 0 }}>
                         <span className="result-qbadge">{i + 1}</span>
-                        <p style={{ fontSize: '0.9rem', lineHeight: 1.65, color: 'var(--color-text-primary)', fontWeight: 600 }}>{q.question_text}</p>
+                        {q.question_text && <p style={{ fontSize: '0.9rem', lineHeight: 1.65, color: 'var(--color-text-primary)', fontWeight: 600 }}>{q.question_text}</p>}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
                         <span className="marks-chip">{q.marks}m</span>

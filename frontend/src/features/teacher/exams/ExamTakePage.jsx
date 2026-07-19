@@ -1035,7 +1035,7 @@ export default function ExamTakePage() {
                     <span>Question {current + 1} of {total}</span>
                     <span className="take-marks-pill">{q.marks} mark{q.marks !== 1 ? 's' : ''}</span>
                   </div>
-                  <p className="take-qtext">{q.question_text}</p>
+                  {q.question_text && <p className="take-qtext">{q.question_text}</p>}
                   
                   {/* Structure Question Canvas overlay with toolbox */}
                   {q.question_type === 'photo' && q.image_url && (

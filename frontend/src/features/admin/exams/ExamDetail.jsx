@@ -806,7 +806,9 @@ export default function ExamDetail() {
                     >
                       <span className="ed-q-num">{i + 1}</span>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <p className="ed-q-text">{q.question_text}</p>
+                        <p className="ed-q-text" style={{ fontStyle: q.question_text ? 'normal' : 'italic', opacity: q.question_text ? 1 : 0.6 }}>
+                          {q.question_text || '(No text prompt)'}
+                        </p>
                         <div className="ed-q-meta">
                           <span className="ed-q-type-pill">{q.question_type.replace('_', ' ')}</span>
                           <span className="ed-q-marks-pill">{q.marks} mark{q.marks !== 1 ? 's' : ''}</span>
@@ -961,8 +963,8 @@ export default function ExamDetail() {
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
                           <div style={{ flex: 1 }}>
-                            <p className="ed-modal-q-text" style={{ fontWeight: '500', fontSize: '0.82rem', margin: 0, color: 'var(--cream)', lineHeight: '1.4' }}>
-                              {q.question_text}
+                            <p className="ed-modal-q-text" style={{ fontWeight: '500', fontSize: '0.82rem', margin: 0, color: q.question_text ? 'var(--cream)' : 'rgba(250,250,250,0.4)', lineHeight: '1.4', fontStyle: q.question_text ? 'normal' : 'italic' }}>
+                              {q.question_text || '(No text prompt)'}
                             </p>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginTop: '0.35rem', flexWrap: 'wrap' }}>
                               <span className="ed-q-type-pill" style={{ padding: '0.1rem 0.45rem', fontSize: '0.62rem', letterSpacing: '0.02em', textTransform: 'uppercase', background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', color: 'var(--lavender)', borderRadius: '50px' }}>
@@ -1233,7 +1235,7 @@ export default function ExamDetail() {
                 <span className="ed-q-type-pill">{viewingQuestion.question_type ? viewingQuestion.question_type.replace('_', ' ') : 'mcq'}</span>
                 <span className="ed-q-marks-pill">{viewingQuestion.marks || 1} mark(s)</span>
               </div>
-              <div className="ed-q-view-title">{viewingQuestion.question_text}</div>
+              {viewingQuestion.question_text && <div className="ed-q-view-title">{viewingQuestion.question_text}</div>}
               
               {viewingQuestion.image_url && (
                 <img 
