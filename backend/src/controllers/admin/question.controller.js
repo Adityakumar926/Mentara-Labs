@@ -191,3 +191,108 @@ exports.uploadImage = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+// Bulk Upload multiple question images at once
+exports.bulkUploadImages = async (req, res) => {
+  try {
+    const files = req.files;
+    if (!files || !files.length) {
+      return res.status(400).json({ success: false, message: 'No image files uploaded' });
+    }
+
+    const {
+      subject_id, topic_id, question_type = 'photo',
+      is_premium = 'false', destination = 'shared'
+    } = req.body;
+
+    if (!subject_id) {
+      return res.status(400).json({ success: false, message: 'subject_id is required' });
+    }
+
+    let metadataList = [];
+    if (req.body.metadata) {
+      try {
+        metadataList = JSON.parse(req.body.metadata);
+      } catch (e) {
+        metadataList = [];
+      }
+    }
+
+    const targetDestination = ['shared', 'student', 'teacher'].includes(destination) ? destination : 'shared';
+    const isPrem = is_premium === 'true' || is_premium === true;
+
+    // Upload to Cloudinary in parallel chunks of 5 to prevent memory/rate-limit pressure
+    const uploadResults = [];
+    const BATCH_SIZE = 5;
+    for (let i = 0; i < files.length; i += BATCH_SIZE) {
+      const chunk = files.slice(i, i + BATCH_SIZE);
+      const chunkResults = await Promise.allSettled(
+        chunk.map(file => cloudinaryService.uploadImage(file.buffer, 'question-images'))
+      );
+      
+      chunkResults.forEach((res, idx) => {
+        const fileIdx = i + idx;
+        const fileMeta = metadataList[fileIdx] || {};
+        if (res.status === 'fulfilled') {
+          uploadResults.push({
+            success: true,
+            url: res.value.url,
+            originalName: files[fileIdx].originalname,
+            difficulty: fileMeta.difficulty || 'medium',
+            questionText: fileMeta.questionText || null,
+          });
+        } else {
+          uploadResults.push({
+            success: false,
+            error: res.reason?.message || 'Upload failed',
+            originalName: files[fileIdx].originalname,
+          });
+        }
+      });
+    }
+
+    const successfulUploads = uploadResults.filter(r => r.success);
+    if (!successfulUploads.length) {
+      return res.status(500).json({ success: false, message: 'All image uploads failed' });
+    }
+
+    // Create DB records for successful uploads
+    const insertedQuestions = [];
+    for (const item of successfulUploads) {
+      const { rows } = await db.query(
+        `INSERT INTO questions
+         (subject_id, topic_id, question_type, question_text, options, correct_answer,
+          explanation, difficulty, tags, is_premium, image_url, created_by, destination)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
+        [
+          subject_id,
+          topic_id || null,
+          question_type,
+          item.questionText || null,
+          JSON.stringify([]),
+          null,
+          null,
+          item.difficulty || 'medium',
+          null,
+          isPrem,
+          item.url,
+          req.user.id,
+          targetDestination
+        ]
+      );
+      insertedQuestions.push(rows[0]);
+    }
+
+    res.json({
+      success: true,
+      message: `Successfully created ${insertedQuestions.length} questions`,
+      data: insertedQuestions,
+      totalFiles: files.length,
+      successCount: insertedQuestions.length,
+      failureCount: files.length - insertedQuestions.length,
+    });
+  } catch (err) {
+    console.error('[bulkUploadImages Error]', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};

@@ -111,6 +111,12 @@ router.post(
   handleUploadError,
   qCtrl.uploadImage
 );
+router.post(
+  '/questions/bulk-upload',
+  upload('image').array('images', 50),
+  handleUploadError,
+  qCtrl.bulkUploadImages
+);
 router.put('/questions/:id',           qCtrl.update);
 router.delete('/questions/:id',        qCtrl.delete);
 router.patch('/questions/:id/star',    qCtrl.toggleStar);

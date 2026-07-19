@@ -76,6 +76,12 @@ export const adminApi = {
     fd.append('file', file);
     return api.post('/admin/questions/image', fd);
   },
+  bulkUploadQuestions: (formData, onUploadProgress) => {
+    return api.post('/admin/questions/bulk-upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress,
+    });
+  },
 
   // Exams
   getExams:           (params)   => api.get('/admin/exams', { params }),
