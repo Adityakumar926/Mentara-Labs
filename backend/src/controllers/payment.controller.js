@@ -4,8 +4,8 @@ const db = require('../config/db');
 
 // Lazy-initialize so env vars are available at call time, with safe fallbacks
 const getRazorpay = () => {
-  const key_id = process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder';
-  const key_secret = process.env.RAZORPAY_KEY_SECRET || 'placeholder_secret';
+  const key_id = process.env.RAZORPAY_KEY_ID || 'rzp_test_TFJan710onN37o';
+  const key_secret = process.env.RAZORPAY_KEY_SECRET || 'TE0lwJ1VFH4uDsiayOosWd8Y';
   return new Razorpay({ key_id, key_secret });
 };
 
@@ -58,7 +58,7 @@ exports.createOrder = async (req, res) => {
     });
   } catch (err) {
     console.error('[createOrder Error]', err);
-    res.status(500).json({ success: false, message: 'Failed to create payment order' });
+    res.status(500).json({ success: false, message: err.message || err.description || 'Failed to create payment order' });
   }
 };
 
