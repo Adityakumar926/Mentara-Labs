@@ -1072,12 +1072,12 @@ export default function QuestionsPage() {
           description="This will permanently delete the question and remove it from all exams. This cannot be undone."
           danger />
 
-        {/* ── Image Preview Modal ── */}
-        <Modal open={!!activeImage} onClose={() => setActiveImage(null)} title="Image Preview" size="xl">
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '1rem', background: 'rgba(0,0,0,0.2)', borderRadius: '16px' }}>
-            <img src={activeImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '75vh', borderRadius: '12px', objectFit: 'contain', border: '1px solid rgba(255,255,255,0.1)' }} />
-          </div>
-        </Modal>
+        {/* ── Delete confirm ── */}
+        <ConfirmDialog open={!!deleteId} onClose={() => setDeleteId(null)}
+          onConfirm={() => deleteQ(deleteId)}
+          title="Delete Question"
+          description="This will permanently delete the question and remove it from all exams. This cannot be undone."
+          danger />
 
         {/* ── Bulk Upload Modal ── */}
         <Modal
@@ -1266,99 +1266,140 @@ export default function QuestionsPage() {
               </div>
             )}
 
-            {/* Selected File Previews Grid with Large Image Thumbnails & Click-to-Expand */}
+            {/* Selected File Previews Grid with Extra-Large Cards & Full-Screen Lightbox */}
             {bulkFiles.length > 0 && (
-              <div style={{ maxHeight: '380px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.85rem', paddingRight: '0.25rem' }}>
+              <div style={{
+                maxHeight: '440px',
+                overflowY: 'auto',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(310px, 1fr))',
+                gap: '1rem',
+                paddingRight: '0.35rem',
+                marginTop: '0.5rem'
+              }}>
                 {bulkFiles.map((item, idx) => (
                   <div
                     key={item.id}
                     style={{
                       display: 'flex',
-                      alignItems: 'center',
-                      gap: '1rem',
-                      padding: '0.75rem 0.9rem',
-                      borderRadius: '16px',
-                      background: 'rgba(255,255,255,0.03)',
-                      border: '1px solid rgba(255,255,255,0.08)',
-                      transition: 'border-color 0.2s'
+                      flexDirection: 'column',
+                      borderRadius: '18px',
+                      background: 'rgba(15,23,42,0.6)',
+                      border: '1px solid rgba(0,212,255,0.2)',
+                      overflow: 'hidden',
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+                      transition: 'all 0.2s ease'
                     }}
                   >
-                    {/* Expandable Large Image Thumbnail */}
+                    {/* Header bar */}
+                    <div style={{
+                      padding: '0.6rem 0.85rem',
+                      background: 'rgba(255,255,255,0.03)',
+                      borderBottom: '1px solid rgba(255,255,255,0.06)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between'
+                    }}>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--cream)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>
+                        #{idx + 1} · {item.originalName}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeBulkFile(item.id)}
+                        style={{ background: 'rgba(239,68,68,0.12)', border: 'none', color: '#F87171', cursor: 'pointer', padding: '0.35rem', borderRadius: '8px', marginLeft: '0.5rem' }}
+                        title="Remove question"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+
+                    {/* Prominent Large Question Image Preview Container */}
                     <div
                       onClick={() => setActiveImage(item.previewUrl)}
                       style={{
                         position: 'relative',
-                        width: '110px',
-                        height: '100px',
-                        borderRadius: '12px',
-                        overflow: 'hidden',
+                        width: '100%',
+                        height: '210px',
+                        background: '#070B14',
                         cursor: 'pointer',
-                        flexShrink: 0,
-                        border: '1px solid rgba(0,212,255,0.3)',
-                        background: '#0F172A',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '0.5rem'
                       }}
                       title="Click to expand full screen"
                     >
                       <img
                         src={item.previewUrl}
-                        alt="Thumbnail"
-                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                        alt="Question Diagram"
+                        style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
                       />
+                      
+                      {/* Hover Overlay */}
                       <div
                         style={{
                           position: 'absolute',
                           inset: 0,
-                          background: 'rgba(0,0,0,0.45)',
+                          background: 'rgba(0,0,0,0.6)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
+                          gap: '0.5rem',
+                          color: '#00D4FF',
+                          fontWeight: 700,
+                          fontSize: '0.85rem',
                           opacity: 0,
-                          transition: 'opacity 0.2s',
-                          color: 'var(--cyan)'
+                          transition: 'opacity 0.2s ease',
+                          backdropFilter: 'blur(2px)'
                         }}
                         onMouseEnter={(e) => e.currentTarget.style.opacity = 1}
                         onMouseLeave={(e) => e.currentTarget.style.opacity = 0}
                       >
-                        <Maximize2 size={20} />
-                      </div>
-                    </div>
-                    
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--cream)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        #{idx + 1} · {item.originalName}
-                      </div>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: '0.2rem' }}>
-                        {(item.file.size / 1024).toFixed(1)} KB · <span style={{ color: 'var(--cyan)', cursor: 'pointer' }} onClick={() => setActiveImage(item.previewUrl)}>Click image to inspect in high resolution 🔍</span>
+                        <Maximize2 size={18} /> Click to Expand Full Screen
                       </div>
                     </div>
 
-                    {/* Per-File Difficulty Selector */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', alignItems: 'flex-start' }}>
-                      <span style={{ fontSize: '0.7rem', color: 'var(--muted)', fontWeight: 600 }}>Difficulty Level:</span>
-                      <select
-                        className="qp-select"
-                        value={item.difficulty}
-                        onChange={(e) => {
-                          const newDiff = e.target.value;
-                          setBulkFiles(prev => prev.map(f => f.id === item.id ? { ...f, difficulty: newDiff } : f));
+                    {/* Card Footer Controls */}
+                    <div style={{ padding: '0.75rem 0.85rem', background: 'rgba(0,0,0,0.2)', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 600 }}>Difficulty:</span>
+                        <select
+                          className="qp-select"
+                          value={item.difficulty}
+                          onChange={(e) => {
+                            const newDiff = e.target.value;
+                            setBulkFiles(prev => prev.map(f => f.id === item.id ? { ...f, difficulty: newDiff } : f));
+                          }}
+                          style={{ padding: '0.3rem 1.6rem 0.3rem 0.6rem', fontSize: '0.75rem', flex: 1 }}
+                        >
+                          {DIFFICULTIES.map(d => (
+                            <option key={d} value={d}>{DIFFICULTY_MAPPING[d] || d}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setActiveImage(item.previewUrl)}
+                        style={{
+                          width: '100%',
+                          padding: '0.45rem',
+                          borderRadius: '10px',
+                          background: 'rgba(0,212,255,0.08)',
+                          border: '1px solid rgba(0,212,255,0.25)',
+                          color: 'var(--cyan)',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.4rem'
                         }}
-                        style={{ padding: '0.35rem 1.8rem 0.35rem 0.6rem', fontSize: '0.78rem', minWidth: '130px' }}
                       >
-                        {DIFFICULTIES.map(d => (
-                          <option key={d} value={d}>{DIFFICULTY_MAPPING[d] || d}</option>
-                        ))}
-                      </select>
+                        <Maximize2 size={13} /> View Fullscreen Image
+                      </button>
                     </div>
-
-                    <button
-                      type="button"
-                      onClick={() => removeBulkFile(item.id)}
-                      style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', color: '#F87171', cursor: 'pointer', padding: '0.5rem', borderRadius: '10px' }}
-                      title="Remove file"
-                    >
-                      <X size={16} />
-                    </button>
                   </div>
                 ))}
               </div>
@@ -1416,6 +1457,85 @@ export default function QuestionsPage() {
             )}
           </div>
         </Modal>
+
+        {/* ── High-Z-Index Fullscreen Image Lightbox Overlay ── */}
+        <AnimatePresence>
+          {activeImage && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setActiveImage(null)}
+              style={{
+                position: 'fixed',
+                inset: 0,
+                zIndex: 999999,
+                background: 'rgba(5, 8, 18, 0.94)',
+                backdropFilter: 'blur(14px)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '1.5rem'
+              }}
+            >
+              <motion.div
+                initial={{ scale: 0.92, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.92, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  position: 'relative',
+                  maxWidth: '94vw',
+                  maxHeight: '92vh',
+                  background: '#070B14',
+                  borderRadius: '24px',
+                  border: '1px solid rgba(0,212,255,0.4)',
+                  padding: '1.25rem 1.5rem',
+                  boxShadow: '0 30px 80px rgba(0,0,0,0.9)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center'
+                }}
+              >
+                {/* Header bar */}
+                <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
+                  <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--cream)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Sparkles size={18} style={{ color: 'var(--cyan)' }} /> Full Resolution Question Inspection
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveImage(null)}
+                    style={{
+                      background: 'rgba(255,255,255,0.12)',
+                      border: 'none',
+                      color: 'var(--cream)',
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'background 0.2s'
+                    }}
+                    title="Close preview"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                {/* High-res Image container */}
+                <div style={{ overflow: 'auto', maxWidth: '100%', maxHeight: '82vh', display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                  <img
+                    src={activeImage}
+                    alt="Full Resolution Question Preview"
+                    style={{ maxWidth: '100%', maxHeight: '82vh', objectFit: 'contain', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}
+                  />
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       </div>
     </PageWrapper>
