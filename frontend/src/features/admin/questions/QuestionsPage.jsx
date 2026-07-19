@@ -19,7 +19,7 @@ const DIFFICULTY_MAPPING = {
   hard: 'secure'
 };
 const BLANK_Q = {
-  question_text: '', question_type: 'mcq', difficulty: 'medium',
+  question_text: '', question_type: 'photo', difficulty: 'medium',
   destination: 'shared',
   options: [{ id: 'a', text: '' }, { id: 'b', text: '' }, { id: 'c', text: '' }, { id: 'd', text: '' }],
   correct_answer: '', explanation: '', subject_id: '', curriculum_id: '', class_id: '', is_premium: false,
