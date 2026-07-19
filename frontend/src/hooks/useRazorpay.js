@@ -51,7 +51,8 @@ const useRazorpay = () => {
           email: user?.email || '',
         },
         theme: {
-          color: '#6C63FF',
+          color: '#0f172a',
+          backdrop_color: 'rgba(9, 13, 22, 0.85)',
         },
         handler: async (response) => {
           try {
