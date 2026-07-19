@@ -262,9 +262,13 @@ export default function PremiumPage() {
 
   const handleUpgrade = async () => {
     const selectedPlan = isStudent ? 'student' : 'teacher';
+    const isIndianTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone === 'Asia/Kolkata';
+    const checkoutCurrency = isIndianTimezone ? 'INR' : (settings?.premium_currency === '$' ? 'USD' : 'INR');
+
     await startPayment({
       plan: selectedPlan,
       user,
+      currency: checkoutCurrency,
       onSuccess: (updatedUser) => {
         if (updatedUser) {
           localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -288,8 +292,14 @@ export default function PremiumPage() {
 
         {/* Page Header */}
         <div className="pr-header">
-          <h1 className="pr-header-title">Unlock Premium Learning</h1>
-          <p className="pr-header-sub">Excel in your curriculums with complete access to top-tier learning resources.</p>
+          <h1 className="pr-header-title">
+            {isStudent ? 'Unlock Premium Learning' : 'Unlock Premium Teaching'}
+          </h1>
+          <p className="pr-header-sub">
+            {isStudent 
+              ? 'Excel in your curriculums with complete access to top-tier learning resources.' 
+              : 'Equip your classroom with interactive teaching tools, drawable explanations, and real-time simulators.'}
+          </p>
         </div>
 
         <motion.div 
@@ -301,50 +311,96 @@ export default function PremiumPage() {
           {/* LEFT: INFO & BENEFITS */}
           <div className="pr-info-panel">
             <div className="pr-badge">
-              <Sparkles size={11} fill="var(--amber)" /> Mentara Premium
+              <Sparkles size={11} fill="var(--amber)" /> Mentara {isStudent ? 'Student' : 'Teacher'} Premium
             </div>
             <h2 className="pr-subtitle">Premium Benefits</h2>
 
             <div className="pr-benefits-list">
-              <div className="pr-benefit-item">
-                <div className="pr-benefit-icon-wrapper">
-                  <BookOpen size={15} />
-                </div>
-                <div>
-                  <div className="pr-benefit-text">3D Simulation & Animations</div>
-                  <div className="pr-benefit-subtext">Visualize complex ideas with interactive web-based 3D widgets.</div>
-                </div>
-              </div>
+              {isStudent ? (
+                <>
+                  <div className="pr-benefit-item">
+                    <div className="pr-benefit-icon-wrapper">
+                      <BookOpen size={15} />
+                    </div>
+                    <div>
+                      <div className="pr-benefit-text">3D Simulation &amp; Animations</div>
+                      <div className="pr-benefit-subtext">Visualize complex ideas with interactive web-based 3D widgets.</div>
+                    </div>
+                  </div>
 
-              <div className="pr-benefit-item">
-                <div className="pr-benefit-icon-wrapper">
-                  <PenTool size={15} />
-                </div>
-                <div>
-                  <div className="pr-benefit-text">Interactive Drawing Worksheets</div>
-                  <div className="pr-benefit-subtext">Solve worksheets directly inside your dashboard with sketch tools.</div>
-                </div>
-              </div>
+                  <div className="pr-benefit-item">
+                    <div className="pr-benefit-icon-wrapper">
+                      <PenTool size={15} />
+                    </div>
+                    <div>
+                      <div className="pr-benefit-text">Interactive Drawing Worksheets</div>
+                      <div className="pr-benefit-subtext">Solve worksheets directly inside your dashboard with sketch tools.</div>
+                    </div>
+                  </div>
 
-              <div className="pr-benefit-item">
-                <div className="pr-benefit-icon-wrapper">
-                  <Tv size={15} />
-                </div>
-                <div>
-                  <div className="pr-benefit-text">High Quality Video Lectures</div>
-                  <div className="pr-benefit-subtext">Seamless video lectures streaming with zero buffering via Mux.</div>
-                </div>
-              </div>
+                  <div className="pr-benefit-item">
+                    <div className="pr-benefit-icon-wrapper">
+                      <Tv size={15} />
+                    </div>
+                    <div>
+                      <div className="pr-benefit-text">High Quality Video Lectures</div>
+                      <div className="pr-benefit-subtext">Seamless video lectures streaming with zero buffering via Mux.</div>
+                    </div>
+                  </div>
 
-              <div className="pr-benefit-item">
-                <div className="pr-benefit-icon-wrapper">
-                  <GraduationCap size={15} />
-                </div>
-                <div>
-                  <div className="pr-benefit-text">Full Practice Examinations</div>
-                  <div className="pr-benefit-subtext">Practice mock tests curated specifically for your curriculum.</div>
-                </div>
-              </div>
+                  <div className="pr-benefit-item">
+                    <div className="pr-benefit-icon-wrapper">
+                      <GraduationCap size={15} />
+                    </div>
+                    <div>
+                      <div className="pr-benefit-text">Full Practice Examinations</div>
+                      <div className="pr-benefit-subtext">Practice mock tests curated specifically for your curriculum.</div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="pr-benefit-item">
+                    <div className="pr-benefit-icon-wrapper">
+                      <BookOpen size={15} />
+                    </div>
+                    <div>
+                      <div className="pr-benefit-text">All Student Features Included</div>
+                      <div className="pr-benefit-subtext">Full access to curriculum subjects, worksheets, mock exams, and notes.</div>
+                    </div>
+                  </div>
+
+                  <div className="pr-benefit-item">
+                    <div className="pr-benefit-icon-wrapper">
+                      <Tv size={15} />
+                    </div>
+                    <div>
+                      <div className="pr-benefit-text">Interactive Whiteboard Mode</div>
+                      <div className="pr-benefit-subtext">Project and use 3D simulations easily for classroom instruction.</div>
+                    </div>
+                  </div>
+
+                  <div className="pr-benefit-item">
+                    <div className="pr-benefit-icon-wrapper">
+                      <GraduationCap size={15} />
+                    </div>
+                    <div>
+                      <div className="pr-benefit-text">Classroom Hub &amp; Analytics</div>
+                      <div className="pr-benefit-subtext">Monitor student dashboard streaks, grades, and submissions in real-time.</div>
+                    </div>
+                  </div>
+
+                  <div className="pr-benefit-item">
+                    <div className="pr-benefit-icon-wrapper">
+                      <Sparkles size={15} />
+                    </div>
+                    <div>
+                      <div className="pr-benefit-text">Advanced Simulation Playbacks</div>
+                      <div className="pr-benefit-subtext">Custom playback tools, guided tutorials, and quick reset settings.</div>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

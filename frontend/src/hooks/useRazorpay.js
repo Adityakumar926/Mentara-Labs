@@ -21,7 +21,7 @@ const useRazorpay = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const startPayment = async ({ plan, user, onSuccess }) => {
+  const startPayment = async ({ plan, user, currency, onSuccess }) => {
     setError(null);
     setLoading(true);
 
@@ -33,7 +33,7 @@ const useRazorpay = () => {
       }
 
       // Create order on backend
-      const { data } = await api.post('/payment/create-order', { plan });
+      const { data } = await api.post('/payment/create-order', { plan, currency });
       if (!data.success) throw new Error(data.message || 'Failed to create payment order');
 
       const order = data.order;

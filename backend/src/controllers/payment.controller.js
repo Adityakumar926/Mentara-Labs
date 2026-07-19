@@ -9,37 +9,73 @@ const getRazorpay = () => {
   return new Razorpay({ key_id, key_secret });
 };
 
-// Plan config
-const PLANS = {
-  student: {
-    amount: 2500, // ₹2500 in paise (₹25 * 100)
-    currency: 'INR',
-    label: 'Student Plan',
-    durationDays: 30,
-  },
-  teacher: {
-    amount: 3900, // ₹3900 in paise (₹39 * 100)
-    currency: 'INR',
-    label: 'Teacher Plan',
-    durationDays: 30,
-  },
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+const getSettingsMap = async () => {
+  const { rows } = await db.query(
+    `SELECT key, value FROM system_settings 
+     WHERE key IN ('premium_price', 'premium_currency', 'premium_discount', 'student_premium_price', 'student_premium_discount', 'premium_duration_months')`
+  );
+  const settings = {};
+  rows.forEach(r => {
+    settings[r.key] = r.value;
+  });
+  return settings;
+};
+
+const getPlanConfig = async (plan, targetCurrency = 'INR') => {
+  const settings = await getSettingsMap();
+  const adminCurrency = settings.premium_currency || '$';
+  
+  let basePrice = 0;
+  let discountPct = 0;
+
+  if (plan === 'student') {
+    basePrice = parseFloat(settings.student_premium_price || '39');
+    discountPct = parseFloat(settings.student_premium_discount || '40');
+  } else {
+    basePrice = parseFloat(settings.premium_price || '65');
+    discountPct = parseFloat(settings.premium_discount || '40');
+  }
+
+  // Calculate discounted value in admin currency
+  const discounted = discountPct > 0 && discountPct <= 100
+    ? Math.round(basePrice * (1 - discountPct / 100))
+    : basePrice;
+
+  // Convert to checkout currency if different
+  let checkoutPrice = discounted;
+  const isUSDAdmin = adminCurrency === '$' || adminCurrency.toUpperCase() === 'USD';
+  const isINRCheckout = targetCurrency === 'INR' || targetCurrency === '₹' || targetCurrency.toUpperCase() === 'RS';
+
+  if (isUSDAdmin && isINRCheckout) {
+    checkoutPrice = discounted * 83; // 1 USD = 83 INR
+  } else if (!isUSDAdmin && !isINRCheckout) {
+    checkoutPrice = discounted / 83;
+  }
+
+  return {
+    amountInSubunits: Math.round(checkoutPrice * 100), // in paise or cents
+    currency: targetCurrency,
+    label: plan === 'student' ? 'Student Plan' : 'Teacher Plan',
+    durationMonths: parseInt(settings.premium_duration_months || '12') || 12,
+  };
 };
 
 // ─── CREATE ORDER ─────────────────────────────────────────────────────────────
 exports.createOrder = async (req, res) => {
   try {
-    const { plan } = req.body;
+    const { plan, currency = 'INR' } = req.body;
 
-    if (!PLANS[plan]) {
+    if (plan !== 'student' && plan !== 'teacher') {
       return res.status(400).json({ success: false, message: 'Invalid plan selected' });
     }
 
-    const planConfig = PLANS[plan];
+    const planConfig = await getPlanConfig(plan, currency);
 
     // Razorpay receipt field MUST be <= 40 characters
     const shortUserId = String(req.user?.id || 'usr').slice(0, 10);
     const order = await getRazorpay().orders.create({
-      amount: planConfig.amount,
+      amount: planConfig.amountInSubunits,
       currency: planConfig.currency,
       receipt: `r_${shortUserId}_${Date.now().toString().slice(-8)}`,
       notes: {
@@ -84,13 +120,15 @@ exports.verifyPayment = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Payment verification failed: Invalid signature' });
     }
 
-    if (!PLANS[plan]) {
+    if (plan !== 'student' && plan !== 'teacher') {
       return res.status(400).json({ success: false, message: 'Invalid plan' });
     }
 
-    // Calculate expiry date (30 days from now)
+    const planConfig = await getPlanConfig(plan);
+
+    // Calculate expiry date based on settings duration
     const expiryDate = new Date();
-    expiryDate.setDate(expiryDate.getDate() + PLANS[plan].durationDays);
+    expiryDate.setMonth(expiryDate.getMonth() + planConfig.durationMonths);
 
     // Update user's premium status in DB
     const { rows } = await db.query(
@@ -108,7 +146,7 @@ exports.verifyPayment = async (req, res) => {
 
     res.json({
       success: true,
-      message: `Successfully upgraded to ${PLANS[plan].label}!`,
+      message: `Successfully upgraded to ${planConfig.label}!`,
       user: rows[0],
     });
   } catch (err) {
