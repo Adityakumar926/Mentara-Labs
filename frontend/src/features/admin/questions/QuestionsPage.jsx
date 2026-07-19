@@ -542,7 +542,7 @@ export default function QuestionsPage() {
   const removeImage = () => set('image_url', '');
 
   const filtered = (questions ?? []).filter((q) =>
-    !filters.search || q.question_text.toLowerCase().includes(filters.search.toLowerCase())
+    !filters.search || (q.question_text && q.question_text.toLowerCase().includes(filters.search.toLowerCase()))
   );
 
   return (
@@ -688,8 +688,8 @@ export default function QuestionsPage() {
                     {/* Question Content Row */}
                     <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'flex-start', width: '100%', flexWrap: 'wrap' }}>
                       <div style={{ flex: 1, minWidth: '280px' }}>
-                        <p className="qp-q-text" style={{ fontSize: '0.88rem', fontWeight: 600, color: '#fafafa', marginBottom: '0.75rem', lineHeight: '1.4' }}>
-                          {q.question_text}
+                        <p className="qp-q-text" style={{ fontSize: '0.88rem', fontWeight: 600, color: q.question_text ? '#fafafa' : 'rgba(250,250,250,0.4)', marginBottom: '0.75rem', lineHeight: '1.4', fontStyle: q.question_text ? 'normal' : 'italic' }}>
+                          {q.question_text || '(No text prompt)'}
                         </p>
                         
                         {/* Options Display */}

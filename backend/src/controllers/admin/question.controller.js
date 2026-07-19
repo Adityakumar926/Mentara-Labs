@@ -21,7 +21,7 @@ exports.getAll = async (req, res) => {
     if (type)                { params.push(type);                  conditions.push(`q.question_type = $${params.length}`); }
     if (is_premium !== undefined) { params.push(is_premium === 'true'); conditions.push(`q.is_premium = $${params.length}`); }
     if (is_starred !== undefined) { params.push(is_starred === 'true'); conditions.push(`q.is_starred = $${params.length}`); }
-    if (search)              { params.push(`%${search}%`);         conditions.push(`q.question_text ILIKE $${params.length}`); }
+    if (search)              { params.push(`%${search}%`);         conditions.push(`COALESCE(q.question_text, '') ILIKE $${params.length}`); }
 
     const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
     params.push(limit, offset);
@@ -55,8 +55,8 @@ exports.create = async (req, res) => {
       correct_answer, explanation, difficulty, tags, is_premium, image_url, destination
     } = req.body;
 
-    if (!subject_id || !question_type || !question_text)
-      return res.status(400).json({ success: false, message: 'subject_id, question_type and question_text are required' });
+    if (!subject_id || !question_type)
+      return res.status(400).json({ success: false, message: 'subject_id and question_type are required' });
 
     const targetDestination = ['shared', 'student', 'teacher'].includes(destination) ? destination : 'shared';
 
@@ -66,7 +66,7 @@ exports.create = async (req, res) => {
         explanation, difficulty, tags, is_premium, image_url, created_by, destination)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
       [
-        subject_id, topic_id || null, question_type, question_text,
+        subject_id, topic_id || null, question_type, question_text || null,
         JSON.stringify(options ?? []),
         correct_answer, explanation, difficulty, tags,
         is_premium ?? false, image_url ?? null, req.user.id, targetDestination
