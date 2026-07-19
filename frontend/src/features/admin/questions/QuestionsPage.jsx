@@ -420,6 +420,7 @@ export default function QuestionsPage() {
         previewUrl: URL.createObjectURL(file),
         difficulty: detectedDiff || bulkConfig.defaultDifficulty,
         questionText: bulkConfig.useFilenameAsText ? cleanName : '',
+        is_premium: bulkConfig.is_premium ?? false,
       };
     });
     setBulkFiles(prev => [...prev, ...newItems]);
@@ -480,6 +481,7 @@ export default function QuestionsPage() {
       const metadata = bulkFiles.map(f => ({
         difficulty: f.difficulty || 'medium',
         questionText: f.questionText?.trim() || null,
+        is_premium: f.is_premium ?? bulkConfig.is_premium ?? false,
       }));
       formData.append('metadata', JSON.stringify(metadata));
 
@@ -1072,21 +1074,16 @@ export default function QuestionsPage() {
           description="This will permanently delete the question and remove it from all exams. This cannot be undone."
           danger />
 
-        {/* ── Delete confirm ── */}
-        <ConfirmDialog open={!!deleteId} onClose={() => setDeleteId(null)}
-          onConfirm={() => deleteQ(deleteId)}
-          title="Delete Question"
-          description="This will permanently delete the question and remove it from all exams. This cannot be undone."
-          danger />
-
         {/* ── Bulk Upload Modal ── */}
         <Modal
           open={bulkModal}
           onClose={() => { if (!bulkUploading) setBulkModal(false); }}
           title="Bulk Question Image Upload"
-          size="xl"
+          size="2xl"
+          tall
+          preventOutsideClickClose
         >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', flex: 1, minHeight: 0, overflowY: 'auto', paddingRight: '6px' }}>
             
             {/* Selected Hierarchy Banner */}
             <div style={{
@@ -1166,12 +1163,13 @@ export default function QuestionsPage() {
                   border: '2px dashed rgba(124,58,237,0.3)',
                   borderRadius: '16px',
                   background: 'rgba(124,58,237,0.03)',
-                  padding: '2rem 1.5rem',
+                  padding: bulkFiles.length > 0 ? '0.75rem 1.25rem' : '2rem 1.5rem',
                   textAlign: 'center',
                   display: 'flex',
-                  flexDirection: 'column',
+                  flexDirection: bulkFiles.length > 0 ? 'row' : 'column',
                   alignItems: 'center',
-                  gap: '0.75rem',
+                  justifyContent: bulkFiles.length > 0 ? 'space-between' : 'center',
+                  gap: '1rem',
                   cursor: 'pointer',
                   transition: 'all 0.2s'
                 }}
@@ -1183,18 +1181,22 @@ export default function QuestionsPage() {
                   }
                 }}
               >
-                <UploadCloud size={36} style={{ color: 'var(--lavender)' }} />
-                <div>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--cream)' }}>
-                    Drag & Drop Image Files or a Folder Here
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.2rem' }}>
-                    Supports PNG, JPG, WebP · Smart auto-detects difficulty from file names like <code style={{ color: 'var(--cyan)' }}>easy_q1.png</code> or <code style={{ color: '#F87171' }}>hard_q2.png</code>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textAlign: 'left' }}>
+                  <UploadCloud size={bulkFiles.length > 0 ? 24 : 36} style={{ color: 'var(--lavender)', flexShrink: 0 }} />
+                  <div>
+                    <div style={{ fontSize: bulkFiles.length > 0 ? '0.82rem' : '0.9rem', fontWeight: 600, color: 'var(--cream)' }}>
+                      {bulkFiles.length > 0 ? 'Drag & Drop more images/folders here' : 'Drag & Drop Image Files or a Folder Here'}
+                    </div>
+                    {bulkFiles.length === 0 && (
+                      <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.2rem' }}>
+                        Supports PNG, JPG, WebP · Smart auto-detects difficulty from file names like <code style={{ color: 'var(--cyan)' }}>easy_q1.png</code> or <code style={{ color: '#F87171' }}>hard_q2.png</code>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.25rem' }}>
-                  <label className="qp-add-btn" style={{ padding: '0.5rem 1.1rem', fontSize: '0.78rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: 'none' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', marginTop: bulkFiles.length > 0 ? '0' : '0.25rem' }}>
+                  <label className="qp-add-btn" style={{ padding: '0.45rem 1rem', fontSize: '0.75rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: 'none', margin: 0 }}>
                     <input
                       type="file"
                       multiple
@@ -1202,10 +1204,10 @@ export default function QuestionsPage() {
                       onChange={(e) => e.target.files?.length && handleBulkFileSelect(e.target.files)}
                       style={{ display: 'none' }}
                     />
-                    Select Files
+                    Add Files
                   </label>
 
-                  <label className="qp-add-btn" style={{ padding: '0.5rem 1.1rem', fontSize: '0.78rem', background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.3)', color: 'var(--lavender)', boxShadow: 'none' }}>
+                  <label className="qp-add-btn" style={{ padding: '0.45rem 1rem', fontSize: '0.75rem', background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.3)', color: 'var(--lavender)', boxShadow: 'none', margin: 0 }}>
                     <input
                       type="file"
                       multiple
@@ -1214,7 +1216,7 @@ export default function QuestionsPage() {
                       onChange={(e) => e.target.files?.length && handleBulkFileSelect(e.target.files)}
                       style={{ display: 'none' }}
                     />
-                    <FolderPlus size={14} /> Select Folder
+                    <FolderPlus size={13} /> Add Folder
                   </label>
                 </div>
               </div>
@@ -1266,179 +1268,194 @@ export default function QuestionsPage() {
               </div>
             )}
 
-            {/* Selected File Previews Grid with Extra-Large Cards & Full-Screen Lightbox */}
-            {bulkFiles.length > 0 && (
-              <div style={{
-                maxHeight: '440px',
-                overflowY: 'auto',
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(310px, 1fr))',
-                gap: '1rem',
-                paddingRight: '0.35rem',
-                marginTop: '0.5rem'
-              }}>
-                {bulkFiles.map((item, idx) => (
-                  <div
-                    key={item.id}
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      borderRadius: '18px',
-                      background: 'rgba(15,23,42,0.6)',
-                      border: '1px solid rgba(0,212,255,0.2)',
-                      overflow: 'hidden',
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
-                      transition: 'all 0.2s ease'
-                    }}
-                  >
-                    {/* Header bar */}
-                    <div style={{
-                      padding: '0.6rem 0.85rem',
-                      background: 'rgba(255,255,255,0.03)',
-                      borderBottom: '1px solid rgba(255,255,255,0.06)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between'
-                    }}>
-                      <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--cream)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>
-                        #{idx + 1} · {item.originalName}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => removeBulkFile(item.id)}
-                        style={{ background: 'rgba(239,68,68,0.12)', border: 'none', color: '#F87171', cursor: 'pointer', padding: '0.35rem', borderRadius: '8px', marginLeft: '0.5rem' }}
-                        title="Remove question"
-                      >
-                        <X size={14} />
-                      </button>
-                    </div>
+            {/* ── card grid + status messages ── */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
-                    {/* Prominent Large Question Image Preview Container */}
+              {/* 2-column preview card grid */}
+              {bulkFiles.length > 0 && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
+                  {bulkFiles.map((item, idx) => (
                     <div
-                      onClick={() => setActiveImage(item.previewUrl)}
+                      key={item.id}
                       style={{
-                        position: 'relative',
-                        width: '100%',
-                        height: '210px',
-                        background: '#070B14',
-                        cursor: 'pointer',
                         display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '0.5rem'
+                        alignItems: 'stretch',
+                        minHeight: '200px',
+                        borderRadius: '16px',
+                        border: '1px solid rgba(0,212,255,0.18)',
+                        background: 'rgba(10,16,36,0.75)',
+                        overflow: 'hidden',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.4)'
                       }}
-                      title="Click to expand full screen"
                     >
-                      <img
-                        src={item.previewUrl}
-                        alt="Question Diagram"
-                        style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
-                      />
-                      
-                      {/* Hover Overlay */}
+                      {/* Large image panel — clickable to expand */}
                       <div
-                        style={{
-                          position: 'absolute',
-                          inset: 0,
-                          background: 'rgba(0,0,0,0.6)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '0.5rem',
-                          color: '#00D4FF',
-                          fontWeight: 700,
-                          fontSize: '0.85rem',
-                          opacity: 0,
-                          transition: 'opacity 0.2s ease',
-                          backdropFilter: 'blur(2px)'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.opacity = 1}
-                        onMouseLeave={(e) => e.currentTarget.style.opacity = 0}
-                      >
-                        <Maximize2 size={18} /> Click to Expand Full Screen
-                      </div>
-                    </div>
-
-                    {/* Card Footer Controls */}
-                    <div style={{ padding: '0.75rem 0.85rem', background: 'rgba(0,0,0,0.2)', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
-                        <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 600 }}>Difficulty:</span>
-                        <select
-                          className="qp-select"
-                          value={item.difficulty}
-                          onChange={(e) => {
-                            const newDiff = e.target.value;
-                            setBulkFiles(prev => prev.map(f => f.id === item.id ? { ...f, difficulty: newDiff } : f));
-                          }}
-                          style={{ padding: '0.3rem 1.6rem 0.3rem 0.6rem', fontSize: '0.75rem', flex: 1 }}
-                        >
-                          {DIFFICULTIES.map(d => (
-                            <option key={d} value={d}>{DIFFICULTY_MAPPING[d] || d}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <button
-                        type="button"
                         onClick={() => setActiveImage(item.previewUrl)}
+                        title="Click to inspect full screen"
                         style={{
-                          width: '100%',
-                          padding: '0.45rem',
-                          borderRadius: '10px',
-                          background: 'rgba(0,212,255,0.08)',
-                          border: '1px solid rgba(0,212,255,0.25)',
-                          color: 'var(--cyan)',
-                          fontSize: '0.75rem',
-                          fontWeight: 700,
-                          cursor: 'pointer',
+                          position: 'relative',
+                          width: '320px',
+                          minWidth: '320px',
+                          height: '200px',
+                          background: '#050911',
+                          cursor: 'zoom-in',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          gap: '0.4rem'
+                          padding: '0.6rem',
+                          borderRight: '1px solid rgba(255,255,255,0.08)'
                         }}
                       >
-                        <Maximize2 size={13} /> View Fullscreen Image
-                      </button>
+                        <img
+                          src={item.previewUrl}
+                          alt="Question"
+                          style={{ maxWidth: '100%', height: '180px', objectFit: 'contain', display: 'block' }}
+                        />
+                        {/* Hover overlay */}
+                        <div
+                          style={{
+                            position: 'absolute', inset: 0,
+                            background: 'rgba(0,0,0,0.55)',
+                            backdropFilter: 'blur(2px)',
+                            display: 'flex', flexDirection: 'column',
+                            alignItems: 'center', justifyContent: 'center', gap: '0.3rem',
+                            color: '#00D4FF', fontWeight: 700, fontSize: '0.8rem',
+                            opacity: 0, transition: 'opacity 0.18s'
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.opacity = 1}
+                          onMouseLeave={e => e.currentTarget.style.opacity = 0}
+                        >
+                          <Maximize2 size={24} />
+                          <span>View Full Screen</span>
+                        </div>
+                      </div>
+
+                      {/* Right panel: info + controls */}
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '0.9rem 1.1rem', gap: '0.7rem', minWidth: 0 }}>
+                        {/* File name + remove */}
+                        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.5rem' }}>
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--cream)', wordBreak: 'break-all', lineHeight: 1.4 }}>
+                              #{idx + 1} — {item.originalName}
+                            </div>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--muted)', marginTop: '0.2rem' }}>
+                              {(item.file.size / 1024).toFixed(1)} KB
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeBulkFile(item.id)}
+                            style={{ flexShrink: 0, background: 'rgba(239,68,68,0.12)', border: 'none', color: '#F87171', cursor: 'pointer', padding: '0.35rem 0.5rem', borderRadius: '8px' }}
+                            title="Remove"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+
+                        {/* Difficulty pill buttons */}
+                        <div>
+                          <div style={{ fontSize: '0.7rem', color: 'var(--muted)', fontWeight: 600, marginBottom: '0.4rem' }}>Difficulty Level</div>
+                          <div style={{ display: 'flex', gap: '0.45rem' }}>
+                            {DIFFICULTIES.map(d => {
+                              const active = item.difficulty === d;
+                              const col = d === 'easy' ? '#34D399' : d === 'hard' ? '#F87171' : '#00D4FF';
+                              return (
+                                <button
+                                  key={d}
+                                  type="button"
+                                  onClick={() => setBulkFiles(prev => prev.map(f => f.id === item.id ? { ...f, difficulty: d } : f))}
+                                  style={{
+                                    flex: 1,
+                                    padding: '0.45rem 0.3rem',
+                                    borderRadius: '10px',
+                                    border: `1px solid ${active ? col : 'rgba(255,255,255,0.1)'}`,
+                                    background: active ? `${col}22` : 'transparent',
+                                    color: active ? col : 'var(--muted)',
+                                    fontSize: '0.75rem', fontWeight: 700,
+                                    cursor: 'pointer', transition: 'all 0.15s'
+                                  }}
+                                >
+                                  {DIFFICULTY_MAPPING[d] || d}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Bottom row: Premium toggle + Expand button */}
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button
+                            type="button"
+                            onClick={() => setBulkFiles(prev => prev.map(f => f.id === item.id ? { ...f, is_premium: !f.is_premium } : f))}
+                            style={{
+                              flex: 1, padding: '0.45rem 0.5rem', borderRadius: '10px',
+                              border: `1px solid ${item.is_premium ? '#FCD34D' : 'rgba(255,255,255,0.1)'}`,
+                              background: item.is_premium ? 'rgba(252,211,77,0.15)' : 'transparent',
+                              color: item.is_premium ? '#FCD34D' : 'var(--muted)',
+                              fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem'
+                            }}
+                            title={item.is_premium ? 'Click to make free' : 'Click to make premium'}
+                          >
+                            <Lock size={12} />
+                            {item.is_premium ? 'Premium' : 'Free'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setActiveImage(item.previewUrl)}
+                            style={{
+                              flex: 1, padding: '0.45rem 0.5rem', borderRadius: '10px',
+                              background: 'rgba(0,212,255,0.07)',
+                              border: '1px solid rgba(0,212,255,0.22)',
+                              color: 'var(--cyan)', fontSize: '0.75rem', fontWeight: 700,
+                              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem'
+                            }}
+                          >
+                            <Maximize2 size={13} /> Expand
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Progress Bar */}
+              {bulkUploading && (
+                <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600, color: 'var(--cyan)' }}>
+                    <span>Uploading questions to Cloudinary &amp; Database...</span>
+                    <span>{bulkProgress}%</span>
+                  </div>
+                  <div style={{ height: '6px', width: '100%', background: 'rgba(255,255,255,0.08)', borderRadius: '50px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${bulkProgress}%`, background: 'linear-gradient(90deg, #00D4FF, #7C3AED)', transition: 'width 0.3s ease' }} />
+                  </div>
+                </div>
+              )}
+
+              {/* Success result */}
+              {bulkResult && (
+                <div style={{ marginTop: '0.5rem', padding: '1rem', borderRadius: '14px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.3)', color: '#34D399', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <CheckCircle2 size={24} />
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{bulkResult.message}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'rgba(250,250,250,0.7)', marginTop: '0.15rem' }}>
+                      Created {bulkResult.successCount} question{bulkResult.successCount !== 1 ? 's' : ''} in database.
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-
-            {/* Progress Bar during upload */}
-            {bulkUploading && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontWeight: 600, color: 'var(--cyan)' }}>
-                  <span>Uploading questions to Cloudinary & Database...</span>
-                  <span>{bulkProgress}%</span>
                 </div>
-                <div style={{ height: '6px', width: '100%', background: 'rgba(255,255,255,0.08)', borderRadius: '50px', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${bulkProgress}%`, background: 'linear-gradient(90deg, #00D4FF, #7C3AED)', transition: 'width 0.3s ease' }} />
+              )}
+
+              {/* Error */}
+              {bulkError && (
+                <div style={{ marginTop: '0.5rem', padding: '0.85rem', borderRadius: '12px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#F87171', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <AlertCircle size={16} />
+                  <span>{bulkError}</span>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Success Summary Result */}
-            {bulkResult && (
-              <div style={{ padding: '1rem', borderRadius: '14px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.3)', color: '#34D399', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <CheckCircle2 size={24} />
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{bulkResult.message}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'rgba(250,250,250,0.7)', marginTop: '0.15rem' }}>
-                    Created {bulkResult.successCount} question{bulkResult.successCount !== 1 ? 's' : ''} in database.
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {bulkError && (
-              <div style={{ padding: '0.85rem', borderRadius: '12px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)', color: '#F87171', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <AlertCircle size={16} />
-                <span>{bulkError}</span>
-              </div>
-            )}
-
-          </div>
+            </div>{/* end scroll zone */}
+          </div>{/* end outer content wrapper */}
 
           <div className="qp-modal-footer">
             <Button variant="ghost" onClick={() => setBulkModal(false)} disabled={bulkUploading}>

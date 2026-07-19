@@ -240,6 +240,7 @@ exports.bulkUploadImages = async (req, res) => {
             originalName: files[fileIdx].originalname,
             difficulty: fileMeta.difficulty || 'medium',
             questionText: fileMeta.questionText || null,
+            is_premium: fileMeta.is_premium === true || fileMeta.is_premium === 'true' ? true : isPrem,
           });
         } else {
           uploadResults.push({
@@ -274,7 +275,7 @@ exports.bulkUploadImages = async (req, res) => {
           null,
           item.difficulty || 'medium',
           null,
-          isPrem,
+          item.is_premium ?? isPrem,
           item.url,
           req.user.id,
           targetDestination

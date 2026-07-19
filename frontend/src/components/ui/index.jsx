@@ -26,7 +26,7 @@ const TOKENS = `
   .ui-modal-overlay {
     position: fixed; inset: 0; z-index: 50;
     display: flex; align-items: center; justify-content: center;
-    padding: 1rem;
+    padding: 0.5rem;
   }
   .ui-modal-backdrop {
     position: absolute; inset: 0;
@@ -38,12 +38,24 @@ const TOKENS = `
     background: rgba(15,22,41,0.95);
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 28px;
-    padding: 1.75rem;
+    padding: 1.5rem;
     width: 100%;
     backdrop-filter: blur(24px);
     box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,58,237,0.08);
     overflow: hidden;
-    max-height: 90vh;
+    max-height: 96vh;
+    display: flex;
+    flex-direction: column;
+  }
+  /* Forces modal to always be full height — use for complex forms */
+  .ui-modal-tall {
+    height: 96vh;
+  }
+  /* In tall mode: body must NOT scroll — only the inner scrollable zone does */
+  .ui-modal-tall .ui-modal-body {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
   }
@@ -77,6 +89,8 @@ const TOKENS = `
   .ui-modal-md  { max-width: 540px; }
   .ui-modal-lg  { max-width: 720px; }
   .ui-modal-xl  { max-width: 960px; }
+  .ui-modal-2xl { max-width: 1400px; }
+  .ui-modal-fs  { max-width: 98vw; }
 
   .ui-modal-header {
     display: flex; align-items: center; justify-content: space-between;
@@ -495,16 +509,16 @@ export function SkeletonCard() {
 /* ─────────────────────────────────────────────
    MODAL
 ───────────────────────────────────────────── */
-export function Modal({ open, onClose, title, children, size = 'md', preventOutsideClickClose = false }) {
+export function Modal({ open, onClose, title, children, size = 'md', preventOutsideClickClose = false, tall = false }) {
   ensureTokens();
-  const s = { sm: 'ui-modal-sm', md: 'ui-modal-md', lg: 'ui-modal-lg', xl: 'ui-modal-xl' };
+  const s = { sm: 'ui-modal-sm', md: 'ui-modal-md', lg: 'ui-modal-lg', xl: 'ui-modal-xl', '2xl': 'ui-modal-2xl', fs: 'ui-modal-fs' };
   return (
     <AnimatePresence>
       {open && (
         <motion.div className="ui-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
           <motion.div className="ui-modal-backdrop" onClick={preventOutsideClickClose ? undefined : onClose} />
           <motion.div
-            className={clsx('ui-modal-panel', s[size] ?? 'ui-modal-md')}
+            className={clsx('ui-modal-panel', s[size] ?? 'ui-modal-md', tall && 'ui-modal-tall')}
             initial={{ opacity: 0, scale: 0.94, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 20 }}
