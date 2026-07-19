@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Plus, Star, Lock, Trash2, Edit2, Search, Filter, Image as ImageIcon, X, UploadCloud, FolderPlus, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
+import { Plus, Star, Lock, Trash2, Edit2, Search, Filter, Image as ImageIcon, X, UploadCloud, FolderPlus, CheckCircle2, AlertCircle, Sparkles, Maximize2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   PageWrapper, Button, Input, Select, Card,
@@ -1266,36 +1266,76 @@ export default function QuestionsPage() {
               </div>
             )}
 
-            {/* Selected File Previews Grid with Per-File Difficulty Selector */}
+            {/* Selected File Previews Grid with Large Image Thumbnails & Click-to-Expand */}
             {bulkFiles.length > 0 && (
-              <div style={{ maxHeight: '240px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.45rem', paddingRight: '0.25rem' }}>
+              <div style={{ maxHeight: '380px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.85rem', paddingRight: '0.25rem' }}>
                 {bulkFiles.map((item, idx) => (
                   <div
                     key={item.id}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.75rem',
-                      padding: '0.5rem 0.75rem',
-                      borderRadius: '12px',
+                      gap: '1rem',
+                      padding: '0.75rem 0.9rem',
+                      borderRadius: '16px',
                       background: 'rgba(255,255,255,0.03)',
-                      border: '1px solid rgba(255,255,255,0.06)'
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      transition: 'border-color 0.2s'
                     }}
                   >
-                    <img src={item.previewUrl} alt="Thumbnail" style={{ width: '42px', height: '42px', borderRadius: '8px', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)' }} />
+                    {/* Expandable Large Image Thumbnail */}
+                    <div
+                      onClick={() => setActiveImage(item.previewUrl)}
+                      style={{
+                        position: 'relative',
+                        width: '110px',
+                        height: '100px',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        flexShrink: 0,
+                        border: '1px solid rgba(0,212,255,0.3)',
+                        background: '#0F172A',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                      }}
+                      title="Click to expand full screen"
+                    >
+                      <img
+                        src={item.previewUrl}
+                        alt="Thumbnail"
+                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                      />
+                      <div
+                        style={{
+                          position: 'absolute',
+                          inset: 0,
+                          background: 'rgba(0,0,0,0.45)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          opacity: 0,
+                          transition: 'opacity 0.2s',
+                          color: 'var(--cyan)'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.opacity = 1}
+                        onMouseLeave={(e) => e.currentTarget.style.opacity = 0}
+                      >
+                        <Maximize2 size={20} />
+                      </div>
+                    </div>
                     
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--cream)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--cream)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         #{idx + 1} · {item.originalName}
                       </div>
-                      <div style={{ fontSize: '0.68rem', color: 'var(--muted)', marginTop: '0.1rem' }}>
-                        {(item.file.size / 1024).toFixed(1)} KB
+                      <div style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: '0.2rem' }}>
+                        {(item.file.size / 1024).toFixed(1)} KB · <span style={{ color: 'var(--cyan)', cursor: 'pointer' }} onClick={() => setActiveImage(item.previewUrl)}>Click image to inspect in high resolution 🔍</span>
                       </div>
                     </div>
 
                     {/* Per-File Difficulty Selector */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                      <span style={{ fontSize: '0.68rem', color: 'var(--muted)' }}>Level:</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', alignItems: 'flex-start' }}>
+                      <span style={{ fontSize: '0.7rem', color: 'var(--muted)', fontWeight: 600 }}>Difficulty Level:</span>
                       <select
                         className="qp-select"
                         value={item.difficulty}
@@ -1303,7 +1343,7 @@ export default function QuestionsPage() {
                           const newDiff = e.target.value;
                           setBulkFiles(prev => prev.map(f => f.id === item.id ? { ...f, difficulty: newDiff } : f));
                         }}
-                        style={{ padding: '0.25rem 1.6rem 0.25rem 0.5rem', fontSize: '0.72rem', minWidth: '110px' }}
+                        style={{ padding: '0.35rem 1.8rem 0.35rem 0.6rem', fontSize: '0.78rem', minWidth: '130px' }}
                       >
                         {DIFFICULTIES.map(d => (
                           <option key={d} value={d}>{DIFFICULTY_MAPPING[d] || d}</option>
@@ -1314,10 +1354,10 @@ export default function QuestionsPage() {
                     <button
                       type="button"
                       onClick={() => removeBulkFile(item.id)}
-                      style={{ background: 'transparent', border: 'none', color: '#F87171', cursor: 'pointer', padding: '0.3rem', borderRadius: '6px' }}
+                      style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', color: '#F87171', cursor: 'pointer', padding: '0.5rem', borderRadius: '10px' }}
                       title="Remove file"
                     >
-                      <X size={14} />
+                      <X size={16} />
                     </button>
                   </div>
                 ))}
