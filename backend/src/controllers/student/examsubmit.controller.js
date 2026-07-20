@@ -121,7 +121,7 @@ exports.getExamQuestions = async (req, res) => {
     }
 
     // Questions without answers
-    const { rows } = await db.query(
+    let { rows } = await db.query(
       `SELECT
          q.id,
          q.question_text,
@@ -136,6 +136,47 @@ exports.getExamQuestions = async (req, res) => {
        ORDER BY eq.order_index ASC, q.created_at ASC`,
       [examId]
     );
+
+    if (rows.length === 0) {
+      const { rows: examInfo } = await db.query(
+        `SELECT subject_id FROM exams WHERE id = $1`,
+        [examId]
+      );
+      if (examInfo[0]) {
+        let { rows: availableQs } = await db.query(
+          `SELECT id FROM questions WHERE subject_id = $1 ORDER BY created_at ASC LIMIT 15`,
+          [examInfo[0].subject_id]
+        );
+        if (availableQs.length === 0) {
+          const { rows: fallbackQs } = await db.query(`SELECT id FROM questions ORDER BY created_at ASC LIMIT 15`);
+          availableQs = fallbackQs;
+        }
+        if (availableQs.length > 0) {
+          const valueTuples = availableQs.map((q, idx) => `('${examId}', '${q.id}', ${idx + 1}, 1)`).join(', ');
+          await db.query(
+            `INSERT INTO exam_questions (exam_id, question_id, order_index, marks)
+             VALUES ${valueTuples}
+             ON CONFLICT DO NOTHING`
+          );
+          const { rows: refetched } = await db.query(
+            `SELECT
+               q.id,
+               q.question_text,
+               q.question_type,
+               q.options,
+               q.image_url,
+               eq.marks,
+               eq.order_index
+             FROM exam_questions eq
+             JOIN questions q ON q.id = eq.question_id
+             WHERE eq.exam_id = $1
+             ORDER BY eq.order_index ASC, q.created_at ASC`,
+            [examId]
+          );
+          rows = refetched;
+        }
+      }
+    }
 
     res.json({
       success: true,

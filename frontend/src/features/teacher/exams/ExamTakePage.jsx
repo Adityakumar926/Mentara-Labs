@@ -973,6 +973,32 @@ export default function ExamTakePage() {
     );
   }
 
+  if (phase === 'taking' && questions.length === 0) {
+    return (
+      <>
+        <style>{CSS}</style>
+        <div className="take-loading" style={{ gap: '1.25rem', padding: '2rem', textAlign: 'center' }}>
+          <div style={{ padding: '1.25rem', borderRadius: '50%', background: 'rgba(239,68,68,0.1)', border: '2px solid rgba(239,68,68,0.3)', color: '#EF4444' }}>
+            <AlertTriangle size={36} />
+          </div>
+          <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#F5F0E8' }}>
+            No Questions Available in This Exam
+          </div>
+          <p style={{ fontSize: '0.88rem', color: 'rgba(245,240,232,0.6)', maxWidth: '420px', margin: 0, lineHeight: 1.6 }}>
+            This exam has not been populated with questions yet. Please check back later or contact your instructor.
+          </p>
+          <button
+            onClick={() => navigate(user?.role === 'student' ? '/student/dashboard' : '/exams')}
+            className="take-nav-btn primary"
+            style={{ marginTop: '0.5rem', padding: '0.75rem 1.5rem', borderRadius: '12px' }}
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </>
+    );
+  }
+
   if (!q) return null;
 
   return (

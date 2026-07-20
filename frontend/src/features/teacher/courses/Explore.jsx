@@ -336,6 +336,7 @@ export default function Explore() {
   // Modals / Actions state
   const [selectedVideoUrl, setSelectedVideoUrl] = useState(null);
   const [loadingActionId, setLoadingActionId] = useState(null);
+  const [activeSimulation, setActiveSimulation] = useState(null);
 
   // Fetch unified explore contents
   const { data: exploreData, loading, refetch } = useApi(studentApi.getExploreContents);
@@ -386,38 +387,45 @@ export default function Explore() {
     });
   };
 
-  // Launch animation in new tab
-  const handleLaunchAnimation = async (content) => {
+  // Launch animation
+  const handleOpenAnimation = async (content) => {
     if (content.is_premium && !isUserPremium) return;
-    if (!content.animation_id) {
-      toast.error('Animation ID is missing.');
-      return;
-    }
     
-    const toastId = toast.loading('Preparing animation...');
+    // Synchronously open a new tab in the click event tick to bypass popup blockers
+    const animWindow = window.open('', '_blank');
+    if (animWindow) {
+      animWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head><title>Loading 3D Simulation...</title></head>
+          <body style="margin:0;background:#0A0E1A;color:#00D4FF;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:1rem;">
+            <div style="width:42px;height:42px;border:4px solid rgba(0,212,255,0.2);border-top-color:#00D4FF;border-radius:50%;animation:spin 0.9s linear infinite;"></div>
+            <div style="font-weight:700;font-size:1.1rem;letter-spacing:0.02em;">Loading Interactive 3D Simulation...</div>
+            <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+          </body>
+        </html>
+      `);
+    }
+
     setLoadingActionId(content.id);
     try {
       const res = await studentApi.getAnimation(content.animation_id);
-      const anim = res.data.data;
-      if (anim?.html_content) {
-        const blob = new Blob([anim.html_content], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const animWindow = window.open(url, '_blank');
-        if (!animWindow) {
-          toast.error('Popup blocker active. Please allow popups for this site.', { id: toastId });
-        } else {
-          toast.success('Animation loaded!', { id: toastId });
-          setTimeout(() => URL.revokeObjectURL(url), 10_000);
-        }
+      const anim = res.data?.data ?? res.data ?? res;
+      if (anim?.html_content && animWindow) {
+        animWindow.document.open();
+        animWindow.document.write(anim.html_content);
+        animWindow.document.close();
+        toast.success('Simulation ready!');
       } else {
-        toast.error('No content found for this animation.', { id: toastId });
+        if (animWindow) animWindow.close();
+        toast.error('No content found for this simulation.');
       }
       // Track completion
       await studentApi.trackResource({ contentId: content.id, completed: true });
       refetch();
     } catch (e) {
-      console.error('Failed to open animation:', e);
-      toast.error('Failed to open animation.', { id: toastId });
+      if (animWindow) animWindow.close();
+      toast.error('Failed to open simulation.');
     } finally {
       setLoadingActionId(null);
     }
@@ -1050,6 +1058,21 @@ export default function Explore() {
                 metadataVideoTitle="Explore Video Material"
                 style={{ width: '100%', height: '100%' }}
                 autoPlay
+              />
+            )}
+          </div>
+        </Modal>
+
+        {/* Modal: Interactive 3D Simulation Player */}
+        <Modal open={!!activeSimulation} onClose={() => setActiveSimulation(null)} title={activeSimulation?.title || 'Interactive 3D Simulation'} size="lg">
+          <div style={{ height: '75vh', width: '100%', borderRadius: '14px', overflow: 'hidden', background: '#000', border: '1px solid rgba(255,255,255,0.08)' }}>
+            {activeSimulation && (
+              <iframe
+                srcDoc={activeSimulation.html_content}
+                title={activeSimulation.title || 'Interactive 3D Simulation'}
+                style={{ border: 'none', width: '100%', height: '100%' }}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                allowFullScreen
               />
             )}
           </div>

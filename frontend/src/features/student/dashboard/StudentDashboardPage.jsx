@@ -411,6 +411,7 @@ export default function StudentDashboardPage() {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [videoToken, setVideoToken] = useState(null);
   const [selectedVideoContent, setSelectedVideoContent] = useState(null);
+  const [activeSimulation, setActiveSimulation] = useState(null);
 
   const { data: subjectsRes, loading: loadingSubjects } = useApi(
     () => studentApi.getCurriculumSubjects(user.curriculum_id),
@@ -497,25 +498,38 @@ export default function StudentDashboardPage() {
       toast.error('Simulation ID is missing.');
       return;
     }
-    const toastId = toast.loading('Loading simulator...');
+
+    // Synchronously open a new tab in the click event tick to bypass popup blockers
+    const animWindow = window.open('', '_blank');
+    if (animWindow) {
+      animWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head><title>Loading 3D Simulation...</title></head>
+          <body style="margin:0;background:#0A0E1A;color:#00D4FF;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:1rem;">
+            <div style="width:42px;height:42px;border:4px solid rgba(0,212,255,0.2);border-top-color:#00D4FF;border-radius:50%;animation:spin 0.9s linear infinite;"></div>
+            <div style="font-weight:700;font-size:1.1rem;letter-spacing:0.02em;">Loading Interactive 3D Simulation...</div>
+            <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+          </body>
+        </html>
+      `);
+    }
+
     try {
       const res = await studentApi.getAnimation(content.animation_id);
       const anim = res.data?.data ?? res.data ?? res;
-      if (anim?.html_content) {
-        const blob = new Blob([anim.html_content], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const animWindow = window.open(url, '_blank');
-        if (!animWindow) {
-          toast.error('Popup blocker active. Please allow popups.', { id: toastId });
-        } else {
-          toast.success('Simulation ready!', { id: toastId });
-          setTimeout(() => URL.revokeObjectURL(url), 10_000);
-        }
+      if (anim?.html_content && animWindow) {
+        animWindow.document.open();
+        animWindow.document.write(anim.html_content);
+        animWindow.document.close();
+        toast.success('Simulation ready!');
       } else {
-        toast.error('No simulator contents found.', { id: toastId });
+        if (animWindow) animWindow.close();
+        toast.error('No simulator contents found.');
       }
     } catch (e) {
-      toast.error('Failed to open simulation', { id: toastId });
+      if (animWindow) animWindow.close();
+      toast.error('Failed to open simulation.');
     }
   };
 
@@ -1081,6 +1095,21 @@ export default function StudentDashboardPage() {
                 primaryColor="#7C3AED"
                 accentColor="#00D4FF"
                 style={{ width: '100%', height: '100%' }}
+              />
+            )}
+          </div>
+        </Modal>
+
+        {/* Modal: Interactive 3D Simulation Player */}
+        <Modal open={!!activeSimulation} onClose={() => setActiveSimulation(null)} title={activeSimulation?.title || 'Interactive 3D Simulation'} size="lg">
+          <div style={{ height: '75vh', width: '100%', borderRadius: '14px', overflow: 'hidden', background: '#000', border: '1px solid rgba(255,255,255,0.08)' }}>
+            {activeSimulation && (
+              <iframe
+                srcDoc={activeSimulation.html_content}
+                title={activeSimulation.title || 'Interactive 3D Simulation'}
+                style={{ border: 'none', width: '100%', height: '100%' }}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                allowFullScreen
               />
             )}
           </div>
