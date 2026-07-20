@@ -409,7 +409,15 @@ export default function QuestionsPage() {
   };
 
   const handleBulkFileSelect = (fileList) => {
-    const validFiles = Array.from(fileList).filter(f => f.type.startsWith('image/'));
+    const validFiles = Array.from(fileList).filter(f => f.type && f.type.startsWith('image/'));
+    
+    // Sort input files naturally by folder path / file name (e.g. 01_q.png, 02_q.png, 10_q.png)
+    validFiles.sort((a, b) => {
+      const pathA = a.webkitRelativePath || a.name || '';
+      const pathB = b.webkitRelativePath || b.name || '';
+      return pathA.localeCompare(pathB, undefined, { numeric: true, sensitivity: 'base' });
+    });
+
     const newItems = validFiles.map(file => {
       const detectedDiff = detectDifficulty(file.name, file.webkitRelativePath);
       const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
@@ -417,13 +425,22 @@ export default function QuestionsPage() {
         id: Math.random().toString(36).substring(2, 9),
         file,
         originalName: file.name,
+        relativePath: file.webkitRelativePath || file.name,
         previewUrl: URL.createObjectURL(file),
         difficulty: detectedDiff || bulkConfig.defaultDifficulty,
         questionText: bulkConfig.useFilenameAsText ? cleanName : '',
         is_premium: bulkConfig.is_premium ?? false,
       };
     });
-    setBulkFiles(prev => [...prev, ...newItems]);
+
+    setBulkFiles(prev => {
+      const combined = [...prev, ...newItems];
+      return combined.sort((a, b) => {
+        const pathA = a.relativePath || a.originalName || '';
+        const pathB = b.relativePath || b.originalName || '';
+        return pathA.localeCompare(pathB, undefined, { numeric: true, sensitivity: 'base' });
+      });
+    });
   };
 
   const removeBulkFile = (id) => {
@@ -471,6 +488,13 @@ export default function QuestionsPage() {
     setBulkProgress(10);
 
     try {
+      // Ensure strict natural sequential sorting before building FormData
+      const sortedBulkFiles = [...bulkFiles].sort((a, b) => {
+        const pathA = a.relativePath || a.originalName || '';
+        const pathB = b.relativePath || b.originalName || '';
+        return pathA.localeCompare(pathB, undefined, { numeric: true, sensitivity: 'base' });
+      });
+
       const formData = new FormData();
       formData.append('subject_id', bulkConfig.subject_id);
       if (bulkConfig.topic_id) formData.append('topic_id', bulkConfig.topic_id);
@@ -478,14 +502,15 @@ export default function QuestionsPage() {
       formData.append('destination', bulkConfig.destination);
       formData.append('is_premium', String(bulkConfig.is_premium));
 
-      const metadata = bulkFiles.map(f => ({
+      const metadata = sortedBulkFiles.map(f => ({
         difficulty: f.difficulty || 'medium',
         questionText: f.questionText?.trim() || null,
         is_premium: f.is_premium ?? bulkConfig.is_premium ?? false,
+        originalName: f.originalName,
       }));
       formData.append('metadata', JSON.stringify(metadata));
 
-      bulkFiles.forEach(f => {
+      sortedBulkFiles.forEach(f => {
         formData.append('images', f.file);
       });
 

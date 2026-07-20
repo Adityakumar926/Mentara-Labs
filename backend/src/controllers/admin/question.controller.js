@@ -38,7 +38,7 @@ exports.getAll = async (req, res) => {
        LEFT JOIN curriculums c ON cl.curriculum_id = c.id
        LEFT JOIN topics t ON q.topic_id = t.id
        ${where}
-       ORDER BY q.created_at DESC
+       ORDER BY q.created_at ASC, q.id ASC
        LIMIT $${params.length - 1} OFFSET $${params.length}`,
       params
     );
@@ -221,8 +221,8 @@ exports.bulkUploadImages = async (req, res) => {
     const targetDestination = ['shared', 'student', 'teacher'].includes(destination) ? destination : 'shared';
     const isPrem = is_premium === 'true' || is_premium === true;
 
-    // Upload to Cloudinary in parallel chunks of 5 to prevent memory/rate-limit pressure
-    const uploadResults = [];
+    // Upload to Cloudinary in parallel chunks of 5 while preserving exact 1-to-1 index order
+    const uploadResults = new Array(files.length);
     const BATCH_SIZE = 5;
     for (let i = 0; i < files.length; i += BATCH_SIZE) {
       const chunk = files.slice(i, i + BATCH_SIZE);
@@ -234,25 +234,27 @@ exports.bulkUploadImages = async (req, res) => {
         const fileIdx = i + idx;
         const fileMeta = metadataList[fileIdx] || {};
         if (res.status === 'fulfilled') {
-          uploadResults.push({
+          uploadResults[fileIdx] = {
+            index: fileIdx,
             success: true,
             url: res.value.url,
             originalName: files[fileIdx].originalname,
             difficulty: fileMeta.difficulty || 'medium',
             questionText: fileMeta.questionText || null,
             is_premium: fileMeta.is_premium === true || fileMeta.is_premium === 'true' ? true : isPrem,
-          });
+          };
         } else {
-          uploadResults.push({
+          uploadResults[fileIdx] = {
+            index: fileIdx,
             success: false,
             error: res.reason?.message || 'Upload failed',
             originalName: files[fileIdx].originalname,
-          });
+          };
         }
       });
     }
 
-    const successfulUploads = uploadResults.filter(r => r.success);
+    const successfulUploads = uploadResults.filter(r => r && r.success);
     if (!successfulUploads.length) {
       return res.status(500).json({ success: false, message: 'All image uploads failed' });
     }
