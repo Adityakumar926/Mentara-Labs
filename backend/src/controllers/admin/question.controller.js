@@ -270,16 +270,16 @@ exports.bulkUploadImages = async (req, res) => {
       return res.status(500).json({ success: false, message: 'All image uploads failed' });
     }
 
-    // Create DB records for successful uploads in a single multi-row query
+    // Create DB records for successful uploads in a single multi-row query while preserving exact 1-to-1 sequence
     let insertedQuestions = [];
     if (successfulUploads.length > 0) {
       const valueTuples = [];
       const values = [];
       let paramIdx = 1;
 
-      for (const item of successfulUploads) {
+      successfulUploads.forEach((item, itemIdx) => {
         valueTuples.push(
-          `($${paramIdx}, $${paramIdx+1}, $${paramIdx+2}, $${paramIdx+3}, $${paramIdx+4}, $${paramIdx+5}, $${paramIdx+6}, $${paramIdx+7}, $${paramIdx+8}, $${paramIdx+9}, $${paramIdx+10}, $${paramIdx+11}, $${paramIdx+12})`
+          `($${paramIdx}, $${paramIdx+1}, $${paramIdx+2}, $${paramIdx+3}, $${paramIdx+4}, $${paramIdx+5}, $${paramIdx+6}, $${paramIdx+7}, $${paramIdx+8}, $${paramIdx+9}, $${paramIdx+10}, $${paramIdx+11}, $${paramIdx+12}, NOW() + ($${paramIdx+13} || ' milliseconds')::interval)`
         );
         values.push(
           subject_id,
@@ -294,15 +294,16 @@ exports.bulkUploadImages = async (req, res) => {
           item.is_premium ?? isPrem,
           item.url,
           req.user.id,
-          targetDestination
+          targetDestination,
+          itemIdx * 10 // 10ms offset guarantees 100% strict sequence preservation
         );
-        paramIdx += 13;
-      }
+        paramIdx += 14;
+      });
 
       const { rows } = await db.query(
         `INSERT INTO questions
          (subject_id, topic_id, question_type, question_text, options, correct_answer,
-          explanation, difficulty, tags, is_premium, image_url, created_by, destination)
+          explanation, difficulty, tags, is_premium, image_url, created_by, destination, created_at)
          VALUES ${valueTuples.join(', ')} RETURNING *`,
         values
       );

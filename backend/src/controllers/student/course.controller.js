@@ -314,7 +314,7 @@ exports.getMyQuestions = async (req, res) => {
          AND q.destination IN ('shared', 'teacher', 'student')
          AND c.is_active = true
          ${where}
-       ORDER BY s.order_index, q.is_premium ASC, q.created_at DESC`,
+       ORDER BY s.order_index, q.is_premium ASC, q.created_at ASC, q.id ASC`,
       [req.user.curriculum_id || null, Boolean(canViewPremium), req.user.class_id || null, Boolean(isTeacherOrAdmin), ...extraParams]
     );
 
