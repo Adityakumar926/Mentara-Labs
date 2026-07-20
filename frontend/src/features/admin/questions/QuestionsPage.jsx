@@ -9,6 +9,7 @@ import { useApi, useMutation } from '@/hooks/useApi';
 import { adminApi } from '@/api/services';
 import clsx from 'clsx';
 import HierarchySidebar from '@/components/shared/HierarchySidebar';
+import toast from 'react-hot-toast';
 
 /* ─── unchanged constants ─── */
 const TYPES        = ['mcq', 'fill_blank', 'photo'];
@@ -520,7 +521,20 @@ export default function QuestionsPage() {
       });
 
       if (res.data?.success) {
-        setBulkResult(res.data);
+        const count = res.data.successCount || sortedBulkFiles.length;
+        toast.success(`🎉 Successfully uploaded ${count} question${count !== 1 ? 's' : ''} sequentially!`, {
+          duration: 4000,
+          style: {
+            background: '#0F1629',
+            color: '#00D4FF',
+            border: '1px solid rgba(0,212,255,0.3)',
+            fontWeight: 700,
+            fontSize: '0.85rem'
+          }
+        });
+        setBulkModal(false);
+        setBulkFiles([]);
+        setBulkResult(null);
         refetch();
       } else {
         throw new Error(res.data?.message || 'Bulk upload failed');
