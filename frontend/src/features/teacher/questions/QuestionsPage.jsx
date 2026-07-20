@@ -131,6 +131,29 @@ const CSS = `
   }
   .q-search-input::placeholder { color: var(--color-text-muted); }
 
+  /* ── SELECT FILTER ── */
+  .q-select-filter {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 0.45rem 0.85rem;
+    color: var(--cream);
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .q-select-filter:focus, .q-select-filter:hover {
+    border-color: var(--violet);
+    background: rgba(124,58,237,0.14);
+  }
+  .q-select-filter option {
+    background: #0F1629;
+    color: #F5F0E8;
+  }
+
   /* ── TYPE FILTER STRIP ── */
   .q-filter-strip {
     display: flex; gap: 0.25rem;
@@ -519,11 +542,11 @@ function QuestionCard({ q, idx }) {
       >
         <span className="q-index">{idx + 1}</span>
 
-        {(isLocked || q.question_text) && (
-          <p className={clsx('q-text', isLocked && 'blurred')}>
-            {isLocked ? 'This is a premium question — unlock to view.' : q.question_text}
-          </p>
-        )}
+        <p className={clsx('q-text', isLocked && 'blurred')}>
+          {isLocked
+            ? 'This is a premium question — unlock to view.'
+            : (q.question_text || (q.image_url ? 'Question Diagram / Photo' : `Question #${idx + 1}`))}
+        </p>
 
         <div className="q-meta-right">
           {answered && (
@@ -541,6 +564,25 @@ function QuestionCard({ q, idx }) {
           )}
         </div>
       </button>
+
+      {/* Direct Question Photo Display */}
+      {q.image_url && !isLocked && (
+        <div style={{ padding: '0.5rem 1.1rem 0.85rem 2.8rem' }}>
+          <img
+            src={q.image_url}
+            alt="Question photo"
+            style={{
+              width: '100%',
+              maxHeight: '450px',
+              objectFit: 'contain',
+              borderRadius: '14px',
+              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'rgba(0,0,0,0.25)',
+              display: 'block',
+            }}
+          />
+        </div>
+      )}
 
       {/* Expanded panel */}
       <AnimatePresence initial={false}>
@@ -764,17 +806,48 @@ function QuestionCard({ q, idx }) {
 }
 
 /* ─── SubjectSection ───────────────────────────────────────────────────────── */
-function SubjectSection({ group, typeFilter, search, sectionIdx }) {
+function SubjectSection({ group, typeFilter, search, subjectFilter, topicFilter, premiumFilter, sectionIdx }) {
   const [collapsed, setCollapsed] = useState(false);
 
   const questions = useMemo(() => {
+    // 1. Subject filter check (by normalized subject name)
+    if (subjectFilter !== 'all' && String(group.subject_name || '').trim().toLowerCase() !== String(subjectFilter).trim().toLowerCase()) {
+      return [];
+    }
+
+    const term = (search || '').trim().toLowerCase();
     return group.questions.filter((q) => {
+      if (!q) return false;
       const matchType = typeFilter === 'all' || q.question_type === typeFilter;
-      const matchSearch = q.is_premium || !search ||
-        q.question_text.toLowerCase().includes(search.toLowerCase());
-      return matchType && matchSearch;
+      if (!matchType) return false;
+
+      // 2. Topic filter check (by normalized topic name)
+      if (topicFilter !== 'all') {
+        const qTopicKey = (q.topic_name || '').trim().toLowerCase();
+        if (qTopicKey !== String(topicFilter).trim().toLowerCase()) return false;
+      }
+
+      // 3. Premium / Free filter check
+      if (premiumFilter === 'free' && q.is_premium) return false;
+      if (premiumFilter === 'premium' && !q.is_premium) return false;
+
+      if (!term) return true;
+
+      const textMatch    = Boolean(q.question_text && String(q.question_text).toLowerCase().includes(term));
+      const subjectMatch = Boolean(group.subject_name && String(group.subject_name).toLowerCase().includes(term));
+      const topicMatch   = Boolean(q.topic_name && String(q.topic_name).toLowerCase().includes(term));
+      const typeMatch    = Boolean(q.question_type && String(q.question_type).toLowerCase().includes(term));
+      const diffMatch    = Boolean(q.difficulty && String(q.difficulty).toLowerCase().includes(term));
+      const imageMatch   = Boolean(q.image_url && String(q.image_url).toLowerCase().includes(term));
+
+      let optionsMatch = false;
+      if (Array.isArray(q.options)) {
+        optionsMatch = q.options.some(o => o && ((o.text && String(o.text).toLowerCase().includes(term)) || (o.id && String(o.id).toLowerCase().includes(term))));
+      }
+
+      return textMatch || subjectMatch || topicMatch || typeMatch || diffMatch || imageMatch || optionsMatch;
     });
-  }, [group.questions, typeFilter, search]);
+  }, [group.questions, group.subject_name, typeFilter, search, subjectFilter, topicFilter, premiumFilter]);
 
   if (!questions.length) return null;
 
@@ -856,20 +929,83 @@ function QEmpty({ icon: Icon, title, description }) {
 export default function StudentQuestionsPage() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [subjectFilter, setSubjectFilter] = useState('all');
+  const [topicFilter, setTopicFilter] = useState('all');
+  const [premiumFilter, setPremiumFilter] = useState('all');
 
   const { data: raw, loading } = useApi(studentApi.getMyQuestions);
   const groups = raw?.data ?? raw ?? [];
+
+  // Available subjects (grouped by name)
+  const availableSubjects = useMemo(() => {
+    const map = new Map();
+    (groups || []).forEach(g => {
+      if (g.subject_name) {
+        const key = g.subject_name.trim().toLowerCase();
+        if (!map.has(key)) {
+          map.set(key, { id: key, name: g.subject_name.trim() });
+        }
+      }
+    });
+    return Array.from(map.values());
+  }, [groups]);
+
+  // Available topics for selected subject
+  const availableTopics = useMemo(() => {
+    const map = new Map();
+    (groups || []).forEach(g => {
+      if (subjectFilter !== 'all' && String(g.subject_name || '').trim().toLowerCase() !== String(subjectFilter).trim().toLowerCase()) return;
+      (g.questions || []).forEach(q => {
+        if (q.topic_name) {
+          const key = q.topic_name.trim().toLowerCase();
+          if (!map.has(key)) {
+            map.set(key, { id: key, name: q.topic_name.trim() });
+          }
+        }
+      });
+    });
+    return Array.from(map.values());
+  }, [groups, subjectFilter]);
 
   const totalFree = useMemo(() => groups.reduce((a, g) => a + g.questions.filter((q) => !q.is_premium).length, 0), [groups]);
   const totalPremium = useMemo(() => groups.reduce((a, g) => a + g.questions.filter((q) => q.is_premium).length, 0), [groups]);
 
   const visibleCount = useMemo(
-    () => groups.reduce((acc, g) => acc + g.questions.filter((q) => {
-      const matchType = typeFilter === 'all' || q.question_type === typeFilter;
-      const matchSearch = q.is_premium || !search || q.question_text.toLowerCase().includes(search.toLowerCase());
-      return matchType && matchSearch;
-    }).length, 0),
-    [groups, typeFilter, search]
+    () => groups.reduce((acc, g) => {
+      if (subjectFilter !== 'all' && String(g.subject_name || '').trim().toLowerCase() !== String(subjectFilter).trim().toLowerCase()) return acc;
+      const term = (search || '').trim().toLowerCase();
+      const count = g.questions.filter((q) => {
+        if (!q) return false;
+        const matchType = typeFilter === 'all' || q.question_type === typeFilter;
+        if (!matchType) return false;
+
+        if (topicFilter !== 'all') {
+          const qTopicKey = (q.topic_name || '').trim().toLowerCase();
+          if (qTopicKey !== String(topicFilter).trim().toLowerCase()) return false;
+        }
+
+        if (premiumFilter === 'free' && q.is_premium) return false;
+        if (premiumFilter === 'premium' && !q.is_premium) return false;
+
+        if (!term) return true;
+
+        const textMatch    = Boolean(q.question_text && String(q.question_text).toLowerCase().includes(term));
+        const subjectMatch = Boolean(g.subject_name && String(g.subject_name).toLowerCase().includes(term));
+        const topicMatch   = Boolean(q.topic_name && String(q.topic_name).toLowerCase().includes(term));
+        const typeMatch    = Boolean(q.question_type && String(q.question_type).toLowerCase().includes(term));
+        const diffMatch    = Boolean(q.difficulty && String(q.difficulty).toLowerCase().includes(term));
+        const imageMatch   = Boolean(q.image_url && String(q.image_url).toLowerCase().includes(term));
+
+        let optionsMatch = false;
+        if (Array.isArray(q.options)) {
+          optionsMatch = q.options.some(o => o && ((o.text && String(o.text).toLowerCase().includes(term)) || (o.id && String(o.id).toLowerCase().includes(term))));
+        }
+
+        return textMatch || subjectMatch || topicMatch || typeMatch || diffMatch || imageMatch || optionsMatch;
+      }).length;
+      return acc + count;
+    }, 0),
+    [groups, typeFilter, search, subjectFilter, topicFilter, premiumFilter]
   );
 
   return (
@@ -904,6 +1040,81 @@ export default function StudentQuestionsPage() {
           </div>
           <img src="/question.png?v=2" alt="" className="q-header-image" />
         </motion.div>
+
+        {/* ── Hierarchy Filter Bar (Subject, Topic & Premium) ── */}
+        {!loading && groups.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.08 }}
+            style={{
+              display: 'flex',
+              gap: '0.85rem',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              background: 'var(--card-bg)',
+              border: '1px solid var(--card-bdr)',
+              borderRadius: '18px',
+              padding: '0.75rem 1.1rem',
+              backdropFilter: 'blur(12px)',
+            }}
+          >
+            {/* Subject Selector */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--lavender)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Subject:
+              </span>
+              <select
+                className="q-select-filter"
+                value={subjectFilter}
+                onChange={(e) => {
+                  setSubjectFilter(e.target.value);
+                  setTopicFilter('all');
+                }}
+              >
+                <option value="all">All Subjects ({availableSubjects.length})</option>
+                {availableSubjects.map((s) => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Topic Selector */}
+            {availableTopics.length > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--cyan)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Topic:
+                </span>
+                <select
+                  className="q-select-filter"
+                  value={topicFilter}
+                  onChange={(e) => setTopicFilter(e.target.value)}
+                >
+                  <option value="all">All Topics ({availableTopics.length})</option>
+                  {availableTopics.map((t) => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Premium / Free Tier Selector */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--amber)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Tier:
+              </span>
+              <select
+                className="q-select-filter"
+                value={premiumFilter}
+                onChange={(e) => setPremiumFilter(e.target.value)}
+              >
+                <option value="all">All Questions</option>
+                <option value="free">Free Only ({totalFree})</option>
+                <option value="premium">Premium Only ({totalPremium})</option>
+              </select>
+            </div>
+          </motion.div>
+        )}
 
         {/* ── Search + type filter ── */}
         {!loading && groups.length > 0 && (
@@ -961,6 +1172,9 @@ export default function StudentQuestionsPage() {
                 group={group}
                 typeFilter={typeFilter}
                 search={search}
+                subjectFilter={subjectFilter}
+                topicFilter={topicFilter}
+                premiumFilter={premiumFilter}
                 sectionIdx={si}
               />
             ))}

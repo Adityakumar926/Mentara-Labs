@@ -8,21 +8,31 @@ const streamifier = require('streamifier');
  * @param {object} [options]  - Extra Cloudinary upload options (transformation, tags, etc.)
  * @returns {Promise<{url: string, publicId: string}>}
  */
-exports.uploadImage = (buffer, folder, options = {}) => {
-  return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder,
-        resource_type: 'image',
-        ...options,
-      },
-      (error, result) => {
-        if (error) return reject(error);
-        resolve({ url: result.secure_url, publicId: result.public_id });
-      }
-    );
-    streamifier.createReadStream(buffer).pipe(uploadStream);
-  });
+exports.uploadImage = async (buffer, folder, options = {}, retries = 3) => {
+  let attempt = 0;
+  while (attempt < retries) {
+    try {
+      return await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder,
+            resource_type: 'image',
+            timeout: 60000,
+            ...options,
+          },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve({ url: result.secure_url, publicId: result.public_id });
+          }
+        );
+        streamifier.createReadStream(buffer).pipe(uploadStream);
+      });
+    } catch (err) {
+      attempt++;
+      if (attempt >= retries) throw err;
+      await new Promise((r) => setTimeout(r, attempt * 500)); // exponential backoff 500ms, 1000ms...
+    }
+  }
 };
 
 /**

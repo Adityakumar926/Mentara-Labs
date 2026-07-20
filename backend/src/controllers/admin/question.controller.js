@@ -21,7 +21,18 @@ exports.getAll = async (req, res) => {
     if (type)                { params.push(type);                  conditions.push(`q.question_type = $${params.length}`); }
     if (is_premium !== undefined) { params.push(is_premium === 'true'); conditions.push(`q.is_premium = $${params.length}`); }
     if (is_starred !== undefined) { params.push(is_starred === 'true'); conditions.push(`q.is_starred = $${params.length}`); }
-    if (search)              { params.push(`%${search}%`);         conditions.push(`COALESCE(q.question_text, '') ILIKE $${params.length}`); }
+    if (search) {
+      params.push(`%${search}%`);
+      conditions.push(`(
+        COALESCE(q.question_text, '') ILIKE $${params.length} OR
+        COALESCE(s.name, '') ILIKE $${params.length} OR
+        COALESCE(t.name, '') ILIKE $${params.length} OR
+        COALESCE(cl.name, '') ILIKE $${params.length} OR
+        COALESCE(c.name, '') ILIKE $${params.length} OR
+        COALESCE(q.difficulty, '') ILIKE $${params.length} OR
+        COALESCE(q.image_url, '') ILIKE $${params.length}
+      )`);
+    }
 
     const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
     params.push(limit, offset);
@@ -221,9 +232,9 @@ exports.bulkUploadImages = async (req, res) => {
     const targetDestination = ['shared', 'student', 'teacher'].includes(destination) ? destination : 'shared';
     const isPrem = is_premium === 'true' || is_premium === true;
 
-    // Upload to Cloudinary in parallel chunks of 5 while preserving exact 1-to-1 index order
+    // Upload to Cloudinary in parallel chunks of 10 while preserving exact 1-to-1 index order
     const uploadResults = new Array(files.length);
-    const BATCH_SIZE = 5;
+    const BATCH_SIZE = 10;
     for (let i = 0; i < files.length; i += BATCH_SIZE) {
       const chunk = files.slice(i, i + BATCH_SIZE);
       const chunkResults = await Promise.allSettled(
@@ -259,15 +270,18 @@ exports.bulkUploadImages = async (req, res) => {
       return res.status(500).json({ success: false, message: 'All image uploads failed' });
     }
 
-    // Create DB records for successful uploads
-    const insertedQuestions = [];
-    for (const item of successfulUploads) {
-      const { rows } = await db.query(
-        `INSERT INTO questions
-         (subject_id, topic_id, question_type, question_text, options, correct_answer,
-          explanation, difficulty, tags, is_premium, image_url, created_by, destination)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
-        [
+    // Create DB records for successful uploads in a single multi-row query
+    let insertedQuestions = [];
+    if (successfulUploads.length > 0) {
+      const valueTuples = [];
+      const values = [];
+      let paramIdx = 1;
+
+      for (const item of successfulUploads) {
+        valueTuples.push(
+          `($${paramIdx}, $${paramIdx+1}, $${paramIdx+2}, $${paramIdx+3}, $${paramIdx+4}, $${paramIdx+5}, $${paramIdx+6}, $${paramIdx+7}, $${paramIdx+8}, $${paramIdx+9}, $${paramIdx+10}, $${paramIdx+11}, $${paramIdx+12})`
+        );
+        values.push(
           subject_id,
           topic_id || null,
           question_type,
@@ -281,9 +295,18 @@ exports.bulkUploadImages = async (req, res) => {
           item.url,
           req.user.id,
           targetDestination
-        ]
+        );
+        paramIdx += 13;
+      }
+
+      const { rows } = await db.query(
+        `INSERT INTO questions
+         (subject_id, topic_id, question_type, question_text, options, correct_answer,
+          explanation, difficulty, tags, is_premium, image_url, created_by, destination)
+         VALUES ${valueTuples.join(', ')} RETURNING *`,
+        values
       );
-      insertedQuestions.push(rows[0]);
+      insertedQuestions = rows;
     }
 
     res.json({

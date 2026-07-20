@@ -364,7 +364,7 @@ export default function Explore() {
       if (activeSubjectId !== 'all' && c.subject_id !== activeSubjectId) return false;
 
       // 4. Search query filter
-      if (searchQuery.trim() && !c.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      if (searchQuery.trim() && !c.title?.toLowerCase().includes(searchQuery.toLowerCase())) return false;
 
       return true;
     });
@@ -376,7 +376,7 @@ export default function Explore() {
       if (activeSubjectId !== 'all' && e.subject_id !== activeSubjectId) return false;
 
       // Search query filter
-      if (searchQuery.trim() && !e.title.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      if (searchQuery.trim() && !e.title?.toLowerCase().includes(searchQuery.toLowerCase())) return false;
 
       // Attempted filter
       if (activeExamFilter === 'attempted' && e.submission_status !== 'submitted') return false;

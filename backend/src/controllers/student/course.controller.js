@@ -269,10 +269,9 @@ exports.getVideoToken = async (req, res) => {
 
 exports.getMyQuestions = async (req, res) => {
   try {
-    const studentId = req.user.id;
-    const isPremium = req.user.is_premium;
-    const { subject_id, search } = req.query;
-    const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
+    const { subject_id, search } = req.query || {};
+    const canViewPremium = Boolean(req.user.is_premium || req.user.role === 'admin');
+    const isTeacherOrAdmin = req.user.role === 'teacher' || req.user.role === 'admin';
 
     const extraParams = [];
     const conditions  = [];
@@ -301,33 +300,40 @@ exports.getMyQuestions = async (req, res) => {
          s.name        AS subject_name,
          s.order_index AS subject_order,
          c.id          AS curriculum_id,
-         c.name        AS curriculum_name
+         c.name        AS curriculum_name,
+         t.id          AS topic_id,
+         t.name        AS topic_name,
+         t.parent_topic_id AS topic_parent_id
        FROM subjects    s
        JOIN classes     cl ON cl.id           = s.class_id
        JOIN curriculums c  ON c.id            = cl.curriculum_id
        JOIN questions   q  ON q.subject_id    = s.id
-       WHERE c.id = $1 AND cl.id = $3 AND q.destination IN ('shared', $4)
+       LEFT JOIN topics t  ON t.id            = q.topic_id
+       WHERE ($1::uuid IS NULL OR c.id = $1)
+         AND ($4::boolean = true OR $3::uuid IS NULL OR cl.id = $3)
+         AND q.destination IN ('shared', 'teacher', 'student')
          AND c.is_active = true
          ${where}
        ORDER BY s.order_index, q.is_premium ASC, q.created_at DESC`,
-      [req.user.curriculum_id, isPremium, req.user.class_id, destination, ...extraParams]
+      [req.user.curriculum_id || null, Boolean(canViewPremium), req.user.class_id || null, Boolean(isTeacherOrAdmin), ...extraParams]
     );
 
     const grouped     = [];
     const seenSubject = new Map();
 
     for (const row of rows) {
-      if (!seenSubject.has(row.subject_id)) {
+      const key = row.subject_name ? row.subject_name.trim().toLowerCase() : row.subject_id;
+      if (!seenSubject.has(key)) {
         const group = {
           subject_id:      row.subject_id,
           subject_name:    row.subject_name,
           curriculum_name: row.curriculum_name,
           questions:       [],
         };
-        seenSubject.set(row.subject_id, group);
+        seenSubject.set(key, group);
         grouped.push(group);
       }
-      seenSubject.get(row.subject_id).questions.push({
+      seenSubject.get(key).questions.push({
         id:             row.id,
         question_text:  row.question_text,
         question_type:  row.question_type,
@@ -335,6 +341,9 @@ exports.getMyQuestions = async (req, res) => {
         correct_answer: row.correct_answer,
         image_url:      row.image_url,
         is_premium:     row.is_premium,
+        topic_id:       row.topic_id,
+        topic_name:     row.topic_name,
+        topic_parent_id: row.topic_parent_id,
       });
     }
 

@@ -4,9 +4,9 @@ const multer = require('multer');
 
 const MAX_FILE_SIZE_MB = {
   note:       20,   // PDFs / notes → Cloudinary (resource_type: raw)
-  image:       5,   // Avatars, thumbnails → Cloudinary
-  examPhoto:  10,   // Photos of handwritten exam answers → Cloudinary (phone camera shots run larger than avatars)
-  video:     500,   // Videos → Mux direct upload (held in memory briefly then streamed)
+  image:      25,   // Avatars, question photos, camera shots → Cloudinary
+  examPhoto:  25,   // Photos of handwritten exam answers → Cloudinary
+  video:     500,   // Videos → Mux direct upload
 };
 
 const ALLOWED_MIME = {

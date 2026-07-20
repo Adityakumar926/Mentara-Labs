@@ -552,6 +552,7 @@ export default function QuestionsPage() {
       const params = {
         type: filters.type || undefined,
         is_premium: filters.is_premium || undefined,
+        search: filters.search?.trim() || undefined,
       };
       if (selectedNode) {
         if (selectedNode.type === 'curriculum') params.curriculum_id = selectedNode.id;
@@ -560,8 +561,8 @@ export default function QuestionsPage() {
         else if (selectedNode.type === 'topic') params.topic_id = selectedNode.id;
       }
       return params;
-    }, [filters.type, filters.is_premium, selectedNode]),
-    [filters.type, filters.is_premium, selectedNode]
+    }, [filters.type, filters.is_premium, filters.search, selectedNode]),
+    [filters.type, filters.is_premium, filters.search, selectedNode]
   );
   
   const { data: curriculums } = useApi(adminApi.getCurriculums);
@@ -700,9 +701,30 @@ export default function QuestionsPage() {
   };
   const removeImage = () => set('image_url', '');
 
-  const filtered = (questions ?? []).filter((q) =>
-    !filters.search || (q.question_text && q.question_text.toLowerCase().includes(filters.search.toLowerCase()))
-  );
+  const filtered = useMemo(() => {
+    const list = Array.isArray(questions) ? questions : [];
+    if (!filters.search || !filters.search.trim()) return list;
+
+    const term = filters.search.trim().toLowerCase();
+    return list.filter((q) => {
+      if (!q) return false;
+      const textMatch    = Boolean(q.question_text && String(q.question_text).toLowerCase().includes(term));
+      const subjectMatch = Boolean(q.subject_name && String(q.subject_name).toLowerCase().includes(term));
+      const topicMatch   = Boolean(q.topic_name && String(q.topic_name).toLowerCase().includes(term));
+      const classMatch   = Boolean(q.class_name && String(q.class_name).toLowerCase().includes(term));
+      const currMatch    = Boolean(q.curriculum_name && String(q.curriculum_name).toLowerCase().includes(term));
+      const diffMatch    = Boolean(q.difficulty && (String(q.difficulty).toLowerCase().includes(term) || (DIFFICULTY_MAPPING[q.difficulty] && String(DIFFICULTY_MAPPING[q.difficulty]).toLowerCase().includes(term))));
+      const imageMatch   = Boolean(q.image_url && String(q.image_url).toLowerCase().includes(term));
+
+      let optionsMatch = false;
+      if (q.options) {
+        const opts = getOptionsArray(q.options);
+        optionsMatch = opts.some(o => o && ((o.text && String(o.text).toLowerCase().includes(term)) || (o.value && String(o.value).toLowerCase().includes(term))));
+      }
+
+      return textMatch || subjectMatch || topicMatch || classMatch || currMatch || diffMatch || imageMatch || optionsMatch;
+    });
+  }, [questions, filters.search]);
 
   return (
     <PageWrapper className="p-0">
