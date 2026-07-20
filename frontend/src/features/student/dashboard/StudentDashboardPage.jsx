@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import {
   BookOpen, ChevronRight, Play, Eye, FileText, Sparkles, Image,
-  Activity, GraduationCap, Video, CheckCircle, ArrowLeft, Clock
+  Activity, GraduationCap, Video, CheckCircle, ArrowLeft, Clock,
+  Trophy, Palette, Gamepad2, Map, Star, ArrowRight
 } from 'lucide-react';
 import { PageWrapper, Skeleton, Modal } from '@/components/ui';
 import { useApi } from '@/hooks/useApi';
@@ -12,162 +14,307 @@ import MuxPlayer from '@mux/mux-player-react';
 import toast from 'react-hot-toast';
 
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Outfit:wght@500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Quicksand:wght@600;700;800&display=swap');
 
   .sd-root {
-    --navy:     #080b11;
-    --navy2:    #0f1420;
-    --violet:   #8b5cf6;
-    --violet-l: #a78bfa;
-    --cyan:     #06b6d4;
-    --cream:    #f4f4f5;
-    --muted:    #94a3b8;
-    --card-bg:  rgba(255, 255, 255, 0.035);
+    --navy:     #080C16;
+    --navy2:    #0E1424;
+    --violet:   #8B5CF6;
+    --violet-l: #A78BFA;
+    --cyan:     #06B6D4;
+    --cream:    #F4F6FC;
+    --muted:    #94A3B8;
+    --card-bg:  rgba(255, 255, 255, 0.03);
     --card-bdr: rgba(255, 255, 255, 0.08);
-    --welcome-title-from: #ffffff;
-    --welcome-title-to: #a78bfa;
-    --welcome-badge-bg: rgba(139,92,246,0.15);
-    --welcome-badge-color: #a78bfa;
-    --welcome-badge-border: rgba(139,92,246,0.3);
+
     font-family: 'Quicksand', sans-serif;
     color: var(--cream);
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
   }
 
   html.light .sd-root {
-    --navy:     #f8fafc;
-    --navy2:    #ffffff;
-    --violet:   #6d28d9;
-    --violet-l: #8b5cf6;
-    --cyan:     #0891b2;
-    --cream:    #0f172a;
-    --muted:    #475569;
-    --card-bg:  #f1f5f9;
-    --card-bdr: #e2e8f0;
-    --welcome-title-from: #1e1b4b;
-    --welcome-title-to: #6d28d9;
-    --welcome-badge-bg: rgba(109,40,217,0.08);
-    --welcome-badge-color: #6d28d9;
-    --welcome-badge-border: rgba(109,40,217,0.2);
+    --navy:     #F0F4F8;
+    --navy2:    #FFFFFF;
+    --violet:   #7C3AED;
+    --violet-l: #8B5CF6;
+    --cyan:     #0284C7;
+    --cream:    #0F172A;
+    --muted:    #64748B;
+    --card-bg:  #FFFFFF;
+    --card-bdr: #E2E8F0;
   }
 
-  .sd-welcome-card {
+  /* Hero Welcome Banner */
+  .sd-hero-banner {
     position: relative;
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(6, 182, 212, 0.15) 100%);
-    border: 2px solid rgba(139, 92, 246, 0.2);
-    border-radius: 28px;
-    padding: 2.5rem;
+    background: linear-gradient(135deg, rgba(14, 20, 36, 0.95) 0%, rgba(26, 36, 64, 0.9) 100%);
+    border: 2px solid rgba(139, 92, 246, 0.3);
+    border-radius: 32px;
+    padding: 2.25rem 2.5rem;
     overflow: hidden;
-    margin-bottom: 2rem;
-    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+  }
+
+  html.light .sd-hero-banner {
+    background: linear-gradient(180deg, #E0F2FE 0%, #BAE6FD 60%, #E0F2FE 100%);
+    border-color: #7DD3FC;
+    box-shadow: 0 16px 40px rgba(56, 189, 248, 0.15);
+  }
+
+  .sd-hero-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.6rem;
+    font-weight: 900;
+    margin: 0;
+    color: var(--cream);
+    line-height: 1.15;
+  }
+
+  html.light .sd-hero-title {
+    color: #1E1B4B;
+  }
+
+  .sd-hero-sub {
+    font-size: 0.95rem;
+    color: var(--muted);
+    font-weight: 700;
+    margin-top: 0.6rem;
+    max-width: 400px;
+    line-height: 1.5;
+  }
+
+  html.light .sd-hero-sub {
+    color: #475569;
+  }
+
+  .sd-hero-btn {
+    margin-top: 1.25rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.6rem;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
+    color: #FFFFFF;
+    font-weight: 800;
+    font-size: 0.95rem;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
+    transition: all 0.25s ease;
+  }
+
+  .sd-hero-btn:hover {
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 12px 30px rgba(139, 92, 246, 0.55);
+  }
+
+  /* Today's Quest Widget Card */
+  .sd-quest-card {
+    background: var(--navy2);
+    border: 2px solid var(--card-bdr);
+    border-radius: 24px;
+    padding: 1.35rem 1.5rem;
+    width: 270px;
+    flex-shrink: 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  }
+
+  html.light .sd-quest-card {
+    background: #FFFFFF;
+    border-color: rgba(255,255,255,0.8);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  }
+
+  .sd-quest-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--cream);
+    margin-bottom: 0.75rem;
+  }
+
+  html.light .sd-quest-header {
+    color: #1E1B4B;
+  }
+
+  .sd-quest-task {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  html.light .sd-quest-task {
+    color: #475569;
+  }
+
+  .sd-quest-bar {
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50px;
+    overflow: hidden;
+    margin: 0.85rem 0 0.6rem;
+  }
+
+  html.light .sd-quest-bar {
+    background: #E2E8F0;
+  }
+
+  .sd-quest-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10B981, #34D399);
+    border-radius: 50px;
+  }
+
+  .sd-quest-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    font-weight: 800;
+  }
+
+  /* Dynamic 3D Subject Cards Grid */
+  .sd-section-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--cream);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
   }
 
   .sd-grid-3 {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    gap: 1.35rem;
   }
 
   .sd-subject-card {
     background: var(--navy2);
     border: 2px solid var(--card-bdr);
-    border-radius: 24px;
-    padding: 1.5rem;
+    border-radius: 28px;
+    padding: 1.6rem;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     display: flex;
-    align-items: center;
-    gap: 1.25rem;
+    flex-direction: column;
+    justify-content: space-between;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+    min-height: 170px;
   }
 
   .sd-subject-card:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 12px 30px rgba(139, 92, 246, 0.15);
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 16px 35px rgba(139, 92, 246, 0.2);
   }
 
   .sd-subject-card.active {
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
-    box-shadow: 0 12px 30px rgba(139, 92, 246, 0.25);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(6, 182, 212, 0.1) 100%);
+    border-color: var(--violet);
+    box-shadow: 0 16px 35px rgba(139, 92, 246, 0.25);
   }
 
   .sd-subject-icon {
-    width: 54px;
-    height: 54px;
-    border-radius: 16px;
+    width: 80px;
+    height: 80px;
+    border-radius: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 2.2rem;
+    flex-shrink: 0;
     transition: transform 0.3s ease;
   }
 
   .sd-subject-card:hover .sd-subject-icon {
-    transform: rotate(10deg) scale(1.1);
+    transform: scale(1.04);
   }
 
+  .sd-subj-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.65rem 1.2rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    width: fit-content;
+    margin-top: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: transform 0.2s ease;
+  }
+
+  /* Topic Sidebar & Resource Panel */
   .sd-dashboard-layout {
     display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 1.75rem;
+    grid-template-columns: 280px 1fr;
+    gap: 1.5rem;
     align-items: start;
   }
 
-  @media (max-width: 960px) {
-    .sd-dashboard-layout {
-      grid-template-columns: 1fr;
-    }
+  @media (max-width: 920px) {
+    .sd-dashboard-layout { grid-template-columns: 1fr; }
   }
 
   .sd-topic-item {
     background: var(--card-bg);
-    border: 2px solid var(--card-bdr);
+    border: 1.5px solid var(--card-bdr);
     border-radius: 18px;
-    padding: 1.15rem 1.35rem;
+    padding: 0.9rem 1.1rem;
     cursor: pointer;
     transition: all 0.25s ease;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.6rem;
   }
 
   .sd-topic-item:hover {
     background: rgba(255, 255, 255, 0.05);
     border-color: var(--violet);
-    transform: scale(1.01);
+    transform: translateX(3px);
   }
 
   .sd-topic-item.active {
     border-color: var(--violet);
-    background: linear-gradient(90deg, rgba(139, 92, 246, 0.15) 0%, transparent 100%);
-    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.1);
+    background: linear-gradient(90deg, rgba(139, 92, 246, 0.18) 0%, transparent 100%);
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.15);
   }
 
   .sd-tabs-bar {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.65rem;
     border-bottom: 2px solid var(--card-bdr);
     padding-bottom: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     overflow-x: auto;
-    scrollbar-width: none;
-  }
-  
-  .sd-tabs-bar::-webkit-scrollbar {
-    display: none;
   }
 
   .sd-tab-btn {
-    padding: 0.65rem 1.25rem;
+    padding: 0.6rem 1.15rem;
     border-radius: 16px;
-    font-size: 0.9rem;
-    font-weight: 700;
+    font-size: 0.85rem;
+    font-weight: 800;
     color: var(--muted);
-    background: rgba(255, 255, 255, 0.02);
-    border: 2px solid var(--card-bdr);
+    background: transparent;
+    border: 1.5px solid var(--card-bdr);
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     white-space: nowrap;
@@ -183,83 +330,75 @@ const CSS = `
     color: #fff;
     background: linear-gradient(135deg, var(--violet) 0%, var(--violet-l) 100%);
     border-color: var(--violet);
-    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
-    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 18px rgba(139, 92, 246, 0.35);
+    transform: translateY(-2px) scale(1.02);
   }
 
   .sd-resource-card {
-    background: var(--navy2);
-    border: 2px solid var(--card-bdr);
-    border-radius: 22px;
-    padding: 1.25rem 1.5rem;
+    background: var(--card-bg);
+    border: 1.5px solid var(--card-bdr);
+    border-radius: 20px;
+    padding: 1.1rem 1.35rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     transition: all 0.25s ease;
-    margin-bottom: 1rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin-bottom: 0.85rem;
   }
 
   .sd-resource-card:hover {
-    border-color: rgba(139, 92, 246, 0.3);
+    border-color: rgba(139, 92, 246, 0.35);
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.1);
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.12);
   }
 
   .sd-res-icon-wrapper {
     width: 48px;
     height: 48px;
-    border-radius: 14px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    font-size: 1.3rem;
+    font-size: 1.4rem;
   }
 
-  .sd-res-btn {
-    background: linear-gradient(135deg, var(--violet) 0%, var(--violet-l) 100%);
-    border: none;
-    padding: 0.65rem 1.25rem;
-    border-radius: 14px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #ffffff;
-    cursor: pointer;
-    display: inline-flex;
+  /* Bottom Superstar Banner */
+  .sd-superstar-banner {
+    background: linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(139,92,246,0.12) 100%);
+    border: 2px solid rgba(245,158,11,0.25);
+    border-radius: 28px;
+    padding: 1.25rem 1.75rem;
+    display: flex;
     align-items: center;
-    gap: 8px;
-    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
-  }
-
-  .sd-res-btn:hover {
-    transform: translateY(-2px) scale(1.03);
-    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35);
+    justify-content: space-between;
+    gap: 1.5rem;
   }
 `;
-
 
 const getSubjectStyle = (name) => {
   const n = name.toLowerCase();
   if (n.includes('science')) {
     return {
-      iconBg: 'rgba(16, 185, 129, 0.15)',
+      iconBg: 'rgba(16, 185, 129, 0.18)',
       color: '#10B981',
       avatar: '🧪',
+      btnBg: '#10B981',
     };
   }
   if (n.includes('math') || n.includes('arithmetic')) {
     return {
-      iconBg: 'rgba(245, 158, 11, 0.15)',
+      iconBg: 'rgba(245, 158, 11, 0.18)',
       color: '#F59E0B',
       avatar: '🧮',
+      btnBg: '#F59E0B',
     };
   }
   return {
-    iconBg: 'rgba(139, 92, 246, 0.15)',
+    iconBg: 'rgba(139, 92, 246, 0.18)',
     color: '#A78BFA',
-    avatar: '📚',
+    avatar: '📖',
+    btnBg: '#8B5CF6',
   };
 };
 
@@ -267,14 +406,12 @@ export default function StudentDashboardPage() {
   const { user } = useAuthStore();
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [selectedTopic, setSelectedTopic] = useState(null);
-  const [activeTab, setActiveTab] = useState('exams'); // 'exams', 'worksheets', 'simulators', 'notes'
+  const [activeTab, setActiveTab] = useState('exams');
 
-  // Modal view states
   const [pdfUrl, setPdfUrl] = useState(null);
   const [videoToken, setVideoToken] = useState(null);
   const [selectedVideoContent, setSelectedVideoContent] = useState(null);
 
-  // Fetch subjects for this curriculum
   const { data: subjectsRes, loading: loadingSubjects } = useApi(
     () => studentApi.getCurriculumSubjects(user.curriculum_id),
     null,
@@ -282,7 +419,6 @@ export default function StudentDashboardPage() {
   );
   const subjects = subjectsRes?.data ?? subjectsRes ?? [];
 
-  // Fetch topics for the selected subject
   const [topics, setTopics] = useState([]);
   const [loadingTopics, setLoadingTopics] = useState(false);
 
@@ -296,7 +432,6 @@ export default function StudentDashboardPage() {
     studentApi.getSubjectTopics(selectedSubject.id)
       .then(res => {
         const list = res.data?.data ?? res.data ?? res ?? [];
-        // Filter parent topics only (parent_topic_id is null)
         const roots = list.filter(t => !t.parent_topic_id);
         setTopics(roots);
         if (roots[0]) setSelectedTopic(roots[0]);
@@ -308,7 +443,6 @@ export default function StudentDashboardPage() {
       });
   }, [selectedSubject]);
 
-  // Fetch learning materials for selected topic
   const [topicContent, setTopicContent] = useState(null);
   const [loadingContents, setLoadingContents] = useState(false);
 
@@ -372,7 +506,7 @@ export default function StudentDashboardPage() {
         const url = URL.createObjectURL(blob);
         const animWindow = window.open(url, '_blank');
         if (!animWindow) {
-          toast.error('Popup blocker active. Please allow popups for this site.', { id: toastId });
+          toast.error('Popup blocker active. Please allow popups.', { id: toastId });
         } else {
           toast.success('Simulation ready!', { id: toastId });
           setTimeout(() => URL.revokeObjectURL(url), 10_000);
@@ -410,7 +544,7 @@ export default function StudentDashboardPage() {
       }
     } catch (e) {
       console.error('Failed to open worksheet:', e);
-      toast.error('Failed to open worksheet: ' + (e.response?.data?.message || e.message));
+      toast.error('Failed to open worksheet');
       if (wsWindow) wsWindow.close();
     }
   };
@@ -450,32 +584,28 @@ export default function StudentDashboardPage() {
   #sizer { position: relative; display: inline-block; line-height: 0; }
   #wsImg { display: block; max-width: 85vw; max-height: 85vh; width: auto; height: auto; user-select: none; pointer-events: none; }
   #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; touch-action: none; }
-  #submitted-overlay { display: none; position: absolute; inset: 0; background: rgba(10,14,26,0.82); backdrop-filter: blur(4px); flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem; z-index: 10; }
-  #submitted-overlay.show { display: flex; }
-  .sub-icon { width: 56px; height: 56px; border-radius: 50%; background: rgba(16,185,129,0.15); border: 2px solid rgba(16,185,129,0.4); display: flex; align-items: center; justify-content: center; font-size: 26px; }
-  .sub-title { font-size: 1.1rem; font-weight: 700; color: #6EE7B7; }
-  .sub-desc { font-size: 0.78rem; color: rgba(245,240,232,0.45); }
-  .sub-btns { display: flex; gap: 0.6rem; margin-top: 0.25rem; }
-  .sub-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.55rem 1.1rem; border-radius: 10px; cursor: pointer; font-size: 0.78rem; font-weight: 700; border: none; transition: transform 0.15s; color: #fff; }
+  #submitted-overlay { position: absolute; inset: 0; background: rgba(10,14,26,0.92); backdrop-filter: blur(8px); display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem; border-radius: 12px; opacity: 0; transition: opacity 0.3s; z-index: 20; }
+  #submitted-overlay.show { display: flex; opacity: 1; }
+  .sub-icon { font-size: 2.8rem; margin-bottom: 0.6rem; }
+  .sub-title { font-size: 1.25rem; font-weight: 700; color: #34D399; margin-bottom: 0.35rem; }
+  .sub-desc { font-size: 0.8rem; color: rgba(245,240,232,0.6); max-width: 320px; line-height: 1.45; margin-bottom: 1.5rem; }
+  .sub-btns { display: flex; gap: 0.75rem; }
+  .sub-btn { padding: 0.55rem 1.1rem; border-radius: 9px; font-weight: 700; font-size: 0.8rem; color: #fff; border: none; cursor: pointer; transition: transform 0.15s; }
   .sub-btn:hover { transform: translateY(-1px); }
-  #submit-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; padding: 0.65rem 0.85rem; background: rgba(16,185,129,0.05); border-top: 1px solid rgba(16,185,129,0.15); flex-shrink: 0; }
-  .hint { font-size: 0.72rem; color: rgba(245,240,232,0.45); }
-  #submitBtn { display: inline-flex; align-items: center; gap: 0.4rem; background: linear-gradient(135deg,#10B981,#059669); border: 1px solid rgba(16,185,129,0.4); color: #fff; font-size: 0.78rem; font-weight: 700; padding: 0.55rem 1.1rem; border-radius: 10px; cursor: pointer; font-family: inherit; box-shadow: 0 4px 14px rgba(16,185,129,0.3); }
-  #submitBtn:disabled { opacity: 0.45; cursor: not-allowed; }
+  #submit-bar { display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 1rem; background: rgba(10,14,26,0.95); border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+  #submit-bar .hint { font-size: 0.72rem; color: rgba(245,240,232,0.4); }
+  #submitBtn { background: linear-gradient(135deg, #10B981, #059669); border: none; border-radius: 9px; padding: 0.5rem 1.3rem; font-weight: 700; font-size: 0.82rem; color: #fff; cursor: pointer; transition: transform 0.15s, opacity 0.15s; box-shadow: 0 4px 14px rgba(16,185,129,0.3); }
+  #submitBtn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+  #submitBtn:not(:disabled):hover { transform: translateY(-1px); }
 </style>
 </head>
 <body>
 <div id="toolbar">
-  <div style="display:flex;align-items:center;gap:0.3rem">
-    <button class="tool active" id="btnPen" title="Pen">&#9998;</button>
-    <button class="tool" id="btnEraser" title="Eraser">&#9729;</button>
-  </div>
+  <button class="tool active" id="btnPen" title="Pen">&#9999;&#65039;</button>
+  <button class="tool" id="btnEraser" title="Eraser">&#9003;</button>
   <div class="sep"></div>
-  <div style="display:flex;align-items:center;gap:0.5rem">
-    <span class="size-label">Size</span>
-    <input type="range" id="sizeRange" min="1" max="24" value="3" />
-    <span class="size-label" id="sizeVal">3</span>
-  </div>
+  <span class="size-label">Size: <span id="sizeVal">3</span>px</span>
+  <input type="range" id="sizeRange" min="1" max="30" value="3" />
   <div class="sep"></div>
   <div id="swatches" style="display:flex;align-items:center;flex-wrap:wrap;gap:0.28rem">${swatchesHtml}</div>
   <div class="sep"></div>
@@ -491,20 +621,19 @@ export default function StudentDashboardPage() {
       <p class="sub-desc">Great work. Your drawing is for practice only.</p>
       <div class="sub-btns">
         <button class="sub-btn" id="btnRetry" style="background:linear-gradient(135deg,#7C3AED,#5B21B6)">&#8617; Try again</button>
-        <button class="sub-btn" id="btnClose" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12)">&#10005; Close</button>
+        <button class="sub-btn" id="btnClose" style="background:rgba(255,255,255,0.08)">&#10005; Close</button>
       </div>
     </div>
   </div>
 </div>
 <div id="submit-bar">
-  <p class="hint">Draw on the worksheet, then click Submit when you're done. Your work is for practice only and won't be saved.</p>
+  <p class="hint">Draw on the worksheet, then click Submit.</p>
   <button id="submitBtn" disabled>&#10003; Submit</button>
 </div>
 <script>
   const img = document.getElementById('wsImg');
   const overlay = document.getElementById('overlay');
   const ctx = overlay.getContext('2d');
-  const area = document.getElementById('canvas-area');
   const subOver = document.getElementById('submitted-overlay');
   const submitBtn = document.getElementById('submitBtn');
   let tool = 'pen', color = '#1a1a1a', size = 3, drawing = false, last = null;
@@ -519,19 +648,15 @@ export default function StudentDashboardPage() {
     document.getElementById('btnPen').classList.add('active');
     document.getElementById('btnEraser').classList.remove('active');
     document.getElementById('swatches').style.display = 'flex';
-    area.classList.remove('eraser');
   };
   document.getElementById('btnEraser').onclick = () => {
     tool = 'eraser';
     document.getElementById('btnEraser').classList.add('active');
     document.getElementById('btnPen').classList.remove('active');
     document.getElementById('swatches').style.display = 'none';
-    area.classList.add('eraser');
   };
   document.getElementById('btnClear').onclick = () => ctx.clearRect(0, 0, overlay.width, overlay.height);
-
-  const sizeRange = document.getElementById('sizeRange');
-  sizeRange.oninput = () => { size = +sizeRange.value; document.getElementById('sizeVal').textContent = size; };
+  document.getElementById('sizeRange').oninput = (e) => { size = +e.target.value; document.getElementById('sizeVal').textContent = size; };
 
   document.querySelectorAll('.swatch').forEach(btn => {
     btn.onclick = () => {
@@ -552,8 +677,8 @@ export default function StudentDashboardPage() {
     const pos = getPos(e);
     ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(pos.x, pos.y);
     ctx.lineWidth = size; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    if (tool === 'eraser') { ctx.globalCompositeOperation = 'destination-out'; ctx.strokeStyle = 'rgba(0,0,0,1)'; }
-    else { ctx.globalCompositeOperation = 'source-over'; ctx.strokeStyle = color; }
+    ctx.globalCompositeOperation = tool === 'eraser' ? 'destination-out' : 'source-over';
+    ctx.strokeStyle = tool === 'eraser' ? 'rgba(0,0,0,1)' : color;
     ctx.stroke(); last = pos;
   }
   function stop() { drawing = false; last = null; }
@@ -562,24 +687,15 @@ export default function StudentDashboardPage() {
   overlay.addEventListener('touchstart', start, { passive: false });
   overlay.addEventListener('touchmove', move, { passive: false });
   overlay.addEventListener('touchend', stop);
+
   submitBtn.onclick = () => {
     subOver.classList.add('show');
-    overlay.style.opacity = '0.4';
-    try {
-      if (window.opener && typeof window.opener.onWorksheetSubmit === 'function') {
-        window.opener.onWorksheetSubmit('${contentId}');
-      }
-    } catch (e) {
-      console.error(e);
+    if (window.opener && typeof window.opener.onWorksheetSubmit === 'function') {
+      window.opener.onWorksheetSubmit('${contentId}');
     }
   };
-  document.getElementById('btnRetry').onclick = () => {
-    subOver.classList.remove('show'); overlay.style.opacity = '1';
-    ctx.clearRect(0, 0, overlay.width, overlay.height);
-  };
+  document.getElementById('btnRetry').onclick = () => { subOver.classList.remove('show'); ctx.clearRect(0, 0, overlay.width, overlay.height); };
   document.getElementById('btnClose').onclick = () => window.close();
-  document.addEventListener('contextmenu', e => e.preventDefault());
-  document.addEventListener('dragstart', e => e.preventDefault());
 </script>
 </body>
 </html>`;
@@ -589,7 +705,8 @@ export default function StudentDashboardPage() {
     wsWindow.document.close();
   };
 
-  // Group content types
+  const firstName = user?.full_name?.split(' ')?.[0] ?? 'Learner';
+
   const notesAndVideos = items.filter(c => c.content_type === 'note' || c.content_type === 'video');
   const simulators = items.filter(c => c.content_type === 'animation');
   const worksheets = items.filter(c => c.content_type === 'worksheet');
@@ -599,93 +716,129 @@ export default function StudentDashboardPage() {
       <style>{CSS}</style>
       <div className="sd-root">
         
-        {/* Welcome Header */}
-        <div className="sd-welcome-card">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem' }}>
-            <div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'var(--welcome-badge-bg)', border: '2px solid var(--welcome-badge-border)', padding: '0.4rem 1rem', borderRadius: '50px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--welcome-badge-color)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.75rem' }}>
-                <span className="h-2 w-2 rounded-full bg-violet-450 animate-pulse" />
-                🏆 Primary Learning Quest
-              </div>
-              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '2.5rem', fontWeight: 700, margin: 0, background: 'linear-gradient(135deg, var(--welcome-title-from) 0%, var(--welcome-title-to) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                Hello, {user?.full_name?.split(' ')[0] || 'Learner'}! 👋
-              </h1>
-              <p style={{ color: 'var(--muted)', fontSize: '1.05rem', marginTop: '0.5rem', margin: 0, fontWeight: 500 }}>
-                Ready for a learning adventure? Select a subject below to explore interactive simulations, coloring sheets, mock checkpoints, and more! 🚀⭐
-              </p>
+        {/* ── 1. Animated Hero Welcome Banner ── */}
+        <motion.div
+          className="sd-hero-banner"
+          initial={{ opacity: 0, y: -15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          {/* Left Text & CTA */}
+          <div style={{ flex: 1, zIndex: 5 }}>
+            <div className="sd-badge-pill" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.45rem 1.1rem', borderRadius: '50px', background: 'rgba(139,92,246,0.15)', border: '1.5px solid rgba(139,92,246,0.3)', color: '#A78BFA', fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.85rem' }}>
+              <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+              🎓 Cambridge Primary Quest
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', background: 'rgba(255, 255, 255, 0.04)', border: '2px solid var(--card-bdr)', padding: '0.85rem 1.5rem', borderRadius: '22px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
-              <div className="text-2xl">🎓</div>
-              <div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 700 }}>Curriculum</div>
-                <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--cyan)' }}>Cambridge Primary</div>
-              </div>
-            </div>
+            <h1 className="sd-hero-title">
+              Hello, {firstName}! 👋
+            </h1>
+            <p className="sd-hero-sub">
+              Ready for a learning adventure?<br />
+              Explore fun lessons, exciting activities, and amazing discoveries today! 🚀
+            </p>
           </div>
+
+          {/* Animated Mascot Lottie Graphic */}
+          <div style={{ width: '220px', height: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <DotLottieReact
+              src="/header_card_animation.json"
+              loop
+              autoplay
+              style={{ width: '100%', height: '100%' }}
+            />
+          </div>
+        </motion.div>
+
+        {/* ── 2. Dynamic 3D Subjects List Grid ── */}
+        <div>
+          <div className="sd-section-title">
+            <span>Explore Subjects</span> <Sparkles size={20} color="#F59E0B" />
+          </div>
+
+          {loadingSubjects ? (
+            <div className="sd-grid-3">
+              {Array(3).fill(0).map((_, i) => (
+                <Skeleton key={i} style={{ height: 160, borderRadius: 28 }} />
+              ))}
+            </div>
+          ) : subjects.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)', fontWeight: 700 }}>No subjects allocated yet.</div>
+          ) : (
+            <div className="sd-grid-3">
+              {subjects.map((sub, i) => {
+                const isActive = selectedSubject?.id === sub.id;
+                const style = getSubjectStyle(sub.name);
+                return (
+                  <motion.div
+                    key={sub.id}
+                    className={`sd-subject-card ${isActive ? 'active' : ''}`}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.08, duration: 0.3 }}
+                    onClick={() => setSelectedSubject(isActive ? null : sub)}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: style.color }}>
+                          {sub.name}
+                        </h3>
+                        <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginTop: '0.35rem', margin: 0, fontWeight: 600, maxWidth: '210px' }}>
+                          {sub.description || 'Access worksheets, games & illustrated stories.'}
+                        </p>
+                      </div>
+                      {(() => {
+                        const sName = sub.name.toLowerCase();
+                        const isEnglish = sName.includes('english');
+                        const isMath = sName.includes('math') || sName.includes('arithmetic');
+                        const isScience = sName.includes('science');
+                        const isLottie = isEnglish || isMath || isScience;
+                        const lottieSrc = isEnglish ? '/english_animation.json' : isMath ? '/maths_animation.json' : isScience ? '/Science_animation.json' : null;
+
+                        return (
+                          <div
+                            className={`sd-subject-icon ${isLottie ? '' : 'shadow-inner'}`}
+                            style={{ background: isLottie ? 'transparent' : style.iconBg, overflow: 'hidden' }}
+                          >
+                            {isLottie ? (
+                              <DotLottieReact
+                                src={lottieSrc}
+                                loop
+                                autoplay
+                                style={{ width: '85px', height: '85px' }}
+                              />
+                            ) : (
+                              style.avatar
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </div>
+
+                    <button className="sd-subj-btn" style={{ background: style.btnBg }}>
+                      {isActive ? 'Selected' : `Explore ${sub.name}`} <ArrowRight size={14} />
+                    </button>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
-        {/* Subjects List Grid */}
-        <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.25rem' }}>Select a Subject 🚀</h2>
-        {loadingSubjects ? (
-          <div className="sd-grid-3">
-            {Array(3).fill(0).map((_, i) => (
-              <Skeleton key={i} style={{ height: 90, borderRadius: 24 }} />
-            ))}
-          </div>
-        ) : subjects.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)' }}>No subjects allocated yet.</div>
-        ) : (
-          <div className="sd-grid-3">
-            {subjects.map((sub) => {
-              const isActive = selectedSubject?.id === sub.id;
-              const style = getSubjectStyle(sub.name);
-              return (
-                <div
-                  key={sub.id}
-                  className={`sd-subject-card ${isActive ? 'active' : ''}`}
-                  style={{
-                    borderColor: isActive ? 'var(--cyan)' : 'var(--card-bdr)',
-                    background: isActive ? 'linear-gradient(135deg, rgba(6, 182, 212, 0.12) 0%, rgba(124, 58, 237, 0.06) 100%)' : 'var(--card-bg)'
-                  }}
-                  onClick={() => setSelectedSubject(isActive ? null : sub)}
-                >
-                  <div 
-                    className="sd-subject-icon shadow-inner"
-                    style={{
-                      background: style.iconBg,
-                      color: style.color,
-                      border: '1px solid rgba(255,255,255,0.06)'
-                    }}
-                  >
-                    {style.avatar}
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: 0 }}>{sub.name}</h3>
-                    <p style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.25rem', margin: 0 }}>
-                      {sub.description || 'Access worksheets and lessons'}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Selected Subject Split view */}
+        {/* ── 3. Selected Subject Split View (Topics & Learning Resources) ── */}
         <AnimatePresence mode="wait">
           {selectedSubject && (
             <motion.div
               className="sd-dashboard-layout"
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
+              exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              {/* Sidebar: Topics */}
-              <div style={{ background: 'var(--navy2)', border: '2px solid var(--card-bdr)', borderRadius: '24px', padding: '1.25rem' }}>
+              {/* Sidebar: Adventure Topics */}
+              <div style={{ background: 'var(--navy2)', border: '2px solid var(--card-bdr)', borderRadius: '28px', padding: '1.35rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.25rem' }}>
                   <Activity size={18} style={{ color: 'var(--violet-l)' }} />
-                  <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>
+                  <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.15rem', fontWeight: 800, margin: 0 }}>
                     Adventure Topics 🎯
                   </h3>
                 </div>
@@ -693,11 +846,11 @@ export default function StudentDashboardPage() {
                 {loadingTopics ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     {Array(4).fill(0).map((_, i) => (
-                      <Skeleton key={i} style={{ height: 45, borderRadius: 18 }} />
+                      <Skeleton key={i} style={{ height: 48, borderRadius: 18 }} />
                     ))}
                   </div>
                 ) : topics.length === 0 ? (
-                  <p style={{ fontSize: '0.85rem', color: 'var(--muted)', textAlign: 'center', padding: '1rem 0' }}>No topics found under this subject.</p>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--muted)', textAlign: 'center', padding: '1.5rem 0', fontWeight: 700 }}>No topics found.</p>
                 ) : (
                   <div>
                     {topics.map((t) => {
@@ -708,8 +861,8 @@ export default function StudentDashboardPage() {
                           className={`sd-topic-item ${isAct ? 'active' : ''}`}
                           onClick={() => setSelectedTopic(t)}
                         >
-                          <span style={{ fontSize: '0.88rem', fontWeight: 700 }}>{t.name}</span>
-                          <ChevronRight size={14} style={{ color: 'var(--muted)' }} />
+                          <span style={{ fontSize: '0.88rem', fontWeight: 800 }}>{t.name}</span>
+                          <ChevronRight size={15} style={{ color: isAct ? 'var(--violet)' : 'var(--muted)' }} />
                         </div>
                       );
                     })}
@@ -718,14 +871,14 @@ export default function StudentDashboardPage() {
               </div>
 
               {/* Main Contents Panel */}
-              <div style={{ background: 'var(--navy2)', border: '2px solid var(--card-bdr)', borderRadius: '24px', padding: '1.75rem' }}>
+              <div style={{ background: 'var(--navy2)', border: '2px solid var(--card-bdr)', borderRadius: '28px', padding: '1.65rem' }}>
                 {selectedTopic ? (
                   <>
-                    <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.35rem', fontWeight: 700, marginBottom: '0.35rem' }}>
+                    <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.35rem' }}>
                       {selectedTopic.name}
                     </h3>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '1.5rem', fontWeight: 500 }}>
-                      {selectedTopic.description || 'Coloring worksheets, interactive game simulations & challenge mock check points.'}
+                    <p style={{ fontSize: '0.88rem', color: 'var(--muted)', marginBottom: '1.35rem', fontWeight: 600 }}>
+                      {selectedTopic.description || 'Interactive games, coloring sheets & challenge mock checkpoints.'}
                     </p>
 
                     {/* Tab Navigation */}
@@ -746,18 +899,18 @@ export default function StudentDashboardPage() {
                       ))}
                     </div>
 
-                    {/* Tab Panels */}
+                    {/* Resource Lists */}
                     {loadingContents ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                         {Array(3).fill(0).map((_, i) => (
-                          <Skeleton key={i} style={{ height: 60, borderRadius: 22 }} />
+                          <Skeleton key={i} style={{ height: 60, borderRadius: 20 }} />
                         ))}
                       </div>
                     ) : (
                       <div style={{ minHeight: '200px' }}>
                         {activeTab === 'notes' && (
                           notesAndVideos.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)' }}>No study guides or lessons available yet.</div>
+                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)', fontWeight: 700 }}>No study guides available yet.</div>
                           ) : (
                             notesAndVideos.map((c) => (
                               <div key={c.id} className="sd-resource-card">
@@ -766,21 +919,21 @@ export default function StudentDashboardPage() {
                                     {c.content_type === 'video' ? '🎥' : '📖'}
                                   </div>
                                   <div>
-                                    <div style={{ fontSize: '0.92rem', fontWeight: 700 }}>{c.title}</div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600 }}>
-                                      {c.content_type === 'video' ? '🎬 Watch Video Story' : '📘 Read Illustrated Story Book'}
+                                    <div style={{ fontSize: '0.92rem', fontWeight: 800 }}>{c.title}</div>
+                                    <div style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 600 }}>
+                                      {c.content_type === 'video' ? 'Watch Video Story' : 'Read Illustrated Story Book'}
                                     </div>
                                   </div>
                                 </div>
                                 <button
-                                  className="sd-res-btn"
+                                  className="sd-subj-btn"
                                   style={{
                                     background: c.content_type === 'video' ? 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)' : 'linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%)',
-                                    boxShadow: c.content_type === 'video' ? '0 4px 12px rgba(139, 92, 246, 0.2)' : '0 4px 12px rgba(6, 182, 212, 0.2)'
+                                    margin: 0
                                   }}
                                   onClick={() => c.content_type === 'video' ? handleOpenVideo(c) : handleOpenNote(c)}
                                 >
-                                  {c.content_type === 'video' ? <Play size={13} /> : <Eye size={13} />}
+                                  {c.content_type === 'video' ? <Play size={14} /> : <Eye size={14} />}
                                   {c.content_type === 'video' ? 'Watch Story' : 'Read Story'}
                                 </button>
                               </div>
@@ -790,7 +943,7 @@ export default function StudentDashboardPage() {
 
                         {activeTab === 'simulators' && (
                           simulators.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)' }}>No game simulators available yet.</div>
+                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)', fontWeight: 700 }}>No game simulators available yet.</div>
                           ) : (
                             simulators.map((c) => (
                               <div key={c.id} className="sd-resource-card">
@@ -799,16 +952,16 @@ export default function StudentDashboardPage() {
                                     🎮
                                   </div>
                                   <div>
-                                    <div style={{ fontSize: '0.92rem', fontWeight: 700 }}>{c.title}</div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600 }}>🚀 Playful 3D Simulation Game</div>
+                                    <div style={{ fontSize: '0.92rem', fontWeight: 800 }}>{c.title}</div>
+                                    <div style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 600 }}>Playful 3D Simulation Game</div>
                                   </div>
                                 </div>
                                 <button 
-                                  className="sd-res-btn" 
-                                  style={{ background: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)' }}
+                                  className="sd-subj-btn" 
+                                  style={{ background: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)', margin: 0 }}
                                   onClick={() => handleOpenAnimation(c)}
                                 >
-                                  <Play size={13} /> Play Game
+                                  <Play size={14} /> Play Game
                                 </button>
                               </div>
                             ))
@@ -817,7 +970,7 @@ export default function StudentDashboardPage() {
 
                         {activeTab === 'worksheets' && (
                           worksheets.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)' }}>No worksheets available yet.</div>
+                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)', fontWeight: 700 }}>No worksheets available yet.</div>
                           ) : (
                             worksheets.map((c) => (
                               <div key={c.id} className="sd-resource-card">
@@ -826,16 +979,16 @@ export default function StudentDashboardPage() {
                                     🎨
                                   </div>
                                   <div>
-                                    <div style={{ fontSize: '0.92rem', fontWeight: 700 }}>{c.title}</div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600 }}>🖍️ Drawable Coloring Sheet</div>
+                                    <div style={{ fontSize: '0.92rem', fontWeight: 800 }}>{c.title}</div>
+                                    <div style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 600 }}>Drawable Coloring Sheet</div>
                                   </div>
                                 </div>
                                 <button 
-                                  className="sd-res-btn" 
-                                  style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.2)' }}
+                                  className="sd-subj-btn" 
+                                  style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', margin: 0 }}
                                   onClick={() => handleOpenWorksheet(c)}
                                 >
-                                  <Eye size={13} /> Start Sketching
+                                  <Eye size={14} /> Start Sketching
                                 </button>
                               </div>
                             ))
@@ -844,7 +997,7 @@ export default function StudentDashboardPage() {
 
                         {activeTab === 'exams' && (
                           exams.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)' }}>No mock quests found.</div>
+                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)', fontWeight: 700 }}>No mock quests found.</div>
                           ) : (
                             exams.map((e) => (
                               <div key={e.id} className="sd-resource-card">
@@ -853,16 +1006,16 @@ export default function StudentDashboardPage() {
                                     🏆
                                   </div>
                                   <div>
-                                    <div style={{ fontSize: '0.92rem', fontWeight: 700 }}>{e.title}</div>
-                                    <div style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600 }}>⏱️ {e.duration_minutes} Mins Challenge Quest</div>
+                                    <div style={{ fontSize: '0.92rem', fontWeight: 800 }}>{e.title}</div>
+                                    <div style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 600 }}>⏱️ {e.duration_minutes} Mins Challenge Quest</div>
                                   </div>
                                 </div>
                                 <button
-                                  className="sd-res-btn"
-                                  style={{ background: 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)' }}
+                                  className="sd-subj-btn"
+                                  style={{ background: 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)', margin: 0 }}
                                   onClick={() => window.open(`/exams/${e.id}/take`, '_blank')}
                                 >
-                                  <CheckCircle size={13} /> Start Quest
+                                  <CheckCircle size={14} /> Start Quest
                                 </button>
                               </div>
                             ))
@@ -872,7 +1025,7 @@ export default function StudentDashboardPage() {
                     )}
                   </>
                 ) : (
-                  <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--muted)', fontWeight: 600 }}>
+                  <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--muted)', fontWeight: 700 }}>
                     Please select a topic from the sidebar.
                   </div>
                 )}
@@ -880,6 +1033,36 @@ export default function StudentDashboardPage() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* ── 4. Bottom Superstar Mascot Banner ── */}
+        <div className="sd-superstar-banner">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ width: '105px', height: '105px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <DotLottieReact
+                src="/Cute Tiger_animation.json"
+                loop
+                autoplay
+                style={{ width: '100%', height: '100%' }}
+              />
+            </div>
+            <div>
+              <div style={{ fontSize: '1.05rem', fontWeight: 900, color: 'var(--cream)' }}>
+                Keep going, superstar! ⭐
+              </div>
+              <div style={{ fontSize: '0.82rem', color: 'var(--muted)', marginTop: '0.2rem', fontWeight: 700 }}>
+                Every lesson brings you one step closer to your dreams!
+              </div>
+            </div>
+          </div>
+          <div style={{ width: '140px', height: '140px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <DotLottieReact
+              src="/UFO_animation.json"
+              loop
+              autoplay
+              style={{ width: '100%', height: '100%' }}
+            />
+          </div>
+        </div>
 
         {/* Modal: PDF Viewer */}
         <Modal open={!!pdfUrl} onClose={() => setPdfUrl(null)} title="Note Viewer" size="lg">
