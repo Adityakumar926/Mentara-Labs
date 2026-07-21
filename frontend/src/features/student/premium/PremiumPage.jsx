@@ -262,8 +262,8 @@ export default function PremiumPage() {
 
   const handleUpgrade = async () => {
     const selectedPlan = isStudent ? 'student' : 'teacher';
-    const isIndianTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone === 'Asia/Kolkata';
-    const checkoutCurrency = isIndianTimezone ? 'INR' : (settings?.premium_currency === '$' ? 'USD' : 'INR');
+    // Default checkout currency to INR so UPI, Google Pay, and QR code options are enabled
+    const checkoutCurrency = 'INR';
 
     await startPayment({
       plan: selectedPlan,
