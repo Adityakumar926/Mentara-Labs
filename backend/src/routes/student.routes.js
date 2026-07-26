@@ -11,9 +11,10 @@ const streakCtrl      = require('../controllers/student/streak.controller');
 const profileCtrl     = require('../controllers/student/profile.controller');
 const progressCtrl = require('../controllers/student/progress.controller');
 const notificationController = require('../controllers/student/notification.controller');
+const certificatesCtrl = require('../controllers/certificates.controller');
 
 // Guard: ensure controllers loaded
-const controllers = { courseCtrl, examsubmitCtrl, streakCtrl, profileCtrl, progressCtrl, notificationController };
+const controllers = { courseCtrl, examsubmitCtrl, streakCtrl, profileCtrl, progressCtrl, notificationController, certificatesCtrl };
 for (const [name, ctrl] of Object.entries(controllers)) {
   if (!ctrl || (typeof ctrl !== 'object' && typeof ctrl !== 'function')) {
     throw new Error(`Controller "${name}" failed to load. Check file path and exports.`);
@@ -24,6 +25,7 @@ const settingsCtrl = require('../controllers/student/settings.controller');
 
 // Public routes (do not require token)
 router.get('/settings', settingsCtrl.getSettings);
+router.get('/public/certificates/:certificateId', certificatesCtrl.verifyCertificate);
 
 router.use(protect);
 
@@ -98,5 +100,9 @@ if (typeof examsubmitCtrl.savePhotoAnswer === 'function') {
 if (typeof examsubmitCtrl.submitExam       === 'function') router.post('/exams/:examId/submissions/:submissionId/submit',  examsubmitCtrl.submitExam);
 if (typeof examsubmitCtrl.getMyResult      === 'function') router.get('/exams/:examId/result',                             examsubmitCtrl.getMyResult);
 if (typeof examsubmitCtrl.getMyExamHistory === 'function') router.get('/results',                                          examsubmitCtrl.getMyExamHistory);
+
+// ─── CERTIFICATES ─────────────────────────────────────────────────────────────
+router.get('/certificates',     certificatesCtrl.getMyCertificates);
+router.get('/certificates/:id', certificatesCtrl.getCertificate);
 
 module.exports = router;

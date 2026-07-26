@@ -100,7 +100,7 @@ exports.create = async (req, res) => {
   try {
     const {
       title, description, subject_id, topic_id,
-      duration_minutes, total_marks, passing_marks, is_premium
+      duration_minutes, total_marks, passing_marks, is_premium, certificate_enabled
     } = req.body;
 
     const sanitizeNum = (val) => (val === '' || val === undefined || val === null) ? null : Number(val);
@@ -114,8 +114,8 @@ exports.create = async (req, res) => {
     const { rows } = await db.query(
       `INSERT INTO exams
        (title, description, subject_id, topic_id, batch_id,
-        duration_minutes, total_marks, passing_marks, is_premium, created_by)
-       VALUES ($1,$2,$3,$4,NULL,$5,$6,$7,$8,$9) RETURNING *`,
+        duration_minutes, total_marks, passing_marks, is_premium, certificate_enabled, created_by)
+       VALUES ($1,$2,$3,$4,NULL,$5,$6,$7,$8,$9,$10) RETURNING *`,
       [
         title,
         description        || null,
@@ -125,6 +125,7 @@ exports.create = async (req, res) => {
         finalTotal,
         finalPassing,
         is_premium ?? false,
+        certificate_enabled ?? false,
         req.user.id
       ]
     );
@@ -138,7 +139,7 @@ exports.update = async (req, res) => {
   try {
     const {
       title, description, subject_id, topic_id,
-      duration_minutes, total_marks, passing_marks, is_premium
+      duration_minutes, total_marks, passing_marks, is_premium, certificate_enabled
     } = req.body;
 
     const sanitizeNum = (val) => (val === '' || val === undefined || val === null) ? null : Number(val);
@@ -171,8 +172,9 @@ exports.update = async (req, res) => {
          duration_minutes = $5,
          total_marks      = $6,
          passing_marks    = $7,
-         is_premium       = COALESCE($8,  is_premium)
-       WHERE id = $9 AND status != 'live'
+         is_premium       = COALESCE($8,  is_premium),
+         certificate_enabled = COALESCE($9,  certificate_enabled)
+       WHERE id = $10 AND status != 'live'
        RETURNING *`,
       [
         title        || null,
@@ -183,6 +185,7 @@ exports.update = async (req, res) => {
         finalTotal,
         finalPassing,
         is_premium ?? null,
+        certificate_enabled ?? null,
         req.params.id
       ]
     );

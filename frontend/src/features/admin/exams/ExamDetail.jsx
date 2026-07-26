@@ -399,6 +399,7 @@ const BLANK = {
   title: '', description: '',
   duration_minutes: 60, total_marks: 100, passing_marks: 40,
   is_premium: false,
+  certificate_enabled: false,
   subject_id: '',
   curriculum_id: '', class_id: '', topic_id: '',
 };
@@ -564,6 +565,7 @@ export default function ExamDetail() {
       total_marks: exam.total_marks || 0,
       passing_marks: exam.passing_marks ?? '',
       is_premium: exam.is_premium || false,
+      certificate_enabled: exam.certificate_enabled || false,
       subject_id: exam.subject_id || '',
       curriculum_id: exam.curriculum_id || '',
       class_id: exam.class_id || '',
@@ -1141,9 +1143,10 @@ export default function ExamDetail() {
               <Input label="Total Marks"    type="number" value={editForm.total_marks || ''}       onChange={(e) => setEdit('total_marks',       e.target.value === '' ? '' : +e.target.value)} />
               <Input label="Passing Marks"  type="number" value={editForm.passing_marks || ''}     onChange={(e) => setEdit('passing_marks',     e.target.value === '' ? null : +e.target.value)} />
             </div>
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
               <Toggle label="Enable Exam Timer" checked={editForm.duration_minutes !== null} onChange={(checked) => setEdit('duration_minutes', checked ? 60 : null)} />
               <Toggle label="Premium exam" checked={editForm.is_premium} onChange={(v) => setEdit('is_premium', v)} />
+              <Toggle label="Enable Certificate" checked={editForm.certificate_enabled} onChange={(v) => setEdit('certificate_enabled', v)} />
             </div>
           </div>
           <div className="ed-modal-footer-end">

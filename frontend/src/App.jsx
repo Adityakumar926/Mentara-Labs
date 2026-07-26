@@ -29,6 +29,7 @@ import ExamsAdminPage   from '@/features/admin/exams/ExamsPage';
 import ExamDetail       from '@/features/admin/exams/ExamDetail';
 import StudentsPage     from '@/features/admin/students/StudentsPage';
 import SettingsPage     from '@/features/admin/settings/SettingsPage';
+import CertificatesPage from '@/features/admin/certificates/CertificatesPage';
 
 import MaterialsPage    from '@/features/admin/curriculum/MaterialsPage';
 
@@ -37,6 +38,8 @@ import OnboardingPage       from '@/features/auth/OnboardingPage';
 import StudentDashboardPage from '@/features/student/dashboard/StudentDashboardPage';
 import ProfilePage          from '@/features/student/profile/ProfilePage';
 import PremiumPage          from '@/features/student/premium/PremiumPage';
+import StudentCertificatesPage from '@/features/student/certificates/CertificatesPage';
+import PublicCertificateVerification from '@/features/landing/PublicCertificateVerification';
 
 // Teacher pages
 import SubjectsListPage     from '@/features/teacher/courses/SubjectsListPage';
@@ -92,6 +95,7 @@ export default function App() {
             <Route path="/admin/exams/:id"      element={<ExamDetail />} />
             <Route path="/admin/students"       element={<StudentsPage />} />
             <Route path="/admin/settings"       element={<SettingsPage />} />
+            <Route path="/admin/certificates"   element={<CertificatesPage />} />
           </Route>
         </Route>
 
@@ -121,6 +125,7 @@ export default function App() {
             <Route path="/student/dashboard" element={<StudentDashboardPage />} />
             <Route path="/student/profile"   element={<ProfilePage />} />
             <Route path="/student/premium"   element={<PremiumPage />} />
+            <Route path="/student/certificates" element={<StudentCertificatesPage />} />
           </Route>
         </Route>
 
@@ -129,6 +134,9 @@ export default function App() {
           <Route path="/exams/:id/take"   element={<ExamTakePage />} />
           <Route path="/exams/:id/result" element={<ResultPage />} />
         </Route>
+
+        {/* ── Public Certificate Verification ── */}
+        <Route path="/certificate/:certificateId" element={<PublicCertificateVerification />} />
 
         {/* ── Payment ───────────────────────────────────────────────────── */}
         <Route path="/payment/success" element={<PaymentSuccess />} />

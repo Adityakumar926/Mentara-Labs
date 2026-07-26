@@ -14,6 +14,7 @@ const BLANK = {
   title: '', description: '',
   duration_minutes: 60, total_marks: 100, passing_marks: 40,
   is_premium: false,
+  certificate_enabled: false,
   subject_id: '',
   curriculum_id: '', class_id: '', topic_id: '',
 };
@@ -300,6 +301,7 @@ export default function ExamsPage() {
   const [modal, setModal]   = useState(false);
   const [form, setForm]     = useState(BLANK);
   const [filter, setFilter] = useState('');
+  const [certFilter, setCertFilter] = useState(false);
 
   const { data: exams, loading, refetch } = useApi(
     adminApi.getExams,
@@ -404,7 +406,11 @@ export default function ExamsPage() {
     }
   };
 
-  const filtered    = (exams ?? []).filter((e) => !filter || e.status === filter);
+  const filtered    = (exams ?? []).filter((e) => {
+    const statusMatch = !filter || e.status === filter;
+    const certMatch = !certFilter || e.certificate_enabled === true;
+    return statusMatch && certMatch;
+  });
 
   return (
     <PageWrapper className="p-0">
@@ -437,8 +443,13 @@ export default function ExamsPage() {
           </motion.div>
 
           {/* ── Filter tabs ── */}
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.35 }}>
-            <div className="ep-filters">
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ delay: 0.1, duration: 0.35 }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.4rem' }}
+          >
+            <div className="ep-filters" style={{ marginBottom: 0 }}>
               {FILTERS.map(({ key, label, cls }) => (
                 <button
                   key={key}
@@ -449,6 +460,28 @@ export default function ExamsPage() {
                 </button>
               ))}
             </div>
+
+            <button
+              onClick={() => setCertFilter(p => !p)}
+              className={clsx('ep-filter-btn', certFilter && 'ep-filter-btn-active')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '0.45rem 1rem',
+                borderRadius: '12px',
+                border: '1px solid rgba(139, 92, 246, 0.3)',
+                background: certFilter ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(139, 92, 246, 0.1))' : 'rgba(255,255,255,0.03)',
+                color: certFilter ? '#A78BFA' : 'var(--muted)',
+                boxShadow: certFilter ? '0 0 18px rgba(139, 92, 246, 0.2)' : 'none',
+                transition: 'all 0.2s ease',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
+            >
+              🎓 Certificate Enabled
+            </button>
           </motion.div>
 
           {/* ── Grid ── */}
@@ -485,7 +518,28 @@ export default function ExamsPage() {
                       <div className="ep-card-glow" />
 
                       <div className="ep-card-head">
-                        <p className="ep-card-title">{e.title}</p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
+                          <p className="ep-card-title">{e.title}</p>
+                          {e.certificate_enabled && (
+                            <span 
+                              style={{ 
+                                display: 'inline-flex', 
+                                alignItems: 'center', 
+                                gap: '3px', 
+                                fontSize: '0.65rem', 
+                                fontWeight: 700, 
+                                color: '#A78BFA',
+                                background: 'rgba(139, 92, 246, 0.15)',
+                                border: '1px solid rgba(139, 92, 246, 0.3)',
+                                padding: '0.15rem 0.5rem',
+                                borderRadius: '50px',
+                                width: 'fit-content'
+                              }}
+                            >
+                              🎓 Certificate Enabled
+                            </span>
+                          )}
+                        </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                           {e.status === 'live' && <span className="ep-live-pulse" />}
                           <span className={`ep-status ep-status-${e.status}`}>{e.status}</span>
@@ -591,9 +645,10 @@ export default function ExamsPage() {
               <Input label="Total Marks"    type="number" value={form.total_marks || ''}       onChange={(e) => set('total_marks',       e.target.value === '' ? '' : +e.target.value)} />
               <Input label="Passing Marks"  type="number" value={form.passing_marks || ''}     onChange={(e) => set('passing_marks',     e.target.value === '' ? null : +e.target.value)} />
             </div>
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
               <Toggle label="Enable Exam Timer" checked={form.duration_minutes !== null} onChange={(checked) => set('duration_minutes', checked ? 60 : null)} />
               <Toggle label="Premium exam" checked={form.is_premium} onChange={(v) => set('is_premium', v)} />
+              <Toggle label="Enable Certificate" checked={form.certificate_enabled} onChange={(v) => set('certificate_enabled', v)} />
             </div>
           </div>
           <div className="ep-modal-footer">

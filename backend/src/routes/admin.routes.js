@@ -15,6 +15,7 @@ const qCtrl     = require('../controllers/admin/question.controller');
 const examCtrl  = require('../controllers/admin/exam.controller');
 const animCtrl  = require('../controllers/admin/animation.controller');
 const hierarchyCtrl = require('../controllers/admin/hierarchy.controller');
+const certificatesCtrl = require('../controllers/certificates.controller');
 
 // All admin routes require auth + admin role
 router.use(protect, authorize('admin'));
@@ -222,5 +223,8 @@ router.patch('/students/:id/premium', async (req, res) => {
 const settingsCtrl = require('../controllers/admin/settings.controller');
 router.get('/settings', settingsCtrl.getSettings);
 router.put('/settings', settingsCtrl.updateSetting);
+
+// ─── CERTIFICATES ─────────────────────────────────────────────────────────────
+router.get('/certificates', certificatesCtrl.getAdminCertificates);
 
 module.exports = router;

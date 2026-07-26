@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mentara Labs - Certificate Generator</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  
+  <style>
+    /* Reset & Root Variables */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    :root {
+      --primary-purple: #b026ff;
+      --primary-blue: #3b82f6;
+      --primary-cyan: #06b6d4;
+      --text-indigo: #1e1b4b;
+      --text-gray: #4b5563;
+      --bg-dark: #0f172a;
+      --bg-dark-panel: rgba(30, 41, 59, 0.7);
+      --border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--bg-dark);
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+    
+    /* Layout */
+    .app-container {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+    }
+    
+    /* Sidebar / Control Panel */
+    .control-panel {
+      width: 380px;
+      background: var(--bg-dark-panel);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-right: 1px solid var(--border-color);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      overflow-y: auto;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    
+    .panel-header {
+      margin-bottom: 0.5rem;
+    }
+    
+    .panel-header h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-purple), var(--primary-blue), var(--primary-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.25rem;
+    }
+    
+    .panel-header p {
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+    
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .input-group label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #cbd5e1;
+    }
+    
+    .input-group input, 
+    .input-group textarea {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 0.75rem;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+    
+    .input-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    
+    .input-group input:focus, 
+    .input-group textarea:focus {
+      border-color: var(--primary-purple);
+      box-shadow: 0 0 0 2px rgba(176, 38, 255, 0.2);
+    }
+    
+    .btn {
+      background: linear-gradient(135deg, var(--primary-purple), var(--primary-blue));
+      color: #white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.85rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(176, 38, 255, 0.2);
+    }
+    
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(176, 38, 255, 0.35);
+      filter: brightness(1.1);
+    }
+    
+    .btn:active {
+      transform: translateY(1px);
+    }
+    
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      box-shadow: none;
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: none;
+      color: #fff;
+    }
+    
+    /* Preview Container */
+    .preview-container {
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem;
+      position: relative;
+      background: radial-gradient(circle at center, #1e1b4b 0%, #0f172a 100%);
+      overflow: hidden;
+    }
+    
+    /* Certificate Outer Bounds (Scales in browser, prints 1:1) */
+    .certificate-scaler {
+      width: 1000px;
+      height: 707px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform-origin: center center;
+      transition: transform 0.1s ease;
+    }
+    
+    /* Certificate Design */
+    .certificate {
+      width: 1000px;
+      height: 707px;
+      background: radial-gradient(circle, #ffffff 60%, #f8fafc 100%);
+      color: var(--text-indigo);
+      position: relative;
+      padding: 45px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-radius: 4px;
+    }
+    
+    /* Double Border Line */
+    .certificate-border {
+      position: absolute;
+      top: 25px;
+      left: 25px;
+      right: 25px;
+      bottom: 25px;
+      border: 2px solid rgba(79, 70, 229, 0.45);
+      pointer-events: none;
+      z-index: 2;
+    }
+    
+    .certificate-border::after {
+      content: '';
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      right: 5px;
+      bottom: 5px;
+      border: 1.5px dashed rgba(79, 70, 229, 0.55);
+    }
+    
+    /* Geometric Corner Shapes */
+    .corner-shape {
+      position: absolute;
+      pointer-events: none;
+      z-index: 1;
+    }
+    
+    .corner-shape.top-left {
+      top: 0;
+      left: 0;
+      width: 320px;
+      height: 220px;
+    }
+    
+    .corner-shape.top-right {
+      top: 0;
+      right: 0;
+      width: 250px;
+      height: 250px;
+    }
+    
+    .corner-shape.bottom-left {
+      bottom: 0;
+      left: 0;
+      width: 280px;
+      height: 200px;
+    }
+    
+    .corner-shape.bottom-right {
+      bottom: 0;
+      right: 0;
+      width: 340px;
+      height: 220px;
+    }
+    
+    /* Header Content */
+    .cert-header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      z-index: 3;
+    }
+    
+    .brand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin-top: 25px;
+    }
+    
+    .brand-logo {
+      height: 70px;
+      width: auto;
+      object-fit: contain;
+    }
+    
+    .brand-name {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #b026ff 0%, #5b46e8 35%, #3b82f6 70%, #06b6d4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-top: 8px;
+    }
+    
+    /* Body Content */
+    .cert-body {
+      display: grid;
+      grid-template-columns: 1fr 220px;
+      gap: 30px;
+      align-items: center;
+      justify-content: space-between;
+      flex-grow: 1;
+      padding: 0 50px 0 65px;
+      z-index: 3;
+      margin-top: 15px;
+    }
+    
+    .cert-text-column {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+    }
+    
+    .cert-seal-column {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+    
+    .cert-title-container {
+      margin-bottom: 6px;
+    }
+    
+    .cert-title {
+      font-family: 'Cinzel', serif;
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: #1e1b4b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      line-height: 1.3;
+      text-align: left;
+    }
+    
+    .cert-subtitle {
+      font-size: 0.95rem;
+      font-style: italic;
+      color: #4f46e5;
+      margin-top: 6px;
+      margin-bottom: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+    
+    .cert-recipient {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: #4f46e5;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      border-bottom: 3.5px solid #4f46e5;
+      padding-bottom: 4px;
+      display: inline-block;
+      min-width: 320px;
+      margin-bottom: 18px;
+      line-height: 1.1;
+      text-align: left;
+    }
+    
+    .cert-description {
+      font-size: 0.82rem;
+      line-height: 1.8;
+      color: #374151;
+      max-width: 540px;
+      font-weight: 500;
+      text-align: left;
+    }
+    
+    /* Seal / Badge Overlay */
+    .seal-container {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      margin-top: -15px;
+      z-index: 5;
+    }
+    
+    /* Footer Content */
+    .cert-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 0 70px 10px 70px;
+      z-index: 3;
+    }
+    
+    .footer-block {
+      text-align: center;
+      width: 180px;
+    }
+    
+    .footer-value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-indigo);
+      min-height: 35px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 8px;
+    }
+    
+    .footer-line {
+      height: 1.5px;
+      background-color: rgba(99, 102, 241, 0.3);
+      width: 100%;
+      margin-bottom: 6px;
+    }
+    
+    .footer-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #64748b;
+    }
+    
+    /* Print Styles */
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 0;
+      }
+      
+      html, body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        width: 297mm;
+        height: 210mm;
+        overflow: hidden;
+      }
+      
+      .app-container {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+      
+      .control-panel {
+        display: none !important;
+      }
+      
+      .preview-container {
+        padding: 0 !important;
+        background: none !important;
+        width: 100% !important;
+        height: 100% !important;
+        display: block !important;
+      }
+      
+      .certificate-scaler {
+        transform: none !important;
+        width: 297mm !important;
+        height: 210mm !important;
+        display: block !important;
+      }
+      
+      .certificate {
+        width: 297mm !important;
+        height: 210mm !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        border: none !important;
+        padding: 15mm !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        background: radial-gradient(circle, #ffffff 60%, #f8fafc 100%) !important;
+      }
+      
+      .certificate-border {
+        top: 8mm !important;
+        left: 8mm !important;
+        right: 8mm !important;
+        bottom: 8mm !important;
+      }
+      
+      .cert-footer {
+        padding: 0 20mm 5mm 20mm !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Sidebar Control Panel -->
+    <aside class="control-panel">
+      <div class="panel-header">
+        <h2>Certificate Studio</h2>
+        <p>Customize and print your Mentara Labs certificate template.</p>
+      </div>
+      
+      <div class="input-group">
+        <label for="input-org">Organization Name</label>
+        <input type="text" id="input-org" value="Mentara Labs">
+      </div>
+      
+      <div class="input-group">
+        <label for="input-title">Certificate Title</label>
+        <input type="text" id="input-title" value="Certificate of Participation">
+      </div>
+      
+      <div class="input-group">
+        <label for="input-subtitle">Subtitle Text</label>
+        <input type="text" id="input-subtitle" value="This is proudly presented to">
+      </div>
+      
+      <div class="input-group">
+        <label for="input-name">Recipient Name</label>
+        <input type="text" id="input-name" value="Allan Smith">
+      </div>
+      
+      <div class="input-group">
+        <label for="input-desc">Description / Reason</label>
+        <textarea id="input-desc">For successfully completing the Mentara Labs advanced analytics program and demonstrating outstanding commitment to professional development and technical excellence.</textarea>
+      </div>
+      
+      <div class="input-group">
+        <label for="input-date">Issue Date</label>
+        <input type="text" id="input-date" value="23/11/2021">
+      </div>
+      
+      <div class="input-group">
+        <label for="input-signatory">Signatory Title</label>
+        <input type="text" id="input-signatory" value="Authorized Signatory">
+      </div>
+      
+      <button class="btn" onclick="window.print()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.615 0-1.101-.486-1.12-1.1L5.88 18M17.66 18H6.34M12 4v1m0 0L9 8m3-4l3 4M5.25 10.5h13.5A2.25 2.25 0 0121 12.75v3.375A2.25 2.25 0 0118.75 18.375M5.25 10.5A2.25 2.25 0 003 12.75v3.375A2.25 2.25 0 005.25 18.375M19.5 10.5h-15"></path>
+        </svg>
+        Print / Save PDF
+      </button>
+      
+      <button class="btn btn-secondary" onclick="resetTemplate()">
+        Reset Template
+      </button>
+    </aside>
+    
+    <!-- Live Preview Area -->
+    <main class="preview-container" id="preview-area">
+      <div class="certificate-scaler" id="scaler">
+        
+        <div class="certificate" id="certificate">
+          <!-- Inset Double Border -->
+          <div class="certificate-border"></div>
+          
+          <!-- Corner Geometric Decorations (Increased color contrast) -->
+          <!-- Top Left -->
+          <svg class="corner-shape top-left" viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="tlGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#b026ff" stop-opacity="1.0" />
+                <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.4" />
+              </linearGradient>
+              <linearGradient id="tlGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#5b46e8" stop-opacity="0.9" />
+                <stop offset="100%" stop-color="#c084fc" stop-opacity="0.0" />
+              </linearGradient>
+            </defs>
+            <polygon points="0,0 320,0 220,90 0,160" fill="url(#tlGrad1)" />
+            <polygon points="0,0 210,0 120,60 0,105" fill="url(#tlGrad2)" />
+            <polygon points="0,0 110,0 0,65" fill="#b026ff" opacity="0.4" />
+          </svg>
+          
+          <!-- Top Right -->
+          <svg class="corner-shape top-right" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="trGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#3b82f6" stop-opacity="1.0" />
+                <stop offset="100%" stop-color="#5b46e8" stop-opacity="0.3" />
+              </linearGradient>
+            </defs>
+            <polygon points="250,0 250,220 150,110 50,0" fill="url(#trGrad1)" />
+            <polygon points="250,0 250,110 130,0" fill="#5b46e8" opacity="0.55" />
+          </svg>
+          
+          <!-- Bottom Left -->
+          <svg class="corner-shape bottom-left" viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="blGrad1" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.85" />
+                <stop offset="100%" stop-color="#b026ff" stop-opacity="0.25" />
+              </linearGradient>
+            </defs>
+            <polygon points="0,200 240,200 130,110 0,90" fill="url(#blGrad1)" />
+            <polygon points="0,200 120,200 0,115" fill="#3b82f6" opacity="0.5" />
+          </svg>
+          
+          <!-- Bottom Right -->
+          <svg class="corner-shape bottom-right" viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="brGrad1" x1="100%" y1="100%" x2="0%" y2="0%">
+                <stop offset="0%" stop-color="#06b6d4" stop-opacity="1.0" />
+                <stop offset="40%" stop-color="#3b82f6" stop-opacity="0.9" />
+                <stop offset="100%" stop-color="#5b46e8" stop-opacity="0.3" />
+              </linearGradient>
+              <linearGradient id="brGrad2" x1="100%" y1="100%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#00bcd4" stop-opacity="0.75" />
+                <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0" />
+              </linearGradient>
+            </defs>
+            <polygon points="340,220 340,40 180,120 70,220" fill="url(#brGrad1)" />
+            <polygon points="340,220 340,110 210,220" fill="url(#brGrad2)" />
+            <polygon points="340,220 220,220 340,140" fill="#06b6d4" opacity="0.45" />
+          </svg>
+          
+          <!-- Certificate Header -->
+          <header class="cert-header">
+            <div class="brand">
+              <img class="brand-logo" src="logo.png" alt="Mentara Labs Logo">
+              <span class="brand-name" id="cert-org">Mentara Labs</span>
+            </div>
+          </header>
+          
+          <!-- Certificate Center Content (2-Column Grid Layout) -->
+          <div class="cert-body">
+            <div class="cert-text-column">
+              <div class="cert-title-container">
+                <h1 class="cert-title" id="cert-title">Certificate of Participation</h1>
+              </div>
+              
+              <p class="cert-subtitle" id="cert-subtitle">This is proudly presented to</p>
+              
+              <div class="cert-recipient" id="cert-name">Allan Smith</div>
+              
+              <p class="cert-description" id="cert-desc">
+                For successfully completing the Mentara Labs advanced analytics program and demonstrating outstanding commitment to professional development and technical excellence.
+              </p>
+            </div>
+            
+            <div class="cert-seal-column">
+              <!-- Seal / Badge Overlay -->
+              <div class="seal-container">
+                <svg viewBox="0 0 100 115" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="seal-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#b026ff" />
+                      <stop offset="50%" stop-color="#5b46e8" />
+                      <stop offset="100%" stop-color="#3b82f6" />
+                    </linearGradient>
+                    <filter id="seal-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feDropShadow dx="1" dy="3" stdDeviation="3" flood-color="#1e1b4b" flood-opacity="0.18" />
+                    </filter>
+                  </defs>
+                  
+                  <g filter="url(#seal-shadow)">
+                    <!-- Ribbons (Solid, high contrast opacity) -->
+                    <path d="M 38 65 L 26 108 L 46 98 L 50 72 Z" fill="#5b46e8" opacity="1.0" />
+                    <path d="M 62 65 L 74 108 L 54 98 L 50 72 Z" fill="#3b82f6" opacity="1.0" />
+                    
+                    <!-- Serrated Seal Shape (24-point Star) -->
+                    <path d="M 50 5 L 53 14 L 62 10 L 63 20 L 72 17 L 71 27 L 80 26 L 77 35 L 85 36 L 80 44 L 87 47 L 80 53 L 85 61 L 77 65 L 80 74 L 71 73 L 72 83 L 63 80 L 62 90 L 53 86 L 50 95 L 47 86 L 38 90 L 37 80 L 28 83 L 29 73 L 20 74 L 23 65 L 15 61 L 20 53 L 13 47 L 20 44 L 15 36 L 23 35 L 20 26 L 29 27 L 28 17 L 37 20 L 38 10 L 47 14 Z" 
+                          fill="url(#seal-gradient)" />
+                    
+                    <!-- Inner White Base -->
+                    <circle cx="50" cy="50" r="30" fill="#ffffff" />
+                    <circle cx="50" cy="50" r="27" fill="none" stroke="url(#seal-gradient)" stroke-width="1.2" stroke-dasharray="3 2" />
+                    
+                    <!-- Center Graduation Cap Symbol -->
+                    <path d="M 50 35 L 68 43 L 50 51 L 32 43 Z" fill="url(#seal-gradient)" />
+                    <path d="M 38 46 L 38 57 C 38 61, 62 61, 62 57 L 62 46" fill="none" stroke="url(#seal-gradient)" stroke-width="2.5" stroke-linecap="round" />
+                    <path d="M 57 46 L 68 52 L 68 58" fill="none" stroke="url(#seal-gradient)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    <circle cx="68" cy="59" r="1.5" fill="url(#seal-gradient)" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Certificate Footer -->
+          <footer class="cert-footer">
+            <!-- Date Block -->
+            <div class="footer-block">
+              <div class="footer-value" id="cert-date-val">23/11/2021</div>
+              <div class="footer-line"></div>
+              <div class="footer-label">Date</div>
+            </div>
+            
+            <!-- Signature Block (No signature drawn, just clean line) -->
+            <div class="footer-block">
+              <div class="footer-value" id="cert-signatory-val"></div>
+              <div class="footer-line"></div>
+              <div class="footer-label" id="cert-signatory-lbl">Authorized Signatory</div>
+            </div>
+          </footer>
+          
+        </div>
+        
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Elements
+    const inputOrg = document.getElementById('input-org');
+    const inputTitle = document.getElementById('input-title');
+    const inputSubtitle = document.getElementById('input-subtitle');
+    const inputName = document.getElementById('input-name');
+    const inputDesc = document.getElementById('input-desc');
+    const inputDate = document.getElementById('input-date');
+    const inputSignatory = document.getElementById('input-signatory');
+    
+    const certOrg = document.getElementById('cert-org');
+    const certTitle = document.getElementById('cert-title');
+    const certSubtitle = document.getElementById('cert-subtitle');
+    const certName = document.getElementById('cert-name');
+    const certDesc = document.getElementById('cert-desc');
+    const certDateVal = document.getElementById('cert-date-val');
+    const certSignatoryLbl = document.getElementById('cert-signatory-lbl');
+    
+    const scaler = document.getElementById('scaler');
+    const previewArea = document.getElementById('preview-area');
+    
+    // Live update function
+    function updateCertificate() {
+      if (certOrg) certOrg.innerText = inputOrg.value;
+      certTitle.innerText = inputTitle.value;
+      certSubtitle.innerText = inputSubtitle.value;
+      certName.innerText = inputName.value;
+      certDesc.innerText = inputDesc.value;
+      certDateVal.innerText = inputDate.value;
+      certSignatoryLbl.innerText = inputSignatory.value;
+    }
+    
+    // Listen to changes
+    inputOrg.addEventListener('input', updateCertificate);
+    inputTitle.addEventListener('input', updateCertificate);
+    inputSubtitle.addEventListener('input', updateCertificate);
+    inputName.addEventListener('input', updateCertificate);
+    inputDesc.addEventListener('input', updateCertificate);
+    inputDate.addEventListener('input', updateCertificate);
+    inputSignatory.addEventListener('input', updateCertificate);
+    
+    // Scaling helper for browser viewport
+    function scalePreview() {
+      const containerWidth = previewArea.clientWidth - 80; // subtracting padding
+      const containerHeight = previewArea.clientHeight - 80;
+      
+      const targetWidth = 1000;
+      const targetHeight = 707;
+      
+      const scaleX = containerWidth / targetWidth;
+      const scaleY = containerHeight / targetHeight;
+      const scale = Math.min(scaleX, scaleY);
+      
+      // Limit upscale to 1.1x to keep crispness
+      const finalScale = Math.min(scale, 1.1);
+      
+      // Don't apply scale if screen is tiny and we are stacking
+      if (window.innerWidth < 768) {
+        scaler.style.transform = 'none';
+        scaler.style.width = '100%';
+        scaler.style.height = 'auto';
+      } else {
+        scaler.style.transform = `scale(${finalScale})`;
+        scaler.style.width = `${targetWidth}px`;
+        scaler.style.height = `${targetHeight}px`;
+      }
+    }
+    
+    window.addEventListener('resize', scalePreview);
+    // Initial call
+    scalePreview();
+    updateCertificate();
+    
+    // Reset defaults
+    function resetTemplate() {
+      inputOrg.value = "Mentara Labs";
+      inputTitle.value = "Certificate of Participation";
+      inputSubtitle.value = "This is proudly presented to";
+      inputName.value = "Allan Smith";
+      inputDesc.value = "For successfully completing the Mentara Labs advanced analytics program and demonstrating outstanding commitment to professional development and technical excellence.";
+      inputDate.value = "23/11/2021";
+      inputSignatory.value = "Authorized Signatory";
+      
+      updateCertificate();
+    }
+  </script>
+</body>
+</html>

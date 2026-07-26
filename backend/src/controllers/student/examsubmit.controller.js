@@ -401,6 +401,49 @@ exports.submitExam = async (req, res) => {
       [score, total_marks, percentage, passed, submissionId]
     );
 
+    // Auto-generate certificate if enabled & passed/completed
+    const { rows: examCheck } = await client.query(
+      `SELECT title, certificate_enabled, passing_marks FROM exams WHERE id = $1`,
+      [exam_id]
+    );
+
+    if (examCheck[0] && examCheck[0].certificate_enabled) {
+      const isEligible = examCheck[0].passing_marks !== null ? passed === true : true;
+      if (isEligible) {
+        const currentYear = new Date().getFullYear();
+        const prefix = `MTL-${currentYear}-`;
+        const { rows: lastCert } = await client.query(
+          `SELECT certificate_id FROM public.certificates 
+           WHERE certificate_id LIKE $1 
+           ORDER BY certificate_id DESC LIMIT 1`,
+          [`${prefix}%`]
+        );
+        let nextNum = 1;
+        if (lastCert[0]) {
+          const match = lastCert[0].certificate_id.match(/-(\d+)$/);
+          if (match) {
+            nextNum = parseInt(match[1], 10) + 1;
+          }
+        }
+        const certificateId = `${prefix}${String(nextNum).padStart(6, '0')}`;
+
+        // Get student name
+        const { rows: studentCheck } = await client.query(
+          `SELECT full_name FROM users WHERE id = $1`,
+          [studentId]
+        );
+        const studentName = studentCheck[0]?.full_name || 'Student';
+        const examName = examCheck[0].title || 'Exam';
+
+        await client.query(
+          `INSERT INTO public.certificates (certificate_id, student_id, exam_id, student_name, exam_name, issue_date)
+           VALUES ($1, $2, $3, $4, $5, NOW())
+           ON CONFLICT (student_id, exam_id) DO NOTHING`,
+          [certificateId, studentId, exam_id, studentName, examName]
+        );
+      }
+    }
+
     // Log activity for streak tracking
     await client.query(
       `INSERT INTO activity_logs (student_id, activity_date, activity_type, content_id)
