@@ -4,6 +4,7 @@ import { PageWrapper, Button, Badge, Skeleton, Modal, EmptyState } from '@/compo
 import CertificateCard from '@/components/shared/CertificateCard';
 import { toPng } from 'html-to-image';
 import { jsPDF } from 'jspdf';
+import { studentApi } from '@/api/services';
 
 export default function StudentCertificatesPage() {
   const [data, setData] = useState(null);
@@ -16,20 +17,14 @@ export default function StudentCertificatesPage() {
   const fetchCertificates = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('accessToken');
-      const res = await fetch('/api/student/certificates', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      const json = await res.json();
-      if (json.success) {
-        setData(json.data);
+      const res = await studentApi.getCertificates();
+      if (res.data.success) {
+        setData(res.data.data);
       } else {
-        setError(json.message);
+        setError(res.data.message);
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message);
     } finally {
       setLoading(false);
     }

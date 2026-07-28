@@ -24,11 +24,6 @@ export default function CertificatesPage() {
     return () => clearTimeout(handler);
   }, [search]);
 
-  // Fetch certificates via custom API call using raw fetch/axios or our api service.
-  // Let's see what adminApi is and check if we can call it.
-  // Wait, let's look at frontend/src/api/services.js or similar to see what adminApi has.
-  // Let's check using fetch directly or extending adminApi if needed.
-  // To avoid modifying service files unnecessarily, we can fetch directly using the standard token header!
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -36,20 +31,18 @@ export default function CertificatesPage() {
   const fetchCertificates = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('accessToken');
-      const res = await fetch(`/api/admin/certificates?search=${encodeURIComponent(debouncedSearch)}&page=${page}&limit=10`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const res = await adminApi.getCertificates({
+        search: debouncedSearch,
+        page,
+        limit: 10
       });
-      const json = await res.json();
-      if (json.success) {
-        setData(json);
+      if (res.data.success) {
+        setData(res.data);
       } else {
-        setError(json.message);
+        setError(res.data.message);
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || err.message);
     } finally {
       setLoading(false);
     }

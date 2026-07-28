@@ -117,6 +117,7 @@ export const adminApi = {
   // Settings
   getSettings:          ()         => api.get('/admin/settings'),
   updateSetting:        (data)     => api.put('/admin/settings', data),
+  getCertificates:      (params)   => api.get('/admin/certificates', { params }),
 };
 
 // ── STUDENT ───────────────────────────────────────────────────────────────────
@@ -188,4 +189,5 @@ export const studentApi = {
 
   // Settings
   getSettings:   ()                     => api.get('/student/settings'),
+  getCertificates: ()                   => api.get('/student/certificates'),
 };
