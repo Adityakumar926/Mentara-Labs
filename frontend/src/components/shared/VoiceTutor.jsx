@@ -19,6 +19,20 @@ export default function VoiceTutor() {
 
   const recognitionRef = useRef(null);
   const chatEndRef = useRef(null);
+  const selectedVoiceRef = useRef(selectedVoiceName);
+  const isMutedRef = useRef(isMuted);
+
+  // Sync refs with state
+  useEffect(() => {
+    selectedVoiceRef.current = selectedVoiceName;
+    if (selectedVoiceName && typeof window !== 'undefined') {
+      localStorage.setItem('mentara_voice_name', selectedVoiceName);
+    }
+  }, [selectedVoiceName]);
+
+  useEffect(() => {
+    isMutedRef.current = isMuted;
+  }, [isMuted]);
 
   // Initialize Speech Recognition
   useEffect(() => {
@@ -83,8 +97,12 @@ export default function VoiceTutor() {
 
         setVoices(sortedVoices);
         
-        // Auto-select a natural female voice by default
-        if (sortedVoices.length > 0 && !selectedVoiceName) {
+        // Restore saved voice or auto-select a natural female voice by default
+        const savedVoice = localStorage.getItem('mentara_voice_name');
+        if (savedVoice && sortedVoices.some(v => v.name === savedVoice)) {
+          setSelectedVoiceName(savedVoice);
+          selectedVoiceRef.current = savedVoice;
+        } else if (sortedVoices.length > 0 && !selectedVoiceRef.current) {
           const priorities = [
             'natural',
             'neural',
@@ -109,6 +127,7 @@ export default function VoiceTutor() {
           
           const defaultVoice = selected || sortedVoices[0];
           setSelectedVoiceName(defaultVoice.name);
+          selectedVoiceRef.current = defaultVoice.name;
         }
       }
     };
@@ -208,7 +227,8 @@ export default function VoiceTutor() {
 
   // Speak response out loud using Web Speech Synthesis
   const speakResponse = (text) => {
-    if (isMuted || typeof window === 'undefined' || !('speechSynthesis' in window)) {
+    const activeIsMuted = isMutedRef.current !== undefined ? isMutedRef.current : isMuted;
+    if (activeIsMuted || typeof window === 'undefined' || !('speechSynthesis' in window)) {
       setStatus('idle');
       return;
     }
@@ -223,12 +243,13 @@ export default function VoiceTutor() {
 
     const utterance = new SpeechSynthesisUtterance(cleanedText);
     
-    // Assign selected voice dynamically from fresh system voices
+    // Assign selected voice dynamically from fresh system voices using live ref
+    const activeVoiceName = selectedVoiceRef.current || selectedVoiceName;
     const freshVoices = typeof window !== 'undefined' ? window.speechSynthesis.getVoices() : [];
     const available = freshVoices.length > 0 ? freshVoices : voices;
     
-    if (selectedVoiceName) {
-      const selected = available.find(v => v.name === selectedVoiceName);
+    if (activeVoiceName) {
+      const selected = available.find(v => v.name === activeVoiceName);
       if (selected) utterance.voice = selected;
     } else if (available.length > 0) {
       utterance.voice = available[0];
@@ -257,7 +278,12 @@ export default function VoiceTutor() {
   // Preview voice sample when user selects a voice from settings dropdown
   const handleVoiceSelect = (voiceName) => {
     setSelectedVoiceName(voiceName);
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window && !isMuted) {
+    selectedVoiceRef.current = voiceName;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('mentara_voice_name', voiceName);
+    }
+
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window && !isMutedRef.current) {
       window.speechSynthesis.cancel();
       const freshVoices = window.speechSynthesis.getVoices();
       const chosen = freshVoices.find(v => v.name === voiceName) || voices.find(v => v.name === voiceName);
