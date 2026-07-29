@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { BookOpen, User, LogOut, ChevronRight, Sparkles, Sun, Moon, Award } from 'lucide-react';
 import useAuthStore from '@/store/authStore';
 import NotificationBell from '@/components/shared/NotificationBell';
+import VoiceTutor from '@/components/shared/VoiceTutor';
 
 const NAV = [
   { to: '/student/dashboard',  icon: BookOpen, label: 'Dashboard' },
@@ -326,6 +327,9 @@ export default function StudentUserLayout() {
         <main className="sl-main">
           <Outlet />
         </main>
+
+        {/* Floating Voice Tutor */}
+        <VoiceTutor />
       </div>
     </>
   );

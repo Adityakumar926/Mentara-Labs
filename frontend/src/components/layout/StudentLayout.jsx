@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { BookOpen, FileText, User, LogOut, Compass, HelpCircle, ChevronRight, Sparkles, Sun, Moon, PenTool, Eraser, RotateCcw, Maximize2, Minimize2, Square, Triangle, Circle, Minus, Ruler, Download, Undo, Redo, Trash2, Grid, Zap } from 'lucide-react';
 import useAuthStore from '@/store/authStore';
 import NotificationBell from '@/components/shared/NotificationBell';
+import VoiceTutor from '@/components/shared/VoiceTutor';
 
 const NAV = [
   { to: '/courses',   icon: BookOpen,   label: 'Courses'   },
@@ -529,6 +530,9 @@ export default function StudentLayout() {
           </button>
           <NotificationBell variant="mobile" />
         </nav>
+
+        {/* Floating Voice Tutor */}
+        <VoiceTutor />
       </div>
     </>
   );

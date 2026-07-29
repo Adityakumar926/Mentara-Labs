@@ -191,3 +191,8 @@ export const studentApi = {
   getSettings:   ()                     => api.get('/student/settings'),
   getCertificates: ()                   => api.get('/student/certificates'),
 };
+
+// ── AI VOICE TUTOR ────────────────────────────────────────────────────────────
+export const aiApi = {
+  voiceTutor: (message, history) => api.post('/ai/voice-tutor', { message, history }),
+};
