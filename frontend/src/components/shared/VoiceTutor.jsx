@@ -223,12 +223,15 @@ export default function VoiceTutor() {
 
     const utterance = new SpeechSynthesisUtterance(cleanedText);
     
-    // Assign selected voice
+    // Assign selected voice dynamically from fresh system voices
+    const freshVoices = typeof window !== 'undefined' ? window.speechSynthesis.getVoices() : [];
+    const available = freshVoices.length > 0 ? freshVoices : voices;
+    
     if (selectedVoiceName) {
-      const selected = voices.find(v => v.name === selectedVoiceName);
+      const selected = available.find(v => v.name === selectedVoiceName);
       if (selected) utterance.voice = selected;
-    } else if (voices.length > 0) {
-      utterance.voice = voices[0];
+    } else if (available.length > 0) {
+      utterance.voice = available[0];
     }
 
     // Set speaking attributes (natural female teacher tone: 1.0 pitch avoids robotic pitch-shift artifacts)
@@ -249,6 +252,23 @@ export default function VoiceTutor() {
     };
 
     window.speechSynthesis.speak(utterance);
+  };
+
+  // Preview voice sample when user selects a voice from settings dropdown
+  const handleVoiceSelect = (voiceName) => {
+    setSelectedVoiceName(voiceName);
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window && !isMuted) {
+      window.speechSynthesis.cancel();
+      const freshVoices = window.speechSynthesis.getVoices();
+      const chosen = freshVoices.find(v => v.name === voiceName) || voices.find(v => v.name === voiceName);
+      if (chosen) {
+        const preview = new SpeechSynthesisUtterance("Hello! I am your AI voice tutor.");
+        preview.voice = chosen;
+        preview.rate = 0.95;
+        preview.pitch = 1.0;
+        window.speechSynthesis.speak(preview);
+      }
+    }
   };
 
   const clearChat = () => {
@@ -330,17 +350,18 @@ export default function VoiceTutor() {
                     <label className="block text-xs font-semibold text-slate-400 mb-2">Speak Responses</label>
                     <button
                       onClick={() => {
-                        setIsMuted(!isMuted);
-                        if (!isMuted) stopSpeaking();
+                        const newMuteState = !isMuted;
+                        setIsMuted(newMuteState);
+                        if (newMuteState) stopSpeaking();
                       }}
                       className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-bold border transition-all ${
                         !isMuted 
-                          ? 'bg-purple-600/10 border-purple-500 text-purple-200' 
+                          ? 'bg-purple-600/20 border-purple-500 text-purple-200' 
                           : 'bg-slate-800/40 border-slate-700 text-slate-400'
                       }`}
                     >
-                      <span>{!isMuted ? 'Muted / Text Only' : 'Read Aloud Enabled'}</span>
-                      {!isMuted ? <Volume2 size={16} /> : <VolumeX size={16} />}
+                      <span>{!isMuted ? 'Read Aloud Enabled 🔊' : 'Muted / Text Only 🔇'}</span>
+                      {!isMuted ? <Volume2 size={16} className="text-purple-400" /> : <VolumeX size={16} />}
                     </button>
                   </div>
 
@@ -354,7 +375,7 @@ export default function VoiceTutor() {
                     ) : (
                       <select
                         value={selectedVoiceName}
-                        onChange={(e) => setSelectedVoiceName(e.target.value)}
+                        onChange={(e) => handleVoiceSelect(e.target.value)}
                         className="w-full rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-3 text-xs font-medium text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
                       >
                         {voices.map((v) => (
