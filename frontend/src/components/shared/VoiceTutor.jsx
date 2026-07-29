@@ -68,25 +68,46 @@ export default function VoiceTutor() {
         const availableVoices = window.speechSynthesis.getVoices();
         // Filter english voices
         const engVoices = availableVoices.filter(v => v.lang.startsWith('en') || v.lang.startsWith('en-'));
-        setVoices(engVoices.length > 0 ? engVoices : availableVoices);
+        const list = engVoices.length > 0 ? engVoices : availableVoices;
+
+        // Sort natural and female voices to the top
+        const sortedVoices = [...list].sort((a, b) => {
+          const aName = a.name.toLowerCase();
+          const bName = b.name.toLowerCase();
+          const aNatural = aName.includes('natural') || aName.includes('neural') || aName.includes('google') || aName.includes('female') || aName.includes('zira') || aName.includes('samantha') || aName.includes('aria') || aName.includes('jenny');
+          const bNatural = bName.includes('natural') || bName.includes('neural') || bName.includes('google') || bName.includes('female') || bName.includes('zira') || bName.includes('samantha') || bName.includes('aria') || bName.includes('jenny');
+          if (aNatural && !bNatural) return -1;
+          if (!aNatural && bNatural) return 1;
+          return 0;
+        });
+
+        setVoices(sortedVoices);
         
         // Auto-select a natural female voice by default
-        if (engVoices.length > 0 && !selectedVoiceName) {
+        if (sortedVoices.length > 0 && !selectedVoiceName) {
           const priorities = [
+            'natural',
+            'neural',
             'google uk english female',
             'google us english',
+            'microsoft jenny',
+            'microsoft aria',
+            'microsoft sonia',
             'microsoft zira',
             'microsoft hazel',
+            'samantha',
+            'karen',
+            'victoria',
             'female'
           ];
           
           let selected = null;
           for (const keyword of priorities) {
-            selected = engVoices.find(v => v.name.toLowerCase().includes(keyword));
+            selected = sortedVoices.find(v => v.name.toLowerCase().includes(keyword));
             if (selected) break;
           }
           
-          const defaultVoice = selected || engVoices[0];
+          const defaultVoice = selected || sortedVoices[0];
           setSelectedVoiceName(defaultVoice.name);
         }
       }
@@ -171,6 +192,20 @@ export default function VoiceTutor() {
     }
   };
 
+  // Clean text for speech synthesis so it sounds natural without reading markdown symbols or emojis
+  const cleanTextForSpeech = (rawText) => {
+    if (!rawText) return '';
+    return rawText
+      .replace(/```[\s\S]*?```/g, '') // remove code blocks
+      .replace(/\*\*(.*?)\*\*/g, '$1') // remove markdown bold
+      .replace(/\*(.*?)\*/g, '$1')     // remove markdown italic
+      .replace(/[`#_]/g, '')            // remove code ticks, hashes
+      .replace(/https?:\/\/\S+/g, '')   // remove URLs
+      .replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '') // remove emojis
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
   // Speak response out loud using Web Speech Synthesis
   const speakResponse = (text) => {
     if (isMuted || typeof window === 'undefined' || !('speechSynthesis' in window)) {
@@ -180,17 +215,25 @@ export default function VoiceTutor() {
 
     window.speechSynthesis.cancel(); // Clear any ongoing speech
     
-    const utterance = new SpeechSynthesisUtterance(text);
+    const cleanedText = cleanTextForSpeech(text);
+    if (!cleanedText) {
+      setStatus('idle');
+      return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(cleanedText);
     
     // Assign selected voice
     if (selectedVoiceName) {
       const selected = voices.find(v => v.name === selectedVoiceName);
       if (selected) utterance.voice = selected;
+    } else if (voices.length > 0) {
+      utterance.voice = voices[0];
     }
 
-    // Set speaking attributes (kid-friendly: slightly slower and warm pitch)
-    utterance.rate = 0.92; 
-    utterance.pitch = 1.08;
+    // Set speaking attributes (natural female teacher tone: 1.0 pitch avoids robotic pitch-shift artifacts)
+    utterance.rate = 0.95; 
+    utterance.pitch = 1.0;
 
     utterance.onstart = () => {
       setStatus('speaking');
