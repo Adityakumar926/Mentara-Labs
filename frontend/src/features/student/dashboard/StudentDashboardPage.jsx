@@ -442,11 +442,7 @@ export default function StudentDashboardPage() {
   );
   const subjects = subjectsRes?.data ?? subjectsRes ?? [];
 
-  useEffect(() => {
-    if (!selectedSubject && subjects.length > 0) {
-      setSelectedSubject(subjects[0]);
-    }
-  }, [subjects, selectedSubject]);
+
 
   useEffect(() => {
     const handleVoiceAction = (action) => {
