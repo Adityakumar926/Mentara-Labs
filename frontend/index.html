@@ -40,56 +40,70 @@
     <link rel="icon" type="image/png" href="/mentara-new.png" />
     <link rel="apple-touch-icon" href="/mentara-new.png" />
 
-    <!-- ── JSON-LD Structured Data ── -->
+    <meta name="application-name" content="Mentara Labs" />
+    <meta name="apple-mobile-web-app-title" content="Mentara Labs" />
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    
+    <!-- ── JSON-LD Structured Data (WebSite & EducationalOrganization) ── -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "EducationalOrganization",
-      "name": "Mentara Labs",
-      "alternateName": ["mentp", "Mentara", "Mentera Labs", "Mentara Labs", "Mentara Learning"],
-      "url": "https://www.mentp.com",
-      "logo": "https://www.mentp.com/mentara-new.png",
-      "description": "Mentara Labs is an interactive Cambridge Primary learning platform offering stage 1 to 5 questions, worksheets, simulations, and auto-timed checkpoint assessments for students and teachers.",
-      "sameAs": [],
-      "address": {
-        "@type": "PostalAddress",
-        "addressCountry": "IN"
+    [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Mentara Labs",
+        "alternateName": ["Mentara", "Mentera Labs", "mentp", "Mentara Learning"],
+        "url": "https://www.mentp.com"
       },
-      "offers": [
-        {
-          "@type": "Offer",
-          "name": "Explorer Plan",
-          "price": "0",
-          "priceCurrency": "USD",
-          "description": "Free plan with 3 simulations per month and basic access."
+      {
+        "@context": "https://schema.org",
+        "@type": "EducationalOrganization",
+        "name": "Mentara Labs",
+        "legalName": "Mentara Labs",
+        "alternateName": ["mentp", "Mentara", "Mentera Labs", "Mentara Learning"],
+        "url": "https://www.mentp.com",
+        "logo": "https://www.mentp.com/mentara-new.png",
+        "description": "Mentara Labs is an interactive Cambridge Primary learning platform offering stage 1 to 5 questions, worksheets, simulations, and auto-timed checkpoint assessments for students and teachers.",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "IN"
         },
-        {
-          "@type": "Offer",
-          "name": "Student Plan",
-          "price": "25",
-          "priceCurrency": "USD",
-          "description": "Unlimited Cambridge Primary questions, worksheets, and checkpoint assessments for Stage 1-5."
-        },
-        {
-          "@type": "Offer",
-          "name": "Teacher Plan",
-          "price": "39",
-          "priceCurrency": "USD",
-          "description": "Full teaching suite with whiteboard, analytics, and all student features."
+        "offers": [
+          {
+            "@type": "Offer",
+            "name": "Explorer Plan",
+            "price": "0",
+            "priceCurrency": "USD",
+            "description": "Free plan with 3 simulations per month and basic access."
+          },
+          {
+            "@type": "Offer",
+            "name": "Student Plan",
+            "price": "25",
+            "priceCurrency": "USD",
+            "description": "Unlimited Cambridge Primary questions, worksheets, and checkpoint assessments for Stage 1-5."
+          },
+          {
+            "@type": "Offer",
+            "name": "Teacher Plan",
+            "price": "39",
+            "priceCurrency": "USD",
+            "description": "Full teaching suite with whiteboard, analytics, and all student features."
+          }
+        ],
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Cambridge Primary Curriculum",
+          "itemListElement": [
+            { "@type": "Course", "name": "Cambridge Primary Stage 1", "description": "Stage 1 questions, worksheets and simulations for Cambridge Primary." },
+            { "@type": "Course", "name": "Cambridge Primary Stage 2", "description": "Stage 2 questions, worksheets and simulations for Cambridge Primary." },
+            { "@type": "Course", "name": "Cambridge Primary Stage 3", "description": "Stage 3 questions, worksheets and simulations for Cambridge Primary." },
+            { "@type": "Course", "name": "Cambridge Primary Stage 4", "description": "Stage 4 questions, worksheets and simulations for Cambridge Primary." },
+            { "@type": "Course", "name": "Cambridge Primary Stage 5", "description": "Stage 5 questions, worksheets and simulations for Cambridge Primary." }
+          ]
         }
-      ],
-      "hasOfferCatalog": {
-        "@type": "OfferCatalog",
-        "name": "Cambridge Primary Curriculum",
-        "itemListElement": [
-          { "@type": "Course", "name": "Cambridge Primary Stage 1", "description": "Stage 1 questions, worksheets and simulations for Cambridge Primary." },
-          { "@type": "Course", "name": "Cambridge Primary Stage 2", "description": "Stage 2 questions, worksheets and simulations for Cambridge Primary." },
-          { "@type": "Course", "name": "Cambridge Primary Stage 3", "description": "Stage 3 questions, worksheets and simulations for Cambridge Primary." },
-          { "@type": "Course", "name": "Cambridge Primary Stage 4", "description": "Stage 4 questions, worksheets and simulations for Cambridge Primary." },
-          { "@type": "Course", "name": "Cambridge Primary Stage 5", "description": "Stage 5 questions, worksheets and simulations for Cambridge Primary." }
-        ]
       }
-    }
+    ]
     </script>
   </head>
   <body>
