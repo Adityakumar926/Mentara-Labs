@@ -107,8 +107,10 @@ export default function App() {
         {/* ── Teacher Dashboard & Learning ────────────────────────────────── */}
         <Route element={<ProtectedRoute role="teacher" />}>
           <Route element={<StudentLayout />}>
+            <Route path="/courses"                                           element={<CurriculumPage />} />
+            <Route path="/courses/:id"                                       element={<CurriculumDetail />} />
+            <Route path="/materials"                                         element={<MaterialsPage />} />
             <Route path="/courses/:curriculumId/subjects"                    element={<SubjectsListPage />} />
-            <Route path="/courses"                                           element={<CoursesPage />} />
             <Route path="/courses/:curriculumId/subjects/:subjectId"         element={<TopicsPage />} />
             <Route path="/courses/:curriculumId/subjects/:subjectId/topics/:topicId" element={<SubjectPage />} />
             <Route path="/questions"                                         element={<StudentQuestionsPage />} />

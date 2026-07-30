@@ -20,12 +20,22 @@ export default function VoiceTutor() {
   const [showSettings, setShowSettings] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isWhiteboardOpen, setIsWhiteboardOpen] = useState(false);
 
   const recognitionRef = useRef(null);
   const chatEndRef = useRef(null);
   const selectedVoiceRef = useRef(selectedVoiceName);
   const isMutedRef = useRef(isMuted);
   const handleSendToAIRef = useRef(null);
+
+  // Listen for whiteboard open/close — shrink chatbot when whiteboard is active
+  useEffect(() => {
+    const handleWbToggle = (e) => {
+      setIsWhiteboardOpen(e.detail?.open ?? false);
+    };
+    window.addEventListener('whiteboard-toggle', handleWbToggle);
+    return () => window.removeEventListener('whiteboard-toggle', handleWbToggle);
+  }, []);
 
   // Auto-collapse / fade widget when user scrolls down (captures scroll inside .sl-main or any div)
   useEffect(() => {
@@ -378,7 +388,7 @@ export default function VoiceTutor() {
       >
         {/* Integrated Speech Bubble Banner pointing to Gogo (Hides cleanly on scroll unless hovered) */}
         <AnimatePresence>
-          {!isOpen && (!isScrolled || isHovered) && (
+          {!isOpen && !(isScrolled || isWhiteboardOpen) || (!isOpen && isHovered) ? (
             <motion.div
               initial={{ opacity: 0, y: 8, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -401,22 +411,22 @@ export default function VoiceTutor() {
               {/* Speech Bubble Arrow Tail pointing down to Gogo */}
               <div className="absolute -bottom-1.5 right-7 h-3 w-3 rotate-45 border-r border-b border-cyan-400/50 bg-slate-950" />
             </motion.div>
-          )}
+          ) : null}
         </AnimatePresence>
 
-        {/* Gogo Robot Circular Button (Shrinks & semi-fades on scroll, expands fully on hover) */}
+        {/* Gogo Robot Circular Button (Shrinks & semi-fades when scrolled OR whiteboard open) */}
         <motion.button
           className="relative flex items-center justify-center rounded-full cursor-pointer pointer-events-auto group transition-all duration-300"
           animate={{
-            scale: !isOpen && isScrolled && !isHovered ? 0.75 : 1,
-            opacity: !isOpen && isScrolled && !isHovered ? 0.55 : 1,
+            scale: !isOpen && (isScrolled || isWhiteboardOpen) && !isHovered ? 0.75 : 1,
+            opacity: !isOpen && (isScrolled || isWhiteboardOpen) && !isHovered ? 0.55 : 1,
           }}
           whileHover={{ scale: 1.1, opacity: 1, y: -3 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsOpen(!isOpen)}
           style={{ 
-            width: !isOpen && isScrolled && !isHovered ? '3.5rem' : '5rem',
-            height: !isOpen && isScrolled && !isHovered ? '3.5rem' : '5rem',
+            width: !isOpen && (isScrolled || isWhiteboardOpen) && !isHovered ? '3.5rem' : '5rem',
+            height: !isOpen && (isScrolled || isWhiteboardOpen) && !isHovered ? '3.5rem' : '5rem',
             background: 'transparent', 
             border: 'none', 
             outline: 'none' 

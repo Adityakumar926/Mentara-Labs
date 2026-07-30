@@ -73,11 +73,19 @@ const CSS = `
 
   /* ── SIDEBAR (desktop) ── */
   .sl-aside {
-    width: 220px; flex-shrink: 0;
-    display: flex; flex-direction: column;
+    width: 56px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
     background: var(--local-card-bg);
     border-right: 1px solid var(--local-card-bdr);
-    position: relative; overflow: hidden;
+    position: relative;
+    overflow: hidden;
+    transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 20;
+  }
+  .sl-aside:hover {
+    width: 220px;
   }
   @media (max-width: 767px) { .sl-aside { display: none; } }
 
@@ -108,13 +116,15 @@ const CSS = `
   /* Logo */
   .sl-logo {
     display: flex; align-items: center; justify-content: space-between; gap: 0.7rem;
-    padding: 1.4rem 1.2rem 1.3rem;
+    padding: 1.1rem 0.85rem;
     border-bottom: 1px solid var(--local-card-bdr);
     position: relative; z-index: 1; flex-shrink: 0;
+    overflow: hidden;
+    min-height: 58px;
   }
-  .sl-logo-left { display: flex; align-items: center; gap: 0.7rem; min-width: 0; }
+  .sl-logo-left { display: flex; align-items: center; gap: 0.7rem; min-width: 0; flex-shrink: 0; }
   .sl-logo-mark {
-    width: 34px; height: 34px;
+    width: 30px; height: 30px;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
@@ -125,6 +135,14 @@ const CSS = `
     background-size: 300% 100%;
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     animation: sl-logo-rgb 4s linear infinite;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.18s ease 0s;
+    pointer-events: none;
+  }
+  .sl-aside:hover .sl-logo-text {
+    opacity: 1;
+    transition: opacity 0.2s ease 0.1s;
   }
   @keyframes sl-logo-rgb {
     0% { background-position: 0% 50%; }
@@ -133,21 +151,22 @@ const CSS = `
 
   /* Nav */
   .sl-nav {
-    flex: 1; padding: 0.7rem 0.6rem;
+    flex: 1; padding: 0.7rem 0.45rem;
     display: flex; flex-direction: column; gap: 0.2rem;
-    overflow-y: auto; position: relative; z-index: 1;
+    overflow-y: auto; overflow-x: hidden; position: relative; z-index: 1;
   }
   .sl-nav::-webkit-scrollbar { width: 0; }
 
   .sl-nav-item {
     display: flex; align-items: center; gap: 0.7rem;
-    padding: 0.6rem 0.85rem; border-radius: 14px;
+    padding: 0.62rem 0.8rem; border-radius: 14px;
     font-size: 0.8rem; font-weight: 700;
     color: var(--color-text-secondary);
     text-decoration: none;
     transition: color 0.2s, background 0.2s;
     position: relative; overflow: hidden;
     border: 2px solid transparent;
+    white-space: nowrap;
   }
   .sl-nav-item:hover {
     color: var(--color-text-primary);
@@ -179,7 +198,18 @@ const CSS = `
   .sl-nav-item:hover .sl-nav-icon { color: var(--color-text-secondary); }
   .sl-nav-item.active .sl-nav-icon { color: #22d3ee; }
   .light .sl-nav-item.active .sl-nav-icon { color: var(--local-lavender); }
-  .sl-nav-label { flex: 1; }
+  .sl-nav-label {
+    flex: 1;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.15s ease 0s, transform 0.15s ease 0s;
+    pointer-events: none;
+  }
+  .sl-aside:hover .sl-nav-label {
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 0.2s ease 0.1s, transform 0.2s ease 0.1s;
+  }
   .sl-nav-chevron {
     opacity: 0; color: var(--color-text-muted);
     transition: opacity 0.2s, transform 0.2s;
@@ -188,25 +218,35 @@ const CSS = `
 
   /* Premium badge */
   .sl-premium {
-    margin: 0 0.6rem 0.6rem;
-    padding: 0.55rem 0.85rem; border-radius: 14px;
+    margin: 0 0.45rem 0.6rem;
+    padding: 0.55rem 0.8rem; border-radius: 14px;
     background: rgba(245,158,11,0.08);
     border: 2px solid var(--local-amber);
     display: flex; align-items: center; gap: 0.5rem;
     position: relative; z-index: 1;
+    overflow: hidden;
   }
-  .sl-premium-star { font-size: 0.8rem; }
-  .sl-premium-text { font-size: 0.72rem; font-weight: 800; color: var(--local-amber); letter-spacing: 0.02em; }
+  .sl-premium-star { font-size: 0.8rem; flex-shrink: 0; }
+  .sl-premium-text {
+    font-size: 0.72rem; font-weight: 800; color: var(--local-amber); letter-spacing: 0.02em;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.18s ease 0s;
+  }
+  .sl-aside:hover .sl-premium-text {
+    opacity: 1;
+    transition: opacity 0.2s ease 0.1s;
+  }
 
   /* Upgrade to premium button (non-premium users) */
   .sl-upgrade {
-    margin: 0 0.6rem 0.6rem;
-    padding: 0.6rem 0.85rem; border-radius: 16px;
+    margin: 0 0.45rem 0.6rem;
+    padding: 0.6rem 0.8rem; border-radius: 16px;
     background: rgba(245,158,11,0.05);
     border: 2px solid var(--local-amber);
     display: flex; align-items: center; gap: 0.55rem;
     position: relative; z-index: 1; overflow: hidden;
-    cursor: pointer; width: 90%;
+    cursor: pointer;
     font-family: 'Inter', sans-serif;
     transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
   }
@@ -224,31 +264,40 @@ const CSS = `
   }
   @keyframes sl-shimmer { 0%,100% { left: -60%; } 50% { left: 120%; } }
   .sl-upgrade-icon {
-    width: 24px; height: 24px; border-radius: 8px; flex-shrink: 0;
+    width: 22px; height: 22px; border-radius: 7px; flex-shrink: 0;
     background: linear-gradient(135deg, #F59E0B, #7C3AED);
     display: flex; align-items: center; justify-content: center;
     color: #fff;
   }
-  .sl-upgrade-copy { display: flex; flex-direction: column; align-items: flex-start; text-align: left; min-width: 0; }
-  .sl-upgrade-title { font-size: 0.72rem; font-weight: 800; color: var(--local-amber); letter-spacing: 0.01em; }
-  .sl-upgrade-sub { font-size: 0.6rem; color: var(--color-text-secondary); font-weight: 700; }
+  .sl-upgrade-copy {
+    display: flex; flex-direction: column; align-items: flex-start; text-align: left; min-width: 0;
+    opacity: 0;
+    transition: opacity 0.18s ease 0s;
+  }
+  .sl-aside:hover .sl-upgrade-copy {
+    opacity: 1;
+    transition: opacity 0.2s ease 0.1s;
+  }
+  .sl-upgrade-title { font-size: 0.72rem; font-weight: 800; color: var(--local-amber); letter-spacing: 0.01em; white-space: nowrap; }
+  .sl-upgrade-sub { font-size: 0.6rem; color: var(--color-text-secondary); font-weight: 700; white-space: nowrap; }
 
   /* User footer */
   .sl-footer {
-    padding: 0.6rem;
+    padding: 0.5rem 0.45rem;
     border-top: 1px solid var(--local-card-bdr);
     position: relative; z-index: 1; flex-shrink: 0;
   }
   .sl-user-row {
     display: flex; align-items: center; gap: 0.6rem;
-    padding: 0.6rem 0.7rem; border-radius: 14px;
+    padding: 0.55rem 0.6rem; border-radius: 14px;
     background: var(--local-card-bg);
     border: 1px solid var(--local-card-bdr);
     transition: background 0.2s, border-color 0.2s;
+    overflow: hidden;
   }
   .sl-user-row:hover { background: var(--color-surface-hover); border-color: var(--local-card-bdr); }
   .sl-avatar {
-    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
     background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(0,212,255,0.2));
     border: 1.5px solid rgba(124,58,237,0.35);
     display: flex; align-items: center; justify-content: center;
@@ -257,16 +306,41 @@ const CSS = `
     overflow: hidden;
   }
   .sl-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .sl-user-info {
+    flex: 1; min-width: 0;
+    opacity: 0;
+    transition: opacity 0.18s ease 0s;
+  }
+  .sl-aside:hover .sl-user-info {
+    opacity: 1;
+    transition: opacity 0.2s ease 0.1s;
+  }
   .sl-user-name { font-size: 0.72rem; font-weight: 600; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .sl-user-email { font-size: 0.6rem; color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .sl-logout {
-    width: 26px; height: 26px; border-radius: 8px;
+    width: 24px; height: 24px; border-radius: 7px;
     background: none; border: none; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     color: var(--color-text-muted); flex-shrink: 0;
     transition: color 0.2s, background 0.2s;
+    opacity: 0;
+  }
+  .sl-aside:hover .sl-logout {
+    opacity: 1;
+    transition: opacity 0.2s ease 0.1s;
   }
   .sl-logout:hover { color: #FCA5A5; background: rgba(239,68,68,0.1); }
+
+  /* Theme / notif buttons in header — hide text when collapsed */
+  .sl-logo-actions {
+    display: flex; align-items: center; gap: 0.3rem; flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.18s ease 0s;
+  }
+  .sl-aside:hover .sl-logo-actions {
+    opacity: 1;
+    transition: opacity 0.2s ease 0.1s;
+  }
 
   /* ── MAIN ── */
   .sl-main {
@@ -401,7 +475,7 @@ export default function StudentLayout() {
               </div>
               <span className="sl-logo-text">Mentara Labs</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <div className="sl-logo-actions">
               <button
                 type="button"
                 onClick={toggleTheme}
@@ -430,23 +504,29 @@ export default function StudentLayout() {
 
           {/* Nav */}
           <nav className="sl-nav">
-            {NAV.map(({ to, icon: Icon, label }, i) => (
-              <motion.div
-                key={to}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.06 + i * 0.05, duration: 0.25 }}
-              >
-                <NavLink
-                  to={to}
-                  className={({ isActive }) => `sl-nav-item${isActive ? ' active' : ''}`}
+            {(() => {
+              const navItems = [...NAV];
+              if (user?.role === 'teacher') {
+                navItems.splice(1, 0, { to: '/materials', icon: FileText, label: 'Materials' });
+              }
+              return navItems.map(({ to, icon: Icon, label }, i) => (
+                <motion.div
+                  key={to}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.06 + i * 0.05, duration: 0.25 }}
                 >
-                  <Icon size={15} className="sl-nav-icon" />
-                  <span className="sl-nav-label">{label}</span>
-                  <ChevronRight size={11} className="sl-nav-chevron" />
-                </NavLink>
-              </motion.div>
-            ))}
+                  <NavLink
+                    to={to}
+                    className={({ isActive }) => `sl-nav-item${isActive ? ' active' : ''}`}
+                  >
+                    <Icon size={15} className="sl-nav-icon" />
+                    <span className="sl-nav-label">{label}</span>
+                    <ChevronRight size={11} className="sl-nav-chevron" />
+                  </NavLink>
+                </motion.div>
+              ));
+            })()}
           </nav>
 
           {/* Teacher Smart Whiteboard */}
@@ -491,7 +571,7 @@ export default function StudentLayout() {
                   initial
                 )}
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="sl-user-info">
                 <div className="sl-user-name">{user?.full_name}</div>
                 <div className="sl-user-email">{user?.email}</div>
               </div>
@@ -541,6 +621,12 @@ export default function StudentLayout() {
 /* ── Smart Explanation Whiteboard for Teachers ── */
 function TeacherWhiteboard() {
   const [isOpen, setIsOpen] = useState(false);
+
+  // Notify VoiceTutor to shrink when whiteboard is open
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('whiteboard-toggle', { detail: { open: isOpen } }));
+  }, [isOpen]);
+
   const canvasRef = useRef(null);
   const laserCanvasRef = useRef(null);
   const laserSegmentsRef = useRef([]);

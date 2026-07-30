@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft, Plus, Trash2, Edit2, GripVertical,
   FileText, Video, Sparkles, ChevronDown, Lock,
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui';
 import { useApi, useMutation } from '@/hooks/useApi';
 import { adminApi } from '@/api/services';
+import useAuthStore from '@/store/authStore';
 import clsx from 'clsx';
 
 /* ─── CSS ─── */
@@ -675,6 +676,9 @@ const subjectVariant = {
 };
 
 export default function CurriculumDetail() {
+  const user = useAuthStore((s) => s.user);
+  const isTeacher = user?.role === 'teacher';
+
   const { id } = useParams(); // curriculumId
   const navigate = useNavigate();
 
@@ -1008,18 +1012,20 @@ export default function CurriculumDetail() {
         >
           <div className="cd-hblob cd-hblob-1" /><div className="cd-hblob cd-hblob-2" />
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', position: 'relative', zIndex: 1 }}>
-            <button className="cd-back-btn" onClick={() => navigate('/admin/curriculum')}>
+            <button className="cd-back-btn" onClick={() => navigate(isTeacher ? '/courses' : '/admin/curriculum')}>
               <ArrowLeft size={15} />
             </button>
             <div>
               <div className="cd-eyebrow"><span className="cd-eyebrow-dot" /> Curriculum</div>
               <h1 className="cd-title">{curriculum.name}</h1>
-              <p className="cd-subtitle">{classes.length} Class{classes.length !== 1 ? 'es' : ''} assigned</p>
+              <p className="cd-subtitle">{classes.length} Stage/Class{classes.length !== 1 ? 'es' : ''} assigned</p>
             </div>
           </div>
-          <button className="cd-btn-primary" onClick={openCreateClass}>
-            <FolderPlus size={14} /> Add Class
-          </button>
+          {!isTeacher && (
+            <button className="cd-btn-primary" onClick={openCreateClass}>
+              <FolderPlus size={14} /> Add Class
+            </button>
+          )}
         </motion.div>
 
         {/* ── Classes ACCORDION ── */}
@@ -1028,7 +1034,9 @@ export default function CurriculumDetail() {
             <div className="cd-empty-icon"><FolderPlus size={22} style={{ color: 'var(--violet-l)' }} /></div>
             <p className="cd-empty-title">No classes yet</p>
             <p className="cd-empty-desc">Create classes (e.g. CBSE Class 10) under this curriculum.</p>
-            <button className="cd-btn-primary" onClick={openCreateClass}><Plus size={14} /> Add Class</button>
+            {!isTeacher && (
+              <button className="cd-btn-primary" onClick={openCreateClass}><Plus size={14} /> Add Class</button>
+            )}
           </motion.div>
         ) : (
           <div className="cd-subject-list">
@@ -1045,10 +1053,12 @@ export default function CurriculumDetail() {
                         {cls.description && <p style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: 2 }}>{cls.description}</p>}
                       </div>
                     </div>
-                    <div className="cd-subject-actions" onClick={e => e.stopPropagation()}>
-                      <button onClick={() => openEditClass(cls)} className="cd-icon-btn edit" title="Edit Class"><Edit2 size={12} /></button>
-                      <button onClick={() => setDeleteClassId(cls.id)} className="cd-icon-btn delete" title="Delete Class"><Trash2 size={12} /></button>
-                    </div>
+                    {!isTeacher && (
+                      <div className="cd-subject-actions" onClick={e => e.stopPropagation()}>
+                        <button onClick={() => openEditClass(cls)} className="cd-icon-btn edit" title="Edit Class"><Edit2 size={12} /></button>
+                        <button onClick={() => setDeleteClassId(cls.id)} className="cd-icon-btn delete" title="Delete Class"><Trash2 size={12} /></button>
+                      </div>
+                    )}
                   </div>
 
                   <AnimatePresence>
@@ -1063,9 +1073,11 @@ export default function CurriculumDetail() {
                         {/* Subjects Inside Class */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
                           <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--lavender)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Subjects List</span>
-                          <button className="cd-btn-primary" style={{ padding: '0.45rem 0.85rem', fontSize: '0.72rem' }} onClick={() => openCreateSubject(cls.id)}>
-                            <Plus size={12} /> Add Subject
-                          </button>
+                          {!isTeacher && (
+                            <button className="cd-btn-primary" style={{ padding: '0.45rem 0.85rem', fontSize: '0.72rem' }} onClick={() => openCreateSubject(cls.id)}>
+                              <Plus size={12} /> Add Subject
+                            </button>
+                          )}
                         </div>
 
                         {classSubjects.length === 0 ? (
@@ -1077,15 +1089,19 @@ export default function CurriculumDetail() {
                               return (
                                 <div key={subject.id} className={`cd-subject ${isSubOpen ? 'is-open' : ''}`}>
                                   <div className="cd-subject-header" onClick={() => setExpandedSubject(isSubOpen ? null : subject.id)}>
-                                    <GripVertical size={13} className="cd-grip" />
+                                    {!isTeacher && <GripVertical size={13} className="cd-grip" />}
                                     <span className="cd-subject-idx">{String(subIdx + 1).padStart(2, '0')}</span>
                                     <div className="cd-subject-info">
                                       <p className="cd-subject-name">{subject.name}</p>
                                       {subject.description && <p className="cd-subject-desc">{subject.description}</p>}
                                     </div>
                                     <div className="cd-subject-actions" onClick={e => e.stopPropagation()}>
-                                      <button onClick={() => openEditSubject(subject)} className="cd-icon-btn edit" title="Edit Subject"><Edit2 size={12} /></button>
-                                      <button onClick={() => setDeleteSubjectId(subject.id)} className="cd-icon-btn delete" title="Delete Subject"><Trash2 size={12} /></button>
+                                      {!isTeacher && (
+                                        <>
+                                          <button onClick={() => openEditSubject(subject)} className="cd-icon-btn edit" title="Edit Subject"><Edit2 size={12} /></button>
+                                          <button onClick={() => setDeleteSubjectId(subject.id)} className="cd-icon-btn delete" title="Delete Subject"><Trash2 size={12} /></button>
+                                        </>
+                                      )}
                                       <ChevronDown size={14} className={`cd-chevron ${isSubOpen ? 'open' : ''}`} onClick={() => setExpandedSubject(isSubOpen ? null : subject.id)} />
                                     </div>
                                   </div>
@@ -1112,6 +1128,8 @@ export default function CurriculumDetail() {
                                           expandedTopic={expandedTopic}
                                           setExpandedTopic={setExpandedTopic}
                                           contentRefreshKey={contentRefreshKey}
+                                          isTeacher={isTeacher}
+                                          curriculumId={id}
                                         />
                                       </motion.div>
                                     )}
@@ -1341,7 +1359,9 @@ function SubjectTopicsPanel({
   onAddContent,
   onEditContent,
   onDeleteContent,
-  contentRefreshKey
+  contentRefreshKey,
+  isTeacher,
+  curriculumId
 }) {
   const { data: topics, loading } = useApi(
     () => adminApi.getTopics(subjectId), null, [subjectId, topicsRefreshKey]
@@ -1354,9 +1374,11 @@ function SubjectTopicsPanel({
     <div className="cd-topics-container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
         <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Topics & Chapters</span>
-        <button className="cd-add-content-btn" style={{ width: 'auto', padding: '0.35rem 0.75rem', marginTop: 0 }} onClick={onAddTopic}>
-          <Plus size={11} /> Add Root Topic
-        </button>
+        {!isTeacher && (
+          <button className="cd-add-content-btn" style={{ width: 'auto', padding: '0.35rem 0.75rem', marginTop: 0 }} onClick={onAddTopic}>
+            <Plus size={11} /> Add Root Topic
+          </button>
+        )}
       </div>
 
       {loading ? (
@@ -1377,6 +1399,8 @@ function SubjectTopicsPanel({
               onEditContent={onEditContent}
               onDeleteContent={onDeleteContent}
               contentRefreshKey={contentRefreshKey}
+              isTeacher={isTeacher}
+              curriculumId={curriculumId}
             />
           ))}
         </div>
@@ -1395,7 +1419,9 @@ function TopicNode({
   onAddContent,
   onEditContent,
   onDeleteContent,
-  contentRefreshKey
+  contentRefreshKey,
+  isTeacher,
+  curriculumId
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const childTopics = allTopics.filter(t => t.parent_topic_id === topic.id);
@@ -1411,9 +1437,22 @@ function TopicNode({
           </div>
         </div>
         <div className="cd-subject-actions" onClick={e => e.stopPropagation()}>
-          <button onClick={() => onAddSubtopic(topic)} className="cd-icon-btn edit" style={{ color: 'var(--cyan)' }} title="Add Subtopic"><FolderPlus size={11} /></button>
-          <button onClick={() => onEditTopic(topic)} className="cd-icon-btn edit" title="Edit Topic"><Edit2 size={11} /></button>
-          <button onClick={() => onDeleteTopic(topic.id)} className="cd-icon-btn delete" title="Delete Topic"><Trash2 size={11} /></button>
+          {isTeacher ? (
+            <Link
+              to={`/courses/${curriculumId}/subjects/${topic.subject_id}/topics/${topic.id}`}
+              className="cd-icon-btn edit"
+              title="View Topic Content"
+              style={{ color: 'var(--cyan)' }}
+            >
+              <Eye size={12} />
+            </Link>
+          ) : (
+            <>
+              <button onClick={() => onAddSubtopic(topic)} className="cd-icon-btn edit" style={{ color: 'var(--cyan)' }} title="Add Subtopic"><FolderPlus size={11} /></button>
+              <button onClick={() => onEditTopic(topic)} className="cd-icon-btn edit" title="Edit Topic"><Edit2 size={11} /></button>
+              <button onClick={() => onDeleteTopic(topic.id)} className="cd-icon-btn delete" title="Delete Topic"><Trash2 size={11} /></button>
+            </>
+          )}
         </div>
       </div>
 
@@ -1441,6 +1480,8 @@ function TopicNode({
                     onEditContent={onEditContent}
                     onDeleteContent={onDeleteContent}
                     contentRefreshKey={contentRefreshKey}
+                    isTeacher={isTeacher}
+                    curriculumId={curriculumId}
                   />
                 ))}
               </div>
@@ -1452,17 +1493,20 @@ function TopicNode({
               contentRefreshKey={contentRefreshKey}
               onEditContent={(c) => onEditContent(topic.id, c)}
               onDeleteContent={onDeleteContent}
+              isTeacher={isTeacher}
             />
 
             {/* Two choice actions row */}
-            <div className="cd-topic-actions-row">
-              <button className="cd-action-choice-btn subtopic" onClick={() => onAddSubtopic(topic)}>
-                <FolderPlus size={12} /> Add Subtopic
-              </button>
-              <button className="cd-action-choice-btn material" onClick={() => onAddContent(topic.id)}>
-                <Plus size={12} /> Add Material
-              </button>
-            </div>
+            {!isTeacher && (
+              <div className="cd-topic-actions-row">
+                <button className="cd-action-choice-btn subtopic" onClick={() => onAddSubtopic(topic)}>
+                  <FolderPlus size={12} /> Add Subtopic
+                </button>
+                <button className="cd-action-choice-btn material" onClick={() => onAddContent(topic.id)}>
+                  <Plus size={12} /> Add Material
+                </button>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -1471,7 +1515,7 @@ function TopicNode({
 }
 
 // ── Sub-component: Content list inside expanded Topic ─────────────────────────
-function TopicContentPanel({ topicId, contentRefreshKey, onEditContent, onDeleteContent }) {
+function TopicContentPanel({ topicId, contentRefreshKey, onEditContent, onDeleteContent, isTeacher }) {
   const { data: content, loading } = useApi(
     () => adminApi.getSubjectContent(topicId), null, [topicId, contentRefreshKey]
   );
@@ -1511,8 +1555,12 @@ function TopicContentPanel({ topicId, contentRefreshKey, onEditContent, onDelete
                   </span>
                 )}
                 {c.is_premium && <span className="cd-premium-tag" title="Premium"><Lock size={11} /></span>}
-                <button onClick={() => onEditContent(c)} className="cd-icon-btn edit" style={{ width: 26, height: 26 }}><Edit2 size={11} /></button>
-                <button onClick={() => onDeleteContent(c.id)} className="cd-icon-btn delete" style={{ width: 26, height: 26 }}><Trash2 size={11} /></button>
+                {!isTeacher && (
+                  <>
+                    <button onClick={() => onEditContent(c)} className="cd-icon-btn edit" style={{ width: 26, height: 26 }}><Edit2 size={11} /></button>
+                    <button onClick={() => onDeleteContent(c.id)} className="cd-icon-btn delete" style={{ width: 26, height: 26 }}><Trash2 size={11} /></button>
+                  </>
+                )}
               </div>
             );
           })}

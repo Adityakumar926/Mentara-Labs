@@ -8,6 +8,7 @@ import {
 } from '@/components/ui';
 import { useApi, useMutation } from '@/hooks/useApi';
 import { adminApi } from '@/api/services';
+import useAuthStore from '@/store/authStore';
 
 /* ─── CSS ─── */
 const CSS = `
@@ -280,6 +281,9 @@ const cardVariant = {
 };
 
 export default function CurriculumPage() {
+  const user = useAuthStore((s) => s.user);
+  const isTeacher = user?.role === 'teacher';
+
   const [modal, setModal]       = useState(false);
   const [editing, setEditing]   = useState(null);
   const [form, setForm]         = useState(BLANK);
@@ -333,16 +337,18 @@ export default function CurriculumPage() {
           <div style={{ position: 'relative', zIndex: 1 }}>
             <div className="cp-eyebrow">
               <span className="cp-eyebrow-dot" />
-              Admin
+              {isTeacher ? 'Teacher' : 'Admin'}
             </div>
             <h1 className="cp-title">Curriculum</h1>
             <p className="cp-subtitle">
               {loading ? 'Loading…' : `${list.length} curriculum${list.length !== 1 ? 's' : ''}`}
             </p>
           </div>
-          <button className="cp-btn-primary" onClick={openCreate} style={{ position: 'relative', zIndex: 1 }}>
-            <Plus size={15} /> New Curriculum
-          </button>
+          {!isTeacher && (
+            <button className="cp-btn-primary" onClick={openCreate} style={{ position: 'relative', zIndex: 1 }}>
+              <Plus size={15} /> New Curriculum
+            </button>
+          )}
         </motion.div>
 
         {/* ── Grid ── */}
@@ -371,9 +377,11 @@ export default function CurriculumPage() {
             </div>
             <p className="cp-empty-title">No curriculums yet</p>
             <p className="cp-empty-desc">Create your first curriculum and add subjects to get started.</p>
-            <button className="cp-btn-primary" onClick={openCreate}>
-              <Plus size={14} /> New Curriculum
-            </button>
+            {!isTeacher && (
+              <button className="cp-btn-primary" onClick={openCreate}>
+                <Plus size={14} /> New Curriculum
+              </button>
+            )}
           </motion.div>
         ) : (
           <motion.div
@@ -427,27 +435,30 @@ export default function CurriculumPage() {
                     </div>
                   </div>
 
-                  {/* Actions footer */}
                   <div className="cp-card-footer">
-                    <Link to={`/admin/curriculum/${c.id}`} className="cp-manage-link">
-                      Manage <ChevronRight size={13} />
+                    <Link to={isTeacher ? `/courses/${c.id}` : `/admin/curriculum/${c.id}`} className="cp-manage-link">
+                      {isTeacher ? 'Explore' : 'Manage'} <ChevronRight size={13} />
                     </Link>
 
-                    <button
-                      onClick={() => toggleActive(c)}
-                      title={c.is_active ? 'Deactivate' : 'Activate'}
-                      className={`cp-icon-btn ${c.is_active ? 'toggle-on' : 'toggle-off'}`}
-                    >
-                      {c.is_active
-                        ? <ToggleRight size={15} />
-                        : <ToggleLeft size={15} />}
-                    </button>
-                    <button onClick={() => openEdit(c)} className="cp-icon-btn edit">
-                      <Edit2 size={13} />
-                    </button>
-                    <button onClick={() => setDeleteId(c.id)} className="cp-icon-btn delete">
-                      <Trash2 size={13} />
-                    </button>
+                    {!isTeacher && (
+                      <>
+                        <button
+                          onClick={() => toggleActive(c)}
+                          title={c.is_active ? 'Deactivate' : 'Activate'}
+                          className={`cp-icon-btn ${c.is_active ? 'toggle-on' : 'toggle-off'}`}
+                        >
+                          {c.is_active
+                            ? <ToggleRight size={15} />
+                            : <ToggleLeft size={15} />}
+                        </button>
+                        <button onClick={() => openEdit(c)} className="cp-icon-btn edit">
+                          <Edit2 size={13} />
+                        </button>
+                        <button onClick={() => setDeleteId(c.id)} className="cp-icon-btn delete">
+                          <Trash2 size={13} />
+                        </button>
+                      </>
+                    )}
                   </div>
                 </motion.div>
               ))}

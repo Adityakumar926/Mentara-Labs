@@ -17,8 +17,18 @@ const animCtrl  = require('../controllers/admin/animation.controller');
 const hierarchyCtrl = require('../controllers/admin/hierarchy.controller');
 const certificatesCtrl = require('../controllers/certificates.controller');
 
-// All admin routes require auth + admin role
-router.use(protect, authorize('admin'));
+// All admin routes require auth
+router.use(protect);
+
+// Allow both admin and teacher for GET (read-only) operations, but only admin for modifying operations (POST, PUT, DELETE, PATCH).
+const authorizeReadOrWrite = (req, res, next) => {
+  if (req.method === 'GET') {
+    return authorize('admin', 'teacher')(req, res, next);
+  } else {
+    return authorize('admin')(req, res, next);
+  }
+};
+router.use(authorizeReadOrWrite);
 
 // ─── HIERARCHY ────────────────────────────────────────────────────────────────
 router.get('/hierarchy', hierarchyCtrl.getTree);

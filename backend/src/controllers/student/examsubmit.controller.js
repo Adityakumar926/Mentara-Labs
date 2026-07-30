@@ -8,8 +8,9 @@ exports.startExam = async (req, res) => {
   try {
     const { examId } = req.params;
     const studentId = req.user.id;
+    const isTeacher = req.user.role === 'teacher' || req.user.role === 'admin';
 
-    if (!req.user.class_id)
+    if (!req.user.class_id && !isTeacher)
       return res.status(403).json({ success: false, message: 'You must complete onboarding to select a curriculum and class before taking exams' });
 
     // 1. Verify exam exists, is live, and student is eligible (class match + optional batch)
@@ -19,12 +20,12 @@ exports.startExam = async (req, res) => {
        FROM exams e
        JOIN subjects s ON s.id = e.subject_id
        WHERE e.id = $1 
-         AND s.class_id = $3
-         AND (e.batch_id IS NULL OR EXISTS (
+         AND ($4::boolean = true OR s.class_id = $3)
+         AND ($4::boolean = true OR e.batch_id IS NULL OR EXISTS (
            SELECT 1 FROM batch_students bs
            WHERE bs.batch_id = e.batch_id AND bs.student_id = $2
          ))`,
-      [examId, studentId, req.user.class_id]
+      [examId, studentId, req.user.class_id || null, isTeacher]
     );
 
     if (!examRows[0])
@@ -32,10 +33,10 @@ exports.startExam = async (req, res) => {
 
     const exam = examRows[0];
 
-    if (exam.status !== 'live')
+    if (exam.status !== 'live' && !isTeacher)
       return res.status(400).json({ success: false, message: `Exam is not live (current status: ${exam.status})` });
 
-    if (exam.is_premium && !req.user.is_premium)
+    if (exam.is_premium && !req.user.is_premium && !isTeacher)
       return res.status(403).json({ success: false, message: 'Premium access required for this exam' });
 
     // 2. Block if already submitted
@@ -558,7 +559,11 @@ exports.getMyExamHistory = async (req, res) => {
          es.id              AS submission_id,
          e.id               AS exam_id,
          e.title,
+         e.subject_id,
+         e.topic_id,
          s.name             AS subject_name,
+         s.class_id,
+         cl.curriculum_id,
          t.name             AS topic_name,
          es.score,
          es.total_marks,
@@ -577,6 +582,7 @@ exports.getMyExamHistory = async (req, res) => {
        FROM exam_submissions es
        JOIN exams    e ON e.id = es.exam_id
        LEFT JOIN subjects s ON s.id = e.subject_id
+       LEFT JOIN classes cl ON cl.id = s.class_id
        LEFT JOIN topics t ON t.id = e.topic_id
        WHERE es.student_id = $1 AND es.status = 'submitted'
        ORDER BY es.submitted_at DESC`,

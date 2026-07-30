@@ -113,12 +113,12 @@ exports.getTopicContent = async (req, res) => {
     const { topicId } = req.params;
     const isPremium = req.user.is_premium;
 
-    // Verify topic belongs to student's class via subjects
+    // Verify topic belongs to student's class via subjects (skip class check for teachers)
     const { rows: access } = await db.query(
       `SELECT t.name AS topic_name, s.name AS subject_name FROM topics t
        JOIN subjects s ON s.id = t.subject_id
-       WHERE t.id = $1 AND s.class_id = $2`,
-      [topicId, req.user.class_id]
+       WHERE t.id = $1 AND ($3::boolean = true OR s.class_id = $2)`,
+      [topicId, req.user.class_id, Boolean(req.user.role === 'teacher')]
     );
     if (!access.length) {
       return res.status(403).json({ success: false, message: 'Access denied to this topic' });
@@ -299,6 +299,7 @@ exports.getMyQuestions = async (req, res) => {
          s.id          AS subject_id,
          s.name        AS subject_name,
          s.order_index AS subject_order,
+         cl.id         AS class_id,
          c.id          AS curriculum_id,
          c.name        AS curriculum_name,
          t.id          AS topic_id,
@@ -322,11 +323,13 @@ exports.getMyQuestions = async (req, res) => {
     const seenSubject = new Map();
 
     for (const row of rows) {
-      const key = row.subject_name ? row.subject_name.trim().toLowerCase() : row.subject_id;
+      const key = row.subject_id;
       if (!seenSubject.has(key)) {
         const group = {
           subject_id:      row.subject_id,
           subject_name:    row.subject_name,
+          class_id:        row.class_id,
+          curriculum_id:   row.curriculum_id,
           curriculum_name: row.curriculum_name,
           questions:       [],
         };
@@ -388,22 +391,24 @@ exports.getCurriculumClasses = async (req, res) => {
 // Get all subjects, contents, and exams for student class (Explore Dashboard)
 exports.getExploreContents = async (req, res) => {
   try {
-    if (!req.user.class_id) {
+    const isTeacher = req.user.role === 'teacher' || req.user.role === 'admin';
+    if (!req.user.class_id && !isTeacher) {
       return res.json({ success: true, data: { subjects: [], contents: [], exams: [] } });
     }
     const isPremium = req.user.is_premium;
 
-    // 1. Get all subjects of the student's class
+    // 1. Get all subjects
     const { rows: subjects } = await db.query(
       `SELECT s.*, 
               cl.name AS class_name,
+              cl.curriculum_id,
               curr.name AS curriculum_name
        FROM subjects s
        JOIN classes cl ON cl.id = s.class_id
        JOIN curriculums curr ON curr.id = cl.curriculum_id
-       WHERE s.class_id = $1
+       WHERE ($2::boolean = true OR s.class_id = $1)
        ORDER BY s.order_index`,
-      [req.user.class_id]
+      [req.user.class_id || null, isTeacher]
     );
 
     const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
@@ -417,6 +422,8 @@ exports.getExploreContents = async (req, res) => {
               t.name AS topic_name,
               s.id AS subject_id,
               s.name AS subject_name,
+              s.class_id,
+              cl.curriculum_id,
               CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.file_url          END AS file_url,
               CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.mux_playback_id   END AS mux_playback_id,
               CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.animation_id      END AS animation_id,
@@ -424,13 +431,14 @@ exports.getExploreContents = async (req, res) => {
        FROM content c
        JOIN topics t ON t.id = c.topic_id
        JOIN subjects s ON s.id = t.subject_id
+       JOIN classes cl ON cl.id = s.class_id
        LEFT JOIN user_progress up ON up.content_id = c.id AND up.user_id = $3
-       WHERE s.class_id = $1 AND c.destination IN ('shared', $4)
+       WHERE ($5::boolean = true OR s.class_id = $1) AND c.destination IN ('shared', $4)
        ORDER BY s.order_index, t.order_index, c.order_index`,
-      [req.user.class_id, isPremium, req.user.id, destination]
+      [req.user.class_id || null, isPremium, req.user.id, destination, isTeacher]
     );
 
-    // 3. Get all live and scheduled exams for this class
+    // 3. Get all live and scheduled exams
     const { rows: exams } = await db.query(
       `SELECT e.id,
               e.title,
@@ -445,17 +453,20 @@ exports.getExploreContents = async (req, res) => {
               e.subject_id,
               e.topic_id,
               s.name AS subject_name,
+              s.class_id,
+              cl.curriculum_id,
               t.name AS topic_name,
               es.status AS submission_status,
               es.id AS submission_id
        FROM exams e
        JOIN subjects s ON s.id = e.subject_id
+       JOIN classes cl ON cl.id = s.class_id
        LEFT JOIN topics t ON t.id = e.topic_id
        LEFT JOIN exam_submissions es ON es.exam_id = e.id AND es.student_id = $2
-       WHERE s.class_id = $1
-         AND e.status IN ('live', 'scheduled')
+       WHERE ($3::boolean = true OR s.class_id = $1)
+         AND e.status IN ('live', 'scheduled', 'ended')
        ORDER BY e.created_at DESC`,
-      [req.user.class_id, req.user.id]
+      [req.user.class_id || null, req.user.id, isTeacher]
     );
 
     res.json({
@@ -474,7 +485,8 @@ exports.getExploreContents = async (req, res) => {
 // GET /student/exams — live exams from enrolled classes (no batches)
 exports.getLiveExams = async (req, res) => {
   try {
-    if (!req.user.class_id) {
+    const isTeacher = req.user.role === 'teacher' || req.user.role === 'admin';
+    if (!req.user.class_id && !isTeacher) {
       return res.json({ success: true, data: [] });
     }
 
@@ -483,7 +495,11 @@ exports.getLiveExams = async (req, res) => {
          e.id, e.title, e.description, e.duration_minutes,
          e.total_marks, e.passing_marks, e.is_premium,
          e.scheduled_at, e.ends_at,
+         e.subject_id,
+         e.topic_id,
          s.name AS subject_name,
+         s.class_id,
+         cl.curriculum_id,
          t.name AS topic_name,
          EXISTS (
            SELECT 1 FROM exam_submissions es
@@ -491,11 +507,12 @@ exports.getLiveExams = async (req, res) => {
          ) AS already_attempted
        FROM exams e
        JOIN subjects s ON s.id = e.subject_id
+       JOIN classes cl ON cl.id = s.class_id
        LEFT JOIN topics t ON t.id = e.topic_id
-       WHERE s.class_id = $2
+       WHERE ($3::boolean = true OR s.class_id = $2)
          AND e.status = 'live'
        ORDER BY e.ends_at ASC`,
-      [req.user.id, req.user.class_id]
+      [req.user.id, req.user.class_id || null, isTeacher]
     );
     res.json({ success: true, data: rows });
   } catch (err) {
@@ -506,7 +523,8 @@ exports.getLiveExams = async (req, res) => {
 // GET /student/exams/scheduled — upcoming exams from enrolled classes (no batches)
 exports.getScheduledExams = async (req, res) => {
   try {
-    if (!req.user.class_id) {
+    const isTeacher = req.user.role === 'teacher' || req.user.role === 'admin';
+    if (!req.user.class_id && !isTeacher) {
       return res.json({ success: true, data: [] });
     }
 
@@ -515,15 +533,20 @@ exports.getScheduledExams = async (req, res) => {
          e.id, e.title, e.description, e.duration_minutes,
          e.total_marks, e.passing_marks, e.is_premium,
          e.scheduled_at, e.ends_at,
+         e.subject_id,
+         e.topic_id,
          s.name AS subject_name,
+         s.class_id,
+         cl.curriculum_id,
          t.name AS topic_name
        FROM exams e
        JOIN subjects s ON s.id = e.subject_id
+       JOIN classes cl ON cl.id = s.class_id
        LEFT JOIN topics t ON t.id = e.topic_id
-       WHERE s.class_id = $1
+       WHERE ($2::boolean = true OR s.class_id = $1)
          AND e.status = 'scheduled'
        ORDER BY e.scheduled_at ASC`,
-      [req.user.class_id]
+      [req.user.class_id || null, isTeacher]
     );
     res.json({ success: true, data: rows });
   } catch (err) {

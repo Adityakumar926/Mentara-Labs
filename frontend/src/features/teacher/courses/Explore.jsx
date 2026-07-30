@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Search, Sparkles, BookOpen, FileText, Video, Image, 
@@ -12,6 +12,7 @@ import useAuthStore from '@/store/authStore';
 import MuxPlayer from '@mux/mux-player-react';
 import clsx from 'clsx';
 import toast from 'react-hot-toast';
+import HierarchySidebar from '@/components/shared/HierarchySidebar';
 
 /* ─── Premium Modern CSS ─── */
 const CSS = `
@@ -322,8 +323,9 @@ const CSS = `
 export default function Explore() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const [selectedNode, setSelectedNode] = useState(null);
   const [activeTab, setActiveTab] = useState('animations'); // 'animations', 'materials', 'exams'
-  const [activeSubjectId, setActiveSubjectId] = useState('all');
+  const [activeSubjectName, setActiveSubjectName] = useState('all');
   const [activeMatType, setActiveMatType] = useState('all'); // 'all', 'notes', 'video', 'worksheet'
   const [activeExamFilter, setActiveExamFilter] = useState('all'); // 'all', 'attempted', 'pending'
   const [searchQuery, setSearchQuery] = useState('');
@@ -345,11 +347,30 @@ export default function Explore() {
   const contents = exploreData?.contents ?? [];
   const exams = exploreData?.exams ?? [];
 
-  // Filtered lists
-  const filteredSubjects = subjects;
+  // Deduplicate subjects by normalized name so teachers don't see duplicate pills
+  const uniqueSubjects = useMemo(() => {
+    const map = new Map();
+    (subjects || []).forEach(sub => {
+      if (sub.name) {
+        const key = sub.name.trim().toLowerCase();
+        if (!map.has(key)) {
+          map.set(key, { id: sub.id, name: sub.name.trim(), key });
+        }
+      }
+    });
+    return Array.from(map.values());
+  }, [subjects]);
   
   const getFilteredContents = () => {
     return contents.filter(c => {
+      // 0. Hierarchy sidebar node filter
+      if (selectedNode) {
+        if (selectedNode.type === 'curriculum' && c.curriculum_id && c.curriculum_id !== selectedNode.id) return false;
+        if (selectedNode.type === 'class' && c.class_id && c.class_id !== selectedNode.id) return false;
+        if (selectedNode.type === 'subject' && c.subject_id && c.subject_id !== selectedNode.id) return false;
+        if (selectedNode.type === 'topic' && c.topic_id && c.topic_id !== selectedNode.id) return false;
+      }
+
       // 1. Tab check (animations vs other learning materials)
       if (activeTab === 'animations' && c.content_type !== 'animation') return false;
       if (activeTab === 'materials' && c.content_type === 'animation') return false;
@@ -362,7 +383,7 @@ export default function Explore() {
       }
 
       // 3. Subject filter
-      if (activeSubjectId !== 'all' && c.subject_id !== activeSubjectId) return false;
+      if (activeSubjectName !== 'all' && c.subject_name?.trim().toLowerCase() !== activeSubjectName) return false;
 
       // 4. Search query filter
       if (searchQuery.trim() && !c.title?.toLowerCase().includes(searchQuery.toLowerCase())) return false;
@@ -373,8 +394,16 @@ export default function Explore() {
 
   const getFilteredExams = () => {
     return exams.filter(e => {
+      // 0. Hierarchy sidebar node filter
+      if (selectedNode) {
+        if (selectedNode.type === 'curriculum' && e.curriculum_id && e.curriculum_id !== selectedNode.id) return false;
+        if (selectedNode.type === 'class' && e.class_id && e.class_id !== selectedNode.id) return false;
+        if (selectedNode.type === 'subject' && e.subject_id && e.subject_id !== selectedNode.id) return false;
+        if (selectedNode.type === 'topic' && e.topic_id && e.topic_id !== selectedNode.id) return false;
+      }
+
       // Subject filter
-      if (activeSubjectId !== 'all' && e.subject_id !== activeSubjectId) return false;
+      if (activeSubjectName !== 'all' && e.subject_name?.trim().toLowerCase() !== activeSubjectName) return false;
 
       // Search query filter
       if (searchQuery.trim() && !e.title?.toLowerCase().includes(searchQuery.toLowerCase())) return false;
@@ -389,7 +418,7 @@ export default function Explore() {
 
   // Launch animation
   const handleOpenAnimation = async (content) => {
-    if (content.is_premium && !isUserPremium) return;
+    if (content.is_premium && !canViewContent) return;
     
     // Synchronously open a new tab in the click event tick to bypass popup blockers
     const animWindow = window.open('', '_blank');
@@ -433,7 +462,7 @@ export default function Explore() {
 
   // Open note PDF directly
   const handleOpenNote = async (content) => {
-    if (content.is_premium && !isUserPremium) return;
+    if (content.is_premium && !canViewContent) return;
     if (content.file_url) {
       window.open(content.file_url, '_blank');
     }
@@ -450,7 +479,7 @@ export default function Explore() {
 
   // Open Worksheet canvas sandbox in a new popup window
   const handleOpenWorksheet = async (content) => {
-    if (content.is_premium && !isUserPremium) return;
+    if (content.is_premium && !canViewContent) return;
 
     const wsWindow = window.open('', '_blank', 'width=980,height=750,resizable=yes,scrollbars=yes');
     if (wsWindow) {
@@ -678,7 +707,7 @@ export default function Explore() {
 
   // Open video modal player
   const handleOpenVideo = async (content) => {
-    if (content.is_premium && !isUserPremium) return;
+    if (content.is_premium && !canViewContent) return;
     setLoadingActionId(content.id);
     try {
       const res = await studentApi.getVideoToken(content.id);
@@ -698,11 +727,27 @@ export default function Explore() {
   const activeExams = getFilteredExams();
 
   const isUserPremium = user?.is_premium;
+  const isTeacher = user?.role === 'teacher' || user?.role === 'admin';
+  // Teachers can see all content regardless of premium status
+  const canViewContent = isUserPremium || isTeacher;
 
   return (
-    <PageWrapper className="p-6">
+    <PageWrapper className="p-0">
       <style>{CSS}</style>
-      <div className="ex-root">
+      <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+        <HierarchySidebar
+          selectedNodeId={selectedNode?.id}
+          selectedNodeType={selectedNode?.type}
+          onSelectNode={(node) => {
+            if (selectedNode?.id === node.id && selectedNode?.type === node.type) {
+              setSelectedNode(null);
+            } else {
+              setSelectedNode(node);
+            }
+          }}
+        />
+        <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem 2rem' }}>
+          <div className="ex-root">
         
         {/* Ambient background blur blobs */}
         <div className="ex-header-blob ex-blob-1" />
@@ -771,16 +816,16 @@ export default function Explore() {
         {/* ── SUBJECT PILL FILTERS ── */}
         <div className="ex-subjects">
           <button 
-            className={clsx('ex-subject-pill', activeSubjectId === 'all' && 'active')}
-            onClick={() => setActiveSubjectId('all')}
+            className={clsx('ex-subject-pill', activeSubjectName === 'all' && 'active')}
+            onClick={() => setActiveSubjectName('all')}
           >
             All Subjects
           </button>
-          {filteredSubjects.map(sub => (
+          {uniqueSubjects.map(sub => (
             <button
-              key={sub.id}
-              className={clsx('ex-subject-pill', activeSubjectId === sub.id && 'active')}
-              onClick={() => setActiveSubjectId(sub.id)}
+              key={sub.key}
+              className={clsx('ex-subject-pill', activeSubjectName === sub.key && 'active')}
+              onClick={() => setActiveSubjectName(sub.key)}
             >
               {sub.name}
             </button>
@@ -819,12 +864,12 @@ export default function Explore() {
               ) : (
                 <div className="ex-grid">
                   {activeContents.map(c => {
-                    const locked = c.is_premium && !isUserPremium;
+                    const locked = c.is_premium && !canViewContent;
                     return (
                       <div 
                         key={c.id} 
                         className={clsx('ex-card', locked && 'dimmed')}
-                        onClick={locked || loadingActionId === c.id ? undefined : () => handleLaunchAnimation(c)}
+                        onClick={locked || loadingActionId === c.id ? undefined : () => handleOpenAnimation(c)}
                       >
                         <div className="ex-card-strip ex-strip-anim" />
                         <div className="ex-card-glow" />
@@ -886,7 +931,7 @@ export default function Explore() {
               ) : (
                 <div className="ex-grid">
                   {activeContents.map(c => {
-                    const locked = c.is_premium && !isUserPremium;
+                    const locked = c.is_premium && !canViewContent;
                     const isNotes = c.content_type === 'note' || c.content_type === 'notes';
                     const isVideo = c.content_type === 'video';
                     const isWorksheet = c.content_type === 'worksheet';
@@ -988,7 +1033,7 @@ export default function Explore() {
                   {activeExams.map(exam => {
                     const isLive = exam.status === 'live';
                     const attempted = exam.submission_status === 'submitted';
-                    const locked = exam.is_premium && !isUserPremium;
+                    const locked = exam.is_premium && !canViewContent;
 
                     return (
                       <div key={exam.id} className={clsx('ex-card', locked && 'dimmed')} onClick={locked ? undefined : () => navigate(`/exams/${exam.id}/take`)}>
@@ -1021,11 +1066,15 @@ export default function Explore() {
                         <div className="ex-card-foot" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.07)', marginTop: 'auto', fontSize: '0.72rem', color: 'var(--muted)' }}>
                           <span><Clock size={11} style={{ color: 'var(--cyan)' }} />{exam.duration_minutes}m</span>
                           <span><Award size={11} style={{ color: 'var(--local-violet-l)' }} />{exam.total_marks} Marks</span>
-                          {attempted && (
+                          {!isTeacher && attempted && (
                             <span style={{ color: 'var(--local-green)' }}><CheckCircle size={11} />Attempted</span>
                           )}
                           {locked ? (
                             <span className="exam-locked-btn" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: 'var(--amber)', padding: '0.25rem 0.75rem', borderRadius: 50, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}><Lock size={11} />Premium</span>
+                          ) : isTeacher ? (
+                            <span className="exam-attempt-btn" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(124, 58, 237, 0.1)', border: '1px solid rgba(124, 58, 237, 0.25)', color: '#C4B5FD', padding: '0.25rem 0.75rem', borderRadius: 50, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                              <Eye size={11} />Preview
+                            </span>
                           ) : isLive ? (
                             <span className="exam-attempt-btn" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(34, 211, 238, 0.08)', border: '1px solid rgba(34, 211, 238, 0.2)', color: '#22d3ee', padding: '0.25rem 0.75rem', borderRadius: 50, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                               <Play size={11} />
@@ -1078,6 +1127,8 @@ export default function Explore() {
           </div>
         </Modal>
 
+          </div>
+        </div>
       </div>
     </PageWrapper>
   );

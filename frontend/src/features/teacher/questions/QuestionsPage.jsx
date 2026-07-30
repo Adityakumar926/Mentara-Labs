@@ -5,6 +5,7 @@ import { PageWrapper, Badge, Skeleton, EmptyState } from '@/components/ui';
 import { useApi } from '@/hooks/useApi';
 import { studentApi } from '@/api/services';
 import clsx from 'clsx';
+import HierarchySidebar from '@/components/shared/HierarchySidebar';
 
 /* ─── CSS ─────────────────────────────────────────────────────────────────── */
 const CSS = `
@@ -806,18 +807,22 @@ function QuestionCard({ q, idx }) {
 }
 
 /* ─── SubjectSection ───────────────────────────────────────────────────────── */
-function SubjectSection({ group, typeFilter, search, subjectFilter, topicFilter, premiumFilter, sectionIdx }) {
+function SubjectSection({ group, typeFilter, search, subjectFilter, topicFilter, premiumFilter, sectionIdx, selectedNode }) {
   const [collapsed, setCollapsed] = useState(false);
 
   const questions = useMemo(() => {
-    // 1. Subject filter check (by normalized subject name)
-    if (subjectFilter !== 'all' && String(group.subject_name || '').trim().toLowerCase() !== String(subjectFilter).trim().toLowerCase()) {
+    // 1. Subject filter check (by subject_id to handle same-name subjects across stages)
+    if (subjectFilter !== 'all' && group.subject_id !== subjectFilter) {
       return [];
     }
 
     const term = (search || '').trim().toLowerCase();
     return group.questions.filter((q) => {
       if (!q) return false;
+
+      // Sidebar topic node filter
+      if (selectedNode?.type === 'topic' && q.topic_id !== selectedNode.id) return false;
+
       const matchType = typeFilter === 'all' || q.question_type === typeFilter;
       if (!matchType) return false;
 
@@ -847,7 +852,7 @@ function SubjectSection({ group, typeFilter, search, subjectFilter, topicFilter,
 
       return textMatch || subjectMatch || topicMatch || typeMatch || diffMatch || imageMatch || optionsMatch;
     });
-  }, [group.questions, group.subject_name, typeFilter, search, subjectFilter, topicFilter, premiumFilter]);
+  }, [group.questions, group.subject_name, typeFilter, search, subjectFilter, topicFilter, premiumFilter, selectedNode]);
 
   if (!questions.length) return null;
 
@@ -927,6 +932,7 @@ function QEmpty({ icon: Icon, title, description }) {
 
 /* ─── MAIN PAGE ────────────────────────────────────────────────────────────── */
 export default function StudentQuestionsPage() {
+  const [selectedNode, setSelectedNode] = useState(null);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [subjectFilter, setSubjectFilter] = useState('all');
@@ -934,17 +940,38 @@ export default function StudentQuestionsPage() {
   const [premiumFilter, setPremiumFilter] = useState('all');
 
   const { data: raw, loading } = useApi(studentApi.getMyQuestions);
-  const groups = raw?.data ?? raw ?? [];
+  const rawGroups = raw?.data ?? raw ?? [];
 
-  // Available subjects (grouped by name)
+  const groups = useMemo(() => {
+    if (!selectedNode) return rawGroups;
+    return rawGroups.filter(g => {
+      if (selectedNode.type === 'curriculum') {
+        return g.curriculum_id === selectedNode.id;
+      }
+      if (selectedNode.type === 'class') {
+        return g.class_id === selectedNode.id;
+      }
+      if (selectedNode.type === 'subject') {
+        return g.subject_id === selectedNode.id;
+      }
+      if (selectedNode.type === 'topic') {
+        return (g.questions || []).some(q => q.topic_id === selectedNode.id);
+      }
+      return true;
+    });
+  }, [rawGroups, selectedNode]);
+
+  // Available subjects (unique per subject_id, not per name)
   const availableSubjects = useMemo(() => {
     const map = new Map();
     (groups || []).forEach(g => {
-      if (g.subject_name) {
-        const key = g.subject_name.trim().toLowerCase();
-        if (!map.has(key)) {
-          map.set(key, { id: key, name: g.subject_name.trim() });
-        }
+      if (g.subject_id && !map.has(g.subject_id)) {
+        map.set(g.subject_id, {
+          id: g.subject_id,
+          name: g.subject_name?.trim() || g.subject_id,
+          class_id: g.class_id,
+          curriculum_id: g.curriculum_id,
+        });
       }
     });
     return Array.from(map.values());
@@ -954,7 +981,8 @@ export default function StudentQuestionsPage() {
   const availableTopics = useMemo(() => {
     const map = new Map();
     (groups || []).forEach(g => {
-      if (subjectFilter !== 'all' && String(g.subject_name || '').trim().toLowerCase() !== String(subjectFilter).trim().toLowerCase()) return;
+      // filter by subject_id (not subject name) to avoid cross-stage matches
+      if (subjectFilter !== 'all' && g.subject_id !== subjectFilter) return;
       (g.questions || []).forEach(q => {
         if (q.topic_name) {
           const key = q.topic_name.trim().toLowerCase();
@@ -972,10 +1000,15 @@ export default function StudentQuestionsPage() {
 
   const visibleCount = useMemo(
     () => groups.reduce((acc, g) => {
-      if (subjectFilter !== 'all' && String(g.subject_name || '').trim().toLowerCase() !== String(subjectFilter).trim().toLowerCase()) return acc;
+      // filter by subject_id when a subject is selected
+      if (subjectFilter !== 'all' && g.subject_id !== subjectFilter) return acc;
       const term = (search || '').trim().toLowerCase();
       const count = g.questions.filter((q) => {
         if (!q) return false;
+
+        // Sidebar topic node filter
+        if (selectedNode?.type === 'topic' && q.topic_id !== selectedNode.id) return false;
+
         const matchType = typeFilter === 'all' || q.question_type === typeFilter;
         if (!matchType) return false;
 
@@ -1005,13 +1038,26 @@ export default function StudentQuestionsPage() {
       }).length;
       return acc + count;
     }, 0),
-    [groups, typeFilter, search, subjectFilter, topicFilter, premiumFilter]
+    [groups, typeFilter, search, subjectFilter, topicFilter, premiumFilter, selectedNode]
   );
 
   return (
-    <PageWrapper className="p-6">
+    <PageWrapper className="p-0">
       <style>{CSS}</style>
-      <div className="q-root">
+      <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+        <HierarchySidebar
+          selectedNodeId={selectedNode?.id}
+          selectedNodeType={selectedNode?.type}
+          onSelectNode={(node) => {
+            if (selectedNode?.id === node.id && selectedNode?.type === node.type) {
+              setSelectedNode(null);
+            } else {
+              setSelectedNode(node);
+            }
+          }}
+        />
+        <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem 2rem' }}>
+          <div className="q-root">
 
         {/* Ambient background blur blobs */}
         <div className="q-header-blob q-blob-1" />
@@ -1176,11 +1222,14 @@ export default function StudentQuestionsPage() {
                 topicFilter={topicFilter}
                 premiumFilter={premiumFilter}
                 sectionIdx={si}
+                selectedNode={selectedNode}
               />
             ))}
           </div>
         )}
 
+          </div>
+        </div>
       </div>
     </PageWrapper>
   );

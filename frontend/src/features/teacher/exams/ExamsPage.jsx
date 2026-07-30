@@ -8,6 +8,7 @@ import { studentApi } from '@/api/services';
 import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
+import HierarchySidebar from '@/components/shared/HierarchySidebar';
 
 /* ─── CSS ─────────────────────────────────────────────────────────────────── */
 const CSS = `
@@ -495,9 +496,10 @@ function AlertBanner({ color, bg, border, icon: Icon, children }) {
 }
 
 function LiveExamCard({ exam, idx }) {
-  const attempted = exam.already_attempted;
   const { user } = useAuthStore();
-  const locked = exam.is_premium && !user?.is_premium;
+  const isTeacher = user?.role === 'teacher' || user?.role === 'admin';
+  const locked = exam.is_premium && !user?.is_premium && !isTeacher;
+  const attempted = exam.already_attempted;
 
   const inner = (
     <div className={clsx('exam-card', (attempted || locked) && 'dimmed')}>
@@ -535,7 +537,7 @@ function LiveExamCard({ exam, idx }) {
         ) : locked ? (
           <span className="exam-locked-btn"><Lock size={11} />Premium</span>
         ) : (
-          <span className="exam-attempt-btn"><PlayCircle size={12} />Attempt</span>
+          <span className="exam-attempt-btn"><PlayCircle size={12} />{isTeacher ? 'Preview' : 'Attempt'}</span>
         )}
       </div>
     </div>
@@ -567,7 +569,38 @@ function LiveExamCard({ exam, idx }) {
 
 function ScheduledExamCard({ exam, idx }) {
   const { user } = useAuthStore();
-  const locked = exam.is_premium && !user?.is_premium;
+  const isTeacher = user?.role === 'teacher' || user?.role === 'admin';
+  const locked = exam.is_premium && !user?.is_premium && !isTeacher;
+
+  const cardContent = (
+    <div className={clsx('exam-card', locked && 'dimmed')}>
+      <div className="exam-card-strip exam-strip-scheduled" />
+      <div className="exam-card-glow" />
+
+      <div className="exam-card-head">
+        <p className="exam-card-title">{exam.title}</p>
+        <span className="ep-status ep-status-scheduled">Scheduled</span>
+      </div>
+
+      {(exam.subject_name || exam.topic_name) && (
+        <div className="exam-card-meta">
+          <span>
+            {exam.subject_name}
+            {exam.topic_name && ` • ${exam.topic_name}`}
+          </span>
+        </div>
+      )}
+
+      <div className="exam-card-foot">
+        <span><Clock size={11} style={{ color: 'var(--cyan)' }} />{exam.duration_minutes ? `${exam.duration_minutes}m` : 'Untimed'}</span>
+        {isTeacher ? (
+          <span className="exam-attempt-btn" style={{ marginLeft: 'auto' }}><PlayCircle size={12} />Preview</span>
+        ) : (
+          exam.scheduled_at && <span style={{ marginLeft: 'auto', fontSize: '0.68rem' }}><CalendarClock size={10} style={{ color: 'var(--cyan)', marginRight: 3 }} />{fmtDateTime(exam.scheduled_at)}</span>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <motion.div
@@ -575,29 +608,11 @@ function ScheduledExamCard({ exam, idx }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: idx * 0.07, duration: 0.25 }}
     >
-      <div className={clsx('exam-card', locked && 'dimmed')}>
-        <div className="exam-card-strip exam-strip-scheduled" />
-        <div className="exam-card-glow" />
-
-        <div className="exam-card-head">
-          <p className="exam-card-title">{exam.title}</p>
-          <span className="ep-status ep-status-scheduled">Scheduled</span>
-        </div>
-
-        {(exam.subject_name || exam.topic_name) && (
-          <div className="exam-card-meta">
-            <span>
-              {exam.subject_name}
-              {exam.topic_name && ` • ${exam.topic_name}`}
-            </span>
-          </div>
-        )}
-
-        <div className="exam-card-foot">
-          <span><Clock size={11} style={{ color: 'var(--cyan)' }} />{exam.duration_minutes ? `${exam.duration_minutes}m` : 'Untimed'}</span>
-          {exam.scheduled_at && <span style={{ marginLeft: 'auto', fontSize: '0.68rem' }}><CalendarClock size={10} style={{ color: 'var(--cyan)', marginRight: 3 }} />{fmtDateTime(exam.scheduled_at)}</span>}
-        </div>
-      </div>
+      {isTeacher ? (
+        <Link to={`/exams/${exam.id}/take`} style={{ textDecoration: 'none' }}>{cardContent}</Link>
+      ) : (
+        cardContent
+      )}
     </motion.div>
   );
 }
@@ -761,6 +776,7 @@ const TABS = [
 ];
 
 export default function StudentExamsPage() {
+  const [selectedNode, setSelectedNode] = useState(null);
   const [activeTab, setActiveTab] = useState('live');
   const [selectedSubject, setSelectedSubject] = useState('all');
   const [selectedTopic, setSelectedTopic] = useState('all');
@@ -878,28 +894,25 @@ export default function StudentExamsPage() {
 
   // Filter function
   const filterExam = (exam, isHistory = false) => {
+    // Hierarchy sidebar node filter
+    if (selectedNode) {
+      if (selectedNode.type === 'curriculum' && exam.curriculum_id && exam.curriculum_id !== selectedNode.id) return false;
+      if (selectedNode.type === 'class' && exam.class_id && exam.class_id !== selectedNode.id) return false;
+      if (selectedNode.type === 'subject' && exam.subject_id && exam.subject_id !== selectedNode.id) return false;
+      if (selectedNode.type === 'topic' && exam.topic_id && exam.topic_id !== selectedNode.id) return false;
+    }
+
     const examSubject = exam.subject_name?.toLowerCase().trim();
     const selectedSub = selectedSubject.toLowerCase().trim();
     const examTopic = exam.topic_name?.toLowerCase().trim();
-    const selectedTop = selectedTopic.toLowerCase().trim();
 
     if (selectedSubject !== 'all' && examSubject !== selectedSub) return false;
     
     // Topic & subtopic matching
     if (selectedTopic !== 'all') {
-      console.log("EXAM FILTER DEBUG:", {
-        title: exam.title,
-        examTopic,
-        selectedTopic: selectedTop,
-        allowedTopicNames,
-        matchDirect: examTopic === selectedTop,
-        matchAllowed: allowedTopicNames?.includes(examTopic)
-      });
       if (selectedSubtopic !== 'all') {
-        // If a specific subtopic is selected, match it exactly
         if (examTopic !== selectedSubtopic.toLowerCase().trim()) return false;
       } else {
-        // Otherwise, match parent topic or any of its child subtopics
         if (allowedTopicNames && !allowedTopicNames.includes(examTopic)) return false;
       }
     }
@@ -911,14 +924,27 @@ export default function StudentExamsPage() {
     return true;
   };
 
-  const filteredLive = useMemo(() => liveList.filter(e => filterExam(e, false)), [liveList, selectedSubject, selectedTopic, selectedSubtopic, attemptFilter, allowedTopicNames]);
-  const filteredScheduled = useMemo(() => scheduledList.filter(e => filterExam(e, false)), [scheduledList, selectedSubject, selectedTopic, selectedSubtopic, attemptFilter, allowedTopicNames]);
-  const filteredHistory = useMemo(() => historyList.filter(e => filterExam(e, true)), [historyList, selectedSubject, selectedTopic, selectedSubtopic, attemptFilter, allowedTopicNames]);
+  const filteredLive = useMemo(() => liveList.filter(e => filterExam(e, false)), [liveList, selectedNode, selectedSubject, selectedTopic, selectedSubtopic, attemptFilter, allowedTopicNames]);
+  const filteredScheduled = useMemo(() => scheduledList.filter(e => filterExam(e, false)), [scheduledList, selectedNode, selectedSubject, selectedTopic, selectedSubtopic, attemptFilter, allowedTopicNames]);
+  const filteredHistory = useMemo(() => historyList.filter(e => filterExam(e, true)), [historyList, selectedNode, selectedSubject, selectedTopic, selectedSubtopic, attemptFilter, allowedTopicNames]);
 
   return (
-    <PageWrapper className="p-6">
+    <PageWrapper className="p-0">
       <style>{CSS}</style>
-      <div className="exams-root">
+      <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+        <HierarchySidebar
+          selectedNodeId={selectedNode?.id}
+          selectedNodeType={selectedNode?.type}
+          onSelectNode={(node) => {
+            if (selectedNode?.id === node.id && selectedNode?.type === node.type) {
+              setSelectedNode(null);
+            } else {
+              setSelectedNode(node);
+            }
+          }}
+        />
+        <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem 2rem' }}>
+          <div className="exams-root">
 
         {/* Ambient background blur blobs */}
         <div className="exams-header-blob exams-blob-1" />
@@ -1060,6 +1086,8 @@ export default function StudentExamsPage() {
           </motion.div>
         </AnimatePresence>
 
+          </div>
+        </div>
       </div>
     </PageWrapper>
   );
