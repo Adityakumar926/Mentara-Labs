@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mic, MicOff, Volume2, VolumeX, X, Sparkles, AlertCircle, Play, Square, Settings, RefreshCw } from 'lucide-react';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
@@ -6,6 +7,7 @@ import { aiApi } from '@/api/services';
 import toast from 'react-hot-toast';
 
 export default function VoiceTutor() {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -16,11 +18,43 @@ export default function VoiceTutor() {
   const [selectedVoiceName, setSelectedVoiceName] = useState('');
   const [isMuted, setIsMuted] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const recognitionRef = useRef(null);
   const chatEndRef = useRef(null);
   const selectedVoiceRef = useRef(selectedVoiceName);
   const isMutedRef = useRef(isMuted);
+  const handleSendToAIRef = useRef(null);
+
+  // Auto-collapse / fade widget when user scrolls down (captures scroll inside .sl-main or any div)
+  useEffect(() => {
+    let timer;
+    const handleScroll = (e) => {
+      const target = e.target;
+      const scrollTop = (target && typeof target.scrollTop === 'number' && target.scrollTop > 0) 
+        ? target.scrollTop 
+        : (window.scrollY || document.documentElement.scrollTop || 0);
+
+      if (scrollTop > 20) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        setIsScrolled(false);
+      }, 2000);
+    };
+
+    // 'true' for capture phase to catch scroll on overflow divs like .sl-main
+    window.addEventListener('scroll', handleScroll, true);
+    return () => {
+      window.removeEventListener('scroll', handleScroll, true);
+      clearTimeout(timer);
+    };
+  }, []);
 
   // Sync refs with state
   useEffect(() => {
@@ -33,6 +67,10 @@ export default function VoiceTutor() {
   useEffect(() => {
     isMutedRef.current = isMuted;
   }, [isMuted]);
+
+  useEffect(() => {
+    handleSendToAIRef.current = handleSendToAI;
+  });
 
   // Initialize Speech Recognition
   useEffect(() => {
@@ -56,7 +94,7 @@ export default function VoiceTutor() {
     rec.onresult = (event) => {
       const resultText = event.results[0][0].transcript;
       setTranscript(resultText);
-      handleSendToAI(resultText);
+      handleSendToAIRef.current?.(resultText);
     };
 
     rec.onerror = (event) => {
@@ -183,21 +221,46 @@ export default function VoiceTutor() {
     }
   };
 
-  // Send request to Groq backend
+  const [agentMetadata, setAgentMetadata] = useState(null);
+
+  // Send request to Groq backend (State Graph Agentic Tutor)
   const handleSendToAI = async (textQuery) => {
     setStatus('thinking');
     
-    // Add user message to history
+    // Pass current conversation history so the backend State Graph maintains context
+    const currentHistory = [...history];
     const updatedHistory = [...history, { role: 'user', content: textQuery }];
     setHistory(updatedHistory);
 
     try {
-      const res = await aiApi.voiceTutor(textQuery, history);
+      const res = await aiApi.voiceTutor(textQuery, currentHistory);
       
       if (res.data.success) {
         const aiResponse = res.data.response;
         setResponse(aiResponse);
-        setHistory(prev => [...prev, { role: 'assistant', content: aiResponse }]);
+        if (res.data.agentMetadata) {
+          setAgentMetadata(res.data.agentMetadata);
+          
+          // Check for Agentic Action (e.g. NAVIGATE)
+          if (res.data.agentMetadata.action && res.data.agentMetadata.action.type === 'NAVIGATE') {
+            const action = res.data.agentMetadata.action;
+            const { url, label } = action;
+            toast.success(`🚀 ${label || 'Navigating'}...`, { icon: '🤖', duration: 4000 });
+            
+            // Dispatch event for active page
+            window.dispatchEvent(new CustomEvent('VOICE_TUTOR_ACTION', { detail: action }));
+            
+            if (url) {
+              sessionStorage.setItem('pending_voice_action', JSON.stringify(action));
+              if (window.location.pathname !== url) {
+                setTimeout(() => {
+                  navigate(url);
+                }, 1800);
+              }
+            }
+          }
+        }
+        setHistory(prev => [...prev, { role: 'assistant', content: aiResponse, metadata: res.data.agentMetadata }]);
         
         // Trigger voice response
         speakResponse(aiResponse);
@@ -307,16 +370,68 @@ export default function VoiceTutor() {
 
   return (
     <>
-      {/* Floating Robot Button to open Voice Tutor */}
-      <motion.button
-        className="fixed bottom-2 right-2 z-50 flex h-28 w-28 items-center justify-center cursor-pointer select-none"
-        onClick={() => setIsOpen(!isOpen)}
-        whileHover={{ scale: 1.1, y: -5 }}
-        whileTap={{ scale: 0.9 }}
-        style={{ background: 'transparent', border: 'none', outline: 'none' }}
+      {/* Unified Floating Gogo Chatbot Trigger (Outer container is click-through) */}
+      <div 
+        className="fixed bottom-3 right-4 z-50 flex flex-col items-end pointer-events-none select-none transition-all duration-300"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
-        <DotLottieReact src="/RobotSaludando.json" loop autoplay style={{ width: '100%', height: '100%' }} />
-      </motion.button>
+        {/* Integrated Speech Bubble Banner pointing to Gogo (Hides cleanly on scroll unless hovered) */}
+        <AnimatePresence>
+          {!isOpen && (!isScrolled || isHovered) && (
+            <motion.div
+              initial={{ opacity: 0, y: 8, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.9 }}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsOpen(true)}
+              className="relative mb-2 mr-1 flex items-center gap-2 rounded-2xl border border-cyan-400/50 bg-gradient-to-r from-slate-950 via-slate-900 to-purple-950/90 px-4 py-2 text-xs font-black text-white shadow-2xl backdrop-blur-md cursor-pointer pointer-events-auto group"
+              style={{ boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.15)' }}
+              title="Click to talk with Gogo"
+            >
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400"></span>
+              </span>
+              <Sparkles className="h-4 w-4 text-amber-300 animate-pulse group-hover:rotate-12 transition-transform" />
+              <span className="tracking-wide text-xs sm:text-sm bg-gradient-to-r from-cyan-300 via-purple-200 to-amber-200 bg-clip-text text-transparent font-extrabold whitespace-nowrap">
+                Ask Gogo AI Tutor 🎙️
+              </span>
+              {/* Speech Bubble Arrow Tail pointing down to Gogo */}
+              <div className="absolute -bottom-1.5 right-7 h-3 w-3 rotate-45 border-r border-b border-cyan-400/50 bg-slate-950" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Gogo Robot Circular Button (Shrinks & semi-fades on scroll, expands fully on hover) */}
+        <motion.button
+          className="relative flex items-center justify-center rounded-full cursor-pointer pointer-events-auto group transition-all duration-300"
+          animate={{
+            scale: !isOpen && isScrolled && !isHovered ? 0.75 : 1,
+            opacity: !isOpen && isScrolled && !isHovered ? 0.55 : 1,
+          }}
+          whileHover={{ scale: 1.1, opacity: 1, y: -3 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setIsOpen(!isOpen)}
+          style={{ 
+            width: !isOpen && isScrolled && !isHovered ? '3.5rem' : '5rem',
+            height: !isOpen && isScrolled && !isHovered ? '3.5rem' : '5rem',
+            background: 'transparent', 
+            border: 'none', 
+            outline: 'none' 
+          }}
+          title="Click to talk with Gogo"
+        >
+          {/* Glowing Radial Background Aura */}
+          <div className="absolute inset-1 rounded-full bg-gradient-to-r from-cyan-500/30 via-purple-600/30 to-amber-500/20 blur-xl group-hover:blur-2xl transition-all animate-pulse" />
+
+          {/* Lottie Robot Gogo */}
+          <div className="relative z-10 w-full h-full drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)]">
+            <DotLottieReact src="/RobotSaludando.json" loop autoplay style={{ width: '100%', height: '100%' }} />
+          </div>
+        </motion.button>
+      </div>
 
       {/* Main Drawer Window */}
       <AnimatePresence>
@@ -326,7 +441,7 @@ export default function VoiceTutor() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0.9 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-24 right-6 z-50 flex h-[500px] w-96 flex-col rounded-3xl border border-slate-700 bg-slate-900/90 text-white backdrop-blur-xl shadow-2xl overflow-hidden"
+            className="fixed bottom-24 right-6 z-50 flex h-[600px] w-[440px] flex-col rounded-3xl border border-slate-700 bg-slate-900/90 text-white backdrop-blur-xl shadow-2xl overflow-hidden"
             style={{
               boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1)'
             }}
@@ -334,12 +449,14 @@ export default function VoiceTutor() {
             {/* Header */}
             <div className="flex items-center justify-between bg-gradient-to-r from-slate-950 to-slate-900 px-5 py-4 border-b border-slate-800">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950 border border-cyan-500/20 overflow-hidden">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-600/20 border border-purple-500/30 overflow-hidden shadow-inner">
                   <DotLottieReact src="/RobotSaludando.json" loop autoplay style={{ width: '100%', height: '100%' }} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm leading-tight text-white tracking-wide">AI Voice Tutor</h3>
-                  <p className="text-[10px] text-slate-400 font-medium">Cambridge Primary Assistant</p>
+                  <h3 className="font-bold text-sm leading-tight text-white tracking-wide">Gogo AI Voice Tutor 🤖</h3>
+                  <p className="text-[10px] text-cyan-400 font-semibold flex items-center gap-1">
+                    <Sparkles size={10} className="text-amber-300" /> State Graph Agent Active
+                  </p>
                 </div>
               </div>
               
@@ -366,6 +483,19 @@ export default function VoiceTutor() {
                 </button>
               </div>
             </div>
+
+            {/* Agentic State Graph Active Metadata Bar */}
+            {agentMetadata && (
+              <div className="flex items-center justify-between bg-purple-950/40 px-5 py-1.5 border-b border-purple-800/30 text-[10px] text-purple-200 font-semibold tracking-wide">
+                <div className="flex items-center gap-1.5 truncate">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="truncate">Topic: <strong className="text-white font-bold">{agentMetadata.currentTopic}</strong></span>
+                </div>
+                <span className="shrink-0 bg-purple-900/60 px-2 py-0.5 rounded-md text-[9px] text-cyan-300 font-extrabold uppercase border border-purple-700/50">
+                  {agentMetadata.intent || 'TUTORING'}
+                </span>
+              </div>
+            )}
 
             {/* Main Area: Switch Settings or Chat Area */}
             {showSettings ? (
@@ -430,7 +560,7 @@ export default function VoiceTutor() {
                       <div className="w-28 h-28 mb-1">
                         <DotLottieReact src="/RobotSaludando.json" loop autoplay style={{ width: '100%', height: '100%' }} />
                       </div>
-                      <h4 className="font-bold text-sm mb-1 text-slate-200">Hi! I'm your AI Voice Tutor.</h4>
+                      <h4 className="font-bold text-sm mb-1 text-slate-200">Hi! I'm Gogo, your AI Voice Tutor 🤖</h4>
                       <p className="text-xs text-slate-400 max-w-[240px] leading-relaxed">
                         Click the microphone and ask me anything about your Math, Science, or English lessons!
                       </p>

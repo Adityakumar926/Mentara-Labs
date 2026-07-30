@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import {
@@ -374,6 +375,23 @@ const CSS = `
     justify-content: space-between;
     gap: 1.5rem;
   }
+
+  .sd-resource-card.highlighted-voice-item {
+    border-color: #00D4FF !important;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.45) !important;
+    background: rgba(0, 212, 255, 0.08) !important;
+    transform: scale(1.02);
+    transition: all 0.3s ease;
+    animation: voiceHighlightPulse 1.5s infinite alternate;
+  }
+  @keyframes voiceHighlightPulse {
+    from {
+      box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+    }
+    to {
+      box-shadow: 0 0 22px rgba(0, 212, 255, 0.6);
+    }
+  }
 `;
 
 const getSubjectStyle = (name) => {
@@ -403,15 +421,19 @@ const getSubjectStyle = (name) => {
 };
 
 export default function StudentDashboardPage() {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [selectedTopic, setSelectedTopic] = useState(null);
   const [activeTab, setActiveTab] = useState('exams');
+  const [pendingVoiceAction, setPendingVoiceAction] = useState(null);
+  const [highlightedItemId, setHighlightedItemId] = useState(null);
 
   const [pdfUrl, setPdfUrl] = useState(null);
   const [videoToken, setVideoToken] = useState(null);
   const [selectedVideoContent, setSelectedVideoContent] = useState(null);
   const [activeSimulation, setActiveSimulation] = useState(null);
+  const [voiceLauncherItem, setVoiceLauncherItem] = useState(null);
 
   const { data: subjectsRes, loading: loadingSubjects } = useApi(
     () => studentApi.getCurriculumSubjects(user.curriculum_id),
@@ -419,6 +441,47 @@ export default function StudentDashboardPage() {
     [user.curriculum_id]
   );
   const subjects = subjectsRes?.data ?? subjectsRes ?? [];
+
+  useEffect(() => {
+    if (!selectedSubject && subjects.length > 0) {
+      setSelectedSubject(subjects[0]);
+    }
+  }, [subjects, selectedSubject]);
+
+  useEffect(() => {
+    const handleVoiceAction = (action) => {
+      if (!action) return;
+      toast.success(`Voice Command Captured: ${action.matchedItem || 'No item'} in ${action.subject || 'No subject'}`);
+      if (action.tab) {
+        setActiveTab(action.tab);
+      }
+      if (action.matchedItem) {
+        setPendingVoiceAction(action);
+      }
+      if (action.subject && subjects.length > 0) {
+        const found = subjects.find(s => 
+          s.name.toLowerCase().includes(action.subject.toLowerCase()) || 
+          action.subject.toLowerCase().includes(s.name.toLowerCase())
+        );
+        if (found) {
+          setSelectedSubject(found);
+        }
+      }
+    };
+
+    const pending = sessionStorage.getItem('pending_voice_action');
+    if (pending) {
+      try {
+        const action = JSON.parse(pending);
+        handleVoiceAction(action);
+      } catch (e) {}
+      sessionStorage.removeItem('pending_voice_action');
+    }
+
+    const onCustomEvent = (e) => handleVoiceAction(e.detail);
+    window.addEventListener('VOICE_TUTOR_ACTION', onCustomEvent);
+    return () => window.removeEventListener('VOICE_TUTOR_ACTION', onCustomEvent);
+  }, [subjects]);
 
   const [topics, setTopics] = useState([]);
   const [loadingTopics, setLoadingTopics] = useState(false);
@@ -435,7 +498,6 @@ export default function StudentDashboardPage() {
         const list = res.data?.data ?? res.data ?? res ?? [];
         const roots = list.filter(t => !t.parent_topic_id);
         setTopics(roots);
-        if (roots[0]) setSelectedTopic(roots[0]);
         setLoadingTopics(false);
       })
       .catch(() => {
@@ -443,6 +505,40 @@ export default function StudentDashboardPage() {
         setLoadingTopics(false);
       });
   }, [selectedSubject]);
+
+  useEffect(() => {
+    if (topics.length === 0) return;
+
+    const pending = pendingVoiceAction;
+    let targetTopic = null;
+
+    if (pending && pending.subject && pending.topic) {
+      const isSubMatch = selectedSubject && (
+        selectedSubject.name.toLowerCase().includes(pending.subject.toLowerCase()) ||
+        pending.subject.toLowerCase().includes(selectedSubject.name.toLowerCase())
+      );
+
+      if (isSubMatch) {
+        const cleanPendingTopic = pending.topic.toLowerCase().replace(/[^\w\s]/g, '').trim();
+        targetTopic = topics.find(t => {
+          const cleanRootName = t.name.toLowerCase().replace(/[^\w\s]/g, '').trim();
+          return cleanRootName.includes(cleanPendingTopic) || cleanPendingTopic.includes(cleanRootName);
+        });
+      }
+    }
+
+    if (targetTopic) {
+      if (!selectedTopic || selectedTopic.id !== targetTopic.id) {
+        setSelectedTopic(targetTopic);
+      }
+    } else {
+      // Default to first topic if nothing selected or current selection is not in the active subject topics
+      const isCurrentTopicInNewTopics = topics.some(t => selectedTopic && t.id === selectedTopic.id);
+      if (!isCurrentTopicInNewTopics && topics[0]) {
+        setSelectedTopic(topics[0]);
+      }
+    }
+  }, [topics, pendingVoiceAction, selectedSubject, selectedTopic]);
 
   const [topicContent, setTopicContent] = useState(null);
   const [loadingContents, setLoadingContents] = useState(false);
@@ -562,6 +658,54 @@ export default function StudentDashboardPage() {
       if (wsWindow) wsWindow.close();
     }
   };
+
+  useEffect(() => {
+    if (pendingVoiceAction && (items.length > 0 || exams.length > 0)) {
+      const pending = pendingVoiceAction;
+      const match = items.find(item => 
+        item.title.toLowerCase().includes(pending.matchedItem.toLowerCase()) ||
+        pending.matchedItem.toLowerCase().includes(item.title.toLowerCase())
+      );
+      
+      if (match) {
+        setPendingVoiceAction(null);
+        if (match.content_type === 'worksheet' || match.content_type === 'animation') {
+          setHighlightedItemId(match.id);
+          setTimeout(() => {
+            const el = document.getElementById(`resource-card-${match.id}`);
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }, 300);
+          setTimeout(() => {
+            setHighlightedItemId(prev => prev === match.id ? null : prev);
+          }, 6000);
+        } else if (match.content_type === 'video') {
+          handleOpenVideo(match);
+        } else if (match.content_type === 'note') {
+          handleOpenNote(match);
+        }
+      } else {
+        const examMatch = exams.find(exam => 
+          exam.title.toLowerCase().includes(pending.matchedItem.toLowerCase()) ||
+          pending.matchedItem.toLowerCase().includes(exam.title.toLowerCase())
+        );
+        if (examMatch) {
+          setPendingVoiceAction(null);
+          setHighlightedItemId(examMatch.id);
+          setTimeout(() => {
+            const el = document.getElementById(`resource-card-${examMatch.id}`);
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }, 300);
+          setTimeout(() => {
+            setHighlightedItemId(prev => prev === examMatch.id ? null : prev);
+          }, 6000);
+        }
+      }
+    }
+  }, [pendingVoiceAction, topicContent, items, exams]);
 
   const openWorksheetInNewTab = (imageUrl, contentId, wsWindow) => {
     if (!imageUrl) return;
@@ -927,7 +1071,7 @@ export default function StudentDashboardPage() {
                             <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)', fontWeight: 700 }}>No study guides available yet.</div>
                           ) : (
                             notesAndVideos.map((c) => (
-                              <div key={c.id} className="sd-resource-card">
+                              <div key={c.id} id={`resource-card-${c.id}`} className={`sd-resource-card ${highlightedItemId === c.id ? 'highlighted-voice-item' : ''}`}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                                   <div className="sd-res-icon-wrapper" style={{ background: c.content_type === 'video' ? 'rgba(139, 92, 246, 0.15)' : 'rgba(6, 182, 212, 0.15)' }}>
                                     {c.content_type === 'video' ? '🎥' : '📖'}
@@ -960,7 +1104,7 @@ export default function StudentDashboardPage() {
                             <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)', fontWeight: 700 }}>No game simulators available yet.</div>
                           ) : (
                             simulators.map((c) => (
-                              <div key={c.id} className="sd-resource-card">
+                              <div key={c.id} id={`resource-card-${c.id}`} className={`sd-resource-card ${highlightedItemId === c.id ? 'highlighted-voice-item' : ''}`}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                                   <div className="sd-res-icon-wrapper" style={{ background: 'rgba(16, 185, 129, 0.15)' }}>
                                     🎮
@@ -987,7 +1131,7 @@ export default function StudentDashboardPage() {
                             <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)', fontWeight: 700 }}>No worksheets available yet.</div>
                           ) : (
                             worksheets.map((c) => (
-                              <div key={c.id} className="sd-resource-card">
+                              <div key={c.id} id={`resource-card-${c.id}`} className={`sd-resource-card ${highlightedItemId === c.id ? 'highlighted-voice-item' : ''}`}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                                   <div className="sd-res-icon-wrapper" style={{ background: 'rgba(245, 158, 11, 0.15)' }}>
                                     🎨
@@ -1014,7 +1158,7 @@ export default function StudentDashboardPage() {
                             <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)', fontWeight: 700 }}>No mock quests found.</div>
                           ) : (
                             exams.map((e) => (
-                              <div key={e.id} className="sd-resource-card">
+                              <div key={e.id} id={`resource-card-${e.id}`} className={`sd-resource-card ${highlightedItemId === e.id ? 'highlighted-voice-item' : ''}`}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                                   <div className="sd-res-icon-wrapper" style={{ background: 'rgba(239, 68, 68, 0.15)' }}>
                                     🏆
@@ -1114,6 +1258,8 @@ export default function StudentDashboardPage() {
             )}
           </div>
         </Modal>
+
+
 
       </div>
     </PageWrapper>
