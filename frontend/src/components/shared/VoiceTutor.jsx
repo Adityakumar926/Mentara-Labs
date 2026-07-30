@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, MicOff, Volume2, VolumeX, X, Sparkles, AlertCircle, Play, Square, Settings, RefreshCw } from 'lucide-react';
+import { Mic, MicOff, Volume2, VolumeX, X, Sparkles, AlertCircle, Play, Square, Settings, RefreshCw, Send } from 'lucide-react';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { aiApi } from '@/api/services';
 import toast from 'react-hot-toast';
@@ -21,6 +21,7 @@ export default function VoiceTutor() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isWhiteboardOpen, setIsWhiteboardOpen] = useState(false);
+  const [textInput, setTextInput] = useState('');
 
   const recognitionRef = useRef(null);
   const chatEndRef = useRef(null);
@@ -282,6 +283,14 @@ export default function VoiceTutor() {
       toast.error(err.response?.data?.message || err.message || 'Server error.');
       setStatus('idle');
     }
+  };
+
+  const handleTextSubmit = (e) => {
+    if (e) e.preventDefault();
+    if (!textInput.trim() || status === 'thinking') return;
+    const query = textInput.trim();
+    setTextInput('');
+    handleSendToAI(query);
   };
 
   // Clean text for speech synthesis so it sounds natural without reading markdown symbols or emojis
@@ -672,8 +681,28 @@ export default function VoiceTutor() {
                       ? 'Processing question...'
                       : status === 'speaking'
                       ? 'AI is speaking...'
-                      : 'Tap mic to ask tutor'}
+                      : 'Tap mic or type question'}
                   </span>
+
+                  {/* Text Input Option for typing questions */}
+                  <form onSubmit={handleTextSubmit} className="w-full flex items-center gap-2 mt-1">
+                    <input
+                      type="text"
+                      value={textInput}
+                      onChange={(e) => setTextInput(e.target.value)}
+                      placeholder="Or type your question here..."
+                      className="flex-1 bg-slate-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 transition-all"
+                      disabled={status === 'thinking'}
+                    />
+                    <button
+                      type="submit"
+                      disabled={!textInput.trim() || status === 'thinking'}
+                      className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500 text-white disabled:opacity-40 disabled:cursor-not-allowed hover:brightness-110 transition-all flex-shrink-0"
+                      title="Send Message"
+                    >
+                      <Send size={14} />
+                    </button>
+                  </form>
                 </div>
               </>
             )}
