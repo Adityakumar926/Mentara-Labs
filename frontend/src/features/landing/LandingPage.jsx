@@ -3,12 +3,13 @@ import { useNavigate, Link } from "react-router-dom";
 import useAuthStore from "@/store/authStore";
 import { motion, AnimatePresence } from "framer-motion";
 import { studentApi } from "@/api/services";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { 
   ArrowUpRight, Play, Timer, Atom, PenTool, Sparkles, ChevronRight, 
   Globe, BookOpen, GraduationCap, Award, Library, Compass, X, Menu,
   Dna, Sigma, Code2, LineChart, Globe2, BookText, Check, Quote,
   Github, Twitter, Linkedin, Youtube, Star, BarChart3, Layers, FlaskConical,
-  Presentation, Zap
+  Presentation, Zap, Navigation, Brain, Search, Mic, Bot, MessageSquare
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -84,6 +85,7 @@ export default function LandingPage() {
         <Header />
         <Hero />
         <CurriculumStrip />
+        <GogoAiTutorSection />
         <Showcase />
         <ProductDetails />
         <Pricing />
@@ -109,6 +111,7 @@ function Header() {
 
   const NAV_LINKS = [
     { label: "Curriculum", href: "#curriculum" },
+    { label: "GOGO AI Tutor", href: "#gogo-tutor" },
     { label: "Features", href: "#features" },
     { label: "Subjects", href: "#subjects" },
     { label: "Pricing", href: "#pricing" },
@@ -224,7 +227,7 @@ function Hero() {
   }, []);
 
   return (
-    <section data-testid="hero-section" className="relative pt-20 pb-12 lg:pt-24 lg:pb-16 overflow-hidden bg-zinc-950">
+    <section data-testid="hero-section" className="relative pt-24 pb-12 lg:pt-28 lg:pb-16 overflow-hidden bg-zinc-950">
       {/* Animated background orbs */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-1/4 -left-32 h-[480px] w-[480px] rounded-full bg-cyan-500/20 blur-[120px] animate-blob" />
@@ -243,12 +246,13 @@ function Hero() {
           transition={{ duration: 0.7, ease: "easeOut" }}
           className="lg:col-span-7"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.02] backdrop-blur-md mb-8" data-testid="hero-badge">
+          {/* Left Column Badge */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-white/10 bg-white/[0.02] backdrop-blur-md mb-8" data-testid="hero-badge">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75 animate-ping" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" />
             </span>
-            <span className="font-mono-label text-[10px] uppercase tracking-[0.22em] text-zinc-300">
+            <span className="font-mono-label text-[10px] uppercase tracking-[0.22em] text-zinc-300 font-bold">
               Built for Cambridge Primary
             </span>
           </div>
@@ -306,6 +310,22 @@ function Hero() {
           transition={{ duration: 0.9, delay: 0.2, ease: "easeOut" }}
           className="lg:col-span-5 relative"
         >
+          {/* Floating Independent Top-Right Device Notice Badge - Positioned High (-top-20 sm:-top-24) */}
+          <div className="absolute -top-20 sm:-top-24 right-0 z-20 flex justify-end" data-testid="device-notice-badge">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-cyan-500/30 bg-zinc-950/90 backdrop-blur-xl shadow-lg">
+              <span className="relative flex h-2 w-2 shrink-0">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75 animate-ping" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" />
+              </span>
+              <span className="font-mono-label text-[10px] uppercase tracking-[0.22em] text-cyan-300 font-bold">
+                Desktop & Tablet First
+              </span>
+              <span className="text-zinc-500">•</span>
+              <span className="font-mono-label text-[10px] uppercase tracking-[0.16em] text-zinc-300 font-medium">
+                Designed to reduce mobile screen addiction
+              </span>
+            </div>
+          </div>
           <div className="relative h-[480px] w-full">
             {/* Glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-emerald-500/10 blur-2xl pointer-events-none" />
@@ -533,6 +553,247 @@ function CurriculumStrip() {
               <span className="text-[12.5px] font-semibold text-zinc-300 tracking-tight">{label}</span>
             </div>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── 3.5. GOGO AI TUTOR AGENT SECTION ── */
+function GogoAiTutorSection() {
+  const [activePromptIndex, setActivePromptIndex] = useState(0);
+
+  const DEMO_PROMPTS = [
+    {
+      user: "GOGO, take me to Primary Science Light & Shadows simulator!",
+      response: "Navigating to Science Lab #04 (Light & Shadows) right now! 🚀",
+      action: "Launching Interactive Simulator...",
+      tag: "Auto Navigation",
+      badgeColor: "text-cyan-400 bg-cyan-500/10 border-cyan-500/30"
+    },
+    {
+      user: "Help me find Stage 3 Cambridge Math geometry worksheets.",
+      response: "Found 14 Stage 3 Geometry worksheets with printable drawing activities! 📐",
+      action: "Opening Worksheets Hub...",
+      tag: "Worksheet Finder",
+      badgeColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30"
+    },
+    {
+      user: "Explain how solar eclipses work in simple terms.",
+      response: "When the Moon passes directly between the Sun and Earth, blocking sunlight!",
+      action: "Teaching Concept with Voice...",
+      tag: "Voice Tutor",
+      badgeColor: "text-purple-400 bg-purple-500/10 border-purple-500/30"
+    },
+    {
+      user: "Start a mock Checkpoint exam for Primary English.",
+      response: "Preparing 45-minute timed Primary English Checkpoint exam with auto-grading!",
+      action: "Starting Timed Exam Engine...",
+      tag: "Exam Assistant",
+      badgeColor: "text-amber-400 bg-amber-500/10 border-amber-500/30"
+    }
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActivePromptIndex((prev) => (prev + 1) % DEMO_PROMPTS.length);
+    }, 4200);
+    return () => clearInterval(timer);
+  }, []);
+
+  const activeDemo = DEMO_PROMPTS[activePromptIndex];
+
+  return (
+    <section id="gogo-tutor" data-testid="gogo-tutor-section" className="relative py-16 lg:py-24 bg-gradient-to-b from-zinc-950 via-zinc-900/60 to-zinc-950 border-b border-white/5 overflow-hidden">
+      {/* Ambient Radial Background Light */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[800px] bg-gradient-to-r from-cyan-500/10 via-purple-600/15 to-emerald-500/10 blur-[140px] pointer-events-none -z-10" />
+
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/5 backdrop-blur-md mb-4" data-testid="gogo-badge">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75 animate-ping" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" />
+            </span>
+            <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400 font-bold">
+              Autonomous AI Learning Agent
+            </span>
+          </div>
+
+          <h2 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight text-white leading-[1.05]">
+            Meet <span className="bg-gradient-to-r from-cyan-300 via-purple-300 to-emerald-300 bg-clip-text text-transparent">GOGO AI Tutor (Agent)</span>
+          </h2>
+
+          <p className="mt-4 text-zinc-400 text-base sm:text-lg leading-relaxed font-medium">
+            Your 24/7 personal Cambridge Primary companion. GOGO teaches concepts, guides through tricky topics, locates worksheets & mock exams, and auto-navigates your learning journey on command.
+          </p>
+        </div>
+
+        {/* Main Grid: Left Features + Right Visual Hologram */}
+        <div className="grid lg:grid-cols-12 gap-12 items-center">
+          
+          {/* Left Column: Capabilities Grid */}
+          <div className="lg:col-span-6 space-y-4">
+            {[
+              {
+                icon: Navigation,
+                title: "Auto-Navigation & Topic Search",
+                desc: "Ask GOGO to take you anywhere — 'Open Science Light & Shadow lab' or 'Find Grade 4 Math' — and GOGO navigates directly to the exact page.",
+                color: "text-cyan-400",
+                bg: "bg-cyan-500/10 border-cyan-500/20"
+              },
+              {
+                icon: Brain,
+                title: "Interactive Concept Teaching",
+                desc: "GOGO breaks down Cambridge Primary Science, Math, and English into simple, child-friendly explanations with interactive step-by-step guidance.",
+                color: "text-purple-400",
+                bg: "bg-purple-500/10 border-purple-500/20"
+              },
+              {
+                icon: Search,
+                title: "Worksheets & Exam Finder",
+                desc: "Instantly locates printable drawing worksheets, interactive labs, and auto-graded mock checkpoint papers tailored to your student's stage.",
+                color: "text-emerald-400",
+                bg: "bg-emerald-500/10 border-emerald-500/20"
+              },
+              {
+                icon: Mic,
+                title: "Real-time Voice & Natural Speech",
+                desc: "Supports speech recognition and natural voice playback with customizable voices so young learners can talk and listen effortlessly.",
+                color: "text-amber-400",
+                bg: "bg-amber-500/10 border-amber-500/20"
+              }
+            ].map((cap, idx) => (
+              <motion.div
+                key={cap.title}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+                className="group flex gap-4 p-5 rounded-2xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] hover:border-cyan-500/30 transition-all duration-300"
+              >
+                <div className={`h-11 w-11 rounded-xl flex items-center justify-center border shrink-0 transition-transform group-hover:scale-110 ${cap.bg}`}>
+                  <cap.icon className={`h-5 w-5 ${cap.color}`} />
+                </div>
+                <div>
+                  <h3 className="font-display text-base font-bold text-white group-hover:text-cyan-300 transition-colors">
+                    {cap.title}
+                  </h3>
+                  <p className="text-zinc-400 text-xs sm:text-sm mt-1 leading-relaxed">
+                    {cap.desc}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Right Column: Interactive Visual Display of GOGO AI Chatbot */}
+          <div className="lg:col-span-6 relative">
+            
+            {/* Cybernetic Container Frame */}
+            <div className="relative rounded-3xl border border-cyan-500/30 bg-zinc-950/80 p-6 backdrop-blur-2xl shadow-[0_0_50px_rgba(34,211,238,0.15)] overflow-hidden">
+              
+              {/* Top Bar of GOGO Display */}
+              <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-400" />
+                  </div>
+                  <span className="font-display text-sm font-bold text-white tracking-wide">
+                    GOGO AI Tutor (Agent)
+                  </span>
+                </div>
+
+                <span className="font-mono-label text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-bold">
+                  ● Agent Online
+                </span>
+              </div>
+
+              {/* Center Robot Display with Cyber Hologram Effect */}
+              <div className="relative flex flex-col items-center justify-center py-2">
+                
+                {/* Robot Halo Background */}
+                <div className="absolute h-44 w-44 rounded-full bg-gradient-to-r from-cyan-500/20 via-purple-600/20 to-amber-500/15 blur-2xl animate-pulse" />
+                
+                {/* GOGO DotLottie Avatar Image */}
+                <div className="relative z-10 w-44 h-44 sm:w-48 sm:h-48 drop-shadow-[0_15px_30px_rgba(0,0,0,0.8)]">
+                  <DotLottieReact src="/RobotSaludando.json" loop autoplay style={{ width: '100%', height: '100%' }} />
+                </div>
+
+                {/* Floating Tag under Robot */}
+                <div className="mt-1 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300 text-xs font-bold font-mono-label">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-300 animate-pulse" />
+                  AI Agent Powered by Mentara Engine
+                </div>
+              </div>
+
+              {/* Dynamic Live Chat Simulation Bubble */}
+              <div className="mt-4 space-y-3 border-t border-white/10 pt-4">
+                
+                {/* User Prompt */}
+                <motion.div 
+                  key={`user-${activePromptIndex}`}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-start gap-2.5 justify-end"
+                >
+                  <div className="bg-zinc-800/90 border border-white/10 rounded-2xl rounded-tr-none px-4 py-2.5 text-xs text-zinc-200 max-w-[85%] shadow-md">
+                    <p className="font-medium">{activeDemo.user}</p>
+                  </div>
+                  <div className="h-7 w-7 rounded-full bg-zinc-800 border border-white/20 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
+                    You
+                  </div>
+                </motion.div>
+
+                {/* GOGO Agent Response */}
+                <motion.div 
+                  key={`gogo-${activePromptIndex}`}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="flex items-start gap-2.5"
+                >
+                  <div className="h-7 w-7 rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400 flex items-center justify-center text-zinc-950 font-black text-xs shrink-0 shadow-lg">
+                    🤖
+                  </div>
+                  <div className="bg-cyan-950/40 border border-cyan-500/30 rounded-2xl rounded-tl-none px-4 py-2.5 text-xs text-cyan-100 max-w-[85%] shadow-lg">
+                    <p className="font-semibold text-white">{activeDemo.response}</p>
+                    
+                    <div className="mt-2 flex items-center justify-between gap-2 pt-2 border-t border-cyan-500/20">
+                      <span className={`text-[10px] font-mono-label font-bold px-2 py-0.5 rounded border ${activeDemo.badgeColor}`}>
+                        {activeDemo.action}
+                      </span>
+                      <span className="text-[10px] text-cyan-300/70 font-mono-label font-bold">
+                        {activeDemo.tag}
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+
+              </div>
+
+              {/* Bottom Quick Feature Tickers */}
+              <div className="mt-4 grid grid-cols-3 gap-2 text-center pt-3 border-t border-white/5">
+                <div className="bg-white/[0.02] p-2 rounded-xl border border-white/5">
+                  <div className="text-[10px] font-bold text-cyan-400 font-mono-label">Auto-Nav</div>
+                  <div className="text-[9px] text-zinc-500 font-medium">Topic Navigation</div>
+                </div>
+                <div className="bg-white/[0.02] p-2 rounded-xl border border-white/5">
+                  <div className="text-[10px] font-bold text-emerald-400 font-mono-label">Voice Sync</div>
+                  <div className="text-[9px] text-zinc-500 font-medium">Natural Audio</div>
+                </div>
+                <div className="bg-white/[0.02] p-2 rounded-xl border border-white/5">
+                  <div className="text-[10px] font-bold text-purple-400 font-mono-label">Smart Search</div>
+                  <div className="text-[9px] text-zinc-500 font-medium">Labs & Papers</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
@@ -898,6 +1159,7 @@ function SubjectsGrid() {
     { name: "English", icon: BookText, topics: 14, accent: "emerald" },
     { name: "Mathematics", icon: Sigma, topics: 18, accent: "cyan" },
     { name: "Science", icon: FlaskConical, topics: 16, accent: "emerald" },
+    { name: "Global Perspectives", icon: Globe, topics: 12, accent: "violet" },
   ];
 
   const ACCENT = {
@@ -910,6 +1172,11 @@ function SubjectsGrid() {
       border: "hover:border-emerald-500/40",
       iconWrap: "border-emerald-500/20 bg-emerald-500/5 group-hover:bg-emerald-500/10",
       icon: "text-emerald-400",
+    },
+    violet: {
+      border: "hover:border-violet-500/40",
+      iconWrap: "border-violet-500/20 bg-violet-500/5 group-hover:bg-violet-500/10",
+      icon: "text-violet-400",
     },
   };
 
@@ -930,7 +1197,7 @@ function SubjectsGrid() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
           {SUBJECTS.map((s) => {
             const a = ACCENT[s.accent];
             return (
@@ -1326,7 +1593,7 @@ function FAQItem({ q, a, i }) {
 function Footer() {
   const COLS = [
     { title: "Platform", links: ["Simulations", "Worksheets", "Auto Exams", "Analytics"] },
-    { title: "Curriculum", links: ["Cambridge Primary Science", "Cambridge Primary Math", "Cambridge Primary English"] },
+    { title: "Curriculum", links: ["Cambridge Primary Science", "Cambridge Primary Math", "Cambridge Primary English", "Cambridge Global Perspectives"] },
     { title: "Company", links: ["About", "Educators", "Careers", "Press"] },
     { title: "Resources", links: ["Blog", "Help center", "Status", "Changelog"] },
   ];
@@ -1403,27 +1670,30 @@ function Showcase() {
 
   const SLIDES = [
     {
-      title: "Cambridge Primary",
-      badge: "World-Class Learning for Tomorrow's Leaders",
-      desc: "Delivering an engaging Cambridge Primary education through interactive lessons, intelligent assessments, immersive animations, and beautifully designed learning experiences that inspire curiosity and academic excellence.",
+      tabLabel: "Cambridge Primary",
+      title: "Cambridge Primary Excellence",
+      badge: "Curriculum-Aligned Framework",
+      desc: "Empower young minds with interactive lessons, 3D science labs, and drawing worksheets built for Cambridge Primary Stage 1 to 6.",
       img: "/cam1.webp",
       color: "from-cyan-500/20 to-transparent",
       accent: "text-cyan-400",
-      btnText: "Explore Learning →"
+      btnText: "Explore Curriculum →"
     },
     {
-      title: "Modern Education, Powered by Innovation",
-      badge: "Mentara Learning Platform",
-      desc: "Transform every lesson into an engaging digital experience with interactive whiteboards, smart assessments, 3D simulations, drawable worksheets, and powerful teaching tools—all designed for Cambridge Primary classrooms.",
+      tabLabel: "Interactive Learning",
+      title: "Modern Interactive Classroom",
+      badge: "Next-Gen Virtual Suite",
+      desc: "Transform lessons into rich digital experiences with interactive whiteboards, live simulations, and auto-submitted checkpoint practice.",
       img: "/feature.webp",
       color: "from-emerald-500/20 to-transparent",
       accent: "text-emerald-400",
       btnText: "Explore Features →"
     },
     {
-      title: "Learn with Confidence. Grow with Excellence.",
-      badge: "Smart Learning Dashboard",
-      desc: "Track progress, complete interactive worksheets, explore immersive simulations, take auto-submitted assessments, and gain real-time insights through a beautifully designed learning dashboard built for Cambridge Primary students and teachers.",
+      tabLabel: "Student Dashboard",
+      title: "Smart Student & Teacher Hub",
+      badge: "Real-Time Growth & Insights",
+      desc: "Track study streaks, complete drawable activities, monitor checkpoint progress, and learn alongside GOGO AI Tutor 24/7.",
       img: "/dashboard.webp",
       color: "from-violet-500/20 to-transparent",
       accent: "text-violet-400",
@@ -1457,18 +1727,18 @@ function Showcase() {
         </div>
 
         {/* Tab Selection */}
-        <div className="flex justify-center gap-2 mb-10 flex-wrap">
+        <div className="flex justify-center gap-3 mb-10 flex-wrap">
           {SLIDES.map((slide, idx) => (
             <button
-              key={slide.title}
+              key={slide.tabLabel}
               onClick={() => setActiveTab(idx)}
-              className={`px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-all border ${
+              className={`px-6 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-all border ${
                 activeTab === idx
-                  ? "bg-white/10 border-white/20 text-white shadow-lg"
-                  : "bg-transparent border-white/5 text-zinc-500 hover:text-zinc-300"
+                  ? "bg-white/10 border-white/20 text-white shadow-lg scale-[1.02]"
+                  : "bg-transparent border-white/5 text-zinc-400 hover:text-zinc-200 hover:border-white/10"
               }`}
             >
-              {slide.title}
+              {slide.tabLabel}
             </button>
           ))}
         </div>
@@ -1509,9 +1779,9 @@ function Showcase() {
                   exit={{ opacity: 0, x: -25, filter: 'blur(8px)' }}
                   transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
                   className={`w-full h-auto max-h-[460px] aspect-[16/10] ${
-                    SLIDES[activeTab].img === "/feature.webp" || SLIDES[activeTab].img === "/dashboard.webp"
+                    SLIDES[activeTab].img === "/feature.webp"
                       ? "object-contain bg-zinc-950/90 p-4"
-                      : "object-cover"
+                      : "object-cover object-top"
                   }`}
                 />
               </AnimatePresence>

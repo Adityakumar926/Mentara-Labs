@@ -412,6 +412,14 @@ const getSubjectStyle = (name) => {
       btnBg: '#F59E0B',
     };
   }
+  if (n.includes('global') || n.includes('perspective')) {
+    return {
+      iconBg: 'rgba(139, 92, 246, 0.18)',
+      color: '#C084FC',
+      avatar: '🌍',
+      btnBg: '#A855F7',
+    };
+  }
   return {
     iconBg: 'rgba(139, 92, 246, 0.18)',
     color: '#A78BFA',
@@ -933,10 +941,10 @@ export default function StudentDashboardPage() {
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div>
-                        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: style.color }}>
+                        <h3 style={{ fontSize: sub.name.length > 15 ? '1.1rem' : '1.25rem', fontWeight: 800, margin: 0, color: style.color, lineHeight: 1.2 }}>
                           {sub.name}
                         </h3>
-                        <p style={{ fontSize: '0.82rem', color: 'var(--muted)', marginTop: '0.35rem', margin: 0, fontWeight: 600, maxWidth: '210px' }}>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.35rem', margin: 0, fontWeight: 500, lineHeight: 1.4, maxWidth: '210px' }}>
                           {sub.description || 'Access worksheets, games & illustrated stories.'}
                         </p>
                       </div>
@@ -945,8 +953,17 @@ export default function StudentDashboardPage() {
                         const isEnglish = sName.includes('english');
                         const isMath = sName.includes('math') || sName.includes('arithmetic');
                         const isScience = sName.includes('science');
-                        const isLottie = isEnglish || isMath || isScience;
-                        const lottieSrc = isEnglish ? '/english_animation.json' : isMath ? '/maths_animation.json' : isScience ? '/Science_animation.json' : null;
+                        const isGlobal = sName.includes('global') || sName.includes('perspective');
+                        const isLottie = isEnglish || isMath || isScience || isGlobal;
+                        const lottieSrc = isEnglish
+                          ? '/english_animation.json'
+                          : isMath
+                          ? '/maths_animation.json'
+                          : isScience
+                          ? '/Science_animation.json'
+                          : isGlobal
+                          ? '/globe_animation.json'
+                          : null;
 
                         return (
                           <div
@@ -969,7 +986,13 @@ export default function StudentDashboardPage() {
                     </div>
 
                     <button className="sd-subj-btn" style={{ background: style.btnBg }}>
-                      {isActive ? 'Selected' : `Explore ${sub.name}`} <ArrowRight size={14} />
+                      {isActive ? 'Selected' : `Explore ${
+                        sub.name.toLowerCase().includes('global') || sub.name.toLowerCase().includes('perspective')
+                          ? 'Global'
+                          : sub.name.toLowerCase().includes('math')
+                          ? 'Math'
+                          : sub.name
+                      }`} <ArrowRight size={14} />
                     </button>
                   </motion.div>
                 );

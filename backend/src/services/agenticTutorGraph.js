@@ -336,6 +336,7 @@ Return a JSON object ONLY with the keys:
         if (msgLower.includes('science')) detectedSubject = 'Science';
         else if (msgLower.includes('math')) detectedSubject = 'Math';
         else if (msgLower.includes('english')) detectedSubject = 'English';
+        else if (msgLower.includes('global') || msgLower.includes('perspective')) detectedSubject = 'Global Perspectives';
 
         if (user && user.class_id) {
           try {

@@ -407,7 +407,7 @@ export default function VoiceTutor() {
               onClick={() => setIsOpen(true)}
               className="relative mb-2 mr-1 flex items-center gap-2 rounded-2xl border border-cyan-400/50 bg-gradient-to-r from-slate-950 via-slate-900 to-purple-950/90 px-4 py-2 text-xs font-black text-white shadow-2xl backdrop-blur-md cursor-pointer pointer-events-auto group"
               style={{ boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.15)' }}
-              title="Click to talk with Gogo"
+              title="Click to talk with GOGO"
             >
               <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
@@ -415,15 +415,15 @@ export default function VoiceTutor() {
               </span>
               <Sparkles className="h-4 w-4 text-amber-300 animate-pulse group-hover:rotate-12 transition-transform" />
               <span className="tracking-wide text-xs sm:text-sm bg-gradient-to-r from-cyan-300 via-purple-200 to-amber-200 bg-clip-text text-transparent font-extrabold whitespace-nowrap">
-                Ask Gogo AI Tutor 🎙️
+                Ask GOGO AI Tutor 🎙️
               </span>
-              {/* Speech Bubble Arrow Tail pointing down to Gogo */}
+              {/* Speech Bubble Arrow Tail pointing down to GOGO */}
               <div className="absolute -bottom-1.5 right-7 h-3 w-3 rotate-45 border-r border-b border-cyan-400/50 bg-slate-950" />
             </motion.div>
           ) : null}
         </AnimatePresence>
 
-        {/* Gogo Robot Circular Button (Shrinks & semi-fades when scrolled OR whiteboard open) */}
+        {/* GOGO Robot Circular Button (Shrinks & semi-fades when scrolled OR whiteboard open) */}
         <motion.button
           className="relative flex items-center justify-center rounded-full cursor-pointer pointer-events-auto group transition-all duration-300"
           animate={{
@@ -440,12 +440,12 @@ export default function VoiceTutor() {
             border: 'none', 
             outline: 'none' 
           }}
-          title="Click to talk with Gogo"
+          title="Click to talk with GOGO"
         >
           {/* Glowing Radial Background Aura */}
           <div className="absolute inset-1 rounded-full bg-gradient-to-r from-cyan-500/30 via-purple-600/30 to-amber-500/20 blur-xl group-hover:blur-2xl transition-all animate-pulse" />
 
-          {/* Lottie Robot Gogo */}
+          {/* Lottie Robot GOGO */}
           <div className="relative z-10 w-full h-full drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)]">
             <DotLottieReact src="/RobotSaludando.json" loop autoplay style={{ width: '100%', height: '100%' }} />
           </div>
@@ -472,7 +472,7 @@ export default function VoiceTutor() {
                   <DotLottieReact src="/RobotSaludando.json" loop autoplay style={{ width: '100%', height: '100%' }} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm leading-tight text-white tracking-wide">Gogo AI Voice Tutor 🤖</h3>
+                  <h3 className="font-bold text-sm leading-tight text-white tracking-wide">GOGO AI Voice Tutor 🤖</h3>
                   <p className="text-[10px] text-cyan-400 font-semibold flex items-center gap-1">
                     <Sparkles size={10} className="text-amber-300" /> State Graph Agent Active
                   </p>
@@ -579,7 +579,7 @@ export default function VoiceTutor() {
                       <div className="w-28 h-28 mb-1">
                         <DotLottieReact src="/RobotSaludando.json" loop autoplay style={{ width: '100%', height: '100%' }} />
                       </div>
-                      <h4 className="font-bold text-sm mb-1 text-slate-200">Hi! I'm Gogo, your AI Voice Tutor 🤖</h4>
+                      <h4 className="font-bold text-sm mb-1 text-slate-200">Hi! I'm GOGO, your AI Voice Tutor 🤖</h4>
                       <p className="text-xs text-slate-400 max-w-[240px] leading-relaxed">
                         Click the microphone and ask me anything about your Math, Science, or English lessons!
                       </p>
