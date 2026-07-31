@@ -1167,7 +1167,7 @@ export default function StudentDashboardPage() {
                                 <button
                                   className="sd-subj-btn"
                                   style={{ background: 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)', margin: 0 }}
-                                  onClick={() => window.open(`/exams/${e.id}/take`, '_blank')}
+                                  onClick={() => navigate(`/exams/${e.id}/take`)}
                                 >
                                   <CheckCircle size={14} /> Start Quest
                                 </button>

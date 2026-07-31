@@ -323,7 +323,10 @@ function Confetti() {
 export default function ResultPage() {
   const { id: examId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const authUser = useAuthStore((s) => s.user);
+  const user = authUser || (() => {
+    try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch { return null; }
+  })();
 
   const { data: result, loading } = useApi(
     () => studentApi.getMyResult(examId), null, [examId]
@@ -343,7 +346,63 @@ export default function ResultPage() {
     );
   }
 
-  if (!result) return null;
+  if (!result) {
+    return (
+      <PageWrapper>
+        <style>{CSS}</style>
+        <div className="result-root" style={{ padding: '2rem', maxWidth: '640px', margin: '4rem auto 0', textAlign: 'center' }}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            style={{
+              background: 'var(--card-bg)',
+              border: '2px solid var(--card-bdr)',
+              borderRadius: '28px',
+              padding: '3rem 2rem',
+              backdropFilter: 'blur(16px)',
+              boxShadow: '0 16px 40px rgba(0,0,0,0.2)'
+            }}
+          >
+            <div style={{
+              width: 64, height: 64, borderRadius: '50%',
+              background: 'rgba(124, 58, 237, 0.15)', border: '2px solid rgba(124, 58, 237, 0.3)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 1.25rem', color: '#A78BFA'
+            }}>
+              <Trophy size={32} />
+            </div>
+
+            <h2 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '1.4rem', fontWeight: 800, color: 'var(--cream)', marginBottom: '0.65rem' }}>
+              No Result Found Yet
+            </h2>
+
+            <p style={{ fontSize: '0.9rem', color: 'var(--muted)', marginBottom: '1.75rem', fontWeight: 600, lineHeight: 1.6, maxWidth: '440px', margin: '0 auto 1.75rem' }}>
+              You haven't submitted an attempt for this exam yet, or the submission record is still processing.
+            </p>
+
+            <button
+              type="button"
+              className="result-back"
+              style={{
+                padding: '0.75rem 1.8rem',
+                background: 'linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)',
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '14px',
+                fontWeight: 800,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                boxShadow: '0 8px 24px rgba(124, 58, 237, 0.4)'
+              }}
+              onClick={() => navigate((user?.role === 'teacher' || user?.role === 'admin') ? '/exams' : '/student/dashboard')}
+            >
+              <ArrowLeft size={16} /> Return to Dashboard
+            </button>
+          </motion.div>
+        </div>
+      </PageWrapper>
+    );
+  }
 
   const { submission, breakdown, rank, total_submissions } = result;
   const passed        = submission.passed;

@@ -557,7 +557,9 @@ function LiveExamCard({ exam, idx }) {
       transition={{ delay: idx * 0.07, duration: 0.25 }}
     >
       {attempted ? (
-        inner
+        <Link to={user?.role === 'student' ? `/exams/${exam.id}/result` : `/exams/${exam.id}/take`} style={{ textDecoration: 'none' }}>
+          {inner}
+        </Link>
       ) : locked ? (
         <div onClick={handleClick} style={{ cursor: 'pointer' }}>{inner}</div>
       ) : (

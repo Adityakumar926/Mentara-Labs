@@ -10,22 +10,18 @@ exports.startExam = async (req, res) => {
     const studentId = req.user.id;
     const isTeacher = req.user.role === 'teacher' || req.user.role === 'admin';
 
-    if (!req.user.class_id && !isTeacher)
-      return res.status(403).json({ success: false, message: 'You must complete onboarding to select a curriculum and class before taking exams' });
-
-    // 1. Verify exam exists, is live, and student is eligible (class match + optional batch)
+    // 1. Verify exam exists
     const { rows: examRows } = await client.query(
       `SELECT e.id, e.title, e.duration_minutes, e.total_marks,
               e.passing_marks, e.is_premium, e.status, e.ends_at
        FROM exams e
-       JOIN subjects s ON s.id = e.subject_id
+       LEFT JOIN subjects s ON s.id = e.subject_id
        WHERE e.id = $1 
-         AND ($4::boolean = true OR s.class_id = $3)
-         AND ($4::boolean = true OR e.batch_id IS NULL OR EXISTS (
+         AND ($3::boolean = true OR e.batch_id IS NULL OR EXISTS (
            SELECT 1 FROM batch_students bs
            WHERE bs.batch_id = e.batch_id AND bs.student_id = $2
          ))`,
-      [examId, studentId, req.user.class_id || null, isTeacher]
+      [examId, studentId, isTeacher]
     );
 
     if (!examRows[0])
@@ -33,47 +29,58 @@ exports.startExam = async (req, res) => {
 
     const exam = examRows[0];
 
-    if (exam.status !== 'live' && !isTeacher)
-      return res.status(400).json({ success: false, message: `Exam is not live (current status: ${exam.status})` });
-
     if (exam.is_premium && !req.user.is_premium && !isTeacher)
       return res.status(403).json({ success: false, message: 'Premium access required for this exam' });
 
-    // 2. Block if already submitted
+    // 2. Check existing attempt
     const { rows: existing } = await client.query(
       `SELECT id, status, deadline_at FROM exam_submissions
        WHERE exam_id = $1 AND student_id = $2`,
       [examId, studentId]
     );
 
-    if (existing[0]?.status === 'submitted')
-      return res.status(409).json({ success: false, message: 'You have already submitted this exam' });
-
-    // 3. Upsert attempt — idempotent so React StrictMode double-invoke and
-    //    any network retries never hit the unique constraint.
-    //    If a row already exists (in_progress), keep its original deadline_at.
     await client.query('BEGIN');
 
-    const deadline = exam.duration_minutes
-      ? new Date(Date.now() + exam.duration_minutes * 60 * 1000).toISOString()
-      : null;
+    const durationMins = exam.duration_minutes || 60;
+    const newDeadline = new Date(Date.now() + durationMins * 60 * 1000).toISOString();
+
+    let finalDeadline = newDeadline;
+
+    if (existing[0]) {
+      const existingDeadline = existing[0].deadline_at ? new Date(existing[0].deadline_at).getTime() : 0;
+      // If previous deadline expired or status was submitted, reset timer for fresh time
+      if (existing[0].status === 'submitted' || existingDeadline < Date.now()) {
+        finalDeadline = newDeadline;
+        await client.query(
+          `UPDATE exam_submissions
+           SET status = 'in_progress', started_at = NOW(), submitted_at = NULL, deadline_at = $3, score = NULL, percentage = NULL, passed = NULL
+           WHERE exam_id = $1 AND student_id = $2`,
+          [examId, studentId, finalDeadline]
+        );
+        await client.query(
+          `DELETE FROM submission_answers WHERE submission_id = $1`,
+          [existing[0].id]
+        );
+      } else {
+        finalDeadline = existing[0].deadline_at;
+      }
+    }
 
     const { rows: submissionRows } = await client.query(
       `INSERT INTO exam_submissions
          (exam_id, student_id, status, started_at, deadline_at)
        VALUES ($1, $2, 'in_progress', NOW(), $3)
        ON CONFLICT (exam_id, student_id) DO UPDATE
-         SET started_at = exam_submissions.started_at
+         SET status = 'in_progress', deadline_at = EXCLUDED.deadline_at
        RETURNING id, started_at, deadline_at, status`,
-      [examId, studentId, deadline]
+      [examId, studentId, finalDeadline]
     );
 
     await client.query('COMMIT');
 
-    const isNew = submissionRows[0].status === 'in_progress';
-    res.status(isNew ? 201 : 200).json({
+    res.status(200).json({
       success: true,
-      message: existing[0] ? 'Resuming existing attempt' : 'Exam started',
+      message: 'Exam started',
       data: {
         submission_id: submissionRows[0].id,
         started_at: submissionRows[0].started_at,
@@ -84,6 +91,7 @@ exports.startExam = async (req, res) => {
     });
   } catch (err) {
     await client.query('ROLLBACK');
+    console.error('startExam DB error:', err);
     res.status(500).json({ success: false, message: err.message });
   } finally {
     client.release();
@@ -98,6 +106,8 @@ exports.getExamQuestions = async (req, res) => {
     const { examId } = req.params;
     const studentId = req.user.id;
 
+    const isTeacher = req.user.role === 'teacher' || req.user.role === 'admin';
+
     // Verify student has an active attempt
     const { rows: session } = await db.query(
       `SELECT id, status, deadline_at FROM exam_submissions
@@ -105,14 +115,14 @@ exports.getExamQuestions = async (req, res) => {
       [examId, studentId]
     );
 
-    if (!session[0])
+    if (!session[0] && !isTeacher)
       return res.status(403).json({ success: false, message: 'Start the exam before fetching questions' });
 
-    if (session[0].status === 'submitted')
+    if (session[0]?.status === 'submitted' && !isTeacher)
       return res.status(400).json({ success: false, message: 'Exam already submitted' });
 
-    // Auto-submit if past deadline
-    if (session[0].deadline_at && new Date(session[0].deadline_at) < new Date()) {
+    // Auto-submit if past deadline (only for regular students)
+    if (session[0]?.deadline_at && new Date(session[0].deadline_at) < new Date() && !isTeacher) {
       await db.query(
         `UPDATE exam_submissions SET status = 'submitted', submitted_at = NOW()
          WHERE id = $1`,
@@ -129,6 +139,7 @@ exports.getExamQuestions = async (req, res) => {
          q.question_type,
          q.options,
          q.image_url,
+         q.difficulty,
          eq.marks,
          eq.order_index
        FROM exam_questions eq
@@ -166,6 +177,7 @@ exports.getExamQuestions = async (req, res) => {
                q.question_type,
                q.options,
                q.image_url,
+               q.difficulty,
                eq.marks,
                eq.order_index
              FROM exam_questions eq

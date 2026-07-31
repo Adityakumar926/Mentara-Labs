@@ -325,6 +325,7 @@ const CSS = `
     border-right-color: rgba(124,58,237,0.3);
     animation: take-spin 0.7s linear infinite;
   }
+  @keyframes take-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   .take-spinner-glow {
     box-shadow: 0 0 30px rgba(124,58,237,0.4);
   }
@@ -407,6 +408,23 @@ const CSS = `
     background: #0D111E;
     border: 2px solid var(--card-bdr);
   }
+  /* ── CANVAS DRAWING TOOLBOX ── */
+  .canvas-wrapper {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+  }
+  .canvas-container {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+    background: #090D16;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+  }
   .take-toolbox {
     display: flex;
     align-items: center;
@@ -414,61 +432,89 @@ const CSS = `
     flex-wrap: wrap;
     gap: 0.75rem;
     width: 100%;
-    max-width: 700px;
-    padding: 0.65rem 1rem;
-    background: var(--card-bg);
-    border: 2px solid var(--card-bdr);
-    border-radius: 16px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    max-width: 720px;
+    padding: 0.75rem 1.25rem;
+    background: linear-gradient(135deg, rgba(15, 22, 41, 0.95) 0%, rgba(20, 29, 54, 0.95) 100%);
+    border: 2px solid rgba(124, 58, 237, 0.25);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
   .toolbox-group {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.45rem;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.3rem 0.45rem;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
   }
   .toolbox-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.35rem;
-    padding: 0.4rem 0.75rem;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
     border-radius: 10px;
-    border: 2px solid var(--card-bdr);
-    background: var(--card-bg);
-    color: var(--color-text-secondary);
-    font-size: 0.75rem;
+    border: 1.5px solid transparent;
+    background: transparent;
+    color: rgba(245, 240, 232, 0.65);
+    font-size: 0.76rem;
     font-weight: 700;
     cursor: pointer;
     font-family: 'Space Grotesk', sans-serif;
-    transition: all 0.2s;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .toolbox-btn:hover:not(:disabled) {
-    background: var(--color-surface-hover);
-    color: var(--color-text-primary);
+    background: rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+    transform: translateY(-1px);
   }
-  .toolbox-btn.active {
-    background: var(--violet);
-    border-color: var(--violet);
-    color: #fff;
-    box-shadow: 0 0 12px rgba(124,58,237,0.4);
+  .toolbox-btn.active-draw {
+    background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);
+    border-color: #A78BFA;
+    color: #FFFFFF;
+    box-shadow: 0 0 16px rgba(124, 58, 237, 0.5);
+  }
+  .toolbox-btn.active-line {
+    background: linear-gradient(135deg, #00D4FF 0%, #0284C7 100%);
+    border-color: #38BDF8;
+    color: #FFFFFF;
+    box-shadow: 0 0 16px rgba(0, 212, 255, 0.5);
+  }
+  .toolbox-btn.active-erase {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    border-color: #FCD34D;
+    color: #FFFFFF;
+    box-shadow: 0 0 16px rgba(245, 158, 11, 0.5);
+  }
+  .toolbox-btn.active-size {
+    background: rgba(0, 212, 255, 0.15);
+    border-color: #00D4FF;
+    color: #00D4FF;
+    box-shadow: 0 0 12px rgba(0, 212, 255, 0.3);
   }
   .toolbox-btn:disabled {
-    opacity: 0.35;
+    opacity: 0.3;
     cursor: not-allowed;
   }
   .color-dot {
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-    border: 1px solid rgba(0,0,0,0.3);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+  }
+  .color-dot:hover {
+    transform: scale(1.2);
   }
   .color-dot.active {
-    transform: scale(1.2);
-    box-shadow: 0 0 8px currentColor;
-    border: 2px solid #fff;
+    transform: scale(1.25);
+    box-shadow: 0 0 12px currentColor, 0 0 0 2px #FFFFFF;
+    border-color: #FFFFFF;
   }
   .saving-indicator {
     display: flex;
@@ -485,7 +531,8 @@ const CSS = `
 
 /* ─── Timer hook ──────────────────────────────────────────────────────────── */
 function useCountdown(deadlineIso, serverOffset = 0) {
-  const [remaining, setRemaining] = useState(0);
+  const [remaining, setRemaining] = useState(null);
+
   useEffect(() => {
     if (!deadlineIso) return;
     const tick = () => {
@@ -497,11 +544,224 @@ function useCountdown(deadlineIso, serverOffset = 0) {
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, [deadlineIso, serverOffset]);
+
+  if (remaining === null) {
+    return { remaining: 0, label: '—', expired: false };
+  }
+
   const h = Math.floor(remaining / 3600000);
   const m = Math.floor((remaining % 3600000) / 60000);
   const s = Math.floor((remaining % 60000) / 1000);
-  const label = h > 0 ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` : `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  return { remaining, label, expired: remaining === 0 };
+
+  const pad = (n) => String(n).padStart(2, '0');
+  const label = h > 0 ? `${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
+
+  return { remaining, label, expired: Boolean(deadlineIso && remaining === 0) };
+}
+
+function InteractiveTimer({ remaining, timerLabel, isUrgent, durationMinutes }) {
+  const [format, setFormat] = useState('digital'); // 'digital', 'detailed'
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  const totalMs = (durationMinutes || 60) * 60 * 1000;
+  const elapsedPct = totalMs > 0 ? Math.min(100, Math.max(0, ((totalMs - remaining) / totalMs) * 100)) : 0;
+  const remainingPct = 100 - elapsedPct;
+
+  const isLowTime = remaining > 0 && remaining < 15 * 60 * 1000;
+  const isCritical = remaining > 0 && remaining < 5 * 60 * 1000;
+
+  const color = isCritical ? '#EF4444' : isLowTime ? '#F59E0B' : '#00D4FF';
+  const bg = isCritical ? 'rgba(239, 68, 68, 0.18)' : isLowTime ? 'rgba(245, 158, 11, 0.18)' : 'rgba(0, 212, 255, 0.15)';
+  const border = isCritical ? 'rgba(239, 68, 68, 0.45)' : isLowTime ? 'rgba(245, 158, 11, 0.45)' : 'rgba(0, 212, 255, 0.35)';
+
+  const h = Math.floor(remaining / 3600000);
+  const m = Math.floor((remaining % 3600000) / 60000);
+  const s = Math.floor((remaining % 60000) / 1000);
+
+  const detailedText = h > 0 ? `${h}h ${m}m ${s}s` : `${m}m ${s}s`;
+
+  const statusText = isCritical
+    ? '🚨 Critical! Final 5 mins — submit soon!'
+    : isLowTime
+    ? '⚠️ Time is winding down (< 15 mins)'
+    : '🟢 Steady pace — Plenty of time';
+
+  return (
+    <div
+      style={{ position: 'relative' }}
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
+    >
+      <motion.button
+        type="button"
+        onClick={() => setFormat((f) => (f === 'digital' ? 'detailed' : 'digital'))}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.55rem',
+          padding: '0.4rem 0.95rem',
+          borderRadius: '14px',
+          background: bg,
+          border: `1.5px solid ${border}`,
+          color: color,
+          fontFamily: 'Space Grotesk, monospace',
+          fontSize: '0.88rem',
+          fontWeight: 800,
+          cursor: 'pointer',
+          boxShadow: isCritical
+            ? '0 0 20px rgba(239, 68, 68, 0.45)'
+            : '0 0 14px rgba(0, 212, 255, 0.15)',
+          transition: 'all 0.25s ease',
+          height: '36px',
+        }}
+        whileHover={{ scale: 1.04 }}
+        whileTap={{ scale: 0.96 }}
+        title="Click to switch timer display format"
+      >
+        <motion.div
+          animate={isCritical ? { rotate: [0, 15, -15, 0], scale: [1, 1.2, 1] } : {}}
+          transition={isCritical ? { repeat: Infinity, duration: 1 } : {}}
+          style={{ display: 'flex', alignItems: 'center' }}
+        >
+          <Clock size={15} style={{ strokeWidth: 2.5 }} />
+        </motion.div>
+
+        <span>{format === 'digital' ? timerLabel : detailedText}</span>
+
+        {/* Pulsing indicator dot */}
+        <div
+          style={{
+            width: '7px',
+            height: '7px',
+            borderRadius: '50%',
+            background: color,
+            boxShadow: `0 0 8px ${color}`,
+            animation: 'take-spin 2s linear infinite'
+          }}
+        />
+      </motion.button>
+
+      {/* Interactive Tooltip Card */}
+      <AnimatePresence>
+        {showTooltip && (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 4, scale: 0.95 }}
+            transition={{ duration: 0.18 }}
+            style={{
+              position: 'absolute',
+              top: 'calc(100% + 10px)',
+              right: 0,
+              width: '240px',
+              background: '#0F1629',
+              border: `1.5px solid ${border}`,
+              borderRadius: '16px',
+              padding: '1rem',
+              boxShadow: '0 12px 32px rgba(0,0,0,0.45)',
+              zIndex: 100,
+              pointerEvents: 'none'
+            }}
+          >
+            <div style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.35rem' }}>
+              Time Allocation Summary
+            </div>
+            
+            <div style={{ fontSize: '1rem', fontWeight: 800, color: '#F5F0E8', marginBottom: '0.5rem', fontFamily: 'Space Grotesk, sans-serif' }}>
+              {detailedText} remaining
+            </div>
+
+            {/* Time progress bar */}
+            <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '10px', overflow: 'hidden', marginBottom: '0.75rem' }}>
+              <div
+                style={{
+                  height: '100%',
+                  width: `${remainingPct}%`,
+                  background: `linear-gradient(90deg, ${color}, #34D399)`,
+                  borderRadius: '10px',
+                  transition: 'width 0.4s ease'
+                }}
+              />
+            </div>
+
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: color, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              {statusText}
+            </div>
+
+            <div style={{ fontSize: '0.65rem', color: 'rgba(245,240,232,0.4)', marginTop: '0.45rem', fontStyle: 'italic', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.45rem' }}>
+              💡 Click timer pill to switch digital / words format
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+const getCategoryInfo = (difficulty) => {
+  const d = String(difficulty || '').toLowerCase().trim();
+  if (d === 'easy' || d === 'foundation') {
+    return {
+      name: 'Foundation',
+      bg: 'rgba(16, 185, 129, 0.15)',
+      border: 'rgba(16, 185, 129, 0.35)',
+      color: '#10B981',
+      btnBg: 'rgba(16, 185, 129, 0.12)',
+      btnBorder: '#10B981',
+      btnColor: '#34D399',
+      activeBg: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+      activeShadow: '0 0 14px rgba(16, 185, 129, 0.5)'
+    };
+  }
+  if (d === 'hard' || d === 'secure') {
+    return {
+      name: 'Secure',
+      bg: 'rgba(239, 68, 68, 0.15)',
+      border: 'rgba(239, 68, 68, 0.35)',
+      color: '#EF4444',
+      btnBg: 'rgba(239, 68, 68, 0.12)',
+      btnBorder: '#EF4444',
+      btnColor: '#F87171',
+      activeBg: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+      activeShadow: '0 0 14px rgba(239, 68, 68, 0.5)'
+    };
+  }
+  return {
+    name: 'Developing',
+    bg: 'rgba(245, 158, 11, 0.15)',
+    border: 'rgba(245, 158, 11, 0.35)',
+    color: '#F59E0B',
+    btnBg: 'rgba(245, 158, 11, 0.12)',
+    btnBorder: '#F59E0B',
+    btnColor: '#FBBF24',
+    activeBg: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+    activeShadow: '0 0 14px rgba(245, 158, 11, 0.5)'
+  };
+};
+
+function CategoryBadge({ difficulty }) {
+  const info = getCategoryInfo(difficulty);
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '4px',
+        padding: '0.2rem 0.65rem',
+        borderRadius: '50px',
+        fontSize: '0.68rem',
+        fontWeight: 700,
+        background: info.bg,
+        border: `1px solid ${info.border}`,
+        color: info.color,
+        letterSpacing: '0.04em',
+        textTransform: 'uppercase',
+        fontFamily: 'Space Grotesk, sans-serif'
+      }}
+    >
+      {info.name}
+    </span>
+  );
 }
 
 /* ─── DRAWING CANVAS COMPONENTS ───────────────────────────────────────────── */
@@ -717,59 +977,72 @@ function StructureCanvas({ imageUrl, strokes = [], onChange }) {
       </div>
 
       <div className="take-toolbox">
+        {/* Tool selection group */}
         <div className="toolbox-group">
-          <button 
+          <motion.button 
             type="button"
-            className={clsx('toolbox-btn', tool === 'draw' && 'active')} 
+            className={clsx('toolbox-btn', tool === 'draw' && 'active-draw')} 
             onClick={() => setTool('draw')}
             title="Draw Freehand"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <Paintbrush size={14} />
             <span>Draw</span>
-          </button>
-          <button 
+          </motion.button>
+          <motion.button 
             type="button"
-            className={clsx('toolbox-btn', tool === 'line' && 'active')} 
+            className={clsx('toolbox-btn', tool === 'line' && 'active-line')} 
             onClick={() => setTool('line')}
             title="Draw Straight Line"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <Slash size={14} />
             <span>Line</span>
-          </button>
-          <button 
+          </motion.button>
+          <motion.button 
             type="button"
-            className={clsx('toolbox-btn', tool === 'erase' && 'active')} 
+            className={clsx('toolbox-btn', tool === 'erase' && 'active-erase')} 
             onClick={() => setTool('erase')}
             title="Eraser"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <Eraser size={14} />
             <span>Erase</span>
-          </button>
+          </motion.button>
         </div>
 
+        {/* Color Palette (hidden when eraser is active) */}
         {tool !== 'erase' && (
           <div className="toolbox-group" style={{ padding: '0 0.5rem' }}>
             {COLORS.map(c => (
-              <button
+              <motion.button
                 key={c.value}
                 type="button"
                 className={clsx('color-dot', color === c.value && 'active')}
                 style={{ backgroundColor: c.value, color: c.value }}
                 onClick={() => setColor(c.value)}
                 title={c.label}
+                whileHover={{ scale: 1.25 }}
+                whileTap={{ scale: 0.9 }}
               />
             ))}
           </div>
         )}
 
+        {/* Brush Size selector */}
         <div className="toolbox-group">
           {SIZES.map(s => (
-            <button
+            <motion.button
               key={s.value}
               type="button"
-              className={clsx('toolbox-btn', brushSize === s.value && 'active')}
+              className={clsx('toolbox-btn', brushSize === s.value && 'active-size')}
               onClick={() => setBrushSize(s.value)}
-              title={`${s.label} Brush`}
+              title={`${s.label} Brush Size (${s.value}px)`}
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.95 }}
             >
               <span style={{ 
                 display: 'inline-block', 
@@ -778,38 +1051,46 @@ function StructureCanvas({ imageUrl, strokes = [], onChange }) {
                 borderRadius: '50%', 
                 backgroundColor: 'currentColor' 
               }} />
-            </button>
+            </motion.button>
           ))}
         </div>
 
+        {/* Canvas History Actions */}
         <div className="toolbox-group">
-          <button 
+          <motion.button 
             type="button"
             className="toolbox-btn" 
             onClick={handleUndo} 
             disabled={strokes.length === 0}
-            title="Undo"
+            title="Undo stroke"
+            whileHover={{ scale: strokes.length > 0 ? 1.05 : 1 }}
+            whileTap={{ scale: strokes.length > 0 ? 0.95 : 1 }}
           >
             <Undo2 size={14} />
-          </button>
-          <button 
+          </motion.button>
+          <motion.button 
             type="button"
             className="toolbox-btn" 
             onClick={handleRedo} 
             disabled={redoList.length === 0}
-            title="Redo"
+            title="Redo stroke"
+            whileHover={{ scale: redoList.length > 0 ? 1.05 : 1 }}
+            whileTap={{ scale: redoList.length > 0 ? 0.95 : 1 }}
           >
             <Redo2 size={14} />
-          </button>
-          <button 
+          </motion.button>
+          <motion.button 
             type="button"
             className="toolbox-btn" 
             onClick={handleClear} 
             disabled={strokes.length === 0}
-            title="Clear current drawing"
+            title="Clear canvas"
+            style={{ color: strokes.length > 0 ? '#EF4444' : undefined }}
+            whileHover={{ scale: strokes.length > 0 ? 1.05 : 1 }}
+            whileTap={{ scale: strokes.length > 0 ? 0.95 : 1 }}
           >
             Clear
-          </button>
+          </motion.button>
         </div>
       </div>
     </div>
@@ -819,9 +1100,13 @@ function StructureCanvas({ imageUrl, strokes = [], onChange }) {
 export default function ExamTakePage() {
   const { id: examId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const authUser = useAuthStore((s) => s.user);
+  const user = authUser || (() => {
+    try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch { return null; }
+  })();
 
   const [phase, setPhase]                 = useState('loading');
+  const [errorMsg, setErrorMsg]           = useState(null);
   const [submissionId, setSubmissionId]     = useState(null);
   const [deadline, setDeadline]             = useState(null);
   const [serverOffset, setServerOffset]     = useState(0);
@@ -867,22 +1152,52 @@ export default function ExamTakePage() {
   };
 
   useEffect(() => {
+    let isMounted = true;
+
+    const token = localStorage.getItem('accessToken');
+    if (!token && !user) {
+      navigate('/login', { replace: true });
+      return;
+    }
+
     (async () => {
       try {
         const startRes = await studentApi.startExam(examId);
-        const sid = startRes.data.data.submission_id;
-        const dl  = startRes.data.data.deadline_at;
-        const st  = startRes.data.data.server_time;
+        if (!isMounted) return;
+
+        const startData = startRes.data?.data ?? startRes.data ?? {};
+        const sid = startData.submission_id;
+        const dl  = startData.deadline_at;
+        const st  = startData.server_time;
         if (st) {
           setServerOffset(new Date(st).getTime() - Date.now());
         }
         setSubmissionId(sid);
         setDeadline(dl);
+
         const qRes = await studentApi.getExamQuestions(examId);
-        const fetchedQuestions = (qRes.data.data.questions ?? []).map((q) => ({
-          ...q,
-          options: typeof q.options === 'string' ? JSON.parse(q.options) : (q.options ?? []),
-        }));
+        if (!isMounted) return;
+
+        const qData = qRes.data?.data ?? qRes.data ?? {};
+        const rawQs = Array.isArray(qData.questions) ? qData.questions : Array.isArray(qData) ? qData : [];
+
+        const fetchedQuestions = rawQs.map((q) => {
+          let parsedOptions = [];
+          if (Array.isArray(q.options)) {
+            parsedOptions = q.options;
+          } else if (typeof q.options === 'string') {
+            try {
+              parsedOptions = JSON.parse(q.options);
+            } catch (e) {
+              parsedOptions = [];
+            }
+          }
+          return {
+            ...q,
+            options: parsedOptions,
+          };
+        });
+
         setQuestions(fetchedQuestions);
         
         // Initialize answers state from database
@@ -896,11 +1211,19 @@ export default function ExamTakePage() {
 
         setPhase('taking');
       } catch (err) {
-        toast.error(err.response?.data?.message ?? 'Could not start exam');
-        navigate(user?.role === 'student' ? '/student/dashboard' : '/exams');
+        if (!isMounted) return;
+        console.error('Exam take error:', err);
+        const msg = err.response?.data?.message ?? err.message ?? 'Could not start exam';
+        toast.error(msg);
+        setErrorMsg(msg);
+        setPhase('error');
       }
     })();
-  }, [examId, navigate, user?.role]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [examId, navigate, user]);
 
   useEffect(() => {
     if (expired && phase === 'taking') handleSubmit(true);
@@ -917,8 +1240,6 @@ export default function ExamTakePage() {
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => saveAnswer(questionId, answer), 800);
   };
-
-
 
   const handleSubmit = async (auto = false) => {
     if (submitting) return;
@@ -945,39 +1266,65 @@ export default function ExamTakePage() {
   /* ── Loading / Submitting screens ── */
   if (phase === 'loading') {
     return (
-      <>
+      <div className="take-root" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0F1629' }}>
         <style>{CSS}</style>
-        <div className="take-loading">
+        <div className="take-loading" style={{ minHeight: 'auto', background: 'transparent' }}>
           <motion.div className="take-spinner take-spinner-glow" initial={{ opacity: 0 }} animate={{ opacity: 1 }} />
-          <motion.p className="take-loading-text" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+          <motion.p className="take-loading-text" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} style={{ color: '#F5F0E8' }}>
             Preparing your exam…
           </motion.p>
         </div>
-      </>
+      </div>
     );
   }
 
   if (phase === 'submitting') {
     return (
-      <>
+      <div className="take-root" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0F1629' }}>
         <style>{CSS}</style>
-        <div className="take-loading">
+        <div className="take-loading" style={{ minHeight: 'auto', background: 'transparent' }}>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ position: 'relative', width: 44, height: 44 }}>
-            <div className="take-spinner" style={{ borderTopColor: 'var(--green)', borderRightColor: 'rgba(16,185,129,0.3)', boxShadow: '0 0 30px rgba(16,185,129,0.4)' }} />
+            <div className="take-spinner" style={{ borderTopColor: '#10B981', borderRightColor: 'rgba(16,185,129,0.3)', boxShadow: '0 0 30px rgba(16,185,129,0.4)' }} />
           </motion.div>
-          <motion.p className="take-loading-text" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+          <motion.p className="take-loading-text" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} style={{ color: '#F5F0E8' }}>
             Submitting your exam…
           </motion.p>
         </div>
-      </>
+      </div>
+    );
+  }
+
+  if (phase === 'error') {
+    return (
+      <div className="take-root" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0F1629' }}>
+        <style>{CSS}</style>
+        <div className="take-loading" style={{ gap: '1.25rem', padding: '2rem', textAlign: 'center', minHeight: 'auto', background: 'transparent' }}>
+          <div style={{ padding: '1.25rem', borderRadius: '50%', background: 'rgba(239,68,68,0.1)', border: '2px solid rgba(239,68,68,0.3)', color: '#EF4444' }}>
+            <AlertTriangle size={36} />
+          </div>
+          <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#F5F0E8' }}>
+            Unable to Start Exam
+          </div>
+          <p style={{ fontSize: '0.88rem', color: 'rgba(245,240,232,0.6)', maxWidth: '420px', margin: 0, lineHeight: 1.6 }}>
+            {errorMsg || 'Exam could not be loaded. Please check back later.'}
+          </p>
+          <button
+            onClick={() => navigate((user?.role === 'teacher' || user?.role === 'admin') ? '/exams' : '/student/dashboard')}
+            className="take-nav-btn primary"
+            style={{ marginTop: '0.5rem', padding: '0.75rem 1.5rem', borderRadius: '12px' }}
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
     );
   }
 
   if (phase === 'taking' && questions.length === 0) {
     return (
-      <>
+      <div className="take-root" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0F1629' }}>
         <style>{CSS}</style>
-        <div className="take-loading" style={{ gap: '1.25rem', padding: '2rem', textAlign: 'center' }}>
+        <div className="take-loading" style={{ gap: '1.25rem', padding: '2rem', textAlign: 'center', minHeight: 'auto', background: 'transparent' }}>
           <div style={{ padding: '1.25rem', borderRadius: '50%', background: 'rgba(239,68,68,0.1)', border: '2px solid rgba(239,68,68,0.3)', color: '#EF4444' }}>
             <AlertTriangle size={36} />
           </div>
@@ -995,11 +1342,29 @@ export default function ExamTakePage() {
             Back to Dashboard
           </button>
         </div>
-      </>
+      </div>
     );
   }
 
-  if (!q) return null;
+  if (!q) {
+    return (
+      <div className="take-root" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0F1629' }}>
+        <style>{CSS}</style>
+        <div className="take-loading" style={{ gap: '1rem', padding: '2rem', textAlign: 'center', minHeight: 'auto', background: 'transparent' }}>
+          <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#F5F0E8' }}>
+            Question {current + 1} not found
+          </div>
+          <button
+            onClick={() => setCurrent(0)}
+            className="take-nav-btn primary"
+            style={{ padding: '0.65rem 1.25rem', borderRadius: '10px' }}
+          >
+            Go to Question 1
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -1029,11 +1394,13 @@ export default function ExamTakePage() {
               <span>{isFullscreen ? "Exit Fullscreen" : "Fullscreen"}</span>
             </button>
 
-            {/* Timer */}
-            <div className={clsx('take-timer', isUrgent && 'urgent')} style={{ height: '36px' }}>
-              <Clock size={14} />
-              {timerLabel}
-            </div>
+            {/* Interactive Timer */}
+            <InteractiveTimer
+              remaining={remaining}
+              timerLabel={timerLabel}
+              isUrgent={isUrgent}
+              durationMinutes={questions?.[0]?.duration_minutes || 60}
+            />
           </div>
 
           {/* Submit */}
@@ -1058,7 +1425,10 @@ export default function ExamTakePage() {
                 {/* Question card */}
                 <div className="take-qcard">
                   <div className="take-qnum">
-                    <span>Question {current + 1} of {total}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                      <span>Question {current + 1} of {total}</span>
+                      <CategoryBadge difficulty={q.difficulty} />
+                    </div>
                     <span className="take-marks-pill">{q.marks} mark{q.marks !== 1 ? 's' : ''}</span>
                   </div>
                   {q.question_text && <p className="take-qtext">{q.question_text}</p>}
@@ -1157,34 +1527,106 @@ export default function ExamTakePage() {
           <aside className="take-sidebar">
             <p className="take-sidebar-title">Questions</p>
             <div className="take-qgrid">
-              {questions.map((_, i) => {
-                const isCur  = i === current;
-                const isAns  = !!answers[questions[i]?.id];
+              {questions.map((qItem, i) => {
+                const isCur = i === current;
+                const isAns = !!answers[qItem?.id];
+                const cat = getCategoryInfo(qItem?.difficulty);
+
+                let btnStyle = {
+                  background: cat.btnBg,
+                  borderColor: cat.btnBorder,
+                  color: cat.btnColor,
+                  fontWeight: 800,
+                  fontSize: '0.82rem',
+                  borderRadius: '10px',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '38px',
+                  cursor: 'pointer',
+                  borderStyle: 'solid',
+                  borderWidth: '1.5px',
+                };
+
+                if (isCur) {
+                  btnStyle = {
+                    ...btnStyle,
+                    background: cat.activeBg,
+                    color: '#FFFFFF',
+                    borderColor: '#FFFFFF',
+                    boxShadow: `${cat.activeShadow}, 0 0 0 2px rgba(255, 255, 255, 0.8)`,
+                    transform: 'scale(1.08)',
+                    zIndex: 2,
+                  };
+                } else if (isAns) {
+                  btnStyle = {
+                    ...btnStyle,
+                    background: cat.btnBg,
+                    borderColor: cat.btnBorder,
+                    color: '#FFFFFF',
+                    boxShadow: `inset 0 0 8px ${cat.btnBg}`,
+                  };
+                }
+
                 return (
                   <button
                     key={i}
                     onClick={() => setCurrent(i)}
-                    className={clsx(
-                      'take-qnum-btn',
-                      isCur ? 'cur' : isAns ? 'answered' : 'unanswered'
-                    )}
+                    style={btnStyle}
+                    title={`Q${i + 1}: ${cat.name} (${isAns ? 'Answered' : 'Unanswered'})`}
                   >
-                    {i + 1}
+                    <span>{i + 1}</span>
+                    {isAns && !isCur && (
+                      <span
+                        style={{
+                          position: 'absolute',
+                          top: '-3px',
+                          right: '-3px',
+                          width: '8px',
+                          height: '8px',
+                          borderRadius: '50%',
+                          background: cat.btnColor,
+                          border: '1.5px solid #0F1629'
+                        }}
+                      />
+                    )}
                   </button>
                 );
               })}
             </div>
-            <div className="sidebar-legend">
-              {[
-                { cls: 'cur',      color: 'linear-gradient(135deg, #7C3AED, #4F46E5)', label: 'Current' },
-                { cls: 'answered', color: 'rgba(16,185,129,0.25)',                     label: 'Answered' },
-                { cls: 'unanswered',color:'rgba(255,255,255,0.05)',                      label: 'Unanswered' },
-              ].map(({ color, label }) => (
-                <div key={label} className="legend-item">
-                  <div className="legend-dot" style={{ background: color }} />
-                  {label}
-                </div>
-              ))}
+            
+            <div style={{ marginTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+              <div style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                Question Categories
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+                {[
+                  { label: 'Foundation', color: '#10B981', bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.35)' },
+                  { label: 'Developing', color: '#F59E0B', bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.35)' },
+                  { label: 'Secure',     color: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)', border: 'rgba(239, 68, 68, 0.35)' },
+                ].map((item) => (
+                  <span
+                    key={item.label}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      padding: '0.2rem 0.55rem',
+                      borderRadius: '50px',
+                      fontSize: '0.66rem',
+                      fontWeight: 800,
+                      background: item.bg,
+                      border: `1px solid ${item.border}`,
+                      color: item.color
+                    }}
+                  >
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: item.color }} />
+                    {item.label}
+                  </span>
+                ))}
+              </div>
             </div>
 
             {/* Progress ring summary */}

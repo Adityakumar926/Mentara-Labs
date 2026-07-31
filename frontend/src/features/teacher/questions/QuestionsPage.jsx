@@ -463,6 +463,41 @@ const CSS = `
 const TYPE_LABEL = { mcq: 'MCQ', fill_blank: 'Fill blank', photo: 'Structure' };
 const ALL_TYPES = ['all', 'mcq', 'fill_blank', 'photo'];
 
+const getCategoryInfo = (difficulty) => {
+  const d = String(difficulty || '').toLowerCase().trim();
+  if (d === 'easy' || d === 'foundation') {
+    return { name: 'Foundation', bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.35)', color: '#10B981' };
+  }
+  if (d === 'hard' || d === 'secure') {
+    return { name: 'Secure', bg: 'rgba(239, 68, 68, 0.15)', border: 'rgba(239, 68, 68, 0.35)', color: '#EF4444' };
+  }
+  return { name: 'Developing', bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.35)', color: '#F59E0B' };
+};
+
+function CategoryBadge({ difficulty }) {
+  const info = getCategoryInfo(difficulty);
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '4px',
+        padding: '0.2rem 0.6rem',
+        borderRadius: '50px',
+        fontSize: '0.68rem',
+        fontWeight: 700,
+        background: info.bg,
+        border: `1px solid ${info.border}`,
+        color: info.color,
+        letterSpacing: '0.03em',
+        textTransform: 'uppercase',
+      }}
+    >
+      {info.name}
+    </span>
+  );
+}
+
 function TypeBadge({ type }) {
   const cls = type === 'mcq' ? 'q-type-mcq' : type === 'fill_blank' ? 'q-type-fill' : type === 'photo' ? 'q-type-photo' : 'q-type-other';
   return <span className={`q-type-badge ${cls}`}>{TYPE_LABEL[type] ?? type}</span>;
@@ -480,7 +515,6 @@ function PremiumOverlay() {
   );
 }
 
-/* ─── QuestionCard ─────────────────────────────────────────────────────────── */
 /* ─── QuestionCard ─────────────────────────────────────────────────────────── */
 function QuestionCard({ q, idx }) {
   const [open, setOpen] = useState(false);
@@ -559,6 +593,7 @@ function QuestionCard({ q, idx }) {
                 <XCircle size={15} color="var(--red)" />
               </motion.span>
           )}
+          <CategoryBadge difficulty={q.difficulty} />
           <TypeBadge type={q.question_type} />
           {isExpandable && (
             <ChevronDown size={13} className={clsx('q-chevron', open && 'open')} />
@@ -807,7 +842,7 @@ function QuestionCard({ q, idx }) {
 }
 
 /* ─── SubjectSection ───────────────────────────────────────────────────────── */
-function SubjectSection({ group, typeFilter, search, subjectFilter, topicFilter, premiumFilter, sectionIdx, selectedNode }) {
+function SubjectSection({ group, typeFilter, search, subjectFilter, topicFilter, premiumFilter, categoryFilter, sectionIdx, selectedNode }) {
   const [collapsed, setCollapsed] = useState(false);
 
   const questions = useMemo(() => {
@@ -836,6 +871,12 @@ function SubjectSection({ group, typeFilter, search, subjectFilter, topicFilter,
       if (premiumFilter === 'free' && q.is_premium) return false;
       if (premiumFilter === 'premium' && !q.is_premium) return false;
 
+      // 4. Category filter check (Foundation, Developing, Secure)
+      if (categoryFilter !== 'all') {
+        const catName = getCategoryInfo(q.difficulty).name.toLowerCase();
+        if (catName !== categoryFilter.toLowerCase()) return false;
+      }
+
       if (!term) return true;
 
       const textMatch    = Boolean(q.question_text && String(q.question_text).toLowerCase().includes(term));
@@ -852,7 +893,7 @@ function SubjectSection({ group, typeFilter, search, subjectFilter, topicFilter,
 
       return textMatch || subjectMatch || topicMatch || typeMatch || diffMatch || imageMatch || optionsMatch;
     });
-  }, [group.questions, group.subject_name, typeFilter, search, subjectFilter, topicFilter, premiumFilter, selectedNode]);
+  }, [group.questions, group.subject_name, typeFilter, search, subjectFilter, topicFilter, premiumFilter, categoryFilter, selectedNode]);
 
   if (!questions.length) return null;
 
@@ -938,6 +979,7 @@ export default function StudentQuestionsPage() {
   const [subjectFilter, setSubjectFilter] = useState('all');
   const [topicFilter, setTopicFilter] = useState('all');
   const [premiumFilter, setPremiumFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
 
   const { data: raw, loading } = useApi(studentApi.getMyQuestions);
   const rawGroups = raw?.data ?? raw ?? [];
@@ -1020,6 +1062,11 @@ export default function StudentQuestionsPage() {
         if (premiumFilter === 'free' && q.is_premium) return false;
         if (premiumFilter === 'premium' && !q.is_premium) return false;
 
+        if (categoryFilter !== 'all') {
+          const catName = getCategoryInfo(q.difficulty).name.toLowerCase();
+          if (catName !== categoryFilter.toLowerCase()) return false;
+        }
+
         if (!term) return true;
 
         const textMatch    = Boolean(q.question_text && String(q.question_text).toLowerCase().includes(term));
@@ -1038,7 +1085,7 @@ export default function StudentQuestionsPage() {
       }).length;
       return acc + count;
     }, 0),
-    [groups, typeFilter, search, subjectFilter, topicFilter, premiumFilter, selectedNode]
+    [groups, typeFilter, search, subjectFilter, topicFilter, premiumFilter, categoryFilter, selectedNode]
   );
 
   return (
@@ -1087,7 +1134,7 @@ export default function StudentQuestionsPage() {
           <img src="/question.png?v=2" alt="" className="q-header-image" />
         </motion.div>
 
-        {/* ── Hierarchy Filter Bar (Subject, Topic & Premium) ── */}
+        {/* ── Hierarchy Filter Bar (Subject, Topic, Category & Premium) ── */}
         {!loading && groups.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 8 }}
@@ -1143,6 +1190,23 @@ export default function StudentQuestionsPage() {
                 </select>
               </div>
             )}
+
+            {/* Category Selector (Foundation, Developing, Secure) */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--green)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Category:
+              </span>
+              <select
+                className="q-select-filter"
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+              >
+                <option value="all">All Categories</option>
+                <option value="foundation">🌱 Foundation</option>
+                <option value="developing">📈 Developing</option>
+                <option value="secure">🛡️ Secure</option>
+              </select>
+            </div>
 
             {/* Premium / Free Tier Selector */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
@@ -1221,6 +1285,7 @@ export default function StudentQuestionsPage() {
                 subjectFilter={subjectFilter}
                 topicFilter={topicFilter}
                 premiumFilter={premiumFilter}
+                categoryFilter={categoryFilter}
                 sectionIdx={si}
                 selectedNode={selectedNode}
               />

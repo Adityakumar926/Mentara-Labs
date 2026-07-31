@@ -131,8 +131,8 @@ export default function App() {
           </Route>
         </Route>
 
-        {/* ── Shared Student/Teacher Exam Attempt & Results (Layout-Free) ── */}
-        <Route element={<ProtectedRoute role={['student', 'teacher']} />}>
+        {/* ── Shared Student/Teacher/Admin Exam Attempt & Results (Layout-Free) ── */}
+        <Route element={<ProtectedRoute role={['student', 'teacher', 'admin']} />}>
           <Route path="/exams/:id/take"   element={<ExamTakePage />} />
           <Route path="/exams/:id/result" element={<ResultPage />} />
         </Route>
