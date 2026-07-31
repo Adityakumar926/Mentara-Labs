@@ -389,6 +389,65 @@ export default function VoiceTutor() {
 
   return (
     <>
+      <style>{`
+        @property --rgb-angle-drawer {
+          syntax: '<angle>';
+          initial-value: 0deg;
+          inherits: false;
+        }
+        @keyframes rgb-spin-drawer {
+          to { --rgb-angle-drawer: 360deg; }
+        }
+        .gogo-drawer-active-border {
+          position: fixed !important;
+          bottom: 6rem !important;
+          right: 1.5rem !important;
+          z-index: 50 !important;
+          display: flex !important;
+          height: 600px !important;
+          width: 440px !important;
+          flex-direction: column !important;
+          border-radius: 28px !important;
+          padding: 2.5px !important;
+          background: conic-gradient(
+            from var(--rgb-angle-drawer),
+            #3b82f6, #22d3ee, #38bdf8, #6366f1, #a855f7, #34d399, #0284c7, #3b82f6
+          ) !important;
+          animation: rgb-spin-drawer 3.5s linear infinite !important;
+          box-sizing: border-box !important;
+        }
+        .gogo-drawer-active-border::before {
+          content: '';
+          position: absolute;
+          inset: -6px;
+          border-radius: 32px;
+          background: conic-gradient(
+            from var(--rgb-angle-drawer),
+            rgba(59,130,246,0.7), rgba(34,211,238,0.7), rgba(56,189,248,0.7),
+            rgba(99,102,241,0.6), rgba(168,85,247,0.5), rgba(52,211,153,0.5),
+            rgba(2,132,199,0.7), rgba(59,130,246,0.7)
+          );
+          filter: blur(12px);
+          z-index: -1;
+          animation: rgb-spin-drawer 3.5s linear infinite;
+        }
+        .gogo-drawer-idle-border {
+          position: fixed !important;
+          bottom: 6rem !important;
+          right: 1.5rem !important;
+          z-index: 50 !important;
+          display: flex !important;
+          height: 600px !important;
+          width: 440px !important;
+          flex-direction: column !important;
+          border-radius: 28px !important;
+          padding: 1px !important;
+          background: rgba(51, 65, 85, 0.8) !important;
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+          box-sizing: border-box !important;
+        }
+      `}</style>
+
       {/* Unified Floating Gogo Chatbot Trigger (Outer container is click-through) */}
       <div 
         className="fixed bottom-3 right-4 z-50 flex flex-col items-end pointer-events-none select-none transition-all duration-300"
@@ -460,11 +519,10 @@ export default function VoiceTutor() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0.9 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-24 right-6 z-50 flex h-[600px] w-[440px] flex-col rounded-3xl border border-slate-700 bg-slate-900/90 text-white backdrop-blur-xl shadow-2xl overflow-hidden"
-            style={{
-              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1)'
-            }}
+            className={status !== 'idle' ? 'gogo-drawer-active-border' : 'gogo-drawer-idle-border'}
           >
+            {/* Inner Content Drawer with Solid Dark Background */}
+            <div className="relative z-10 flex h-full w-full flex-col rounded-[25px] bg-slate-950 overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between bg-gradient-to-r from-slate-950 to-slate-900 px-5 py-4 border-b border-slate-800">
               <div className="flex items-center gap-2.5">
@@ -706,8 +764,9 @@ export default function VoiceTutor() {
                 </div>
               </>
             )}
-          </motion.div>
-        )}
+          </div>
+        </motion.div>
+      )}
       </AnimatePresence>
     </>
   );
