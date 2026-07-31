@@ -406,6 +406,36 @@ exports.removeQuestion = async (req, res) => {
   }
 };
 
+exports.reorderQuestions = async (req, res) => {
+  try {
+    const { id: examId } = req.params;
+    const { order } = req.body; // array of { question_id, order_index }
+
+    if (!Array.isArray(order) || order.length === 0) {
+      return res.status(400).json({ success: false, message: 'order array is required' });
+    }
+
+    // Check exam is not live
+    const { rows: examCheck } = await db.query('SELECT status FROM exams WHERE id = $1', [examId]);
+    if (!examCheck[0]) return res.status(404).json({ success: false, message: 'Exam not found' });
+    if (examCheck[0].status === 'live') {
+      return res.status(400).json({ success: false, message: 'Cannot reorder questions of a live exam' });
+    }
+
+    // Batch update order_index for each question
+    for (const item of order) {
+      await db.query(
+        `UPDATE exam_questions SET order_index = $1 WHERE exam_id = $2 AND question_id = $3`,
+        [item.order_index, examId, item.question_id]
+      );
+    }
+
+    res.json({ success: true, message: 'Questions reordered' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // ─── SCHEDULING ──────────────────────────────────────────────────────────────
 
 exports.schedule = async (req, res) => {

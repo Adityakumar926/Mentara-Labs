@@ -1,11 +1,27 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, Calendar, Radio, CheckCircle, Clock, Users, TrendingUp, Award } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Calendar, Radio, CheckCircle, Clock, Users, TrendingUp, Award, GripVertical, Image as ImageIcon, ZoomIn } from 'lucide-react';
 import { PageWrapper, Button, Badge, Skeleton, Modal, EmptyState, ConfirmDialog, Select, Input, Textarea, Toggle } from '@/components/ui';
 import { useApi, useMutation } from '@/hooks/useApi';
 import { adminApi } from '@/api/services';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS as DndCSS } from '@dnd-kit/utilities';
 
 const getOptionsArray = (options) => {
   if (!options) return [];
@@ -283,21 +299,81 @@ const CSS = `
   .ed-q-row {
     background: var(--card-bg); border: 1px solid var(--card-bdr);
     border-radius: 16px; padding: 1rem 1.25rem;
-    display: flex; align-items: flex-start; gap: 1rem;
-    transition: border-color 0.2s, background 0.2s;
+    display: flex; align-items: flex-start; gap: 0.85rem;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
     margin-bottom: 0.6rem;
   }
   .ed-q-row:hover { border-color: rgba(124,58,237,0.25); background: rgba(124,58,237,0.04); }
   .ed-q-row:last-child { margin-bottom: 0; }
+  .ed-q-row.dragging {
+    border-color: rgba(124,58,237,0.5);
+    background: rgba(124,58,237,0.08);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 2px rgba(124,58,237,0.25);
+    z-index: 100;
+  }
+  .ed-q-drag-handle {
+    display: flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 6px;
+    color: var(--muted); cursor: grab; flex-shrink: 0; margin-top: 2px;
+    transition: color 0.2s, background 0.2s;
+  }
+  .ed-q-drag-handle:hover { color: var(--violet-l); background: rgba(124,58,237,0.1); }
+  .ed-q-drag-handle:active { cursor: grabbing; }
   .ed-q-num {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.68rem; font-weight: 700; color: var(--muted);
-    min-width: 22px; margin-top: 2px;
+    font-size: 0.72rem; font-weight: 700; color: var(--muted);
+    min-width: 24px; margin-top: 4px; flex-shrink: 0;
   }
-  .ed-q-text { font-size: 0.82rem; color: var(--cream); line-height: 1.5; }
+  .ed-q-text { font-size: 0.9rem; color: var(--cream); line-height: 1.5; font-weight: 500; }
   .ed-q-meta {
-    display: inline-flex; align-items: center; gap: 0.4rem;
-    margin-top: 0.35rem; font-size: 0.68rem; color: var(--muted);
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    margin-top: 0.5rem; font-size: 0.7rem; color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .ed-q-card-img-wrap {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+    margin-top: 0.65rem;
+    margin-bottom: 0.5rem;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(0,0,0,0.4);
+    overflow: hidden;
+    cursor: zoom-in;
+  }
+  .ed-q-card-img {
+    display: block;
+    max-height: 190px;
+    max-width: 100%;
+    width: auto;
+    object-fit: contain;
+    border-radius: 11px;
+    transition: transform 0.2s;
+  }
+  .ed-q-card-img-wrap:hover .ed-q-card-img {
+    transform: scale(1.015);
+  }
+  .ed-q-card-img-badge {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0.75;
+    transition: opacity 0.2s;
+    backdrop-filter: blur(4px);
+  }
+  .ed-q-card-img-wrap:hover .ed-q-card-img-badge {
+    opacity: 1;
+    background: rgba(124,58,237,0.85);
   }
   .ed-q-type-pill {
     background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.2);
@@ -316,6 +392,14 @@ const CSS = `
     transition: color 0.2s, background 0.2s; margin-left: auto; flex-shrink: 0;
   }
   .ed-q-remove:hover { color: #F87171; background: rgba(239,68,68,0.1); }
+  /* reorder saving pill */
+  .ed-reorder-saving {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 0.68rem; color: var(--muted); padding: 0.25rem 0.75rem;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 50px; animation: ed-pulse 1s ease infinite;
+  }
+  @keyframes ed-pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
 
   /* ── ADD-Q MODAL ── */
   .ed-modal-q-list { max-height: 60vh; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; }
@@ -440,6 +524,94 @@ function CategoryBadge({ difficulty }) {
   );
 }
 
+/* ─── SORTABLE QUESTION ROW ─── */
+function SortableQuestionRow({ q, index, canEdit, onView, onRemove, onZoom }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: q.id });
+
+  const style = {
+    transform: DndCSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 100 : undefined,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={clsx('ed-q-row', isDragging && 'dragging')}
+    >
+      {/* Drag handle (only for editable exams) */}
+      {canEdit && (
+        <span
+          className="ed-q-drag-handle"
+          {...attributes}
+          {...listeners}
+          title="Drag to reorder"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <GripVertical size={15} />
+        </span>
+      )}
+
+      {/* Index number */}
+      <span className="ed-q-num">#{index + 1}</span>
+
+      {/* Main question content area */}
+      <div style={{ flex: 1, minWidth: 0, cursor: 'pointer' }} onClick={onView}>
+        {q.question_text && (
+          <p className="ed-q-text">
+            {q.question_text}
+          </p>
+        )}
+
+        {/* Large Prominent Question Image */}
+        {q.image_url && (
+          <div
+            className="ed-q-card-img-wrap"
+            onClick={(e) => { e.stopPropagation(); onZoom(q.image_url); }}
+            title="Click to zoom image"
+          >
+            <img
+              src={q.image_url}
+              alt="Question diagram / scanned prompt"
+              className="ed-q-card-img"
+            />
+            <div className="ed-q-card-img-badge">
+              <ZoomIn size={12} /> Click to Enlarge
+            </div>
+          </div>
+        )}
+
+        {!q.question_text && !q.image_url && (
+          <p className="ed-q-text" style={{ fontStyle: 'italic', opacity: 0.55 }}>
+            (No text prompt)
+          </p>
+        )}
+
+        <div className="ed-q-meta">
+          <span className="ed-q-type-pill">{q.question_type ? q.question_type.replace('_', ' ') : 'mcq'}</span>
+          <CategoryBadge difficulty={q.difficulty} />
+          <span className="ed-q-marks-pill">{q.marks ?? 1} mark{(q.marks ?? 1) !== 1 ? 's' : ''}</span>
+        </div>
+      </div>
+
+      {/* Remove button */}
+      {canEdit && (
+        <button className="ed-q-remove" onClick={onRemove} title="Remove from exam">
+          <Trash2 size={15} />
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default function ExamDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -495,6 +667,42 @@ export default function ExamDetail() {
     (qId) => adminApi.removeExamQuestion(id, qId),
     { onSuccess: refetch, successMsg: 'Question removed' }
   );
+  const examQuestions = useMemo(() => {
+    if (!exam?.questions) return [];
+    if (Array.isArray(exam.questions)) return exam.questions;
+    if (typeof exam.questions === 'string') {
+      try {
+        const parsed = JSON.parse(exam.questions);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  }, [exam?.questions]);
+
+  const [orderedQuestions, setOrderedQuestions] = useState(null);
+  const [reorderSaving, setReorderSaving] = useState(false);
+  const { mutate: reorderQ } = useMutation(
+    (order) => adminApi.reorderExamQuestions(id, order),
+    { onSuccess: () => { setReorderSaving(false); refetch(); } }
+  );
+  const dndSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+  const displayQuestions = orderedQuestions ?? examQuestions;
+
+  const handleDragEnd = useCallback((event) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIdx = displayQuestions.findIndex(q => q.id === active.id);
+    const newIdx = displayQuestions.findIndex(q => q.id === over.id);
+    const reordered = arrayMove(displayQuestions, oldIdx, newIdx);
+    setOrderedQuestions(reordered);
+    setReorderSaving(true);
+    reorderQ(reordered.map((q, i) => ({ question_id: q.id, order_index: i })));
+  }, [displayQuestions, reorderQ]);
   const { mutate: schedule, loading: scheduling } = useMutation(
     () => {
       const iso = new Date(schedForm.scheduled_at).toISOString();
@@ -629,20 +837,6 @@ export default function ExamDetail() {
     if (!subjectNode || !filterTopicId) return [];
     return findTopicPath(subjectNode.topics, filterTopicId) || [];
   }, [subjectNode, filterTopicId]);
-
-  const examQuestions = useMemo(() => {
-    if (!exam?.questions) return [];
-    if (Array.isArray(exam.questions)) return exam.questions;
-    if (typeof exam.questions === 'string') {
-      try {
-        const parsed = JSON.parse(exam.questions);
-        return Array.isArray(parsed) ? parsed : [];
-      } catch {
-        return [];
-      }
-    }
-    return [];
-  }, [exam?.questions]);
 
   const existingIds  = new Set(examQuestions.map((q) => q.id));
   const availableQs  = (Array.isArray(allQuestions) ? allQuestions : []).filter((q) => !existingIds.has(q.id));
@@ -874,34 +1068,32 @@ export default function ExamDetail() {
                 />
               ) : (
                 <div>
-                  {examQuestions.map((q, i) => (
-                    <motion.div
-                      key={q.id}
-                      className="ed-q-row"
-                      onClick={() => setViewingQuestion(q)}
-                      style={{ cursor: 'pointer' }}
-                      initial={{ opacity: 0, x: -8 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.04, duration: 0.28 }}
-                    >
-                      <span className="ed-q-num">{i + 1}</span>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p className="ed-q-text" style={{ fontStyle: q.question_text ? 'normal' : 'italic', opacity: q.question_text ? 1 : 0.6 }}>
-                          {q.question_text || '(No text prompt)'}
-                        </p>
-                        <div className="ed-q-meta">
-                          <span className="ed-q-type-pill">{q.question_type ? q.question_type.replace('_', ' ') : 'mcq'}</span>
-                          <CategoryBadge difficulty={q.difficulty} />
-                          <span className="ed-q-marks-pill">{q.marks} mark{q.marks !== 1 ? 's' : ''}</span>
-                        </div>
-                      </div>
-                      {canEdit && (
-                        <button className="ed-q-remove" onClick={(e) => { e.stopPropagation(); removeQ(q.id); }}>
-                          <Trash2 size={13} />
-                        </button>
-                      )}
-                    </motion.div>
-                  ))}
+                  {/* Header row */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 500 }}>
+                      {displayQuestions.length} question{displayQuestions.length !== 1 ? 's' : ''}
+                      {canEdit && <span style={{ marginLeft: '0.5rem', opacity: 0.6 }}> · drag to reorder</span>}
+                    </span>
+                    {reorderSaving && (
+                      <span className="ed-reorder-saving">⟳ Saving order…</span>
+                    )}
+                  </div>
+
+                  <DndContext sensors={dndSensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                    <SortableContext items={displayQuestions.map(q => q.id)} strategy={verticalListSortingStrategy}>
+                      {displayQuestions.map((q, i) => (
+                        <SortableQuestionRow
+                          key={q.id}
+                          q={q}
+                          index={i}
+                          canEdit={canEdit}
+                          onView={() => setViewingQuestion(q)}
+                          onRemove={(e) => { e.stopPropagation(); removeQ(q.id); }}
+                          onZoom={(url) => setActiveImage(url)}
+                        />
+                      ))}
+                    </SortableContext>
+                  </DndContext>
                 </div>
               )}
             </motion.div>
@@ -1275,14 +1467,35 @@ export default function ExamDetail() {
           open={!!viewingQuestion}
           onClose={() => setViewingQuestion(null)}
           title="Question Details"
-          size="md"
+          size="lg"
         >
           {viewingQuestion && (
             <div className="ed-q-view">
               <style>{`
-                .ed-q-view-title { font-size: 1rem; font-weight: 600; color: #fafafa; margin-bottom: 1rem; line-height: 1.5; }
-                .ed-q-view-meta { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
-                .ed-q-view-img { max-width: 100%; max-height: 250px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.065); margin-bottom: 1.25rem; display: block; object-fit: contain; background: rgba(0,0,0,0.2); }
+                .ed-q-view-title { font-size: 1.05rem; font-weight: 600; color: #fafafa; margin-bottom: 1rem; line-height: 1.5; }
+                .ed-q-view-meta { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+                .ed-q-view-img-wrap {
+                  position: relative; display: block; width: 100%;
+                  background: rgba(0,0,0,0.4); border-radius: 14px;
+                  border: 1px solid rgba(255,255,255,0.12);
+                  overflow: hidden; margin-bottom: 1.25rem; cursor: zoom-in;
+                  text-align: center;
+                }
+                .ed-q-view-img-wrap:hover .ed-q-view-zoom { opacity: 1; }
+                .ed-q-view-img {
+                  width: 100%; max-height: 380px;
+                  object-fit: contain; display: block; margin: 0 auto;
+                  border-radius: 13px;
+                }
+                .ed-q-view-zoom {
+                  position: absolute; top: 10px; right: 10px;
+                  background: rgba(0,0,0,0.55); color: #fff;
+                  border-radius: 8px; padding: 5px 7px;
+                  opacity: 0; transition: opacity 0.2s;
+                  display: flex; align-items: center; gap: 4px;
+                  font-size: 0.62rem; font-weight: 600;
+                  pointer-events: none;
+                }
                 .ed-q-view-options { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.25rem; }
                 .ed-q-view-option {
                   padding: 0.75rem 1rem; border-radius: 12px;
@@ -1312,18 +1525,25 @@ export default function ExamDetail() {
               `}</style>
               <div className="ed-q-view-meta">
                 <span className="ed-q-type-pill">{viewingQuestion.question_type ? viewingQuestion.question_type.replace('_', ' ') : 'mcq'}</span>
+                <CategoryBadge difficulty={viewingQuestion.difficulty} />
                 <span className="ed-q-marks-pill">{viewingQuestion.marks || 1} mark(s)</span>
               </div>
               {viewingQuestion.question_text && <div className="ed-q-view-title">{viewingQuestion.question_text}</div>}
               
               {viewingQuestion.image_url && (
-                <img 
-                  src={viewingQuestion.image_url} 
-                  alt="Question" 
-                  className="ed-q-view-img" 
+                <div
+                  className="ed-q-view-img-wrap"
                   onClick={() => setActiveImage(viewingQuestion.image_url)}
-                  style={{ cursor: 'zoom-in' }}
-                />
+                >
+                  <img
+                    src={viewingQuestion.image_url}
+                    alt="Question"
+                    className="ed-q-view-img"
+                  />
+                  <div className="ed-q-view-zoom">
+                    <ZoomIn size={11} /> Enlarge
+                  </div>
+                </div>
               )}
               
               {(() => {

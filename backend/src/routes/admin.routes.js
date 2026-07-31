@@ -144,6 +144,7 @@ router.post('/exams/:id/duplicate', examCtrl.duplicate);
 // Exam questions management
 router.post('/exams/:id/questions',               examCtrl.addQuestions);
 router.delete('/exams/:id/questions/:questionId', examCtrl.removeQuestion);
+router.put('/exams/:id/questions/reorder',        examCtrl.reorderQuestions);
 
 // Exam lifecycle
 router.post('/exams/:id/schedule', examCtrl.schedule);
