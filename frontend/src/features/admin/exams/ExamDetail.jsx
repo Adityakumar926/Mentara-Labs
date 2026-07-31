@@ -404,6 +404,42 @@ const BLANK = {
   curriculum_id: '', class_id: '', topic_id: '',
 };
 
+const getCategoryInfo = (difficulty) => {
+  const d = String(difficulty || '').toLowerCase().trim();
+  if (d === 'easy' || d === 'foundation') {
+    return { name: 'Foundation', bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.35)', color: '#34D399' };
+  }
+  if (d === 'hard' || d === 'secure') {
+    return { name: 'Secure', bg: 'rgba(239, 68, 68, 0.15)', border: 'rgba(239, 68, 68, 0.35)', color: '#EF4444' };
+  }
+  return { name: 'Developing', bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.35)', color: '#FCD34D' };
+};
+
+function CategoryBadge({ difficulty }) {
+  if (!difficulty) return null;
+  const info = getCategoryInfo(difficulty);
+  return (
+    <span
+      style={{
+        padding: '0.12rem 0.55rem',
+        fontSize: '0.62rem',
+        fontWeight: '700',
+        borderRadius: '50px',
+        background: info.bg,
+        border: `1px solid ${info.border}`,
+        color: info.color,
+        textTransform: 'uppercase',
+        letterSpacing: '0.04em',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '0.25rem'
+      }}
+    >
+      {info.name}
+    </span>
+  );
+}
+
 export default function ExamDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -413,6 +449,7 @@ export default function ExamDetail() {
   const [selected, setSelected]     = useState([]);
   const [activeTab, setActiveTab]   = useState('questions');
   const [filterTopicId, setFilterTopicId] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
   const [confirmPublishOpen, setConfirmPublishOpen] = useState(false);
   const [confirmRescheduleOpen, setConfirmRescheduleOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
@@ -593,11 +630,33 @@ export default function ExamDetail() {
     return findTopicPath(subjectNode.topics, filterTopicId) || [];
   }, [subjectNode, filterTopicId]);
 
-  const existingIds  = new Set((exam?.questions ?? []).map((q) => q.id));
-  const availableQs  = (allQuestions ?? []).filter((q) => !existingIds.has(q.id));
+  const examQuestions = useMemo(() => {
+    if (!exam?.questions) return [];
+    if (Array.isArray(exam.questions)) return exam.questions;
+    if (typeof exam.questions === 'string') {
+      try {
+        const parsed = JSON.parse(exam.questions);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  }, [exam?.questions]);
+
+  const existingIds  = new Set(examQuestions.map((q) => q.id));
+  const availableQs  = (Array.isArray(allQuestions) ? allQuestions : []).filter((q) => !existingIds.has(q.id));
   
   const filteredAvailableQs = useMemo(() => {
-    const list = availableQs ?? [];
+    let list = availableQs ?? [];
+
+    if (filterCategory) {
+      list = list.filter((q) => {
+        const cat = getCategoryInfo(q.difficulty).name.toLowerCase();
+        return cat === filterCategory.toLowerCase() || String(q.difficulty || '').toLowerCase() === filterCategory.toLowerCase();
+      });
+    }
+
     if (!filterTopicId || !subjectNode) return list;
     
     const findNode = (topics, id) => {
@@ -617,7 +676,7 @@ export default function ExamDetail() {
     
     const allowedIds = new Set(getDescendantTopicIds(selectedTopicNode));
     return list.filter((q) => q.topic_id && allowedIds.has(q.topic_id));
-  }, [availableQs, filterTopicId, subjectNode]);
+  }, [availableQs, filterTopicId, filterCategory, subjectNode]);
 
   const toggleSelect = (qid) =>
     setSelected((p) => p.includes(qid) ? p.filter((x) => x !== qid) : [...p, qid]);
@@ -667,7 +726,26 @@ export default function ExamDetail() {
       </PageWrapper>
     );
   }
-  if (!exam) return null;
+  if (!exam) {
+    return (
+      <PageWrapper className="p-6">
+        <style>{CSS}</style>
+        <div className="ed-root" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+          <div style={{ textAlign: 'center', background: 'var(--card-bg)', border: '1px solid var(--card-bdr)', borderRadius: '24px', padding: '3rem 2rem', maxWidth: '440px' }}>
+            <div style={{ fontSize: '1.1rem', fontWeight: '700', color: 'var(--cream)', marginBottom: '0.5rem' }}>
+              Exam Not Found
+            </div>
+            <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '1.5rem', lineHeight: '1.5' }}>
+              The requested exam could not be loaded or may have been removed.
+            </p>
+            <button className="ed-btn-primary" onClick={() => navigate('/admin/exams')}>
+              Back to Exams List
+            </button>
+          </div>
+        </div>
+      </PageWrapper>
+    );
+  }
 
   return (
     <PageWrapper className="p-6">
@@ -783,7 +861,7 @@ export default function ExamDetail() {
           {/* ── QUESTIONS TAB ── */}
           {activeTab === 'questions' && (
             <motion.div key="questions" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.28 }}>
-              {exam.questions?.length === 0 ? (
+              {examQuestions.length === 0 ? (
                 <EmptyState
                   icon={Plus}
                   title="No questions yet"
@@ -796,7 +874,7 @@ export default function ExamDetail() {
                 />
               ) : (
                 <div>
-                  {exam.questions.map((q, i) => (
+                  {examQuestions.map((q, i) => (
                     <motion.div
                       key={q.id}
                       className="ed-q-row"
@@ -812,7 +890,8 @@ export default function ExamDetail() {
                           {q.question_text || '(No text prompt)'}
                         </p>
                         <div className="ed-q-meta">
-                          <span className="ed-q-type-pill">{q.question_type.replace('_', ' ')}</span>
+                          <span className="ed-q-type-pill">{q.question_type ? q.question_type.replace('_', ' ') : 'mcq'}</span>
+                          <CategoryBadge difficulty={q.difficulty} />
                           <span className="ed-q-marks-pill">{q.marks} mark{q.marks !== 1 ? 's' : ''}</span>
                         </div>
                       </div>
@@ -908,39 +987,52 @@ export default function ExamDetail() {
         <Modal open={addQModal} onClose={() => setAddQModal(false)} title="Add Questions" size="xl">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             
-            {/* Topic Filters */}
-            {subjectNode && subjectNode.topics && subjectNode.topics.length > 0 && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
-                <Select
-                  label="Filter by Topic"
-                  value={filterTopicPath[0]?.id ?? ''}
-                  onChange={(e) => handleFilterTopicChange(0, e.target.value)}
-                >
-                  <option value="">All Topics</option>
-                  {subjectNode.topics.map(t => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
-                  ))}
-                </Select>
+            {/* Category & Topic Filters */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+              <Select
+                label="Filter by Category"
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+              >
+                <option value="">All Categories (Foundation, Developing, Secure)</option>
+                <option value="foundation">🌱 Foundation</option>
+                <option value="developing">📈 Developing</option>
+                <option value="secure">🛡️ Secure</option>
+              </Select>
 
-                {filterTopicPath.map((topicNode, idx) => {
-                  if (!topicNode.children || topicNode.children.length === 0) return null;
-                  const nextIdx = idx + 1;
-                  return (
-                    <Select
-                      key={topicNode.id}
-                      label="Filter by Sub-topic"
-                      value={filterTopicPath[nextIdx]?.id ?? ''}
-                      onChange={(e) => handleFilterTopicChange(nextIdx, e.target.value)}
-                    >
-                      <option value="">All Sub-topics</option>
-                      {topicNode.children.map(child => (
-                        <option key={child.id} value={child.id}>{child.name}</option>
-                      ))}
-                    </Select>
-                  );
-                })}
-              </div>
-            )}
+              {subjectNode && subjectNode.topics && subjectNode.topics.length > 0 && (
+                <>
+                  <Select
+                    label="Filter by Topic"
+                    value={filterTopicPath[0]?.id ?? ''}
+                    onChange={(e) => handleFilterTopicChange(0, e.target.value)}
+                  >
+                    <option value="">All Topics</option>
+                    {subjectNode.topics.map(t => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </Select>
+
+                  {filterTopicPath.map((topicNode, idx) => {
+                    if (!topicNode.children || topicNode.children.length === 0) return null;
+                    const nextIdx = idx + 1;
+                    return (
+                      <Select
+                        key={topicNode.id}
+                        label="Filter by Sub-topic"
+                        value={filterTopicPath[nextIdx]?.id ?? ''}
+                        onChange={(e) => handleFilterTopicChange(nextIdx, e.target.value)}
+                      >
+                        <option value="">All Sub-topics</option>
+                        {topicNode.children.map(child => (
+                          <option key={child.id} value={child.id}>{child.name}</option>
+                        ))}
+                      </Select>
+                    );
+                  })}
+                </>
+              )}
+            </div>
 
             <div className="ed-modal-q-list">
               {filteredAvailableQs.length === 0 ? (
@@ -972,23 +1064,7 @@ export default function ExamDetail() {
                               <span className="ed-q-type-pill" style={{ padding: '0.1rem 0.45rem', fontSize: '0.62rem', letterSpacing: '0.02em', textTransform: 'uppercase', background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', color: 'var(--lavender)', borderRadius: '50px' }}>
                                 {q.question_type === 'photo' ? 'structure' : (q.question_type ? q.question_type.replace('_', ' ') : 'mcq')}
                               </span>
-                              {q.difficulty && (
-                                <span 
-                                  style={{ 
-                                    padding: '0.1rem 0.45rem', 
-                                    fontSize: '0.62rem', 
-                                    fontWeight: 'bold', 
-                                    borderRadius: '50px',
-                                    background: q.difficulty === 'easy' ? 'rgba(16,185,129,0.12)' : q.difficulty === 'hard' ? 'rgba(239,68,68,0.12)' : 'rgba(245,158,11,0.12)',
-                                    color: q.difficulty === 'easy' ? '#34D399' : q.difficulty === 'hard' ? '#F87171' : '#FCD34D',
-                                    border: q.difficulty === 'easy' ? '1px solid rgba(16,185,129,0.2)' : q.difficulty === 'hard' ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(245,158,11,0.2)',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.04em'
-                                  }}
-                                >
-                                  {q.difficulty}
-                                </span>
-                              )}
+                              <CategoryBadge difficulty={q.difficulty} />
                               {q.topic_name && <span style={{ fontSize: '0.68rem', color: 'var(--muted)' }}>• {q.topic_name}</span>}
                             </div>
                           </div>

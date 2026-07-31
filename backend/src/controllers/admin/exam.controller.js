@@ -72,6 +72,7 @@ exports.getOne = async (req, res) => {
                'correct_answer', q.correct_answer,
                'image_url', q.image_url,
                'explanation', q.explanation,
+               'difficulty', q.difficulty,
                'marks', eq.marks,
                'order_index', eq.order_index
              ) ORDER BY eq.order_index ASC, q.created_at ASC
@@ -90,6 +91,24 @@ exports.getOne = async (req, res) => {
       [req.params.id]
     );
     if (!rows[0]) return res.status(404).json({ success: false, message: 'Exam not found' });
+
+    let parsedQuestions = rows[0].questions;
+    if (typeof parsedQuestions === 'string') {
+      try {
+        parsedQuestions = JSON.parse(parsedQuestions);
+      } catch (e) {
+        parsedQuestions = [];
+      }
+    }
+    if (!Array.isArray(parsedQuestions)) {
+      parsedQuestions = [];
+    }
+
+    rows[0].questions = parsedQuestions.map((q) => ({
+      ...q,
+      options: typeof q?.options === 'string' ? (() => { try { return JSON.parse(q.options); } catch { return []; } })() : (q?.options ?? [])
+    }));
+
     res.json({ success: true, data: rows[0] });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

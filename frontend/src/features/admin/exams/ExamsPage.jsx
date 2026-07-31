@@ -145,8 +145,8 @@ const CSS = `
   /* ── EXAM GRID ── */
   .ep-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.1rem;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.25rem;
   }
 
   /* ── EXAM CARD ── */
@@ -155,102 +155,176 @@ const CSS = `
     background: var(--card-bg);
     border: 1px solid var(--card-bdr);
     border-radius: 24px;
-    padding: 1.5rem;
-    display: flex; flex-direction: column; gap: 0.75rem;
+    padding: 0;
+    display: flex; flex-direction: column;
     backdrop-filter: blur(14px);
     overflow: hidden;
     text-decoration: none; color: inherit;
     transition: border-color 0.3s, box-shadow 0.3s, transform 0.25s;
     cursor: pointer;
+    min-height: 200px;
   }
   .ep-card:hover {
-    border-color: rgba(124,58,237,0.35);
-    box-shadow: 0 18px 48px rgba(0,0,0,0.3), 0 0 0 1px rgba(124,58,237,0.1);
-    transform: translateY(-3px);
+    border-color: rgba(124,58,237,0.4);
+    box-shadow: 0 20px 56px rgba(0,0,0,0.32), 0 0 0 1px rgba(124,58,237,0.12);
+    transform: translateY(-4px);
   }
 
   /* strip by status */
   .ep-card-strip {
-    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
     border-radius: 24px 24px 0 0;
   }
-  .ep-strip-draft     { background: linear-gradient(90deg, rgba(245,240,232,0.2), transparent); }
+  .ep-strip-draft     { background: linear-gradient(90deg, rgba(245,240,232,0.3), transparent); }
   .ep-strip-scheduled { background: linear-gradient(90deg, var(--cyan), rgba(0,212,255,0)); }
-  .ep-strip-live      { background: linear-gradient(90deg, var(--green), rgba(16,185,129,0)); }
-  .ep-strip-ended     { background: linear-gradient(90deg, rgba(245,240,232,0.12), transparent); }
+  .ep-strip-live      { background: linear-gradient(90deg, #34D399, rgba(16,185,129,0)); }
+  .ep-strip-ended     { background: linear-gradient(90deg, rgba(245,240,232,0.15), transparent); }
 
   /* glow on hover */
   .ep-card-glow {
-    position: absolute; border-radius: 50%; filter: blur(50px); pointer-events: none;
-    width: 180px; height: 180px; top: -60px; right: -40px; opacity: 0;
-    background: radial-gradient(circle, rgba(124,58,237,0.35) 0%, transparent 70%);
-    transition: opacity 0.4s;
+    position: absolute; border-radius: 50%; filter: blur(60px); pointer-events: none;
+    width: 200px; height: 200px; top: -70px; right: -50px; opacity: 0;
+    background: radial-gradient(circle, rgba(124,58,237,0.3) 0%, transparent 70%);
+    transition: opacity 0.45s;
   }
   .ep-card:hover .ep-card-glow { opacity: 1; }
 
   /* live pulse indicator */
   .ep-live-pulse {
     width: 7px; height: 7px; border-radius: 50%;
-    background: var(--green); box-shadow: 0 0 8px var(--green);
+    background: #34D399; box-shadow: 0 0 8px #34D399;
     animation: ep-blink 1.4s ease infinite;
     flex-shrink: 0;
   }
 
-  .ep-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
-  .ep-card-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.92rem; font-weight: 700; color: var(--cream);
-    line-height: 1.35; display: -webkit-box;
-    -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  /* ── CARD BODY (padded area) ── */
+  .ep-card-body {
+    padding: 1.4rem 1.4rem 1rem;
+    display: flex; flex-direction: column; gap: 0.85rem;
+    flex: 1;
   }
 
-  /* status pill */
+  /* ── CARD HEAD row ── */
+  .ep-card-head {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem;
+  }
+  .ep-card-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem; font-weight: 700; color: var(--cream);
+    line-height: 1.35; display: -webkit-box;
+    -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    flex: 1;
+  }
+
+  /* ── STATUS PILL ── */
   .ep-status {
-    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em;
-    text-transform: uppercase; padding: 0.22rem 0.65rem; border-radius: 50px;
+    font-size: 0.6rem; font-weight: 800; letter-spacing: 0.09em;
+    text-transform: uppercase; padding: 0.24rem 0.7rem; border-radius: 50px;
     white-space: nowrap; flex-shrink: 0;
+    display: flex; align-items: center; gap: 0.3rem;
   }
   .ep-status-draft     { background: rgba(245,240,232,0.06); border: 1px solid rgba(245,240,232,0.1); color: var(--muted); }
   .ep-status-scheduled { background: rgba(0,212,255,0.1);    border: 1px solid rgba(0,212,255,0.25);  color: var(--cyan); }
-  .ep-status-live      { background: rgba(16,185,129,0.15);  border: 1px solid rgba(16,185,129,0.3);  color: #34D399; box-shadow: 0 0 10px rgba(16,185,129,0.2); }
+  .ep-status-live      { background: rgba(16,185,129,0.15);  border: 1px solid rgba(16,185,129,0.3);  color: #34D399; box-shadow: 0 0 12px rgba(16,185,129,0.2); }
   .ep-status-ended     { background: rgba(245,240,232,0.04); border: 1px solid rgba(245,240,232,0.08); color: rgba(245,240,232,0.3); }
 
+  /* ── META (subject, topic, cert badge) ── */
   .ep-card-meta {
-    display: flex; flex-direction: column; gap: 0.2rem;
-    font-size: 0.73rem; color: var(--muted);
+    display: flex; flex-direction: column; gap: 0.35rem;
   }
-  .ep-card-meta span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ep-meta-subject {
+    font-size: 0.76rem; font-weight: 600;
+    color: var(--violet-l);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .ep-meta-topic {
+    font-size: 0.71rem; color: var(--muted); font-weight: 500;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .ep-cert-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 0.63rem; font-weight: 700;
+    color: #A78BFA;
+    background: rgba(139,92,246,0.12);
+    border: 1px solid rgba(139,92,246,0.28);
+    padding: 0.18rem 0.55rem;
+    border-radius: 50px;
+    width: fit-content;
+    letter-spacing: 0.02em;
+  }
 
+  /* ── STATS ROW ── */
+  .ep-card-stats {
+    display: flex; align-items: center;
+    gap: 0;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.055);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .ep-stat-chip {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 0.55rem 0.35rem;
+    gap: 0.15rem;
+    border-right: 1px solid rgba(255,255,255,0.055);
+    min-width: 0;
+  }
+  .ep-stat-chip:last-child { border-right: none; }
+  .ep-stat-val {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem; font-weight: 700;
+    color: var(--cream);
+    line-height: 1;
+  }
+  .ep-stat-label {
+    font-size: 0.58rem; font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    line-height: 1;
+  }
+
+  /* ── CARD FOOTER ── */
   .ep-card-foot {
-    display: flex; align-items: center; gap: 1rem;
-    padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.07);
-    margin-top: auto; font-size: 0.71rem; color: var(--muted);
+    display: flex; align-items: center;
+    padding: 0.75rem 1.4rem;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    gap: 0.5rem;
+    background: rgba(0,0,0,0.08);
   }
-  .ep-card-foot span { display: flex; align-items: center; gap: 0.3rem; }
-  .ep-card-foot .ep-manage {
-    display: flex; align-items: center; gap: 0.25rem;
-    font-size: 0.73rem; font-weight: 600; color: var(--violet-l);
-    transition: color 0.2s;
-  }
-  .ep-card:hover .ep-manage { color: var(--cyan); }
-
   .ep-duplicate-btn {
-    margin-left: auto;
     background: rgba(255,255,255,0.04);
-    border: 1px solid var(--card-bdr);
+    border: 1px solid rgba(255,255,255,0.08);
     color: var(--muted);
     border-radius: 50px;
-    padding: 0.2rem 0.6rem;
-    font-size: 0.65rem;
+    padding: 0.32rem 0.85rem;
+    font-size: 0.67rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
     font-family: 'Space Grotesk', sans-serif;
+    white-space: nowrap;
   }
   .ep-duplicate-btn:hover {
-    border-color: rgba(124,58,237,0.35);
-    background: rgba(124,58,237,0.15);
+    border-color: rgba(124,58,237,0.4);
+    background: rgba(124,58,237,0.12);
     color: var(--cream);
+  }
+  .ep-view-btn {
+    margin-left: auto;
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    font-size: 0.72rem; font-weight: 700;
+    color: var(--violet-l);
+    padding: 0.32rem 0.85rem;
+    border-radius: 50px;
+    border: 1px solid rgba(124,58,237,0.25);
+    background: rgba(124,58,237,0.08);
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .ep-card:hover .ep-view-btn {
+    color: var(--cyan); border-color: rgba(0,212,255,0.35);
+    background: rgba(0,212,255,0.08);
   }
 
   /* ── SKELETON ── */
@@ -513,52 +587,63 @@ export default function ExamsPage() {
               <AnimatePresence>
                 {filtered.map((e) => (
                   <motion.div key={e.id} variants={cardV} layout>
-                    <Link to={`/admin/exams/${e.id}`} className="ep-card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                    <Link to={`/admin/exams/${e.id}`} className="ep-card">
                       <div className={`ep-card-strip ep-strip-${e.status}`} />
                       <div className="ep-card-glow" />
 
-                      <div className="ep-card-head">
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
-                          <p className="ep-card-title">{e.title}</p>
-                          {e.certificate_enabled && (
-                            <span 
-                              style={{ 
-                                display: 'inline-flex', 
-                                alignItems: 'center', 
-                                gap: '3px', 
-                                fontSize: '0.65rem', 
-                                fontWeight: 700, 
-                                color: '#A78BFA',
-                                background: 'rgba(139, 92, 246, 0.15)',
-                                border: '1px solid rgba(139, 92, 246, 0.3)',
-                                padding: '0.15rem 0.5rem',
-                                borderRadius: '50px',
-                                width: 'fit-content'
-                              }}
-                            >
-                              🎓 Certificate Enabled
-                            </span>
-                          )}
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                          {e.status === 'live' && <span className="ep-live-pulse" />}
-                          <span className={`ep-status ep-status-${e.status}`}>{e.status}</span>
-                        </div>
-                      </div>
+                      {/* ── Card Body ── */}
+                      <div className="ep-card-body">
 
-                      {e.subject_name && (
-                        <div className="ep-card-meta">
-                          <span style={{ color: 'var(--violet-l)' }}>
-                            {e.subject_name}
-                            {e.topic_name && ` • ${e.topic_name}`}
+                        {/* Row 1: Title + Status pill */}
+                        <div className="ep-card-head">
+                          <p className="ep-card-title">{e.title}</p>
+                          <span className={`ep-status ep-status-${e.status}`}>
+                            {e.status === 'live' && <span className="ep-live-pulse" />}
+                            {e.status}
                           </span>
                         </div>
-                      )}
 
+                        {/* Row 2: Subject / Topic / Cert badge */}
+                        <div className="ep-card-meta">
+                          {e.subject_name && (
+                            <span className="ep-meta-subject">
+                              📘 {e.subject_name}
+                            </span>
+                          )}
+                          {e.topic_name && (
+                            <span className="ep-meta-topic">↳ {e.topic_name}</span>
+                          )}
+                          {e.certificate_enabled && (
+                            <span className="ep-cert-badge">🎓 Certificate Enabled</span>
+                          )}
+                        </div>
+
+                        {/* Row 3: Stats chips */}
+                        <div className="ep-card-stats">
+                          <div className="ep-stat-chip">
+                            <span className="ep-stat-val" style={{ color: 'var(--cyan)' }}>
+                              {e.duration_minutes ? `${e.duration_minutes}m` : '∞'}
+                            </span>
+                            <span className="ep-stat-label">Duration</span>
+                          </div>
+                          <div className="ep-stat-chip">
+                            <span className="ep-stat-val" style={{ color: 'var(--violet-l)' }}>
+                              {e.submission_count ?? 0}
+                            </span>
+                            <span className="ep-stat-label">Submitted</span>
+                          </div>
+                          <div className="ep-stat-chip">
+                            <span className="ep-stat-val" style={{ color: '#FCD34D' }}>
+                              {e.question_count ?? 0}
+                            </span>
+                            <span className="ep-stat-label">Questions</span>
+                          </div>
+                        </div>
+
+                      </div>{/* end card-body */}
+
+                      {/* ── Card Footer ── */}
                       <div className="ep-card-foot">
-                        <span><Clock size={11} style={{ color: 'var(--cyan)' }} />{e.duration_minutes ? `${e.duration_minutes}m` : 'Untimed'}</span>
-                        <span><Users size={11} style={{ color: 'var(--violet-l)' }} />{e.submission_count ?? 0} submitted</span>
-                        {e.question_count > 0 && <span>{e.question_count} Qs</span>}
                         <button
                           type="button"
                           onClick={(evt) => {
@@ -572,8 +657,11 @@ export default function ExamsPage() {
                         >
                           Duplicate
                         </button>
-                        <span className="ep-manage">View <ChevronRight size={12} /></span>
+                        <span className="ep-view-btn">
+                          View <ChevronRight size={12} />
+                        </span>
                       </div>
+
                     </Link>
                   </motion.div>
                 ))}
