@@ -2,19 +2,19 @@ const db = require('../../config/db');
 
 exports.getStats = async (req, res) => {
   try {
-    const [students, exams, questions, premium, recentExams, weeklyActivity] = await Promise.all([
+    const [students, exams, questions, premium, recentExams, weeklyActivity, allQuestions] = await Promise.all([
       db.query("SELECT COUNT(*) FROM users WHERE role IN ('student', 'teacher')"),
       db.query("SELECT COUNT(*), status FROM exams GROUP BY status"),
       db.query("SELECT COUNT(*), question_type FROM questions GROUP BY question_type"),
       db.query("SELECT COUNT(*) FROM users WHERE is_premium = true"),
       db.query(`
-        SELECT e.title, e.status, e.scheduled_at,
-               COUNT(es.id) as submission_count,
-               AVG(es.percentage) as avg_score
+        SELECT e.id, e.title, e.status, e.scheduled_at, e.created_at,
+               COALESCE(COUNT(es.id), 0) as submission_count,
+               COALESCE(AVG(es.percentage), 0) as avg_score
         FROM exams e
         LEFT JOIN exam_submissions es ON e.id = es.exam_id
         GROUP BY e.id
-        ORDER BY e.created_at DESC LIMIT 5
+        ORDER BY e.created_at DESC LIMIT 10
       `),
       db.query(`
         SELECT 
@@ -41,6 +41,13 @@ exports.getStats = async (req, res) => {
           GROUP BY DATE(submitted_at)
         ) sub ON sub.sub_date = days.day::date
         ORDER BY days.day ASC
+      `),
+      db.query(`
+        SELECT q.id, q.question_text, q.question_type, q.created_at, t.name as topic_name, s.name as subject_name
+        FROM questions q
+        LEFT JOIN topics t ON t.id = q.topic_id
+        LEFT JOIN subjects s ON s.id = t.subject_id
+        ORDER BY q.created_at DESC
       `)
     ]);
 
@@ -53,7 +60,8 @@ exports.getStats = async (req, res) => {
         premiumUsers: parseInt(premium.rows[0].count),
         totalBatches: 0,
         recentExams: recentExams.rows,
-        weeklyActivity: weeklyActivity.rows
+        weeklyActivity: weeklyActivity.rows,
+        allQuestions: allQuestions.rows
       }
     });
   } catch (err) {

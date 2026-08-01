@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   Users, FileText, HelpCircle, Star, TrendingUp, Activity, Plus, 
@@ -341,6 +341,40 @@ export default function DashboardPage() {
   const { data, loading } = useApi(adminApi.getDashboard);
   const navigate = useNavigate();
   const [filterStatus, setFilterStatus] = useState('all');
+  const [examSearch, setExamSearch] = useState('');
+  const [qSearch, setQSearch] = useState('');
+  const [qType, setQType] = useState('all');
+
+  const allQuestions = data?.allQuestions ?? [];
+  const recentExams = data?.recentExams ?? [];
+
+  const filteredExams = useMemo(() => {
+    return recentExams.filter(e => {
+      if (filterStatus === 'all') return true;
+      return e.status === filterStatus;
+    });
+  }, [recentExams, filterStatus]);
+
+  const searchedExams = useMemo(() => {
+    return filteredExams.filter(e => {
+      if (!examSearch.trim()) return true;
+      return (e.title || '').toLowerCase().includes(examSearch.toLowerCase());
+    });
+  }, [filteredExams, examSearch]);
+
+  const searchedQuestions = useMemo(() => {
+    return allQuestions.filter(q => {
+      const matchesType = qType === 'all' || q.question_type === qType;
+      const qText = q.question_text || '';
+      const topicName = q.topic_name || '';
+      const subjectName = q.subject_name || '';
+      const matchesSearch = !qSearch.trim() || 
+        qText.toLowerCase().includes(qSearch.toLowerCase()) ||
+        topicName.toLowerCase().includes(qSearch.toLowerCase()) ||
+        subjectName.toLowerCase().includes(qSearch.toLowerCase());
+      return matchesType && matchesSearch;
+    });
+  }, [allQuestions, qType, qSearch]);
 
   const stats = [
     { 
@@ -360,35 +394,30 @@ export default function DashboardPage() {
     { 
       icon: FileText, 
       label: 'Assessment Exams', 
-      value: data?.examsByStatus?.reduce((a, e) => a + parseInt(e.count), 0) ?? 0, 
+      value: data?.examsByStatus?.reduce((a, e) => a + parseInt(e.count || 0), 0) ?? 0, 
       badge: 'Live & Scheduled',
       variant: 'green' 
     },
     { 
       icon: HelpCircle, 
       label: 'Question Bank Pool', 
-      value: data?.questionsByType?.reduce((a, q) => a + parseInt(q.count), 0) ?? 0, 
+      value: data?.questionsByType?.reduce((a, q) => a + parseInt(q.count || 0), 0) ?? 0, 
       badge: 'Cambridge Aligned',
       variant: 'cyan' 
     },
   ];
 
   const examStatusData = data?.examsByStatus?.map((e) => ({
-    name: e.status.charAt(0).toUpperCase() + e.status.slice(1),
-    value: parseInt(e.count),
+    name: e.status ? (e.status.charAt(0).toUpperCase() + e.status.slice(1)) : 'Unknown',
+    value: parseInt(e.count || 0),
   })) ?? [];
 
   const questionTypeData = data?.questionsByType?.map((q) => ({
-    name: q.question_type.replace('_', ' ').toUpperCase(),
-    count: parseInt(q.count),
+    name: q.question_type ? q.question_type.replace('_', ' ').toUpperCase() : 'OTHER',
+    count: parseInt(q.count || 0),
   })) ?? [];
 
   const trendData = data?.weeklyActivity ?? [];
-
-  const filteredExams = (data?.recentExams ?? []).filter(e => {
-    if (filterStatus === 'all') return true;
-    return e.status === filterStatus;
-  });
 
   const badgeCls = (status) => {
     if (status === 'live')     return 'db-badge-live';
@@ -675,7 +704,7 @@ export default function DashboardPage() {
 
         {/* ── RECENT EXAMS TABLE CARD ── */}
         <motion.div
-          className="db-card"
+          className="db-card mt-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.56, duration: 0.4 }}
@@ -727,7 +756,7 @@ export default function DashboardPage() {
                   <AnimatePresence mode="popLayout">
                     {filteredExams.map((e, i) => (
                       <motion.tr
-                        key={e.title + i}
+                        key={e.id || e.title + i}
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: 10 }}

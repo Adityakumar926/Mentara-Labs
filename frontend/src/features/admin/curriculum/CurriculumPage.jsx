@@ -134,7 +134,7 @@ const CSS = `
 
   /* ── FILTER & SEARCH BAR ── */
   .cp-controls-bar {
-    display: flex; flex-wrap: wrap; items-center; justify-content: space-between; gap: 1rem;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;
     background: var(--card-bg); border: 1px solid var(--card-bdr);
     border-radius: 20px; padding: 0.85rem 1.25rem; backdrop-filter: blur(20px);
     margin-bottom: 1.75rem;
@@ -143,18 +143,29 @@ const CSS = `
     position: relative; flex: 1; min-width: 240px; max-width: 400px;
   }
   .cp-search-input {
-    width: 100%; bg: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;
-    padding: 0.6rem 1rem 0.6rem 2.4rem; color: #FFFFFF; font-size: 0.82rem;
-    outline: none; transition: all 0.2s ease;
+    width: 100%;
+    background: rgba(15, 23, 42, 0.85) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 12px;
+    padding: 0.65rem 1rem 0.65rem 2.4rem;
+    color: #FFFFFF !important;
+    font-size: 0.85rem;
+    outline: none;
+    transition: all 0.2s ease;
+  }
+  .cp-search-input::placeholder {
+    color: #94A3B8 !important;
   }
   .cp-search-input:focus {
-    border-color: rgba(0, 212, 255, 0.5); box-shadow: 0 0 15px rgba(0, 212, 255, 0.2);
+    border-color: rgba(0, 212, 255, 0.6) !important;
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.25) !important;
   }
 
   .cp-filter-tabs {
-    display: flex; items-center; gap: 0.4rem; bg: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08); padding: 0.25rem; border-radius: 12px;
+    display: flex; align-items: center; gap: 0.4rem;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 0.25rem; border-radius: 12px;
   }
   .cp-filter-tab {
     padding: 0.4rem 0.85rem; border-radius: 8px; font-size: 0.75rem; font-weight: 700;

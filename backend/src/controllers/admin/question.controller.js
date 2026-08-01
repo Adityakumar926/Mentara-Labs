@@ -9,7 +9,7 @@ const UPDATABLE_FIELDS = new Set([
 
 exports.getAll = async (req, res) => {
   try {
-    const { subject_id, topic_id, class_id, curriculum_id, type, is_premium, is_starred, search, page = 1, limit = 20 } = req.query;
+    const { subject_id, topic_id, class_id, curriculum_id, type, is_premium, is_starred, search, page = 1, limit = 10000 } = req.query;
     const offset = (page - 1) * limit;
     const conditions = [];
     const params = [];

@@ -1,201 +1,171 @@
-import { useState, useEffect } from 'react';
-import { Save, AlertCircle, ShieldCheck, GraduationCap, Users } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useMemo } from 'react';
+import { 
+  Save, AlertCircle, ShieldCheck, GraduationCap, Users, 
+  DollarSign, Percent, Settings, Database, Cloud, Zap, CheckCircle2, Sliders
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { PageWrapper, Button, Input } from '@/components/ui';
 import { adminApi } from '@/api/services';
 import toast from 'react-hot-toast';
 
+/* ─── CSS ─── */
 const CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
   .set-root {
-    padding: 2rem;
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-  
-  .set-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-  }
-  
-  .set-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #fff;
-    margin: 0;
-  }
-  
-  .set-subtitle {
-    font-size: 0.85rem;
-    color: var(--muted);
-    margin-top: 0.35rem;
+    --navy:     #080C16;
+    --navy2:    #0D1322;
+    --violet:   #7C3AED;
+    --violet-l: #9D6FEF;
+    --cyan:     #00D4FF;
+    --cream:    #F5F0E8;
+    --lavender: #C4B5FD;
+    --green:    #10B981;
+    --amber:    #F59E0B;
+    --muted:    rgba(245,240,232,0.55);
+    --card-bg:  rgba(13, 19, 34, 0.75);
+    --card-bdr: rgba(255, 255, 255, 0.08);
+    font-family: 'Inter', sans-serif;
+    color: var(--cream);
   }
 
-  .set-main-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-  @media (min-width: 900px) {
-    .set-main-grid {
-      grid-template-columns: 1fr 320px;
-    }
-  }
-
-  .set-forms-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  /* Glassmorphic settings panel */
-  .set-card {
-    background: rgba(15, 22, 41, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 24px;
-    padding: 2rem;
-    backdrop-filter: blur(20px);
-  }
-
-  .set-card-teacher {
-    border-color: rgba(124, 58, 237, 0.3);
-    background: rgba(124, 58, 237, 0.04);
-  }
-
-  .set-card-student {
-    border-color: rgba(6, 182, 212, 0.3);
-    background: rgba(6, 182, 212, 0.04);
-  }
-  
-  .set-card-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #fff;
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-  }
-
-  .set-role-badge {
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    padding: 0.2rem 0.6rem;
-    border-radius: 50px;
-  }
-  .set-role-badge-teacher {
-    background: rgba(124, 58, 237, 0.15);
-    border: 1px solid rgba(124, 58, 237, 0.35);
-    color: #C4B5FD;
-  }
-  .set-role-badge-student {
-    background: rgba(6, 182, 212, 0.12);
-    border: 1px solid rgba(6, 182, 212, 0.3);
-    color: #00D4FF;
-  }
-
-  .set-row {
-    margin-bottom: 1.5rem;
-  }
-
-  .set-info-box {
-    display: flex;
-    gap: 0.75rem;
-    background: rgba(124, 58, 237, 0.08);
-    border: 1px solid rgba(124, 58, 237, 0.25);
-    padding: 1rem;
-    border-radius: 16px;
-    margin-top: 1.5rem;
-    font-size: 0.78rem;
-    color: #C4B5FD;
-    line-height: 1.5;
-  }
-
-  .set-info-box-cyan {
-    background: rgba(6, 182, 212, 0.06);
-    border-color: rgba(6, 182, 212, 0.2);
-    color: #67E8F9;
-  }
-
-  /* Right-hand side stats widget */
-  .set-stat-box {
-    background: linear-gradient(135deg, rgba(124,58,237,0.15) 0%, rgba(0,212,255,0.05) 100%);
-    border: 1px solid rgba(124, 58, 237, 0.2);
-    border-radius: 24px;
-    padding: 1.5rem;
-    text-align: center;
+  /* ── HERO BANNER ── */
+  .set-hero {
     position: relative;
+    background: linear-gradient(135deg, rgba(124,58,237,0.18) 0%, rgba(0,212,255,0.08) 50%, rgba(16,185,129,0.05) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 2.25rem 2.5rem;
     overflow: hidden;
+    backdrop-filter: blur(24px);
+    margin-bottom: 1.75rem;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.1);
   }
-  .set-stat-box-cyan {
-    background: linear-gradient(135deg, rgba(6,182,212,0.12) 0%, rgba(124,58,237,0.05) 100%);
-    border-color: rgba(6, 182, 212, 0.2);
+  .set-hblob {
+    position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none;
   }
-  .set-stat-val {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: #fff;
-    margin-top: 0.5rem;
+  .set-hblob-1 {
+    width: 360px; height: 360px;
+    background: radial-gradient(circle, rgba(124,58,237,0.3) 0%, transparent 70%);
+    top: -120px; right: -80px;
+    animation: set-drift 12s ease-in-out infinite alternate;
   }
-  .set-stat-label {
-    font-size: 0.75rem;
-    color: var(--muted);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-top: 0.25rem;
+  .set-hblob-2 {
+    width: 240px; height: 240px;
+    background: radial-gradient(circle, rgba(0,212,255,0.2) 0%, transparent 70%);
+    bottom: -60px; left: 30%;
+    animation: set-drift 16s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes set-drift { from{transform:translate(0,0)} to{transform:translate(25px,-20px)} }
+
+  .set-status-pill {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(124, 58, 237, 0.15); border: 1px solid rgba(124, 58, 237, 0.35);
+    padding: 0.35rem 0.95rem; border-radius: 50px;
+    font-size: 0.72rem; font-weight: 700; color: #C4B5FD;
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.75rem;
+    box-shadow: 0 0 15px rgba(124, 58, 237, 0.2);
+  }
+  .set-status-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #00D4FF; box-shadow: 0 0 10px #00D4FF;
+    animation: set-blink 2s infinite ease-in-out;
+  }
+  @keyframes set-blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  .set-hero-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(1.75rem, 3.5vw, 2.35rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 50%, #C4B5FD 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    margin-bottom: 0.4rem;
+  }
+  .set-hero-sub {
+    font-size: 0.9rem; color: #94A3B8; font-weight: 500; max-width: 540px;
   }
 
-  /* Select styling */
-  .set-select {
+  /* ── STATS ROW ── */
+  .set-stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem; margin-bottom: 1.75rem;
+  }
+  .set-stat-box {
+    background: var(--card-bg); border: 1px solid var(--card-bdr);
+    border-radius: 18px; padding: 1.1rem 1.25rem; backdrop-filter: blur(20px);
+    display: flex; align-items: center; gap: 1rem;
+    transition: all 0.25s ease;
+  }
+  .set-stat-box:hover {
+    border-color: rgba(255, 255, 255, 0.15); transform: translateY(-2px);
+  }
+  .set-stat-icon-wrap {
+    width: 42px; height: 42px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .set-stat-val { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 900; color: #FFF; line-height: 1; }
+  .set-stat-lbl { font-size: 0.75rem; color: #94A3B8; font-weight: 600; margin-top: 0.2rem; }
+
+  /* ── GLASS PANELS ── */
+  .set-card {
+    background: var(--card-bg); border: 1px solid var(--card-bdr);
+    border-radius: 24px; padding: 1.75rem; backdrop-filter: blur(24px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  }
+  .set-card-teacher { border-color: rgba(124, 58, 237, 0.35); background: rgba(124, 58, 237, 0.05); }
+  .set-card-student { border-color: rgba(0, 212, 255, 0.3); background: rgba(0, 212, 255, 0.04); }
+
+  .set-card-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.15rem; font-weight: 800; color: #FFFFFF;
+    display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .set-role-pill {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.05em; padding: 0.25rem 0.65rem; border-radius: 50px; border: 1px solid;
+  }
+  .set-role-teacher { background: rgba(124, 58, 237, 0.15); border-color: rgba(124, 58, 237, 0.35); color: #C4B5FD; }
+  .set-role-student { background: rgba(0, 212, 255, 0.12); border-color: rgba(0, 212, 255, 0.3); color: #67E8F9; }
+
+  .set-select-custom {
     width: 100%;
-    padding: 0.625rem;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 12px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--local-card-bdr, rgba(255,255,255,0.08));
-    color: var(--cream, #f4f4f5);
-    font-size: 0.85rem;
+    padding: 0.65rem 0.9rem;
+    color: #FFFFFF; font-family: 'Inter', sans-serif;
+    font-size: 0.85rem; font-weight: 600; outline: none;
   }
 
-  /* ── LIGHT THEME COMPATIBILITY ── */
-  html.light .set-title, .light .set-title { color: #0F172A; }
-  html.light .set-card, .light .set-card {
-    background: #FFFFFF;
-    border-color: #CBD5E1;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  .set-price-preview {
+    background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.12);
+    border-radius: 14px; padding: 0.85rem 1rem; margin-top: 1rem;
+    display: flex; align-items: center; justify-content: space-between;
   }
-  html.light .set-card-teacher, .light .set-card-teacher { border-color: rgba(124,58,237,0.25); background: rgba(124,58,237,0.03); }
-  html.light .set-card-student, .light .set-card-student { border-color: rgba(6,182,212,0.2); background: rgba(6,182,212,0.03); }
-  html.light .set-card-title, .light .set-card-title { color: #0F172A; }
-  html.light .set-info-box, .light .set-info-box { background: rgba(124,58,237,0.05); border-color: rgba(124,58,237,0.2); color: #4F46E5; }
-  html.light .set-info-box-cyan, .light .set-info-box-cyan { background: rgba(6,182,212,0.05); border-color: rgba(6,182,212,0.2); color: #0E7490; }
-  html.light .set-stat-box, .light .set-stat-box { background: linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(0,212,255,0.04) 100%); border-color: rgba(124,58,237,0.15); }
-  html.light .set-stat-box-cyan, .light .set-stat-box-cyan { background: linear-gradient(135deg, rgba(6,182,212,0.08) 0%, rgba(124,58,237,0.04) 100%); border-color: rgba(6,182,212,0.15); }
-  html.light .set-stat-val, .light .set-stat-val { color: #0F172A; }
-  html.light .set-subtitle, .light .set-subtitle { color: #475569; }
-  html.light .set-stat-box p, .light .set-stat-box p { color: #475569 !important; }
-  html.light .set-stat-label, .light .set-stat-label { color: #475569; }
-  html.light .set-card form label, .light .set-card form label { color: #334155; }
-  html.light .set-card form input, .light .set-card form input { background: #FFFFFF; color: #0F172A; border-color: #CBD5E1; }
-  html.light .set-card form input:focus, .light .set-card form input:focus { border-color: #7C3AED; box-shadow: 0 0 0 2px rgba(124,58,237,0.15); }
-  html.light .set-select, .light .set-select { background: #fff; color: #0F172A; border-color: #CBD5E1; }
+
+  .set-save-btn {
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    background: linear-gradient(135deg, #7C3AED 0%, #00D4FF 100%);
+    color: #FFFFFF; font-family: 'Outfit', sans-serif;
+    font-size: 0.88rem; font-weight: 800;
+    padding: 0.75rem 1.6rem; border-radius: 14px;
+    cursor: pointer; border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 0 25px rgba(124, 58, 237, 0.35);
+    transition: all 0.25s ease;
+  }
+  .set-save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 35px rgba(0, 212, 255, 0.5);
+    filter: brightness(1.1);
+  }
 `;
-
-const selectStyle = {
-  width: '100%',
-  padding: '0.625rem',
-  borderRadius: '12px',
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid var(--local-card-bdr, rgba(255,255,255,0.08))',
-  color: 'var(--cream, #f4f4f5)',
-  fontSize: '0.85rem',
-};
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
@@ -280,7 +250,7 @@ export default function SettingsPage() {
         adminApi.updateSetting({ key: 'student_premium_price',   value: String(studentPrice) }),
         adminApi.updateSetting({ key: 'student_premium_discount',value: String(studentDiscount) }),
       ]);
-      toast.success('Settings saved successfully!');
+      toast.success('System settings saved successfully!');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to update settings.');
     } finally {
@@ -288,230 +258,269 @@ export default function SettingsPage() {
     }
   };
 
+  // Price calculations
+  const calcTeacherFinal = useMemo(() => {
+    const p = parseFloat(teacherPrice) || 0;
+    const d = parseFloat(teacherDiscount) || 0;
+    return (p * (1 - d / 100)).toFixed(2);
+  }, [teacherPrice, teacherDiscount]);
+
+  const calcStudentFinal = useMemo(() => {
+    const p = parseFloat(studentPrice) || 0;
+    const d = parseFloat(studentDiscount) || 0;
+    return (p * (1 - d / 100)).toFixed(2);
+  }, [studentPrice, studentDiscount]);
+
   if (loading) {
     return (
-      <PageWrapper>
-        <div className="set-root" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
-          <div style={{ color: '#C4B5FD', fontFamily: 'Space Grotesk', fontSize: '1rem' }}>Loading Configurations...</div>
+      <PageWrapper className="p-6">
+        <div className="flex items-center justify-center h-64 text-purple-300 font-bold">
+          Loading System Settings...
         </div>
       </PageWrapper>
     );
   }
 
   return (
-    <PageWrapper>
+    <PageWrapper className="p-6">
       <style>{CSS}</style>
-      <div className="set-root">
+      <div className="set-root max-w-6xl mx-auto">
 
-        {/* Header */}
-        <div className="set-header">
-          <div>
-            <h1 className="set-title">System Settings</h1>
-            <p className="set-subtitle">Manage pricing configurations for Teachers and Students separately.</p>
+        {/* ── HERO BANNER ── */}
+        <motion.div
+          className="set-hero"
+          initial={{ opacity: 0, y: -15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="set-hblob set-hblob-1" />
+          <div className="set-hblob set-hblob-2" />
+
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+            <div>
+              <div className="set-status-pill">
+                <span className="set-status-dot" />
+                System Configurations & Pricing
+              </div>
+              <h1 className="set-hero-title">Platform Settings</h1>
+              <p className="set-hero-sub">
+                Configure teacher and student subscription tiers, pricing discounts, and system security parameters.
+              </p>
+            </div>
+
+            <button className="set-save-btn" onClick={handleSave} disabled={saving}>
+              <Save size={16} />
+              {saving ? 'Saving...' : 'Save Configurations'}
+            </button>
+          </div>
+        </motion.div>
+
+        {/* ── METRIC STATS ROW ── */}
+        <div className="set-stats-grid">
+          <div className="set-stat-box">
+            <div className="set-stat-icon-wrap bg-purple-500/15 border border-purple-500/30 text-purple-300">
+              <GraduationCap size={20} />
+            </div>
+            <div>
+              <div className="set-stat-val">{stats.premiumTeachers} / {stats.totalTeachers}</div>
+              <div className="set-stat-lbl">Premium Teachers</div>
+            </div>
+          </div>
+
+          <div className="set-stat-box">
+            <div className="set-stat-icon-wrap bg-cyan-500/15 border border-cyan-500/30 text-cyan-300">
+              <Users size={20} />
+            </div>
+            <div>
+              <div className="set-stat-val">{stats.premiumStudents} / {stats.totalStudents}</div>
+              <div className="set-stat-lbl">Premium Students</div>
+            </div>
+          </div>
+
+          <div className="set-stat-box">
+            <div className="set-stat-icon-wrap bg-emerald-500/15 border border-emerald-500/30 text-emerald-300">
+              <ShieldCheck size={20} />
+            </div>
+            <div>
+              <div className="set-stat-val">Active</div>
+              <div className="set-stat-lbl">Cloud Storage & Video</div>
+            </div>
           </div>
         </div>
 
-        <div className="set-main-grid">
-          {/* LEFT: FORMS */}
-          <div className="set-forms-stack">
+        {/* ── TWO COLUMN CONFIGURATION PANELS ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-            {/* ── Teacher Pricing ── */}
+          {/* LEFT 2 COLUMNS: PRICING FORMS */}
+          <div className="lg:col-span-2 space-y-6">
+
+            {/* Teacher Pricing Card */}
             <motion.div
               className="set-card set-card-teacher"
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
             >
-              <h3 className="set-card-title">
-                <GraduationCap size={18} color="#A78BFA" />
-                Teacher Pricing
-                <span className="set-role-badge set-role-badge-teacher">Teacher Plan</span>
-              </h3>
+              <div className="set-card-title">
+                <div className="flex items-center gap-2">
+                  <GraduationCap size={20} className="text-purple-400" />
+                  <span>Teacher Subscription Tier</span>
+                </div>
+                <span className="set-role-pill set-role-teacher">Teacher Plan</span>
+              </div>
 
-              <form onSubmit={handleSave}>
-                <div className="set-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <Input
-                    label="Subscription Price"
-                    type="number"
-                    placeholder="e.g. 65"
-                    value={teacherPrice}
-                    onChange={(e) => setTeacherPrice(e.target.value)}
-                  />
-                  <div>
-                    <label className="block text-xs font-semibold mb-2" style={{ color: 'var(--muted)' }}>Currency Symbol</label>
-                    <select value={teacherCurrency} onChange={(e) => setTeacherCurrency(e.target.value)} style={selectStyle}>
-                      <option style={{ background: '#0F1629', color: '#fff' }} value="$">$ (USD)</option>
-                      <option style={{ background: '#0F1629', color: '#fff' }} value="₹">₹ (INR)</option>
-                      <option style={{ background: '#0F1629', color: '#fff' }} value="£">£ (GBP)</option>
-                      <option style={{ background: '#0F1629', color: '#fff' }} value="€">€ (EUR)</option>
-                    </select>
-                  </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                  label="Subscription Price"
+                  type="number"
+                  placeholder="e.g. 65"
+                  value={teacherPrice}
+                  onChange={(e) => setTeacherPrice(e.target.value)}
+                />
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1">Currency Symbol</label>
+                  <select
+                    className="set-select-custom"
+                    value={teacherCurrency}
+                    onChange={(e) => setTeacherCurrency(e.target.value)}
+                  >
+                    <option value="$">$ (USD)</option>
+                    <option value="₹">₹ (INR)</option>
+                    <option value="£">£ (GBP)</option>
+                    <option value="€">€ (EUR)</option>
+                  </select>
                 </div>
 
-                <div className="set-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <Input
-                    label="Duration (months/years)"
-                    type="number"
-                    placeholder="e.g. 1"
-                    value={teacherDuration}
-                    onChange={(e) => setTeacherDuration(e.target.value)}
-                  />
-                  <div>
-                    <label className="block text-xs font-semibold mb-2" style={{ color: 'var(--muted)' }}>Billing Period</label>
-                    <select value={teacherBillingPeriod} onChange={(e) => setTeacherBillingPeriod(e.target.value)} style={selectStyle}>
-                      <option style={{ background: '#0F1629', color: '#fff' }} value="/ month">/ month</option>
-                      <option style={{ background: '#0F1629', color: '#fff' }} value="/ year">/ year</option>
-                      <option style={{ background: '#0F1629', color: '#fff' }} value="one-time">One-time payment</option>
-                    </select>
-                  </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 mb-1">Billing Interval</label>
+                  <select
+                    className="set-select-custom"
+                    value={teacherBillingPeriod}
+                    onChange={(e) => setTeacherBillingPeriod(e.target.value)}
+                  >
+                    <option value="/ month">/ month</option>
+                    <option value="/ year">/ year</option>
+                    <option value="one-time">One-time payment</option>
+                  </select>
                 </div>
 
-                <div className="set-row">
-                  <Input
-                    label="Discount Percentage (%)"
-                    type="number"
-                    placeholder="e.g. 40 for 40% off"
-                    value={teacherDiscount}
-                    onChange={(e) => setTeacherDiscount(e.target.value)}
-                  />
-                </div>
+                <Input
+                  label="Discount Percentage (%)"
+                  type="number"
+                  placeholder="e.g. 40"
+                  value={teacherDiscount}
+                  onChange={(e) => setTeacherDiscount(e.target.value)}
+                />
+              </div>
 
-                <div className="set-info-box">
-                  <AlertCircle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
-                  <div>
-                    Teacher pricing shows on the landing page <strong>Teacher Pricing</strong> tab and the upgrade page for teacher accounts.
-                  </div>
+              {/* Live Calculator Preview */}
+              <div className="set-price-preview">
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
+                  <Percent size={14} className="text-purple-400" />
+                  <span>Calculated Teacher Offer:</span>
                 </div>
-              </form>
+                <div className="text-sm font-black text-purple-300">
+                  <span className="line-through text-slate-500 mr-2">{teacherCurrency}{teacherPrice}</span>
+                  {teacherCurrency}{calcTeacherFinal} {teacherBillingPeriod} ({teacherDiscount}% OFF)
+                </div>
+              </div>
             </motion.div>
 
-            {/* ── Student Pricing ── */}
+            {/* Student Pricing Card */}
             <motion.div
               className="set-card set-card-student"
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.08 }}
+              transition={{ delay: 0.1 }}
             >
-              <h3 className="set-card-title">
-                <Users size={18} color="#22D3EE" />
-                Student Pricing
-                <span className="set-role-badge set-role-badge-student">Student Plan</span>
-              </h3>
+              <div className="set-card-title">
+                <div className="flex items-center gap-2">
+                  <Users size={20} className="text-cyan-400" />
+                  <span>Student Subscription Tier</span>
+                </div>
+                <span className="set-role-pill set-role-student">Student Plan</span>
+              </div>
 
-              <div className="set-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
-                  label="Student Subscription Price"
+                  label="Student Price"
                   type="number"
                   placeholder="e.g. 39"
                   value={studentPrice}
                   onChange={(e) => setStudentPrice(e.target.value)}
                 />
-                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--muted)', lineHeight: 1.5 }}>
-                    Uses the same currency & billing period as teacher pricing above.
-                  </p>
-                </div>
-              </div>
 
-              <div className="set-row">
                 <Input
-                  label="Student Discount Percentage (%)"
+                  label="Student Discount (%)"
                   type="number"
-                  placeholder="e.g. 40 for 40% off"
+                  placeholder="e.g. 40"
                   value={studentDiscount}
                   onChange={(e) => setStudentDiscount(e.target.value)}
                 />
               </div>
 
-              <div className="set-info-box set-info-box-cyan">
-                <AlertCircle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
-                <div>
-                  Student pricing shows on the landing page <strong>Student Pricing</strong> tab and the upgrade page for student accounts. Discounted price = original × (1 – discount%).
+              {/* Live Calculator Preview */}
+              <div className="set-price-preview">
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
+                  <Percent size={14} className="text-cyan-400" />
+                  <span>Calculated Student Offer:</span>
                 </div>
-              </div>
-
-              {/* Save button shared by both sections */}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2rem' }}>
-                <Button
-                  variant="primary"
-                  type="button"
-                  loading={saving}
-                  disabled={saving}
-                  onClick={handleSave}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                >
-                  <Save size={14} /> Save All Settings
-                </Button>
+                <div className="text-sm font-black text-cyan-300">
+                  <span className="line-through text-slate-500 mr-2">{teacherCurrency}{studentPrice}</span>
+                  {teacherCurrency}{calcStudentFinal} {teacherBillingPeriod} ({studentDiscount}% OFF)
+                </div>
               </div>
             </motion.div>
 
           </div>
 
-          {/* RIGHT: STATS */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          {/* RIGHT COLUMN: SECURITY & INTEGRATION STATUS */}
+          <div className="space-y-6">
 
-            {/* Teacher Premium Stats */}
-            <motion.div
-              className="set-stat-box"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1, duration: 0.3 }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <GraduationCap size={24} color="#A78BFA" />
-              </div>
-              <div className="set-stat-val">{stats.premiumTeachers}</div>
-              <div className="set-stat-label">Premium Teachers</div>
-              <p style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: '0.8rem', lineHeight: 1.4 }}>
-                Out of {stats.totalTeachers} registered teachers.
-              </p>
-            </motion.div>
-
-            {/* Student Premium Stats */}
-            <motion.div
-              className="set-stat-box set-stat-box-cyan"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.15, duration: 0.3 }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <Users size={24} color="#22D3EE" />
-              </div>
-              <div className="set-stat-val">{stats.premiumStudents}</div>
-              <div className="set-stat-label">Premium Students</div>
-              <p style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: '0.8rem', lineHeight: 1.4 }}>
-                Out of {stats.totalStudents} registered students.
-              </p>
-            </motion.div>
-
-            {/* Security Status */}
             <motion.div
               className="set-card"
-              style={{ padding: '1.5rem' }}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.3 }}
+              initial={{ opacity: 0, x: 15 }}
+              animate={{ opacity: 1, x: 0 }}
             >
-              <h4 style={{ margin: '0 0 1rem', fontSize: '0.85rem', fontFamily: 'Space Grotesk', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <ShieldCheck size={14} color="var(--green, #10B981)" /> Security Status
+              <h4 className="text-sm font-extrabold text-white mb-4 flex items-center gap-2">
+                <ShieldCheck size={16} className="text-emerald-400" />
+                System Integration Status
               </h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', fontSize: '0.74rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem' }}>
-                  <span style={{ color: 'var(--muted)' }}>Cloudinary Integration</span>
-                  <span style={{ color: '#10B981', fontWeight: 600 }}>Active</span>
+
+              <div className="space-y-3 text-xs font-semibold">
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                  <span className="text-slate-400 flex items-center gap-1.5">
+                    <Cloud size={14} className="text-cyan-400" /> Cloud Storage
+                  </span>
+                  <span className="text-emerald-400 font-extrabold flex items-center gap-1">
+                    <CheckCircle2 size={12} /> Active
+                  </span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem' }}>
-                  <span style={{ color: 'var(--muted)' }}>Database Host</span>
-                  <span style={{ color: '#fff' }}>Supabase</span>
+
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                  <span className="text-slate-400 flex items-center gap-1.5">
+                    <Zap size={14} className="text-purple-400" /> AI Tutor Sockets
+                  </span>
+                  <span className="text-emerald-400 font-extrabold flex items-center gap-1">
+                    <CheckCircle2 size={12} /> Live
+                  </span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--muted)' }}>System Environment</span>
-                  <span style={{ color: '#A78BFA' }}>Production</span>
+
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                  <span className="text-slate-400 flex items-center gap-1.5">
+                    <Database size={14} className="text-amber-400" /> PostgreSQL DB
+                  </span>
+                  <span className="text-white font-extrabold">Connected</span>
                 </div>
+              </div>
+
+              <div className="mt-5 p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-[11px] text-purple-300 leading-relaxed">
+                Changes saved here take effect immediately across all landing pages and student checkout flows.
               </div>
             </motion.div>
 
           </div>
+
         </div>
 
       </div>
