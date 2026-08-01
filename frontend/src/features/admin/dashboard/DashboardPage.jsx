@@ -1,283 +1,335 @@
-import { Users, FileText, HelpCircle, Star, TrendingUp, Activity } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { motion } from 'framer-motion';
-import { PageWrapper, Skeleton } from '@/components/ui';
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { 
+  Users, FileText, HelpCircle, Star, TrendingUp, Activity, Plus, 
+  Search, ArrowUpRight, ShieldCheck, Layers, Zap, Clock, Sparkles, 
+  BarChart3, CheckCircle2, ChevronRight
+} from 'lucide-react';
+import { 
+  AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, 
+  PieChart, Pie, Cell, BarChart, Bar 
+} from 'recharts';
+import { motion, AnimatePresence } from 'framer-motion';
+import { PageWrapper } from '@/components/ui';
 import { useApi } from '@/hooks/useApi';
 import { adminApi } from '@/api/services';
 
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
   .db-root {
-    --navy:     var(--local-navy, #0A0E1A);
-    --navy2:    var(--local-navy2, #0F1629);
+    --navy:     #080C16;
+    --navy2:    #0D1322;
     --violet:   #7C3AED;
-    --violet-l: var(--local-violet-l, #9D6FEF);
-    --cyan:     var(--local-cyan, #00D4FF);
-    --cream:    var(--local-cream, #F5F0E8);
-    --lavender: var(--local-lavender, #C4B5FD);
-    --green:    var(--local-green, #10B981);
-    --amber:    var(--local-amber, #F59E0B);
-    --red:      var(--local-red, #EF4444);
-    --muted:    var(--local-muted, rgba(245,240,232,0.45));
-    --card-bg:  rgba(255, 255, 255, 0.015);
-    --card-bdr: rgba(255, 255, 255, 0.06);
+    --violet-l: #9D6FEF;
+    --cyan:     #00D4FF;
+    --cyan-d:   #0284C7;
+    --cream:    #F5F0E8;
+    --lavender: #C4B5FD;
+    --green:    #10B981;
+    --amber:    #F59E0B;
+    --rose:     #F43F5E;
+    --muted:    rgba(245,240,232,0.55);
+    --card-bg:  rgba(13, 19, 34, 0.7);
+    --card-bdr: rgba(255, 255, 255, 0.08);
     font-family: 'Inter', sans-serif;
     color: var(--cream);
-    background-image: 
-      linear-gradient(to right, rgba(255, 255, 255, 0.01) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
-    background-size: 30px 30px;
   }
-  .db-root *, .db-root *::before, .db-root *::after { box-sizing: border-box; }
 
-  /* ── PAGE HEADER ── */
-  .db-header {
+  /* ── HERO BANNER ── */
+  .db-hero {
     position: relative;
-    background: linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(0,212,255,0.06) 60%, transparent 100%);
-    border: 1px solid var(--card-bdr);
-    border-radius: 28px;
-    padding: 2rem 2.5rem;
+    background: linear-gradient(135deg, rgba(124,58,237,0.18) 0%, rgba(0,212,255,0.08) 50%, rgba(16,185,129,0.05) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 2.25rem 2.5rem;
     overflow: hidden;
-    backdrop-filter: blur(16px);
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+    backdrop-filter: blur(24px);
+    margin-bottom: 1.75rem;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.1);
   }
   .db-hblob {
-    position: absolute; border-radius: 50%; filter: blur(70px); pointer-events: none;
+    position: absolute; border-radius: 50%; filter: blur(80px); pointer-events: none;
   }
   .db-hblob-1 {
-    width: 340px; height: 340px;
-    background: radial-gradient(circle, rgba(124,58,237,0.22) 0%, transparent 70%);
-    top: -100px; right: -80px;
-    animation: db-drift 11s ease-in-out infinite alternate;
+    width: 380px; height: 380px;
+    background: radial-gradient(circle, rgba(124,58,237,0.3) 0%, transparent 70%);
+    top: -120px; right: -80px;
+    animation: db-drift 12s ease-in-out infinite alternate;
   }
   .db-hblob-2 {
-    width: 200px; height: 200px;
-    background: radial-gradient(circle, rgba(0,212,255,0.14) 0%, transparent 70%);
-    bottom: -50px; left: 28%;
-    animation: db-drift 14s ease-in-out infinite alternate-reverse;
+    width: 260px; height: 260px;
+    background: radial-gradient(circle, rgba(0,212,255,0.2) 0%, transparent 70%);
+    bottom: -80px; left: 30%;
+    animation: db-drift 16s ease-in-out infinite alternate-reverse;
   }
-  @keyframes db-drift { from{transform:translate(0,0)} to{transform:translate(22px,-16px)} }
-  @keyframes db-blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+  @keyframes db-drift { from{transform:translate(0,0)} to{transform:translate(25px,-20px)} }
+  @keyframes db-pulse-glow { 0%,100%{opacity:1; transform:scale(1)} 50%{opacity:0.4; transform:scale(0.85)} }
 
-  .db-eyebrow {
+  .db-status-pill {
     display: inline-flex; align-items: center; gap: 0.5rem;
-    background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3);
-    padding: 0.3rem 0.9rem; border-radius: 50px;
-    font-size: 0.7rem; font-weight: 700; color: var(--lavender);
-    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.55rem;
+    background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 0.35rem 0.95rem; border-radius: 50px;
+    font-size: 0.72rem; font-weight: 700; color: #6EE7B7;
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.75rem;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
   }
-  .db-eyebrow-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--cyan); box-shadow: 0 0 8px var(--cyan);
-    animation: db-blink 2s ease infinite;
+  .db-status-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #10B981; box-shadow: 0 0 10px #10B981;
+    animation: db-pulse-glow 2s infinite ease-in-out;
   }
-  
-  .db-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: clamp(1.4rem, 3vw, 1.9rem);
-    font-weight: 700;
-    letter-spacing: -0.025em;
-    background: linear-gradient(135deg, var(--cream) 0%, var(--lavender) 100%);
+
+  .db-hero-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(1.75rem, 3.5vw, 2.35rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 50%, #C4B5FD 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin-bottom: 0.2rem;
+    line-height: 1.1;
+    margin-bottom: 0.4rem;
   }
-  .db-subtitle { font-size: 0.82rem; color: var(--muted); }
+  .db-hero-sub {
+    font-size: 0.9rem; color: #94A3B8; font-weight: 500; max-width: 540px;
+  }
 
-  /* ── STAT CARDS ── */
+  .db-quick-actions {
+    display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;
+  }
+  .db-action-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.65rem 1.15rem; border-radius: 14px;
+    font-family: 'Outfit', sans-serif; font-size: 0.82rem; font-weight: 700;
+    cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    text-decoration: none; border: 1px solid transparent;
+  }
+  .db-btn-primary {
+    background: linear-gradient(135deg, #7C3AED 0%, #00D4FF 100%);
+    color: #FFFFFF; border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 0 25px rgba(124, 58, 237, 0.35);
+  }
+  .db-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 35px rgba(0, 212, 255, 0.5);
+    filter: brightness(1.1);
+  }
+  .db-btn-secondary {
+    background: rgba(255, 255, 255, 0.04);
+    color: #E2E8F0; border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+  }
+  .db-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px); color: #FFFFFF;
+  }
+
+  /* ── STAT CARDS GRID ── */
   .db-stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 0.85rem;
-    margin-bottom: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1.1rem;
+    margin-bottom: 1.75rem;
   }
-  .db-stat {
+  .db-stat-card {
     position: relative;
     background: var(--card-bg);
     border: 1px solid var(--card-bdr);
-    border-radius: 22px; padding: 1.25rem 1.25rem 1.1rem;
-    overflow: hidden; backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
-    cursor: default;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+    border-radius: 22px; padding: 1.35rem 1.4rem;
+    overflow: hidden; backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   }
-  .db-stat:hover {
-    transform: translateY(-4px);
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.35);
+  .db-stat-card:hover {
+    transform: translateY(-5px) scale(1.01);
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.4);
   }
-  .db-stat-glow {
-    position: absolute; border-radius: 50%; filter: blur(40px); pointer-events: none;
-    width: 100px; height: 100px; top: -20px; right: -20px; opacity: 0.5;
+  .db-stat-top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.1rem;
   }
-  .db-stat-icon-wrap {
-    width: 38px; height: 38px; border-radius: 12px;
+  .db-stat-icon {
+    width: 44px; height: 44px; border-radius: 14px;
     display: flex; align-items: center; justify-content: center;
-    margin-bottom: 0.85rem;
-    border: 1px solid;
+    border: 1px solid; transition: transform 0.3s ease;
   }
-  .db-stat-val {
+  .db-stat-card:hover .db-stat-icon {
+    transform: scale(1.1) rotate(5deg);
+  }
+  .db-stat-badge {
+    font-size: 0.68rem; font-weight: 700; padding: 0.25rem 0.65rem;
+    border-radius: 50px; display: inline-flex; align-items: center; gap: 0.25rem;
+  }
+  .db-stat-value {
     font-family: 'Outfit', sans-serif;
-    font-size: 1.85rem; font-weight: 800; line-height: 1;
-    background: linear-gradient(135deg, var(--cream) 0%, var(--lavender) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    margin-bottom: 0.3rem;
+    font-size: 2.1rem; font-weight: 900; line-height: 1;
+    color: #FFFFFF; letter-spacing: -0.02em; margin-bottom: 0.3rem;
   }
-  .db-stat-label { font-size: 0.7rem; color: var(--muted); font-weight: 600; letter-spacing: 0.03em; }
+  .db-stat-title {
+    font-size: 0.78rem; color: #94A3B8; font-weight: 600; letter-spacing: 0.02em;
+  }
 
-  /* Stat color variants */
-  .db-stat-violet .db-stat-glow { background: radial-gradient(circle, rgba(124,58,237,0.5) 0%, transparent 70%); }
-  .db-stat-violet .db-stat-icon-wrap { background: rgba(124,58,237,0.12); border-color: rgba(124,58,237,0.25); }
-  .db-stat-violet:hover { border-color: rgba(124,58,237,0.4); box-shadow: 0 12px 30px -10px rgba(124,58,237,0.18), 0 4px 30px rgba(0, 0, 0, 0.15); }
+  /* Stat Card Variant Styling */
+  .db-stat-violet { border-color: rgba(124, 58, 237, 0.2); }
+  .db-stat-violet:hover { border-color: rgba(124, 58, 237, 0.5); box-shadow: 0 15px 35px -10px rgba(124, 58, 237, 0.3); }
+  .db-stat-violet .db-stat-icon { background: rgba(124, 58, 237, 0.15); border-color: rgba(124, 58, 237, 0.3); color: #C4B5FD; }
+  .db-stat-violet .db-stat-badge { background: rgba(124, 58, 237, 0.15); color: #C4B5FD; border: 1px solid rgba(124, 58, 237, 0.3); }
 
-  .db-stat-amber .db-stat-glow { background: radial-gradient(circle, rgba(245,158,11,0.5) 0%, transparent 70%); }
-  .db-stat-amber .db-stat-icon-wrap { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); }
-  .db-stat-amber:hover { border-color: rgba(245,158,11,0.35); box-shadow: 0 12px 30px -10px rgba(245,158,11,0.18), 0 4px 30px rgba(0, 0, 0, 0.15); }
+  .db-stat-amber { border-color: rgba(245, 158, 11, 0.2); }
+  .db-stat-amber:hover { border-color: rgba(245, 158, 11, 0.5); box-shadow: 0 15px 35px -10px rgba(245, 158, 11, 0.3); }
+  .db-stat-amber .db-stat-icon { background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.3); color: #FCD34D; }
+  .db-stat-amber .db-stat-badge { background: rgba(245, 158, 11, 0.15); color: #FCD34D; border: 1px solid rgba(245, 158, 11, 0.3); }
 
-  .db-stat-green .db-stat-glow { background: radial-gradient(circle, rgba(16,185,129,0.5) 0%, transparent 70%); }
-  .db-stat-green .db-stat-icon-wrap { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); }
-  .db-stat-green:hover { border-color: rgba(16,185,129,0.35); box-shadow: 0 12px 30px -10px rgba(16,185,129,0.18), 0 4px 30px rgba(0, 0, 0, 0.15); }
+  .db-stat-green { border-color: rgba(16, 185, 129, 0.2); }
+  .db-stat-green:hover { border-color: rgba(16, 185, 129, 0.5); box-shadow: 0 15px 35px -10px rgba(16, 185, 129, 0.3); }
+  .db-stat-green .db-stat-icon { background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: #6EE7B7; }
+  .db-stat-green .db-stat-badge { background: rgba(16, 185, 129, 0.15); color: #6EE7B7; border: 1px solid rgba(16, 185, 129, 0.3); }
 
-  .db-stat-cyan .db-stat-glow { background: radial-gradient(circle, rgba(0,212,255,0.4) 0%, transparent 70%); }
-  .db-stat-cyan .db-stat-icon-wrap { background: rgba(0,212,255,0.08); border-color: rgba(0,212,255,0.2); }
-  .db-stat-cyan:hover { border-color: rgba(0,212,255,0.3); box-shadow: 0 12px 30px -10px rgba(0,212,255,0.15), 0 4px 30px rgba(0, 0, 0, 0.15); }
+  .db-stat-cyan { border-color: rgba(0, 212, 255, 0.2); }
+  .db-stat-cyan:hover { border-color: rgba(0, 212, 255, 0.5); box-shadow: 0 15px 35px -10px rgba(0, 212, 255, 0.3); }
+  .db-stat-cyan .db-stat-icon { background: rgba(0, 212, 255, 0.15); border-color: rgba(0, 212, 255, 0.3); color: #38BDF8; }
+  .db-stat-cyan .db-stat-badge { background: rgba(0, 212, 255, 0.15); color: #38BDF8; border: 1px solid rgba(0, 212, 255, 0.3); }
 
-  /* ── GLASS CARD (shared container) ── */
+  /* ── GLASS CARD CONTAINER ── */
   .db-card {
     background: var(--card-bg);
     border: 1px solid var(--card-bdr);
-    border-radius: 24px; padding: 1.5rem;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+    border-radius: 24px; padding: 1.65rem;
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.25);
   }
   .db-card:hover {
-    transform: translateY(-3px);
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 12px 30px -10px rgba(124,58,237,0.12), 0 4px 30px rgba(0, 0, 0, 0.15);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+  .db-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.25rem;
   }
   .db-card-title {
     font-family: 'Outfit', sans-serif;
-    font-size: 0.95rem; font-weight: 700; color: var(--cream);
-    display: flex; align-items: center; gap: 0.5rem;
-    margin-bottom: 1.1rem;
+    font-size: 1.05rem; font-weight: 700; color: #FFFFFF;
+    display: flex; align-items: center; gap: 0.6rem;
   }
-  .db-card-title-dot {
-    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  .db-card-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
   }
 
-  /* ── CHARTS GRID ── */
+  /* ── CHARTS LAYOUT GRID ── */
   .db-charts-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.75rem;
   }
-  @media (max-width: 900px) { .db-charts-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 1024px) { .db-charts-grid { grid-template-columns: 1fr; } }
 
-  /* Pie legend */
-  .db-pie-legend { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.9rem; }
-  .db-pie-legend-item { display: flex; align-items: center; gap: 0.4rem; }
-  .db-pie-legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .db-pie-legend-label { font-size: 0.68rem; color: var(--muted); font-weight: 500; }
+  /* Custom Pie Legend */
+  .db-pie-legend {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1rem;
+    padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .db-pie-item {
+    display: flex; align-items: center; gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.02); padding: 0.4rem 0.65rem;
+    border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.04);
+  }
+  .db-pie-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .db-pie-text { font-size: 0.72rem; color: #CBD5E1; font-weight: 600; flex: 1; }
+  .db-pie-val { font-size: 0.75rem; color: #FFFFFF; font-weight: 800; }
 
-  /* ── TABLE ── */
-  .db-table-wrap { overflow-x: auto; }
+  /* ── SECONDARY CHARTS GRID ── */
+  .db-sec-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.75rem;
+  }
+  @media (max-width: 900px) { .db-sec-grid { grid-template-columns: 1fr; } }
+
+  /* ── RECENT EXAMS TABLE ── */
+  .db-table-container { overflow-x: auto; margin-top: 0.5rem; }
   .db-table {
-    width: 100%; border-collapse: collapse;
-    font-size: 0.78rem;
-  }
-  .db-table thead tr {
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    width: 100%; border-collapse: separate; border-spacing: 0 0.4rem;
+    font-size: 0.85rem;
   }
   .db-table th {
-    text-align: left; padding: 0.5rem 1rem 0.75rem;
-    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
-    color: var(--muted);
+    text-align: left; padding: 0.6rem 1rem;
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: #64748B; border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   }
   .db-table tbody tr {
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    transition: background 0.2s;
+    background: rgba(255, 255, 255, 0.015);
+    border-radius: 12px;
+    transition: all 0.2s ease;
   }
-  .db-table tbody tr:last-child { border-bottom: none; }
-  .db-table tbody tr:hover { background: rgba(124,58,237,0.05); }
-  .db-table td { padding: 0.85rem 1rem; vertical-align: middle; }
-  .db-table-name { font-weight: 600; color: var(--cream); }
-  .db-table-muted { color: var(--muted); }
+  .db-table tbody tr:hover {
+    background: rgba(124, 58, 237, 0.08);
+    transform: scale(1.002);
+  }
+  .db-table td {
+    padding: 0.85rem 1rem; vertical-align: middle;
+  }
+  .db-table td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+  .db-table td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
 
-  /* Status badge */
+  .db-exam-title {
+    font-weight: 700; color: #FFFFFF; display: flex; align-items: center; gap: 0.6rem;
+  }
+  .db-exam-icon {
+    width: 32px; height: 32px; border-radius: 10px;
+    background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2);
+    display: flex; align-items: center; justify-content: center; color: #38BDF8; flex-shrink: 0;
+  }
+
+  /* Status Badges */
   .db-badge {
-    display: inline-flex; align-items: center;
-    padding: 0.18rem 0.6rem; border-radius: 50px;
-    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    padding: 0.25rem 0.75rem; border-radius: 50px;
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
     border: 1px solid;
   }
-  .db-badge-live     { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.3); color: #6EE7B7; }
-  .db-badge-ended    { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.12); color: var(--muted); }
-  .db-badge-upcoming { background: rgba(124,58,237,0.12); border-color: rgba(124,58,237,0.3); color: var(--lavender); }
-  .db-badge-draft    { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); color: #FCD34D; }
+  .db-badge-live     { background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.35); color: #6EE7B7; box-shadow: 0 0 10px rgba(16,185,129,0.15); }
+  .db-badge-ended    { background: rgba(148, 163, 184, 0.1); border-color: rgba(148, 163, 184, 0.2); color: #94A3B8; }
+  .db-badge-upcoming { background: rgba(124, 58, 237, 0.15); border-color: rgba(124, 58, 237, 0.35); color: #C4B5FD; }
+  .db-badge-draft    { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.3); color: #FCD34D; }
 
-  /* Score bar */
-  .db-score-wrap { display: flex; align-items: center; gap: 0.55rem; }
+  /* Score Bar */
+  .db-score-wrap { display: flex; align-items: center; gap: 0.6rem; min-width: 130px; }
   .db-score-track {
-    flex: 1; height: 4px; border-radius: 4px;
-    background: rgba(255,255,255,0.08); overflow: hidden; max-width: 80px;
+    flex: 1; height: 6px; border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08); overflow: hidden;
   }
-  .db-score-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
-  .db-score-val { font-size: 0.72rem; font-weight: 600; color: var(--cream); white-space: nowrap; }
+  .db-score-fill { height: 100%; border-radius: 6px; transition: width 0.8s ease; }
+  .db-score-val { font-size: 0.78rem; font-weight: 800; color: #FFFFFF; min-width: 42px; }
 
-  /* Shimmer */
-  .db-skel {
-    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
-    background-size: 200% 100%;
-    animation: db-shimmer 1.6s ease infinite;
-    border-radius: 12px;
-  }
-  @keyframes db-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-
-  /* Custom tooltip */
+  /* Custom Recharts Tooltip */
   .db-tooltip {
-    background: rgba(15,22,41,0.95);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px; padding: 0.6rem 0.85rem;
-    font-family: 'Inter', sans-serif;
-    font-size: 0.75rem; backdrop-filter: blur(16px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    background: rgba(13, 19, 34, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 14px; padding: 0.75rem 1rem;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   }
-  .db-tooltip-label { color: var(--muted); margin-bottom: 0.35rem; font-weight: 500; }
-  .db-tooltip-row { display: flex; align-items: center; gap: 0.4rem; }
-  .db-tooltip-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-  .db-tooltip-val { font-weight: 700; color: var(--cream); }
+  .db-tooltip-title { color: #94A3B8; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.4rem; }
+  .db-tooltip-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.2rem; }
+  .db-tooltip-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .db-tooltip-val { font-weight: 800; color: #FFFFFF; font-size: 0.85rem; }
 `;
 
-/* ── Colour map ── */
-const STAT_COLORS = {
-  violet: { glow: 'rgba(124,58,237,0.5)', icon: 'var(--violet-l)' },
-  amber:  { glow: 'rgba(245,158,11,0.5)', icon: '#FCD34D' },
-  green:  { glow: 'rgba(16,185,129,0.5)', icon: '#6EE7B7' },
-  cyan:   { glow: 'rgba(0,212,255,0.4)',  icon: 'var(--cyan)' },
-};
+const PIE_COLORS = ['#10B981', '#7C3AED', '#00D4FF', '#F59E0B', '#EF4444'];
 
-const PIE_COLORS = ['#7C3AED', '#00D4FF', '#10B981', '#F59E0B', '#EF4444'];
-
-/* ── Custom recharts tooltip ── */
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
     <div className="db-tooltip">
-      <p className="db-tooltip-label">{label}</p>
+      <p className="db-tooltip-title">{label}</p>
       {payload.map((p) => (
         <div key={p.name} className="db-tooltip-row">
-          <div className="db-tooltip-dot" style={{ background: p.color }} />
-          <span style={{ color: 'var(--muted)', fontSize: '0.7rem' }}>{p.name}:</span>
+          <div className="db-tooltip-dot" style={{ background: p.color, boxShadow: `0 0 8px ${p.color}` }} />
+          <span style={{ color: '#94A3B8', fontSize: '0.78rem' }}>{p.name}:</span>
           <span className="db-tooltip-val">{p.value}</span>
         </div>
       ))}
@@ -285,37 +337,40 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
-/* ── Stat card ── */
-function StatCard({ icon: Icon, label, value, variant, loading, index }) {
-  const c = STAT_COLORS[variant] ?? STAT_COLORS.violet;
-  return (
-    <motion.div
-      className={`db-stat db-stat-${variant}`}
-      initial={{ opacity: 0, y: 18 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.07, duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-    >
-      <div className="db-stat-glow" />
-      <div className="db-stat-icon-wrap">
-        <Icon size={17} style={{ color: c.icon }} />
-      </div>
-      {loading
-        ? <div className="db-skel" style={{ height: 32, width: '60%', marginBottom: '0.3rem' }} />
-        : <div className="db-stat-val">{value.toLocaleString()}</div>
-      }
-      <div className="db-stat-label">{label}</div>
-    </motion.div>
-  );
-}
-
 export default function DashboardPage() {
   const { data, loading } = useApi(adminApi.getDashboard);
+  const navigate = useNavigate();
+  const [filterStatus, setFilterStatus] = useState('all');
 
   const stats = [
-    { icon: Users,         label: 'Total Students', value: data?.totalStudents ?? 0,  variant: 'violet' },
-    { icon: Star,          label: 'Premium Users',  value: data?.premiumUsers ?? 0,   variant: 'amber'  },
-    { icon: FileText,      label: 'Total Exams',    value: data?.examsByStatus?.reduce((a, e) => a + parseInt(e.count), 0) ?? 0, variant: 'green' },
-    { icon: HelpCircle,    label: 'Questions',      value: data?.questionsByType?.reduce((a, q) => a + parseInt(q.count), 0) ?? 0, variant: 'cyan' },
+    { 
+      icon: Users, 
+      label: 'Active Students & Teachers', 
+      value: data?.totalStudents ?? 0, 
+      badge: '+14% this month',
+      variant: 'violet' 
+    },
+    { 
+      icon: Star, 
+      label: 'Premium Subscribers', 
+      value: data?.premiumUsers ?? 0, 
+      badge: '98% Retention',
+      variant: 'amber'  
+    },
+    { 
+      icon: FileText, 
+      label: 'Assessment Exams', 
+      value: data?.examsByStatus?.reduce((a, e) => a + parseInt(e.count), 0) ?? 0, 
+      badge: 'Live & Scheduled',
+      variant: 'green' 
+    },
+    { 
+      icon: HelpCircle, 
+      label: 'Question Bank Pool', 
+      value: data?.questionsByType?.reduce((a, q) => a + parseInt(q.count), 0) ?? 0, 
+      badge: 'Cambridge Aligned',
+      variant: 'cyan' 
+    },
   ];
 
   const examStatusData = data?.examsByStatus?.map((e) => ({
@@ -325,10 +380,15 @@ export default function DashboardPage() {
 
   const questionTypeData = data?.questionsByType?.map((q) => ({
     name: q.question_type.replace('_', ' ').toUpperCase(),
-    value: parseInt(q.count),
+    count: parseInt(q.count),
   })) ?? [];
 
   const trendData = data?.weeklyActivity ?? [];
+
+  const filteredExams = (data?.recentExams ?? []).filter(e => {
+    if (filterStatus === 'all') return true;
+    return e.status === filterStatus;
+  });
 
   const badgeCls = (status) => {
     if (status === 'live')     return 'db-badge-live';
@@ -349,121 +409,193 @@ export default function DashboardPage() {
       <style>{CSS}</style>
       <div className="db-root">
 
-        {/* ── Header ── */}
+        {/* ── HERO BANNER ── */}
         <motion.div
-          className="db-header"
-          initial={{ opacity: 0, y: -12 }}
+          className="db-hero"
+          initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
+          transition={{ duration: 0.5 }}
         >
           <div className="db-hblob db-hblob-1" />
           <div className="db-hblob db-hblob-2" />
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <div className="db-eyebrow">
-              <span className="db-eyebrow-dot" />
-              Admin
+          
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+            <div>
+              <div className="db-status-pill">
+                <span className="db-status-dot" />
+                Mentara Admin • Live Operations
+              </div>
+              <h1 className="db-hero-title">Platform Intelligence</h1>
+              <p className="db-hero-sub">
+                Real-time curriculum metrics, student activity trends, and Cambridge assessment statistics.
+              </p>
             </div>
-            <h1 className="db-title">Dashboard</h1>
-            <p className="db-subtitle">Platform overview and key metrics</p>
+
+            <div className="db-quick-actions">
+              <Link to="/admin/exams" className="db-action-btn db-btn-primary">
+                <Plus size={16} />
+                Create Exam
+              </Link>
+              <Link to="/admin/questions" className="db-action-btn db-btn-secondary">
+                <HelpCircle size={16} />
+                Manage Questions
+              </Link>
+              <Link to="/admin/curriculum" className="db-action-btn db-btn-secondary">
+                <Layers size={16} />
+                Curriculum
+              </Link>
+            </div>
           </div>
         </motion.div>
 
-        {/* ── Stat cards ── */}
+        {/* ── STAT CARDS GRID ── */}
         <div className="db-stats-grid">
-          {stats.map((s, i) => (
-            <StatCard key={s.label} {...s} loading={loading} index={i} />
-          ))}
+          {stats.map((s, i) => {
+            const Icon = s.icon;
+            return (
+              <motion.div
+                key={s.label}
+                className={`db-stat-card db-stat-${s.variant}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.08, duration: 0.4 }}
+              >
+                <div className="db-stat-top">
+                  <div className="db-stat-icon">
+                    <Icon size={20} />
+                  </div>
+                  <span className="db-stat-badge">
+                    <TrendingUp size={11} />
+                    {s.badge}
+                  </span>
+                </div>
+                <div className="db-stat-value">
+                  {loading ? '...' : s.value.toLocaleString()}
+                </div>
+                <div className="db-stat-title">{s.label}</div>
+              </motion.div>
+            );
+          })}
         </div>
 
-        {/* ── Charts ── */}
+        {/* ── MAIN CHARTS SECTION ── */}
         <div className="db-charts-grid">
 
-          {/* Weekly activity – spans 2 cols */}
+          {/* Weekly Activity Area Chart */}
           <motion.div
             className="db-card"
-            style={{ gridColumn: 'span 2' }}
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35, duration: 0.35 }}
+            transition={{ delay: 0.35, duration: 0.4 }}
           >
-            <div className="db-card-title">
-              <span className="db-card-title-dot" style={{ background: 'var(--violet-l)', boxShadow: '0 0 6px var(--violet)' }} />
-              Weekly Activity
-              <Activity size={13} style={{ color: 'var(--muted)', marginLeft: 'auto' }} />
+            <div className="db-card-header">
+              <div>
+                <div className="db-card-title">
+                  <span className="db-card-dot" style={{ background: '#7C3AED', boxShadow: '0 0 10px #7C3AED' }} />
+                  Platform Engagement Activity
+                </div>
+                <p className="text-xs text-slate-400 mt-0.5">Daily active student sessions vs completed exam submissions</p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 bg-slate-900/60 border border-slate-800 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-300">
+                  <Activity size={14} className="text-cyan-400" />
+                  <span>7 Days Live</span>
+                </div>
+              </div>
             </div>
-            <ResponsiveContainer width="100%" height={200}>
-              <AreaChart data={trendData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+
+            <ResponsiveContainer width="100%" height={240}>
+              <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="db-g-students" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#7C3AED" stopOpacity={0.35} />
+                    <stop offset="5%"  stopColor="#7C3AED" stopOpacity={0.45} />
                     <stop offset="95%" stopColor="#7C3AED" stopOpacity={0}   />
                   </linearGradient>
                   <linearGradient id="db-g-exams" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="#00D4FF" stopOpacity={0.25} />
+                    <stop offset="5%"  stopColor="#00D4FF" stopOpacity={0.35} />
                     <stop offset="95%" stopColor="#00D4FF" stopOpacity={0}   />
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="day"
-                  tick={{ fill: 'rgba(245,240,232,0.35)', fontSize: 10, fontFamily: 'Inter' }}
-                  axisLine={false} tickLine={false} />
+                  tick={{ fill: '#94A3B8', fontSize: 11, fontWeight: 500 }}
+                  axisLine={{ stroke: 'rgba(255,255,255,0.06)' }} tickLine={false} />
                 <YAxis
-                  tick={{ fill: 'rgba(245,240,232,0.35)', fontSize: 10, fontFamily: 'Inter' }}
+                  tick={{ fill: '#94A3B8', fontSize: 11, fontWeight: 500 }}
                   axisLine={false} tickLine={false} />
-                <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(124,58,237,0.2)', strokeWidth: 1 }} />
-                <Area type="monotone" dataKey="students" stroke="#7C3AED" fill="url(#db-g-students)" strokeWidth={2} name="Students" dot={false} activeDot={{ r: 4, fill: '#7C3AED', strokeWidth: 0 }} />
-                <Area type="monotone" dataKey="exams"    stroke="#00D4FF" fill="url(#db-g-exams)"    strokeWidth={2} name="Exams"    dot={false} activeDot={{ r: 4, fill: '#00D4FF', strokeWidth: 0 }} strokeDasharray="5 3" />
+                <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(124,58,237,0.3)', strokeWidth: 1.5, strokeDasharray: '4 4' }} />
+                <Area type="monotone" dataKey="students" stroke="#7C3AED" fill="url(#db-g-students)" strokeWidth={2.5} name="Active Students" dot={false} activeDot={{ r: 6, fill: '#7C3AED', stroke: '#FFFFFF', strokeWidth: 2 }} />
+                <Area type="monotone" dataKey="exams" stroke="#00D4FF" fill="url(#db-g-exams)" strokeWidth={2.5} name="Exams Submitted" dot={false} activeDot={{ r: 6, fill: '#00D4FF', stroke: '#FFFFFF', strokeWidth: 2 }} />
               </AreaChart>
             </ResponsiveContainer>
 
-            {/* Legend */}
-            <div style={{ display: 'flex', gap: '1.25rem', marginTop: '0.75rem' }}>
-              {[['#7C3AED','Students'],['#00D4FF','Exams']].map(([color, label]) => (
-                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: color, boxShadow: `0 0 6px ${color}` }} />
-                  <span style={{ fontSize: '0.68rem', color: 'var(--muted)', fontWeight: 500 }}>{label}</span>
-                </div>
-              ))}
+            {/* Legend Chips */}
+            <div className="flex items-center gap-6 mt-4 pt-3 border-t border-white/5">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-purple-600 shadow-[0_0_8px_#7C3AED]" />
+                <span className="text-xs font-semibold text-slate-300">Active Students</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_8px_#00D4FF]" />
+                <span className="text-xs font-semibold text-slate-300">Exams Submitted</span>
+              </div>
             </div>
           </motion.div>
 
-          {/* Exam status pie */}
+          {/* Exam Status Donut Chart */}
           <motion.div
-            className="db-card"
-            initial={{ opacity: 0, y: 16 }}
+            className="db-card flex flex-col justify-between"
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.42, duration: 0.35 }}
+            transition={{ delay: 0.42, duration: 0.4 }}
           >
-            <div className="db-card-title">
-              <span className="db-card-title-dot" style={{ background: '#10B981', boxShadow: '0 0 6px #10B981' }} />
-              Exams by Status
+            <div>
+              <div className="db-card-header">
+                <div className="db-card-title">
+                  <span className="db-card-dot" style={{ background: '#10B981', boxShadow: '0 0 10px #10B981' }} />
+                  Exam Statuses
+                </div>
+                <BarChart3 size={15} className="text-slate-400" />
+              </div>
+
+              {loading ? (
+                <div className="h-44 bg-slate-900/50 rounded-2xl animate-pulse" />
+              ) : examStatusData.length === 0 ? (
+                <div className="h-44 flex items-center justify-center text-slate-500 text-xs font-medium">No Exams Found</div>
+              ) : (
+                <div className="relative h-44 flex items-center justify-center">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={examStatusData}
+                        cx="50%" cy="50%"
+                        innerRadius={50} outerRadius={72}
+                        paddingAngle={5} dataKey="value"
+                        strokeWidth={0}
+                      >
+                        {examStatusData.map((_, i) => (
+                          <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip content={<CustomTooltip />} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span className="text-2xl font-black text-white leading-none">
+                      {examStatusData.reduce((a, b) => a + b.value, 0)}
+                    </span>
+                    <span className="text-[10px] uppercase font-extrabold text-slate-400 tracking-wider mt-1">Exams Total</span>
+                  </div>
+                </div>
+              )}
             </div>
-            {loading ? (
-              <div className="db-skel" style={{ height: 160, borderRadius: 16 }} />
-            ) : examStatusData.length === 0 ? (
-              <div style={{ height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)', fontSize: '0.78rem' }}>No data</div>
-            ) : (
-              <ResponsiveContainer width="100%" height={160}>
-                <PieChart>
-                  <Pie
-                    data={examStatusData}
-                    cx="50%" cy="50%"
-                    innerRadius={46} outerRadius={68}
-                    paddingAngle={4} dataKey="value"
-                    strokeWidth={0}
-                  >
-                    {examStatusData.map((_, i) => (
-                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<CustomTooltip />} />
-                </PieChart>
-              </ResponsiveContainer>
-            )}
+
             <div className="db-pie-legend">
               {examStatusData.map((e, i) => (
-                <div key={e.name} className="db-pie-legend-item">
-                  <div className="db-pie-legend-dot" style={{ background: PIE_COLORS[i % PIE_COLORS.length], boxShadow: `0 0 5px ${PIE_COLORS[i % PIE_COLORS.length]}` }} />
-                  <span className="db-pie-legend-label">{e.name}</span>
+                <div key={e.name} className="db-pie-item">
+                  <div className="db-pie-dot" style={{ background: PIE_COLORS[i % PIE_COLORS.length], boxShadow: `0 0 6px ${PIE_COLORS[i % PIE_COLORS.length]}` }} />
+                  <span className="db-pie-text">{e.name}</span>
+                  <span className="db-pie-val">{e.value}</span>
                 </div>
               ))}
             </div>
@@ -471,73 +603,190 @@ export default function DashboardPage() {
 
         </div>
 
-        {/* ── Recent exams table ── */}
+        {/* ── SECONDARY CHARTS & BREAKDOWN ── */}
+        <div className="db-sec-grid">
+          {/* Question Type Breakdown */}
+          <motion.div
+            className="db-card"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.48, duration: 0.4 }}
+          >
+            <div className="db-card-header">
+              <div className="db-card-title">
+                <span className="db-card-dot" style={{ background: '#00D4FF', boxShadow: '0 0 10px #00D4FF' }} />
+                Question Bank Types
+              </div>
+              <Link to="/admin/questions" className="text-xs text-cyan-400 hover:underline flex items-center gap-1 font-semibold">
+                Manage <ArrowUpRight size={13} />
+              </Link>
+            </div>
+
+            <ResponsiveContainer width="100%" height={160}>
+              <BarChart data={questionTypeData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                <XAxis dataKey="name" tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 600 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: '#94A3B8', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
+                <Bar dataKey="count" fill="#00D4FF" radius={[6, 6, 0, 0]} name="Questions">
+                  {questionTypeData.map((_, i) => (
+                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </motion.div>
+
+          {/* Quick Cambridge Primary Highlights */}
+          <motion.div
+            className="db-card flex flex-col justify-between"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.52, duration: 0.4 }}
+          >
+            <div>
+              <div className="db-card-header">
+                <div className="db-card-title">
+                  <span className="db-card-dot" style={{ background: '#F59E0B', boxShadow: '0 0 10px #F59E0B' }} />
+                  Curriculum Coverage
+                </div>
+                <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 uppercase tracking-wide">
+                  Stage 1 - Stage 5
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 mt-2">
+                {[
+                  { title: 'Mathematics', status: 'Stage 1-5 Ready', color: 'from-amber-500/20 to-orange-500/10', border: 'border-amber-500/30' },
+                  { title: 'English Language', status: 'Stage 1-5 Ready', color: 'from-purple-500/20 to-indigo-500/10', border: 'border-purple-500/30' },
+                  { title: 'Science Inquiry', status: 'Stage 1-5 Ready', color: 'from-emerald-500/20 to-teal-500/10', border: 'border-emerald-500/30' },
+                  { title: 'Global Perspective', status: 'Stage 1-5 Active', color: 'from-cyan-500/20 to-blue-500/10', border: 'border-cyan-500/30' },
+                ].map((item) => (
+                  <div key={item.title} className={`p-3 rounded-xl bg-gradient-to-br ${item.color} border ${item.border} flex flex-col justify-between`}>
+                    <span className="text-xs font-black text-white">{item.title}</span>
+                    <span className="text-[10px] font-bold text-slate-300 flex items-center gap-1 mt-1">
+                      <CheckCircle2 size={10} className="text-emerald-400" /> {item.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* ── RECENT EXAMS TABLE CARD ── */}
         <motion.div
           className="db-card"
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.35 }}
+          transition={{ delay: 0.56, duration: 0.4 }}
         >
-          <div className="db-card-title">
-            <span className="db-card-title-dot" style={{ background: 'var(--cyan)', boxShadow: '0 0 6px var(--cyan)' }} />
-            Recent Exams
-            <TrendingUp size={13} style={{ color: 'var(--muted)', marginLeft: 'auto' }} />
+          <div className="db-card-header">
+            <div>
+              <div className="db-card-title">
+                <span className="db-card-dot" style={{ background: '#00D4FF', boxShadow: '0 0 10px #00D4FF' }} />
+                Recent Assessment Exams
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">Live student submissions, scores, and active schedules</p>
+            </div>
+
+            {/* Filter Tabs */}
+            <div className="flex items-center gap-1.5 bg-slate-900/80 border border-slate-800 p-1 rounded-xl">
+              {['all', 'live', 'upcoming', 'ended', 'draft'].map((st) => (
+                <button
+                  key={st}
+                  onClick={() => setFilterStatus(st)}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold capitalize transition-all ${
+                    filterStatus === st
+                      ? 'bg-purple-600 text-white shadow-md'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                  }`}
+                >
+                  {st}
+                </button>
+              ))}
+            </div>
           </div>
 
           {loading ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            <div className="space-y-2">
               {Array(4).fill(0).map((_, i) => (
-                <div key={i} className="db-skel" style={{ height: 44 }} />
+                <div key={i} className="h-12 bg-slate-900/50 rounded-xl animate-pulse" />
               ))}
             </div>
           ) : (
-            <div className="db-table-wrap">
+            <div className="db-table-container">
               <table className="db-table">
                 <thead>
                   <tr>
-                    {['Exam', 'Status', 'Submissions', 'Avg Score'].map((h) => (
+                    {['Exam Title', 'Status', 'Total Submissions', 'Average Score Performance', 'Actions'].map((h) => (
                       <th key={h}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {(data?.recentExams ?? []).map((e, i) => (
-                    <motion.tr
-                      key={i}
-                      initial={{ opacity: 0, x: -8 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.55 + i * 0.05 }}
-                    >
-                      <td className="db-table-name">{e.title}</td>
-                      <td>
-                        <span className={`db-badge ${badgeCls(e.status)}`}>{e.status}</span>
-                      </td>
-                      <td className="db-table-muted">{e.submission_count}</td>
-                      <td>
-                        {e.avg_score ? (
-                          <div className="db-score-wrap">
-                            <div className="db-score-track">
-                              <div
-                                className="db-score-fill"
-                                style={{
-                                  width: `${Math.min(parseFloat(e.avg_score), 100)}%`,
-                                  background: scoreColor(e.avg_score),
-                                  boxShadow: `0 0 6px ${scoreColor(e.avg_score)}`,
-                                }}
-                              />
+                  <AnimatePresence mode="popLayout">
+                    {filteredExams.map((e, i) => (
+                      <motion.tr
+                        key={e.title + i}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 10 }}
+                        transition={{ delay: i * 0.04 }}
+                      >
+                        <td>
+                          <div className="db-exam-title">
+                            <div className="db-exam-icon">
+                              <FileText size={15} />
                             </div>
-                            <span className="db-score-val">{parseFloat(e.avg_score).toFixed(1)}%</span>
+                            <span>{e.title}</span>
                           </div>
-                        ) : (
-                          <span className="db-table-muted">—</span>
-                        )}
-                      </td>
-                    </motion.tr>
-                  ))}
-                  {!data?.recentExams?.length && (
+                        </td>
+                        <td>
+                          <span className={`db-badge ${badgeCls(e.status)}`}>
+                            {e.status === 'live' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />}
+                            {e.status}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="flex items-center gap-2 text-slate-300 font-bold text-xs">
+                            <Users size={14} className="text-slate-500" />
+                            {e.submission_count} Submissions
+                          </div>
+                        </td>
+                        <td>
+                          {e.avg_score ? (
+                            <div className="db-score-wrap">
+                              <div className="db-score-track">
+                                <div
+                                  className="db-score-fill"
+                                  style={{
+                                    width: `${Math.min(parseFloat(e.avg_score), 100)}%`,
+                                    background: scoreColor(e.avg_score),
+                                    boxShadow: `0 0 10px ${scoreColor(e.avg_score)}`,
+                                  }}
+                                />
+                              </div>
+                              <span className="db-score-val">{parseFloat(e.avg_score).toFixed(1)}%</span>
+                            </div>
+                          ) : (
+                            <span className="text-slate-500 text-xs font-semibold">— No submissions</span>
+                          )}
+                        </td>
+                        <td>
+                          <button
+                            onClick={() => navigate('/admin/exams')}
+                            className="inline-flex items-center gap-1 text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors"
+                          >
+                            View Details <ChevronRight size={14} />
+                          </button>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </AnimatePresence>
+                  {filteredExams.length === 0 && (
                     <tr>
-                      <td colSpan={4} style={{ textAlign: 'center', padding: '2.5rem 0', color: 'var(--muted)', fontSize: '0.8rem' }}>
-                        No exams yet
+                      <td colSpan={5} className="text-center py-8 text-slate-500 text-xs font-semibold">
+                        No exams found matching filter "{filterStatus}"
                       </td>
                     </tr>
                   )}

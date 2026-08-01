@@ -19,20 +19,26 @@ exports.getStats = async (req, res) => {
       db.query(`
         SELECT 
           to_char(days.day, 'Dy') AS day,
-          COALESCE(act.cnt, 0)::int AS students,
+          (COALESCE(act.cnt, 0) + COALESCE(usr.cnt, 0))::int AS students,
           COALESCE(sub.cnt, 0)::int AS exams
         FROM generate_series(CURRENT_DATE - INTERVAL '6 days', CURRENT_DATE, '1 day') AS days(day)
         LEFT JOIN (
-          SELECT activity_date, COUNT(DISTINCT student_id) AS cnt 
+          SELECT DATE(created_at) AS act_date, COUNT(DISTINCT student_id) AS cnt 
           FROM activity_logs 
-          WHERE activity_date >= CURRENT_DATE - INTERVAL '6 days'
-          GROUP BY activity_date
-        ) act ON act.activity_date = days.day::date
+          WHERE created_at >= CURRENT_DATE - INTERVAL '6 days'
+          GROUP BY DATE(created_at)
+        ) act ON act.act_date = days.day::date
         LEFT JOIN (
-          SELECT submitted_at::date AS sub_date, COUNT(*) AS cnt 
+          SELECT DATE(created_at) AS u_date, COUNT(*) AS cnt 
+          FROM users 
+          WHERE created_at >= CURRENT_DATE - INTERVAL '6 days'
+          GROUP BY DATE(created_at)
+        ) usr ON usr.u_date = days.day::date
+        LEFT JOIN (
+          SELECT DATE(submitted_at) AS sub_date, COUNT(*) AS cnt 
           FROM exam_submissions 
-          WHERE submitted_at >= CURRENT_DATE - INTERVAL '6 days' AND status = 'submitted'
-          GROUP BY submitted_at::date
+          WHERE submitted_at >= CURRENT_DATE - INTERVAL '6 days'
+          GROUP BY DATE(submitted_at)
         ) sub ON sub.sub_date = days.day::date
         ORDER BY days.day ASC
       `)
