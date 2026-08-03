@@ -39,6 +39,7 @@ exports.getMyCurriculums = async (req, res) => {
 exports.getCurriculumSubjects = async (req, res) => {
   try {
     const { curriculumId } = req.params;
+    const { classId } = req.query;
     const isTeacherOrAdmin = req.user.role === 'teacher' || req.user.role === 'admin';
 
     if (!isTeacherOrAdmin && req.user.curriculum_id && req.user.curriculum_id !== curriculumId) {
@@ -46,8 +47,12 @@ exports.getCurriculumSubjects = async (req, res) => {
     }
 
     const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
-    const { rows } = await db.query(
-      `SELECT
+
+    // If student has a registered class_id or classId is supplied in query params, filter by class_id
+    const targetClassId = classId || (!isTeacherOrAdmin ? req.user.class_id : null);
+
+    let queryStr = `
+      SELECT
          s.*,
          cl.name AS class_name,
          curr.name AS curriculum_name,
@@ -77,10 +82,18 @@ exports.getCurriculumSubjects = async (req, res) => {
        FROM subjects s
        JOIN classes cl ON cl.id = s.class_id
        JOIN curriculums curr ON curr.id = cl.curriculum_id
-       WHERE cl.curriculum_id = $1
-       ORDER BY s.order_index, s.name ASC`,
-      [curriculumId, destination]
-    );
+       WHERE cl.curriculum_id = $1`;
+
+    const params = [curriculumId, destination];
+
+    if (targetClassId) {
+      params.push(targetClassId);
+      queryStr += ` AND cl.id = $${params.length}`;
+    }
+
+    queryStr += ` ORDER BY s.order_index, s.name ASC`;
+
+    const { rows } = await db.query(queryStr, params);
     res.json({ success: true, data: rows });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

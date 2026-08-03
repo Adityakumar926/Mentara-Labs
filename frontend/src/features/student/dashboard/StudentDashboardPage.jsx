@@ -367,14 +367,15 @@ const CSS = `
 
   /* Bottom Superstar Banner */
   .sd-superstar-banner {
-    background: linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(139,92,246,0.12) 100%);
-    border: 2px solid rgba(245,158,11,0.25);
+    background: linear-gradient(135deg, rgba(245,158,11,0.14) 0%, rgba(139,92,246,0.15) 50%, rgba(6,182,212,0.14) 100%);
+    border: 2px solid rgba(245,158,11,0.3);
     border-radius: 28px;
-    padding: 1.25rem 1.75rem;
+    padding: 1.4rem 2rem;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem;
+    justify-content: flex-start;
+    gap: 1.75rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
 
   .sd-resource-card.highlighted-voice-item {
@@ -1214,8 +1215,8 @@ export default function StudentDashboardPage() {
 
         {/* ── 4. Bottom Superstar Mascot Banner ── */}
         <div className="sd-superstar-banner">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ width: '105px', height: '105px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+            <div style={{ width: '115px', height: '115px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <DotLottieReact
                 src="/Cute Tiger_animation.json"
                 loop
@@ -1224,21 +1225,13 @@ export default function StudentDashboardPage() {
               />
             </div>
             <div>
-              <div style={{ fontSize: '1.05rem', fontWeight: 900, color: 'var(--cream)' }}>
+              <div style={{ fontSize: '1.65rem', fontWeight: 900, letterSpacing: '-0.02em', color: 'var(--cream)', lineHeight: 1.25, textShadow: '0 2px 10px rgba(245, 158, 11, 0.3)' }}>
                 Keep going, superstar! ⭐
               </div>
-              <div style={{ fontSize: '0.82rem', color: 'var(--muted)', marginTop: '0.2rem', fontWeight: 700 }}>
+              <div style={{ fontSize: '1.05rem', color: 'rgba(255, 255, 255, 0.85)', marginTop: '0.4rem', fontWeight: 700, lineHeight: 1.4 }}>
                 Every lesson brings you one step closer to your dreams!
               </div>
             </div>
-          </div>
-          <div style={{ width: '140px', height: '140px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <DotLottieReact
-              src="/UFO_animation.json"
-              loop
-              autoplay
-              style={{ width: '100%', height: '100%' }}
-            />
           </div>
         </div>
 

@@ -84,7 +84,6 @@ export default function LandingPage() {
       <main className="relative min-h-screen bg-zinc-950 text-zinc-100 overflow-hidden font-sans">
         <Header />
         <Hero />
-        <CurriculumStrip />
         <GogoAiTutorSection />
         <Showcase />
         <ProductDetails />
@@ -110,10 +109,10 @@ function Header() {
   }, []);
 
   const NAV_LINKS = [
-    { label: "Curriculum", href: "#curriculum" },
     { label: "GOGO AI Tutor", href: "#gogo-tutor" },
     { label: "Features", href: "#features" },
     { label: "Subjects", href: "#subjects" },
+    { label: "Stories", href: "#testimonials" },
     { label: "Pricing", href: "#pricing" },
   ];
 
@@ -227,7 +226,7 @@ function Hero() {
   }, []);
 
   return (
-    <section data-testid="hero-section" className="relative pt-24 pb-12 lg:pt-28 lg:pb-16 overflow-hidden bg-zinc-950">
+    <section data-testid="hero-section" className="relative pt-24 pb-4 lg:pt-28 lg:pb-6 overflow-hidden bg-zinc-950">
       {/* Animated background orbs */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-1/4 -left-32 h-[480px] w-[480px] rounded-full bg-cyan-500/20 blur-[120px] animate-blob" />
@@ -504,55 +503,9 @@ function Hero() {
         </motion.div>
       </div>
 
-      <div className="mt-20 max-w-7xl mx-auto px-6 lg:px-8 flex items-center gap-2 text-zinc-500 font-semibold">
+      <div className="mt-8 max-w-7xl mx-auto px-6 lg:px-8 flex items-center gap-2 text-zinc-500 font-semibold">
         <ChevronRight className="h-3.5 w-3.5" />
         <span className="font-mono-label text-[10px] uppercase tracking-[0.22em]">Trusted by educators worldwide</span>
-      </div>
-    </section>
-  );
-}
-
-/* ── 3. CURRICULUM STRIP ── */
-function CurriculumStrip() {
-  const BADGES = [
-    { icon: Atom, label: "Cambridge Science" },
-    { icon: Sigma, label: "Cambridge Mathematics" },
-    { icon: BookOpen, label: "Cambridge English" },
-    { icon: Globe, label: "Global Perspectives" },
-    { icon: Sparkles, label: "Interactive 3D Labs" },
-    { icon: Award, label: "Checkpoint Exam Prep" },
-  ];
-
-  return (
-    <section id="curriculum" data-testid="curriculum-strip" className="relative py-10 border-y border-white/5 bg-zinc-950">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-12">
-          <div className="max-w-md">
-            <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
-              · Curriculum coverage
-            </span>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight mt-3 text-white">
-              Aligned with the world&apos;s most rigorous frameworks.
-            </h2>
-          </div>
-          <p className="text-sm text-zinc-500 max-w-sm leading-relaxed font-medium">
-            Every lesson, simulation, and practice paper matches the official syllabus,
-            making sure every minute of study counts.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          {BADGES.map(({ icon: Icon, label }) => (
-            <div
-              key={label}
-              data-testid={`curriculum-badge-${label.toLowerCase().replace(/\s+/g, "-")}`}
-              className="group flex items-center gap-2.5 px-4 py-3.5 rounded-full border border-white/10 bg-white/[0.02] backdrop-blur-md hover:border-cyan-500/40 hover:bg-white/[0.04] transition-all cursor-pointer"
-            >
-              <Icon className="h-4 w-4 text-cyan-400 group-hover:text-emerald-400 transition-colors shrink-0" />
-              <span className="text-[12.5px] font-semibold text-zinc-300 tracking-tight">{label}</span>
-            </div>
-          ))}
-        </div>
       </div>
     </section>
   );
@@ -603,7 +556,7 @@ function GogoAiTutorSection() {
   const activeDemo = DEMO_PROMPTS[activePromptIndex];
 
   return (
-    <section id="gogo-tutor" data-testid="gogo-tutor-section" className="relative py-16 lg:py-24 bg-gradient-to-b from-zinc-950 via-zinc-900/60 to-zinc-950 border-b border-white/5 overflow-hidden">
+    <section id="gogo-tutor" data-testid="gogo-tutor-section" className="relative pt-8 pb-14 lg:pt-10 lg:pb-16 bg-gradient-to-b from-zinc-950 via-zinc-900/60 to-zinc-950 border-b border-white/5 overflow-hidden">
       {/* Ambient Radial Background Light */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[800px] bg-gradient-to-r from-cyan-500/10 via-purple-600/15 to-emerald-500/10 blur-[140px] pointer-events-none -z-10" />
 
@@ -1245,7 +1198,7 @@ function Testimonials() {
   ];
 
   return (
-    <section data-testid="testimonials-section" className="relative py-8 lg:py-10 bg-zinc-950 border-y border-white/5">
+    <section id="testimonials" data-testid="testimonials-section" className="relative py-8 lg:py-10 bg-zinc-950 border-y border-white/5">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="max-w-2xl mb-8">
           <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
