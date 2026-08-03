@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { BookOpen, Folder, FolderOpen, Layers, ChevronDown, ChevronRight, Book, HelpCircle } from 'lucide-react';
 import { useApi } from '@/hooks/useApi';
-import { adminApi } from '@/api/services';
+import { adminApi, studentApi } from '@/api/services';
+import useAuthStore from '@/store/authStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 
@@ -134,7 +135,9 @@ const CSS = `
 `;
 
 export default function HierarchySidebar({ onSelectNode, selectedNodeId, selectedNodeType }) {
-  const { data: hierarchy, loading } = useApi(adminApi.getHierarchy);
+  const user = useAuthStore((s) => s.user);
+  const isAdmin = user?.role === 'admin';
+  const { data: hierarchy, loading } = useApi(isAdmin ? adminApi.getHierarchy : studentApi.getHierarchy);
   const [expandedNodes, setExpandedNodes] = useState({});
 
   const toggleExpand = (nodeId, e) => {

@@ -13,6 +13,7 @@ import { studentApi } from '@/api/services';
 import useAuthStore from '@/store/authStore';
 import MuxPlayer from '@mux/mux-player-react';
 import toast from 'react-hot-toast';
+import PdfViewerModal from '@/components/shared/PdfViewerModal';
 
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Quicksand:wght@600;700;800&display=swap');
@@ -1241,12 +1242,13 @@ export default function StudentDashboardPage() {
           </div>
         </div>
 
-        {/* Modal: PDF Viewer */}
-        <Modal open={!!pdfUrl} onClose={() => setPdfUrl(null)} title="Note Viewer" size="lg">
-          <div style={{ height: '70vh', width: '100%' }}>
-            {pdfUrl && <iframe src={pdfUrl} title="Note PDF" style={{ border: 'none', width: '100%', height: '100%' }} />}
-          </div>
-        </Modal>
+        {/* Custom Protected PDF Reader Modal */}
+        <PdfViewerModal
+          open={!!pdfUrl}
+          onClose={() => setPdfUrl(null)}
+          pdfUrl={pdfUrl}
+          title="Cambridge Primary Study Notes"
+        />
 
         {/* Modal: Mux Video Player */}
         <Modal open={!!videoToken} onClose={() => setVideoToken(null)} title={selectedVideoContent?.title || 'Video Lesson'} size="md">

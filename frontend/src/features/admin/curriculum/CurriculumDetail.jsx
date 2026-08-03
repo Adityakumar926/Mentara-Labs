@@ -865,7 +865,7 @@ export default function CurriculumDetail() {
     }
   };
 
-  // ── Mux direct video upload ──────────────────────────────────────────────────
+  // ── Video upload handler with automatic Cloudinary fallback ──────────────────
   const handleVideoUpload = async (file) => {
     if (!contentForm.title.trim()) {
       setSaveError('Enter a title before uploading the video.');
@@ -874,12 +874,41 @@ export default function CurriculumDetail() {
     setSaveError('');
     setContentForm(f => ({ ...f, videoFile: file, videoStage: 'uploading', videoProgress: 0 }));
 
-    try {
-      const res = await adminApi.createMuxUpload(contentModal, {
-        title: contentForm.title,
-        is_premium: String(contentForm.is_premium),
-        destination: contentForm.destination,
+    const performDirectUpload = async () => {
+      const fd = new FormData();
+      fd.append('title', contentForm.title);
+      fd.append('is_premium', String(contentForm.is_premium));
+      fd.append('destination', contentForm.destination);
+      fd.append('file', file);
+
+      const res = await adminApi.uploadVideo(contentModal, fd, (progressEvent) => {
+        if (progressEvent.total) {
+          const pct = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+          setContentForm(f => ({ ...f, videoProgress: pct }));
+        }
       });
+      const data = res.data?.data ?? res.data;
+      setContentForm(f => ({
+        ...f,
+        videoStage: 'done',
+        videoContentId: data.id,
+        videoPlaybackId: null,
+      }));
+    };
+
+    try {
+      let res;
+      try {
+        res = await adminApi.createMuxUpload(contentModal, {
+          title: contentForm.title,
+          is_premium: String(contentForm.is_premium),
+          destination: contentForm.destination,
+        });
+      } catch (muxErr) {
+        await performDirectUpload();
+        return;
+      }
+
       const { uploadUrl, uploadId, content_id } = res.data;
       setContentForm(f => ({ ...f, videoContentId: content_id, videoUploadId: uploadId }));
 
@@ -892,7 +921,7 @@ export default function CurriculumDetail() {
             setContentForm(f => ({ ...f, videoProgress: Math.round((e.loaded / e.total) * 100) }));
           }
         };
-        xhr.onload = () => xhr.status < 300 ? resolve() : reject(new Error(`Mux upload failed: ${xhr.status}`));
+        xhr.onload = () => xhr.status < 300 ? resolve() : reject(new Error(`Upload failed: ${xhr.status}`));
         xhr.onerror = () => reject(new Error('Network error during upload'));
         xhr.send(file);
       });
@@ -911,8 +940,12 @@ export default function CurriculumDetail() {
         }));
       }
     } catch (err) {
-      setContentForm(f => ({ ...f, videoStage: 'idle', videoProgress: 0 }));
-      setSaveError(err.message ?? 'Video upload failed.');
+      try {
+        await performDirectUpload();
+      } catch (directErr) {
+        setContentForm(f => ({ ...f, videoStage: 'idle', videoProgress: 0 }));
+        setSaveError(directErr.response?.data?.message ?? directErr.message ?? 'Video upload failed.');
+      }
     }
   };
 

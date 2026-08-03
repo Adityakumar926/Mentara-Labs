@@ -400,8 +400,51 @@ exports.replaceWorksheet = async (req, res) => {
   }
 };
 
+// ─── CONTENT — DIRECT VIDEO UPLOAD (Cloudinary) ──────────────────────────────────
+// POST /admin/topics/:topicId/content/video
+// multipart/form-data: file (video), title, is_premium, destination
+
+exports.uploadVideoFile = async (req, res) => {
+  try {
+    const { title, is_premium, destination } = req.body;
+    if (!req.file)
+      return res.status(400).json({ success: false, message: 'Video file is required' });
+    if (!title)
+      return res.status(400).json({ success: false, message: 'title is required' });
+
+    const targetDestination = ['shared', 'student', 'teacher'].includes(destination) ? destination : 'shared';
+
+    const cloudinaryService = require('../../services/cloudinary.service');
+    const result = await cloudinaryService.uploadVideo(req.file.buffer, 'mentara-labs/videos', {
+      resource_type: 'video',
+      public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_')}`,
+      use_filename: false,
+    });
+    const file_url = result.url;
+
+    const { rows: orderRows } = await db.query(
+      `SELECT COALESCE(MAX(order_index), -1) + 1 AS next_order
+       FROM content WHERE topic_id = $1`,
+      [req.params.topicId]
+    );
+
+    const { rows } = await db.query(
+      `INSERT INTO content
+         (topic_id, title, content_type, file_url, is_premium, order_index, destination)
+       VALUES ($1, $2, 'video', $3, $4, $5, $6)
+       RETURNING *`,
+      [req.params.topicId, title, file_url, is_premium === 'true' || is_premium === true, orderRows[0].next_order, targetDestination]
+    );
+
+    res.status(201).json({ success: true, data: rows[0] });
+  } catch (err) {
+    console.error('[uploadVideoFile]', err.message);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // ─── CONTENT — MUX DIRECT UPLOAD (step 1) ────────────────────────────────────
-// POST /admin/subjects/:subjectId/content/video/upload-url
+// POST /admin/topics/:topicId/content/video/upload-url
 // Body: { title, is_premium }
 
 exports.createMuxUpload = async (req, res) => {
@@ -426,7 +469,7 @@ exports.createMuxUpload = async (req, res) => {
          (topic_id, title, content_type, mux_upload_id, is_premium, order_index, destination)
        VALUES ($1, $2, 'video', $3, $4, $5, $6)
        RETURNING *`,
-      [req.params.topicId, title, uploadId, is_premium === 'true', orderRows[0].next_order, targetDestination]
+      [req.params.topicId, title, uploadId, is_premium === 'true' || is_premium === true, orderRows[0].next_order, targetDestination]
     );
 
     res.status(201).json({
@@ -436,8 +479,12 @@ exports.createMuxUpload = async (req, res) => {
       content_id: rows[0].id,
     });
   } catch (err) {
-    console.error('[createMuxUpload]', err.message, err.status, err.type);
-    res.status(500).json({ success: false, message: err.message });
+    console.error('[createMuxUpload]', err.message);
+    return res.status(422).json({
+      success: false,
+      useFallback: true,
+      message: 'Mux service is unconfigured or unavailable. Switching to direct video upload...',
+    });
   }
 };
 

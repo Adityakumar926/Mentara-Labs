@@ -303,7 +303,7 @@ function StudentTopicNode({ topic, allTopics, curriculumId, subjectId, onToggleT
             if (childTopics.length > 0) {
               setIsOpen(!isOpen);
             } else {
-              navigate(`/courses/${curriculumId}/subjects/${subjectId}/topics/${topic.id}`);
+              navigate(`/topics/${topic.id}`);
             }
           }}
         >
@@ -319,7 +319,7 @@ function StudentTopicNode({ topic, allTopics, curriculumId, subjectId, onToggleT
           {topic.description && <div className="top-desc">{topic.description}</div>}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }} onClick={e => e.stopPropagation()}>
-          <Link to={`/courses/${curriculumId}/subjects/${subjectId}/topics/${topic.id}`} style={{ color: 'var(--violet-l)' }} title="View Resources">
+          <Link to={`/topics/${topic.id}`} style={{ color: 'var(--violet-l)' }} title="View Resources">
             <ChevronRight size={16} />
           </Link>
           {childTopics.length > 0 && (

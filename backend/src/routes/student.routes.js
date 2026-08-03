@@ -66,6 +66,7 @@ router.get('/exams/scheduled',      courseCtrl.getScheduledExams);
 router.get('/exams',                courseCtrl.getLiveExams);
 
 // ─── CURRICULUMS ──────────────────────────────────────────────────────────────
+if (typeof courseCtrl.getCurriculumHierarchy === 'function') router.get('/hierarchy',                         courseCtrl.getCurriculumHierarchy);
 if (typeof courseCtrl.getMyCurriculums      === 'function') router.get('/curriculums',                        courseCtrl.getMyCurriculums);
 router.get('/all-curriculums',                                                    courseCtrl.getAllCurriculums);
 router.get('/curriculums/:curriculumId/classes',                                  courseCtrl.getCurriculumClasses);

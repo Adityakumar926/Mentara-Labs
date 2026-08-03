@@ -95,7 +95,13 @@ router.put(
   currCtrl.replaceNote
 );
 
-// Videos → Mux direct upload (two-step: get upload URL, then confirm after browser PUT)
+// Videos → Direct upload (Cloudinary) or Mux direct upload
+router.post(
+  '/topics/:topicId/content/video',
+  upload('video').single('file'),
+  handleUploadError,
+  currCtrl.uploadVideoFile
+);
 router.post('/topics/:topicId/content/video/upload-url', currCtrl.createMuxUpload);
 router.post('/content/:id/video/confirm',                 currCtrl.confirmMuxUpload);
 

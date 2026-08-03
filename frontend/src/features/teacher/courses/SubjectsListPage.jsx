@@ -335,7 +335,7 @@ export default function SubjectsListPage() {
             {list.map((subject, idx) => (
               <motion.div key={subject.id} variants={cardVariant}>
                 <Link
-                  to={`/courses/${curriculumId}/subjects/${subject.id}`}
+                  to={`/subjects/${subject.id}`}
                   className="subj-card"
                 >
                   {/* Index bubble */}

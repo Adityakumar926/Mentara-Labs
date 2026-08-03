@@ -265,9 +265,8 @@ function Hero() {
           </h1>
 
           <p className="mt-7 text-lg leading-relaxed text-zinc-400 max-w-xl">
-            Mentara Labs delivers premium, institution-grade learning for Cambridge Primary
-            students — powered by interactive simulations, drawable worksheets and
-            timed exam engines that mirror the real thing.
+            Mentara Labs equips Cambridge Primary students with interactive 3D simulations,
+            digital worksheets, and practical exam prep built to boost understanding and confidence.
           </p>
 
           <div className="mt-10 flex flex-wrap items-center gap-4">
@@ -516,12 +515,12 @@ function Hero() {
 /* ── 3. CURRICULUM STRIP ── */
 function CurriculumStrip() {
   const BADGES = [
-    { icon: Globe, label: "Cambridge Primary Science" },
-    { icon: GraduationCap, label: "Cambridge Primary Math" },
-    { icon: BookOpen, label: "Primary Science Labs" },
-    { icon: Compass, label: "Primary Math Labs" },
-    { icon: Award, label: "Primary Checkpoint Prep" },
-    { icon: Library, label: "Primary English Labs" },
+    { icon: Atom, label: "Cambridge Science" },
+    { icon: Sigma, label: "Cambridge Mathematics" },
+    { icon: BookOpen, label: "Cambridge English" },
+    { icon: Globe, label: "Global Perspectives" },
+    { icon: Sparkles, label: "Interactive 3D Labs" },
+    { icon: Award, label: "Checkpoint Exam Prep" },
   ];
 
   return (
@@ -537,8 +536,8 @@ function CurriculumStrip() {
             </h2>
           </div>
           <p className="text-sm text-zinc-500 max-w-sm leading-relaxed font-medium">
-            Every lesson, simulation and exam paper is mapped directly to the official syllabus
-            outcomes — so nothing you study is wasted.
+            Every lesson, simulation, and practice paper matches the official syllabus,
+            making sure every minute of study counts.
           </p>
         </div>
 
@@ -627,7 +626,7 @@ function GogoAiTutorSection() {
           </h2>
 
           <p className="mt-4 text-zinc-400 text-base sm:text-lg leading-relaxed font-medium">
-            Your 24/7 personal Cambridge Primary companion. GOGO teaches concepts, guides through tricky topics, locates worksheets & mock exams, and auto-navigates your learning journey on command.
+            GOGO is an intelligent study assistant built for Cambridge Primary. Ask questions anytime, get help with tricky topics, find worksheets, and explore interactive lessons effortlessly.
           </p>
         </div>
 
@@ -639,29 +638,29 @@ function GogoAiTutorSection() {
             {[
               {
                 icon: Navigation,
-                title: "Auto-Navigation & Topic Search",
-                desc: "Ask GOGO to take you anywhere — 'Open Science Light & Shadow lab' or 'Find Grade 4 Math' — and GOGO navigates directly to the exact page.",
+                title: "Instant Navigation & Search",
+                desc: "Ask GOGO to find any lesson, lab, or topic (such as 'Light and Shadows' or 'Grade 4 Math') and go straight to the page.",
                 color: "text-cyan-400",
                 bg: "bg-cyan-500/10 border-cyan-500/20"
               },
               {
                 icon: Brain,
-                title: "Interactive Concept Teaching",
-                desc: "GOGO breaks down Cambridge Primary Science, Math, and English into simple, child-friendly explanations with interactive step-by-step guidance.",
+                title: "Simple Concept Explanations",
+                desc: "GOGO explains Science, Math, and English in clear, friendly language with guided walkthroughs for young learners.",
                 color: "text-purple-400",
                 bg: "bg-purple-500/10 border-purple-500/20"
               },
               {
                 icon: Search,
-                title: "Worksheets & Exam Finder",
-                desc: "Instantly locates printable drawing worksheets, interactive labs, and auto-graded mock checkpoint papers tailored to your student's stage.",
+                title: "Worksheet & Exam Finder",
+                desc: "Find digital drawing sheets, interactive experiments, and practice checkpoint papers tailored to your student's grade level.",
                 color: "text-emerald-400",
                 bg: "bg-emerald-500/10 border-emerald-500/20"
               },
               {
                 icon: Mic,
-                title: "Real-time Voice & Natural Speech",
-                desc: "Supports speech recognition and natural voice playback with customizable voices so young learners can talk and listen effortlessly.",
+                title: "Voice & Speech Interaction",
+                desc: "Students can speak naturally with GOGO and listen to clear voice responses, making learning hands free and engaging.",
                 color: "text-amber-400",
                 bg: "bg-amber-500/10 border-amber-500/20"
               }
@@ -827,8 +826,8 @@ function FeaturesBento() {
             className="md:col-span-2 lg:col-span-2 lg:row-span-2"
             tag="01 · Interactive simulations"
             tagColor="text-cyan-400"
-            title="Drag, tweak, explore — built for curiosity."
-            description="120+ Cambridge Primary Science & Mathematics interactive models rendered in real time. Drag light sources, adjust variables, watch shadows move, and build genuine intuition."
+            title="Drag, adjust, and explore with hands-on labs."
+            description="Over 120 interactive Cambridge Primary Science and Math models. Move light sources, adjust variables, watch shadows shift, and build lasting understanding."
             testid="feature-simulations"
           >
             <div className="mt-6 relative h-56 rounded-xl border border-white/10 overflow-hidden bg-zinc-950">
@@ -857,7 +856,7 @@ function FeaturesBento() {
             tag="02 · Draw tools"
             tagColor="text-emerald-400"
             title="Annotate worksheets like paper."
-            description="Sketch diagrams, mark up vectors, highlight equations. Saved automatically."
+            description="Sketch diagrams, solve problems, and highlight key answers. All work saves automatically."
             icon={<PenTool className="h-5 w-5 text-emerald-400" />}
             testid="feature-drawtools"
           >
@@ -872,17 +871,17 @@ function FeaturesBento() {
                 {["#22d3ee", "#34d399", "#f59e0b", "#f43f5e"].map((c) => (
                   <div key={c} className="h-2.5 w-2.5 rounded-full" style={{ background: c }} />
                 ))}
-                <div className="ml-auto font-mono-label text-[9px] uppercase tracking-wider text-zinc-500">auto-saved</div>
+                <div className="ml-auto font-mono-label text-[9px] uppercase tracking-wider text-zinc-500">Auto Saved</div>
               </div>
             </div>
           </BentoCard>
 
-          {/* Laser Pointer */}
+          {/* Student Dashboard */}
           <BentoCard
             tag="03 · Student Dashboard"
             tagColor="text-cyan-400"
             title="Everything in one place."
-            description="An interactive hub for students to track streaks, study progress, and launch simulations."
+            description="A central hub where students track daily streaks, monitor subject progress, and open interactive labs."
             icon={<GraduationCap className="h-5 w-5 text-cyan-400" />}
             testid="feature-studentdashboard"
           >
@@ -938,10 +937,10 @@ function FeaturesBento() {
           {/* Auto exams */}
           <BentoCard
             className="md:col-span-3 lg:col-span-2"
-            tag="04 · Timed past exams"
+            tag="04 · Practice exam engine"
             tagColor="text-emerald-400"
-            title="Real exam conditions. Instant marking."
-            description="Sit past papers under timed conditions. Our engine grades MCQ, structured and long-response questions — then maps your gaps."
+            title="Official exam format. Instant feedback."
+            description="Practice past papers under realistic exam timers. Automated grading checks answers instantly and highlights areas for improvement."
             testid="feature-exams"
           >
             <div className="mt-6 grid grid-cols-3 gap-2.5">
@@ -954,10 +953,10 @@ function FeaturesBento() {
           {/* Analytics */}
           <BentoCard
             className="md:col-span-2 lg:col-span-2"
-            tag="05 · Analytics"
+            tag="05 · Learning analytics"
             tagColor="text-cyan-400"
-            title="See mastery gaps early."
-            description="Granular per-syllabus-point mastery tracking that keeps you ahead."
+            title="See progress and target weak spots."
+            description="Detailed topic tracking that highlights progress for every subject and keeps students on schedule."
             icon={<BarChart3 className="h-5 w-5 text-cyan-400" />}
             testid="feature-analytics"
           >
@@ -1226,22 +1225,22 @@ function SubjectsGrid() {
 function Testimonials() {
   const TESTIMONIAL_DATA = [
     {
-      quote: "My son struggled with fractions, but after using the interactive visuals and worksheets, he got an A in his Cambridge Primary checkpoint tests!",
+      quote: "Fractions used to be such a struggle for my son every single evening. Seeing them visually on Mentara changed everything for him. He actually enjoys practicing now and got great marks in his checkpoints!",
       name: "Aanya Sharma",
-      role: "Parent · Cambridge Primary Grade 5",
-      img: "https://images.pexels.com/photos/13538613/pexels-photo-13538613.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=65&w=65",
+      role: "Parent of Stage 5 Student",
+      img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=250&q=80",
     },
     {
-      quote: "The checkpoint prep mock tests feel exactly like the real exam. My daughter walked into Grade 6 with zero panic.",
+      quote: "The mock exams are so close to the actual paper format. My daughter walked into her Checkpoint exam feeling totally calm and ready to go.",
       name: "Marcus Hale",
-      role: "Parent · Cambridge Primary",
-      img: "https://images.pexels.com/photos/36608621/pexels-photo-36608621.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=65&w=65",
+      role: "Parent of Stage 6 Student",
+      img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=250&q=80",
     },
     {
-      quote: "I got a top grade in my Cambridge Primary Science checkpoint exam thanks to these simulations! Annotating worksheets directly saves hours.",
+      quote: "The 3D science labs are so cool because I can move things around to see how shadows change. It makes studying way easier than reading a boring textbook!",
       name: "Liang Wei",
-      role: "Cambridge Primary Student",
-      img: "https://images.pexels.com/photos/8085257/pexels-photo-8085257.jpeg?auto=compress&cs=tinysrgb&w=100",
+      role: "Stage 5 Cambridge Learner",
+      img: "https://images.pexels.com/photos/8085257/pexels-photo-8085257.jpeg?auto=compress&cs=tinysrgb&w=250",
     },
   ];
 
@@ -1332,19 +1331,20 @@ function Pricing() {
   const PLANS = [
     {
       id: "free",
-      name: "Explorer",
+      name: "Free",
       badge: null,
       price: "Free",
       originalPrice: null,
       discountBadge: null,
       savingsAmount: null,
       sub: "Forever",
-      description: "Get a taste of the platform. Perfect for trying out a few simulations and lessons.",
+      description: "Get started with basic access to platform resources.",
       features: [
-        "3 simulations / month",
-        "1 subject sandbox",
-        "Community support",
-        "Basic exam timer",
+        "Limited question bank",
+        "Limited practice tests",
+        "Limited interactive simulations",
+        "Explore the platform’s core features",
+        "Perfect for getting started",
       ],
       cta: "Start free",
       highlight: false,
@@ -1360,11 +1360,11 @@ function Pricing() {
       sub: billingPeriod,
       description: "Everything a serious Cambridge Primary student needs to top their checkpoint tests.",
       features: [
-        "Unlimited access to the simulations",
-        "All subjects & auto-timed checkpoints",
-        "Drawable worksheets with sketch tools",
-        "Full PDF notes & video lessons",
-        "Priority student support",
+        "Unlimited access to interactive simulations",
+        "Complete access to all subjects & learning content",
+        "Drawable worksheets with annotation tools",
+        "Downloadable notes, worksheets & resources",
+        "Student analytics & priority support",
       ],
       cta: "Get started as a student",
       highlight: true,
@@ -1380,11 +1380,12 @@ function Pricing() {
       sub: billingPeriod,
       description: "Equip your classroom with interactive teaching tools, drawable explanations, and real-time simulators.",
       features: [
-        "All student features included",
-        "Interactive explanation whiteboard",
-        "Teacher dashboard & analytics",
-        "Advanced simulation playbacks",
-        "Priority teacher support",
+        "Complete access to all subjects & teaching content",
+        "Interactive digital whiteboard",
+        "Unlimited access to interactive simulations",
+        "Teacher dashboard with student analytics",
+        "Cambridge teaching resources & pedagogy guides",
+        "Teaching support materials and classroom strategies",
       ],
       cta: "Get started as a teacher",
       highlight: false,
@@ -1407,106 +1408,128 @@ function Pricing() {
           <p className="text-zinc-400 mt-5 text-lg">No hidden fees. Built for learners and teachers alike.</p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-5">
+        <div className="grid lg:grid-cols-3 gap-5 items-stretch">
           {PLANS.map((p) => (
             <div
               key={p.id}
               data-testid={`plan-${p.id}`}
-              className={`relative rounded-2xl border p-6 backdrop-blur-2xl transition-all duration-300 flex flex-col ${
+              className={`relative rounded-2xl border p-5 backdrop-blur-2xl transition-all duration-300 flex flex-col justify-between ${
                 p.highlight
-                  ? "border-cyan-500/50 bg-gradient-to-br from-cyan-500/[0.07] via-zinc-900/40 to-emerald-500/[0.07] shadow-[0_0_60px_-15px_rgba(34,211,238,0.35)]"
+                  ? "border-cyan-500/50 bg-gradient-to-br from-cyan-500/[0.08] via-zinc-900/60 to-emerald-500/[0.08] shadow-[0_0_50px_-15px_rgba(34,211,238,0.35)]"
                   : p.id === "teacher"
-                  ? "border-violet-500/30 bg-gradient-to-br from-violet-500/[0.05] via-zinc-900/40 to-purple-500/[0.04] hover:border-violet-400/40"
+                  ? "border-violet-500/30 bg-gradient-to-br from-violet-500/[0.06] via-zinc-900/60 to-purple-500/[0.05] hover:border-violet-400/40"
                   : "border-white/10 bg-white/[0.02] hover:border-white/20"
               }`}
             >
               {/* Badge */}
               {p.badge && (
-                <div className="absolute -top-3 left-8 px-3 py-1 rounded-full text-[10px] font-mono-label uppercase tracking-[0.18em] bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 font-bold">
+                <div className="absolute -top-3 left-6 px-3 py-0.5 rounded-full text-[9px] font-mono-label uppercase tracking-[0.18em] bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 font-black shadow-md">
                   {p.badge}
                 </div>
               )}
 
-              {/* Plan name */}
-              <div className={`font-mono-label text-[10px] uppercase tracking-[0.22em] font-bold ${
-                p.highlight ? "text-cyan-400" : p.id === "teacher" ? "text-violet-400" : "text-zinc-500"
-              }`}>
-                {p.name}
-              </div>
+              <div>
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                  <span className={`font-mono-label text-[11px] uppercase tracking-[0.22em] font-black ${
+                    p.highlight ? "text-cyan-400" : p.id === "teacher" ? "text-violet-400" : "text-zinc-400"
+                  }`}>
+                    {p.name}
+                  </span>
+                </div>
 
-              {/* Price block */}
-              <div className="mt-4 flex flex-col gap-2">
-                {p.originalPrice ? (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl line-through text-zinc-500 font-medium">{p.originalPrice}</span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase tracking-wider">
-                        {p.discountBadge}
-                      </span>
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                      <span className={`font-display text-6xl font-extrabold tracking-tight drop-shadow-[0_0_20px_rgba(52,211,153,0.15)] ${
+                {/* Compact Price Block */}
+                <div className="mt-2 space-y-0.5">
+                  {/* Original price row */}
+                  <div className="h-5 flex items-center gap-1.5">
+                    {p.originalPrice ? (
+                      <>
+                        <span className="text-xs line-through text-zinc-500 font-semibold">{p.originalPrice}</span>
+                        <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase tracking-wider">
+                          {p.discountBadge}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-[10px] text-zinc-500 font-mono-label uppercase tracking-wider">Standard Access</span>
+                    )}
+                  </div>
+
+                  {/* Main Price display */}
+                  <div className="flex items-baseline gap-1.5">
+                    <span className={`font-display text-4xl sm:text-5xl font-black tracking-tight ${
+                      p.highlight
+                        ? "bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(52,211,153,0.2)]"
+                        : p.id === "teacher"
+                        ? "bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent"
+                        : "text-white"
+                    }`}>
+                      {p.price}
+                    </span>
+                    <span className="text-xs text-zinc-400 font-semibold">{p.sub}</span>
+                  </div>
+
+                  {/* Savings pill row */}
+                  <div className="h-6 flex items-center">
+                    {p.savingsAmount ? (
+                      <div className={`text-[10.5px] font-semibold flex items-center gap-1 rounded-full py-0.5 px-2.5 border ${
                         p.highlight
-                          ? "bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent"
-                          : "bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent"
-                      }`}>
-                        {p.price}
-                      </span>
-                      <span className="text-sm text-zinc-400 font-semibold">{p.sub}</span>
-                    </div>
-                    {p.savingsAmount && (
-                      <div className={`text-xs font-semibold flex items-center gap-1.5 mt-1 rounded-lg py-1.5 px-3 w-fit border ${
-                        p.highlight
-                          ? "text-emerald-400 bg-emerald-500/5 border-emerald-500/10"
-                          : "text-violet-400 bg-violet-500/5 border-violet-500/10"
+                          ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
+                          : "text-violet-400 bg-violet-500/10 border-violet-500/20"
                       }`}>
                         <span>🎉 You save {p.savingsAmount} instantly</span>
                       </div>
+                    ) : (
+                      <div className="text-[10.5px] font-semibold text-zinc-500 rounded-full py-0.5 px-2.5 border border-white/5 bg-white/[0.02]">
+                        ✓ Free forever
+                      </div>
                     )}
-                  </>
-                ) : (
-                  <div className="flex items-baseline gap-2">
-                    <span className="font-display text-5xl font-black tracking-tighter text-white">{p.price}</span>
-                    <span className="text-sm text-zinc-500 font-semibold">{p.sub}</span>
                   </div>
-                )}
+                </div>
+
+                {/* Compact Description */}
+                <p className="text-xs sm:text-[13px] text-zinc-400 mt-2.5 leading-snug min-h-[32px]">{p.description}</p>
+
+                {/* Divider */}
+                <div className={`my-3 h-px w-full ${
+                  p.highlight ? "bg-cyan-500/20" : p.id === "teacher" ? "bg-violet-500/20" : "bg-white/10"
+                }`} />
+
+                {/* Compact Features Checklist */}
+                <ul className="space-y-2 pb-3">
+                  {p.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-xs sm:text-[13px] text-zinc-200">
+                      <div className={`h-4 w-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                        p.highlight 
+                          ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/30" 
+                          : p.id === "teacher" 
+                          ? "bg-purple-500/10 text-violet-400 border border-purple-500/30"
+                          : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                      }`}>
+                        <Check className="h-2.5 w-2.5 stroke-[3]" />
+                      </div>
+                      <span className="font-medium leading-tight">{f}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
 
-              {/* Description */}
-              <p className="text-sm text-zinc-400 mt-2 leading-relaxed min-h-[2.5rem]">{p.description}</p>
-
-              {/* CTA */}
-              <Link
-                to="/register"
-                data-testid={`plan-cta-${p.id}`}
-                className={`mt-4 inline-flex w-full items-center justify-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm transition-all ${
-                  p.highlight
-                    ? "bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 hover:shadow-[0_0_30px_rgba(34,211,238,0.45)]"
-                    : p.id === "teacher"
-                    ? "bg-gradient-to-r from-violet-500/20 to-purple-500/20 border border-violet-500/40 text-violet-200 hover:from-violet-500/30 hover:to-purple-500/30 hover:border-violet-400/60"
-                    : "border border-white/15 text-white hover:bg-white/5"
-                }`}
-              >
-                {p.cta}
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
-
-              {/* Divider */}
-              <div className={`mt-4 mb-4 h-px w-full ${
-                p.highlight ? "bg-cyan-500/20" : p.id === "teacher" ? "bg-violet-500/20" : "bg-white/5"
-              }`} />
-
-              {/* Features */}
-              <ul className="space-y-2 flex-1">
-                {p.features.map((f) => (
-                  <li key={f} className="flex items-start gap-3 text-sm text-zinc-300">
-                    <Check className={`h-4 w-4 mt-0.5 shrink-0 ${
-                      p.highlight ? "text-cyan-400" : p.id === "teacher" ? "text-violet-400" : "text-emerald-400"
-                    }`} />
-                    <span className="font-medium">{f}</span>
-                  </li>
-                ))}
-              </ul>
+              {/* Bottom Pinned Compact CTA Button */}
+              <div className="pt-3 border-t border-white/5 mt-auto">
+                <Link
+                  to="/register"
+                  data-testid={`plan-cta-${p.id}`}
+                  className={`inline-flex w-full items-center justify-center gap-1.5 px-5 py-2.5 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 ${
+                    p.highlight
+                      ? "bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 hover:shadow-[0_0_30px_rgba(34,211,238,0.45)] hover:scale-[1.01]"
+                      : p.id === "teacher"
+                      ? "bg-gradient-to-r from-violet-500/30 to-purple-500/30 border border-violet-500/50 text-violet-200 hover:bg-violet-500/40 hover:border-violet-400/80 hover:text-white"
+                      : "border border-white/20 text-white bg-white/[0.03] hover:bg-white/[0.08] hover:border-white/40"
+                  }`}
+                >
+                  {p.cta}
+                  <ArrowUpRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
             </div>
           ))}
         </div>

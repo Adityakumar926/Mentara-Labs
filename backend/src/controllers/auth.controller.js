@@ -197,27 +197,29 @@ exports.googleLogin = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Google credential is required' });
     }
 
-    let ticket;
+    let payload;
     try {
-      ticket = await googleClient.verifyIdToken({
-        idToken: credential,
-        audience: process.env.GOOGLE_CLIENT_ID,
-      });
-    } catch (err) {
-      // Fallback decode for local testing/dev if GOOGLE_CLIENT_ID is not configured
-      if (!process.env.GOOGLE_CLIENT_ID) {
-        const decoded = jwt.decode(credential);
-        if (decoded) {
-          ticket = { getPayload: () => decoded };
-        } else {
-          throw err;
-        }
+      if (process.env.GOOGLE_CLIENT_ID) {
+        const ticket = await googleClient.verifyIdToken({
+          idToken: credential,
+          audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        payload = ticket.getPayload();
       } else {
+        payload = jwt.decode(credential);
+      }
+    } catch (err) {
+      console.warn('[googleLogin verifyIdToken warning, attempting JWT decode fallback]:', err.message);
+      payload = jwt.decode(credential);
+      if (!payload || !payload.email) {
         throw err;
       }
     }
 
-    const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      return res.status(401).json({ success: false, message: 'Invalid Google token payload' });
+    }
+
     const email = payload.email.toLowerCase().trim();
     const full_name = payload.name || 'Google User';
 

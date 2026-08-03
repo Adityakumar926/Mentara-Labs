@@ -13,6 +13,7 @@ import useAuthStore from '@/store/authStore';
 import clsx from 'clsx';
 import MuxPlayer from '@mux/mux-player-react';
 import toast from 'react-hot-toast';
+import PdfViewerModal from '@/components/shared/PdfViewerModal';
 
 /* ─── CSS ─── */
 const CSS = `
@@ -417,6 +418,7 @@ export default function SubjectPage() {
   const [videoId, setVideoId]         = useState(null);
   const [activeVideoContentId, setActiveVideoContentId] = useState(null);
   const [activeSimulation, setActiveSimulation] = useState(null);
+  const [activePdfModal, setActivePdfModal] = useState(null);
   const { mutate: logActivity }       = useMutation(studentApi.logActivity);
 
   const lastProgressRef = useRef(0);
@@ -528,7 +530,7 @@ export default function SubjectPage() {
     }
     if (item.content_type === 'note') {
       if (item.file_url) {
-        window.open(item.file_url, '_blank');
+        setActivePdfModal({ url: item.file_url, title: item.title });
       }
       // Automatically track note completion on open
       studentApi.trackResource({ contentId: item.id, completed: true })
@@ -978,17 +980,13 @@ export default function SubjectPage() {
           </div>
         )}
 
-        {/* ── PDF Modal ── */}
-        <Modal open={!!pdfUrl} onClose={() => setPdfUrl(null)} title="Note" size="xl">
-          <div className="sp-modal-toolbar">
-            <a href={pdfUrl} target="_blank" rel="noreferrer" className="sp-open-link">
-              Open in new tab <ExternalLink size={12} />
-            </a>
-          </div>
-          <div style={{ borderRadius: 16, overflow: 'hidden', background: '#fff', height: 520 }}>
-            {pdfUrl && <iframe src={pdfUrl} title="Note PDF" className="w-full h-full" style={{ border: 'none', width: '100%', height: '100%' }} />}
-          </div>
-        </Modal>
+        {/* ── Custom Protected PDF Reader Modal ── */}
+        <PdfViewerModal
+          open={!!activePdfModal}
+          onClose={() => setActivePdfModal(null)}
+          pdfUrl={activePdfModal?.url}
+          title={activePdfModal?.title || 'Cambridge Primary Study Notes'}
+        />
 
         {/* ── Video Modal ── */}
         <Modal open={!!videoId} onClose={() => setVideoId(null)} title="Video" size="xl">

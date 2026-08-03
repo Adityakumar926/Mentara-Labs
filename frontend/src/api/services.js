@@ -60,7 +60,8 @@ export const adminApi = {
   uploadWorksheet:  (topicId, formData) => api.post(`/admin/topics/${topicId}/content/worksheet`, formData),
   replaceWorksheet: (contentId, formData) => api.put(`/admin/content/${contentId}/worksheet`, formData),
 
-  // Content — Videos (Mux direct upload flow)
+  // Content — Videos (Direct upload & Mux flow)
+  uploadVideo:      (topicId, formData, onUploadProgress) => api.post(`/admin/topics/${topicId}/content/video`, formData, { headers: { 'Content-Type': 'multipart/form-data' }, onUploadProgress }),
   createMuxUpload:  (topicId, data) => api.post(`/admin/topics/${topicId}/content/video/upload-url`, data),
   confirmMuxUpload: (contentId, data) => api.post(`/admin/content/${contentId}/video/confirm`, data),
 
@@ -147,6 +148,7 @@ export const studentApi = {
   getHeatmap:  (params) => api.get('/student/streak/heatmap', { params }),
 
   // Courses
+  getHierarchy:          ()          => api.get('/student/hierarchy'),
   getCurriculums:        ()          => api.get('/student/curriculums'),
   getAllCurriculums:     ()          => api.get('/student/all-curriculums'),
   getCurriculumClasses:  (currId)    => api.get(`/student/curriculums/${currId}/classes`),

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Search, Sparkles, BookOpen, FileText, Video, Image, 
-  ExternalLink, Eye, Play, Download, ChevronRight, Award, Lock, Clock, CheckCircle
+  ExternalLink, Eye, Play, Download, ChevronRight, Award, Lock, Clock, CheckCircle, ChevronDown, Check, Layers
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageWrapper, EmptyState, Button, Modal } from '@/components/ui';
@@ -13,6 +13,7 @@ import MuxPlayer from '@mux/mux-player-react';
 import clsx from 'clsx';
 import toast from 'react-hot-toast';
 import HierarchySidebar from '@/components/shared/HierarchySidebar';
+import PdfViewerModal from '@/components/shared/PdfViewerModal';
 
 /* ─── Premium Modern CSS ─── */
 const CSS = `
@@ -134,19 +135,80 @@ const CSS = `
     box-shadow: 0 0 16px rgba(34,211,238,0.25);
   }
 
-  /* ── SUBJECT FILTERS ── */
-  .ex-subjects { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; }
-  .ex-subject-pill {
-    padding: 0.4rem 0.9rem; border-radius: 50px; font-size: 0.72rem; font-weight: 700;
-    color: var(--muted); background: var(--local-card-bg); border: 2px solid var(--local-card-bdr);
-    cursor: pointer; transition: all 0.18s;
+  /* ── CUSTOM GLASS SUBJECT DROPDOWN ── */
+  .ex-dropdown-wrap {
+    position: relative;
+    min-width: 240px;
+    margin-bottom: 1.25rem;
   }
-  .ex-subject-pill:hover { color: var(--cream); border-color: var(--violet); }
-  .ex-subject-pill.active {
-    color: #fff;
-    background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(16, 185, 129, 0.15));
-    border-color: rgba(34, 211, 238, 0.35);
-    box-shadow: 0 4px 12px rgba(34,211,238,0.2);
+  .ex-dropdown-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 320px;
+    padding: 0.7rem 1.15rem;
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    color: #ffffff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    backdrop-filter: blur(16px);
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+  .ex-dropdown-btn:hover, .ex-dropdown-btn.open {
+    border-color: rgba(0, 212, 255, 0.5);
+    background: rgba(0, 212, 255, 0.08);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+    color: var(--cyan);
+  }
+
+  .ex-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 100%;
+    max-width: 320px;
+    background: rgba(15, 22, 41, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    padding: 0.5rem;
+    z-index: 50;
+    backdrop-filter: blur(24px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 212, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .ex-dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 0.85rem;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.83rem;
+    font-weight: 600;
+    color: var(--cream);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .ex-dropdown-item:hover {
+    background: rgba(0, 212, 255, 0.12);
+    color: var(--cyan);
+  }
+  .ex-dropdown-item.active {
+    background: rgba(0, 212, 255, 0.18);
+    color: var(--cyan);
+    font-weight: 700;
+    border: 1px solid rgba(0, 212, 255, 0.3);
   }
 
   /* ── SUB-TAB SELECTION FOR MATERIALS ── */
@@ -329,6 +391,18 @@ export default function Explore() {
   const [activeMatType, setActiveMatType] = useState('all'); // 'all', 'notes', 'video', 'worksheet'
   const [activeExamFilter, setActiveExamFilter] = useState('all'); // 'all', 'attempted', 'pending'
   const [searchQuery, setSearchQuery] = useState('');
+  const [subjectDropdownOpen, setSubjectDropdownOpen] = useState(false);
+  const subjectDropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (subjectDropdownRef.current && !subjectDropdownRef.current.contains(e.target)) {
+        setSubjectDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     setActiveMatType('all');
@@ -339,6 +413,7 @@ export default function Explore() {
   const [selectedVideoUrl, setSelectedVideoUrl] = useState(null);
   const [loadingActionId, setLoadingActionId] = useState(null);
   const [activeSimulation, setActiveSimulation] = useState(null);
+  const [activePdfModal, setActivePdfModal] = useState(null);
 
   // Fetch unified explore contents
   const { data: exploreData, loading, refetch } = useApi(studentApi.getExploreContents);
@@ -383,10 +458,10 @@ export default function Explore() {
       }
 
       // 3. Subject filter
-      if (activeSubjectName !== 'all' && c.subject_name?.trim().toLowerCase() !== activeSubjectName) return false;
+      if (activeSubjectName !== 'all' && (c.subject_name ? c.subject_name.trim().toLowerCase() : '') !== activeSubjectName) return false;
 
       // 4. Search query filter
-      if (searchQuery.trim() && !c.title?.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      if (searchQuery.trim() && !(c.title || '').toLowerCase().includes(searchQuery.toLowerCase())) return false;
 
       return true;
     });
@@ -403,10 +478,10 @@ export default function Explore() {
       }
 
       // Subject filter
-      if (activeSubjectName !== 'all' && e.subject_name?.trim().toLowerCase() !== activeSubjectName) return false;
+      if (activeSubjectName !== 'all' && (e.subject_name ? e.subject_name.trim().toLowerCase() : '') !== activeSubjectName) return false;
 
       // Search query filter
-      if (searchQuery.trim() && !e.title?.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      if (searchQuery.trim() && !(e.title || '').toLowerCase().includes(searchQuery.toLowerCase())) return false;
 
       // Attempted filter
       if (activeExamFilter === 'attempted' && e.submission_status !== 'submitted') return false;
@@ -460,11 +535,11 @@ export default function Explore() {
     }
   };
 
-  // Open note PDF directly
+  // Open note PDF inside custom PdfViewerModal with download protection
   const handleOpenNote = async (content) => {
     if (content.is_premium && !canViewContent) return;
     if (content.file_url) {
-      window.open(content.file_url, '_blank');
+      setActivePdfModal({ url: content.file_url, title: content.title });
     }
     setLoadingActionId(content.id);
     try {
@@ -813,23 +888,67 @@ export default function Explore() {
           </div>
         </div>
 
-        {/* ── SUBJECT PILL FILTERS ── */}
-        <div className="ex-subjects">
-          <button 
-            className={clsx('ex-subject-pill', activeSubjectName === 'all' && 'active')}
-            onClick={() => setActiveSubjectName('all')}
+        {/* ── CUSTOM GLASS SUBJECT DROPDOWN ── */}
+        <div className="ex-dropdown-wrap" ref={subjectDropdownRef}>
+          <button
+            type="button"
+            className={`ex-dropdown-btn ${subjectDropdownOpen ? 'open' : ''}`}
+            onClick={() => setSubjectDropdownOpen(!subjectDropdownOpen)}
           >
-            All Subjects
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <BookOpen size={16} color="var(--cyan)" />
+              <span>
+                {activeSubjectName === 'all'
+                  ? `All Subjects (${uniqueSubjects.length})`
+                  : (uniqueSubjects.find(s => s.key === activeSubjectName)?.name || activeSubjectName)}
+              </span>
+            </div>
+            <ChevronDown
+              size={16}
+              style={{
+                transform: subjectDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 0.25s ease',
+                color: 'var(--cyan)'
+              }}
+            />
           </button>
-          {uniqueSubjects.map(sub => (
-            <button
-              key={sub.key}
-              className={clsx('ex-subject-pill', activeSubjectName === sub.key && 'active')}
-              onClick={() => setActiveSubjectName(sub.key)}
-            >
-              {sub.name}
-            </button>
-          ))}
+
+          <AnimatePresence>
+            {subjectDropdownOpen && (
+              <motion.div
+                className="ex-dropdown-menu"
+                initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                transition={{ duration: 0.18 }}
+              >
+                <div
+                  className={`ex-dropdown-item ${activeSubjectName === 'all' ? 'active' : ''}`}
+                  onClick={() => { setActiveSubjectName('all'); setSubjectDropdownOpen(false); }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {activeSubjectName === 'all' && <Check size={14} color="var(--cyan)" />}
+                    <span>All Subjects</span>
+                  </div>
+                </div>
+
+                <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '4px 0' }} />
+
+                {uniqueSubjects.map((sub) => (
+                  <div
+                    key={sub.key}
+                    className={`ex-dropdown-item ${activeSubjectName === sub.key ? 'active' : ''}`}
+                    onClick={() => { setActiveSubjectName(sub.key); setSubjectDropdownOpen(false); }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {activeSubjectName === sub.key && <Check size={14} color="var(--cyan)" />}
+                      <span>{sub.name}</span>
+                    </div>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* ── TAB DETAILS ── */}
@@ -1126,6 +1245,14 @@ export default function Explore() {
             )}
           </div>
         </Modal>
+
+        {/* Modal: Custom Protected PDF Viewer */}
+        <PdfViewerModal
+          open={!!activePdfModal}
+          onClose={() => setActivePdfModal(null)}
+          pdfUrl={activePdfModal?.url}
+          title={activePdfModal?.title || 'Cambridge Primary Study Notes'}
+        />
 
           </div>
         </div>

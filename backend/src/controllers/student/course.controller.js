@@ -4,13 +4,28 @@ const db = require('../../config/db');
 
 exports.getMyCurriculums = async (req, res) => {
   try {
-    if (!req.user.curriculum_id) {
-      return res.json({ success: true, data: [] });
+    const isTeacherOrAdmin = req.user.role === 'teacher' || req.user.role === 'admin';
+    
+    // If teacher/admin or not restricted to a single curriculum, return ALL active curriculums
+    if (isTeacherOrAdmin || !req.user.curriculum_id) {
+      const { rows } = await db.query(
+        `SELECT
+           c.id, c.name, c.description, c.thumbnail_url,
+           (SELECT COUNT(*) FROM classes cl WHERE cl.curriculum_id = c.id) AS class_count,
+           (SELECT COUNT(*) FROM subjects s JOIN classes cl ON cl.id = s.class_id WHERE cl.curriculum_id = c.id) AS subject_count
+         FROM curriculums c
+         WHERE c.is_active = true
+         ORDER BY c.created_at ASC`
+      );
+      return res.json({ success: true, data: rows });
     }
+
+    // Specific student enrolled curriculum
     const { rows } = await db.query(
       `SELECT
          c.id, c.name, c.description, c.thumbnail_url,
-         (SELECT COUNT(*) FROM classes cl WHERE cl.curriculum_id = c.id) AS class_count
+         (SELECT COUNT(*) FROM classes cl WHERE cl.curriculum_id = c.id) AS class_count,
+         (SELECT COUNT(*) FROM subjects s JOIN classes cl ON cl.id = s.class_id WHERE cl.curriculum_id = c.id) AS subject_count
        FROM curriculums c
        WHERE c.id = $1 AND c.is_active = true`,
       [req.user.curriculum_id]
@@ -23,7 +38,10 @@ exports.getMyCurriculums = async (req, res) => {
 
 exports.getCurriculumSubjects = async (req, res) => {
   try {
-    if (req.user.curriculum_id !== req.params.curriculumId) {
+    const { curriculumId } = req.params;
+    const isTeacherOrAdmin = req.user.role === 'teacher' || req.user.role === 'admin';
+
+    if (!isTeacherOrAdmin && req.user.curriculum_id && req.user.curriculum_id !== curriculumId) {
       return res.status(403).json({ success: false, message: 'Access denied: not enrolled in this curriculum' });
     }
 
@@ -59,9 +77,9 @@ exports.getCurriculumSubjects = async (req, res) => {
        FROM subjects s
        JOIN classes cl ON cl.id = s.class_id
        JOIN curriculums curr ON curr.id = cl.curriculum_id
-       WHERE s.class_id = $1
-       ORDER BY s.order_index`,
-      [req.user.class_id, destination]
+       WHERE cl.curriculum_id = $1
+       ORDER BY s.order_index, s.name ASC`,
+      [curriculumId, destination]
     );
     res.json({ success: true, data: rows });
   } catch (err) {
@@ -73,12 +91,13 @@ exports.getCurriculumSubjects = async (req, res) => {
 exports.getSubjectTopics = async (req, res) => {
   try {
     const { subjectId } = req.params;
+    const isTeacherOrAdmin = req.user.role === 'teacher' || req.user.role === 'admin';
 
-    // Verify subject belongs to student's class
+    // Verify subject exists
     const { rows: access } = await db.query(
       `SELECT 1 FROM subjects s
-       WHERE s.id = $1 AND s.class_id = $2`,
-      [subjectId, req.user.class_id]
+       WHERE s.id = $1 AND ($3::boolean = true OR $2::uuid IS NULL OR s.class_id = $2)`,
+      [subjectId, req.user.class_id || null, Boolean(isTeacherOrAdmin)]
     );
     if (!access.length) {
       return res.status(403).json({ success: false, message: 'Access denied to this subject' });
@@ -550,6 +569,66 @@ exports.getScheduledExams = async (req, res) => {
        ORDER BY e.scheduled_at ASC`,
       [req.user.class_id || null, isTeacher]
     );
+    res.json({ success: true, data: rows });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// GET /student/hierarchy — full nested curriculum structure (Curriculums -> Classes (Stage 1 to N) -> Subjects -> Topics)
+exports.getCurriculumHierarchy = async (req, res) => {
+  try {
+    const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
+
+    const { rows } = await db.query(
+      `SELECT
+         c.id AS id,
+         c.name AS name,
+         c.description AS description,
+         (
+           SELECT COALESCE(json_agg(
+             json_build_object(
+               'id', cl.id,
+               'name', cl.name,
+               'description', cl.description,
+               'order_index', cl.order_index,
+               'curriculum_id', c.id,
+               'curriculum_name', c.name,
+               'subjects', (
+                 SELECT COALESCE(json_agg(
+                   json_build_object(
+                     'id', s.id,
+                     'name', s.name,
+                     'description', s.description,
+                     'order_index', s.order_index,
+                     'topic_count', (SELECT COUNT(*)::int FROM topics t WHERE t.subject_id = s.id),
+                     'topics', (
+                       SELECT COALESCE(json_agg(
+                         json_build_object(
+                           'id', t.id,
+                           'name', t.name,
+                           'description', t.description,
+                           'order_index', t.order_index,
+                           'resource_count', (SELECT COUNT(*)::int FROM content cnt WHERE cnt.topic_id = t.id AND cnt.destination IN ('shared', $1)),
+                           'exam_count', (SELECT COUNT(*)::int FROM exams e WHERE e.topic_id = t.id AND e.status IN ('live', 'scheduled', 'ended'))
+                         ) ORDER BY t.order_index, t.created_at ASC
+                       ), '[]'::json)
+                       FROM topics t WHERE t.subject_id = s.id
+                     )
+                   ) ORDER BY s.order_index, s.name ASC
+                 ), '[]'::json)
+                 FROM subjects s WHERE s.class_id = cl.id
+               )
+             ) ORDER BY cl.order_index ASC, cl.name ASC
+           ), '[]'::json)
+           FROM classes cl WHERE cl.curriculum_id = c.id
+         ) AS classes
+       FROM curriculums c
+       WHERE c.is_active = true
+       ORDER BY c.created_at ASC`,
+      [destination]
+    );
+
     res.json({ success: true, data: rows });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

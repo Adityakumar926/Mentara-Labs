@@ -629,8 +629,9 @@ function LiveTab({ exams, loading, isFiltered }) {
   }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <AlertBanner color="#EF4444" bg="rgba(239,68,68,0.06)" border="rgba(239,68,68,0.2)" icon={AlertCircle}>
-        Live exams are time-bound. Once you start, the timer begins and you cannot pause. Make sure you have a stable connection before attempting.
+      <AlertBanner color="var(--cyan)" bg="rgba(0, 212, 255, 0.06)" border="rgba(0, 212, 255, 0.25)" icon={Clock}>
+        <strong style={{ color: '#ffffff', marginRight: '6px' }}>Assessment Guidelines:</strong>
+        Live exams feature real-time timer tracking. Please ensure a stable internet connection before starting your test attempt.
       </AlertBanner>
       <div className="exams-grid">
         {exams.map((exam, idx) => <LiveExamCard key={exam.id} exam={exam} idx={idx} />)}

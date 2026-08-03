@@ -1,14 +1,14 @@
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { BookOpen, ChevronRight, Calendar, Layers } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { PageWrapper, Skeleton, EmptyState } from '@/components/ui';
+import { ChevronRight, Search, ChevronDown, ChevronUp, FolderTree, Layers, Check, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { PageWrapper, EmptyState } from '@/components/ui';
 import { useApi } from '@/hooks/useApi';
 import { studentApi } from '@/api/services';
 import useAuthStore from '@/store/authStore';
 
-/* ─── Design tokens (mirror ProfilePage / LandingPage) ─── */
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
   .cp-root {
     --navy:       var(--local-navy, #0A0E1A);
@@ -19,34 +19,30 @@ const CSS = `
     --cream:      var(--local-cream, #F5F0E8);
     --lavender:   var(--local-lavender, #C4B5FD);
     --muted:      var(--local-muted, rgba(245,240,232,0.45));
-    --card-bg:    rgba(255, 255, 255, 0.015);
-    --card-bdr:   rgba(255, 255, 255, 0.06);
+    --card-bg:    rgba(255, 255, 255, 0.02);
+    --card-bdr:   rgba(255, 255, 255, 0.08);
     font-family: 'Inter', sans-serif;
     color: var(--cream);
-    background-image: 
-      linear-gradient(to right, rgba(255, 255, 255, 0.01) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
-    background-size: 30px 30px;
   }
   .cp-root *, .cp-root *::before, .cp-root *::after { box-sizing: border-box; }
 
-  /* ── PAGE HEADER ── */
+  /* ── HEADER ── */
   .cp-header {
     position: relative;
-    background: linear-gradient(135deg, rgba(0,212,255,0.07) 0%, rgba(124,58,237,0.1) 60%, rgba(10,14,26,0) 100%);
+    background: linear-gradient(135deg, rgba(0,212,255,0.08) 0%, rgba(124,58,237,0.12) 60%, rgba(10,14,26,0.5) 100%);
     border: 1px solid var(--card-bdr);
     border-radius: 24px;
-    padding: 2rem 2.25rem;
+    padding: 2.25rem;
     overflow: hidden;
     backdrop-filter: blur(16px);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.75rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1.5rem;
   }
   .cp-header-image {
-    width: 180px;
+    width: 170px;
     height: 120px;
     object-fit: contain;
     flex-shrink: 0;
@@ -56,25 +52,22 @@ const CSS = `
   @media (max-width: 767px) {
     .cp-header-image { display: none; }
   }
-  .cp-header-blob {
-    position: absolute; border-radius: 50%; filter: blur(70px); pointer-events: none;
-  }
   .cp-header-blob-1 {
-    width: 250px; height: 250px;
-    background: radial-gradient(circle, rgba(0,212,255,0.15) 0%, transparent 70%);
-    top: -60px; left: -40px;
+    position: absolute; width: 250px; height: 250px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,212,255,0.18) 0%, transparent 70%);
+    top: -60px; left: -40px; pointer-events: none; filter: blur(60px);
   }
   .cp-header-blob-2 {
-    width: 220px; height: 220px;
-    background: radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%);
-    bottom: -50px; right: -20px;
+    position: absolute; width: 220px; height: 220px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,58,237,0.2) 0%, transparent 70%);
+    bottom: -50px; right: -20px; pointer-events: none; filter: blur(60px);
   }
   .cp-eyebrow {
     display: inline-flex; align-items: center; gap: 0.5rem;
     background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2);
-    padding: 0.3rem 0.85rem; border-radius: 50px;
-    font-size: 0.65rem; font-weight: 700; color: var(--cyan);
-    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.6rem;
+    padding: 0.35rem 0.95rem; border-radius: 50px;
+    font-size: 0.7rem; font-weight: 700; color: var(--cyan);
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.65rem;
   }
   .eyebrow-dot {
     width: 6px; height: 6px; border-radius: 50%;
@@ -89,313 +82,599 @@ const CSS = `
     font-weight: 900;
     letter-spacing: -0.03em;
     line-height: 1.1;
-    background: linear-gradient(135deg, var(--cream) 0%, var(--lavender) 100%);
+    background: linear-gradient(135deg, #FFFFFF 0%, var(--lavender) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.4rem;
   }
-  .cp-subtitle { font-size: 0.85rem; color: var(--muted); font-weight: 500; }
+  .cp-subtitle { font-size: 0.88rem; color: var(--muted); font-weight: 500; }
 
-  /* ── COURSE CARD ── */
-  .cp-card {
+  /* ── TOOLBAR (SEARCH + CUSTOM GLASS DROPDOWN) ── */
+  .cp-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    margin-bottom: 1.75rem;
+    flex-wrap: wrap;
+  }
+
+  /* CUSTOM DROPDOWN CONTAINER */
+  .cp-dropdown-wrap {
     position: relative;
-    background: var(--card-bg);
+    min-width: 260px;
+  }
+  .cp-dropdown-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.75rem 1.25rem;
+    background: rgba(15, 23, 42, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    color: #ffffff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    backdrop-filter: blur(16px);
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+  .cp-dropdown-btn:hover, .cp-dropdown-btn.open {
+    border-color: rgba(0, 212, 255, 0.5);
+    background: rgba(0, 212, 255, 0.08);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+    color: var(--cyan);
+  }
+
+  .cp-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 100%;
+    min-width: 280px;
+    background: rgba(15, 22, 41, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    padding: 0.5rem;
+    z-index: 50;
+    backdrop-filter: blur(24px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 212, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .cp-dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 0.95rem;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--cream);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .cp-dropdown-item:hover {
+    background: rgba(0, 212, 255, 0.12);
+    color: var(--cyan);
+  }
+  .cp-dropdown-item.active {
+    background: rgba(0, 212, 255, 0.18);
+    color: var(--cyan);
+    font-weight: 700;
+    border: 1px solid rgba(0, 212, 255, 0.3);
+  }
+  .cp-item-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--lavender);
+    background: rgba(124, 58, 237, 0.2);
+    padding: 0.15rem 0.55rem;
+    border-radius: 50px;
+  }
+
+  .cp-search-wrap {
+    position: relative;
+    min-width: 260px;
+    flex: 1;
+    max-width: 380px;
+  }
+  .cp-search-input {
+    width: 100%;
+    padding: 0.75rem 1.1rem 0.75rem 2.6rem;
+    border-radius: 16px;
+    border: 1px solid var(--card-bdr);
+    background: rgba(15, 22, 41, 0.75);
+    color: #ffffff;
+    font-size: 0.88rem;
+    outline: none;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(16px);
+  }
+  .cp-search-input:focus {
+    border-color: rgba(0, 212, 255, 0.5);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+  }
+  .cp-search-icon {
+    position: absolute;
+    left: 0.95rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  /* ── STAGE SECTION (Stage 1 to N) ── */
+  .cp-stage-card {
+    background: rgba(15, 22, 41, 0.65);
     border: 1px solid var(--card-bdr);
     border-radius: 24px;
     overflow: hidden;
+    margin-bottom: 2rem;
     backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
-    display: flex; flex-direction: column;
-    text-decoration: none; color: inherit;
-    cursor: pointer;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
   }
-  .cp-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 12px 30px -10px rgba(34, 211, 238, 0.15), 0 4px 30px rgba(0, 0, 0, 0.15);
+  .cp-stage-header {
+    padding: 1.5rem 1.75rem;
+    background: linear-gradient(90deg, rgba(124, 58, 237, 0.15) 0%, rgba(0, 212, 255, 0.06) 100%);
+    border-bottom: 1px solid var(--card-bdr);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
   }
-  .cp-card::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(34, 211, 238, 0.08) 0%, transparent 60%);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.25s;
+  .cp-stage-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    letter-spacing: -0.02em;
   }
-  .cp-card:hover::before { opacity: 1; }
-
-  /* Thumbnail */
-  .cp-thumb {
-    height: 160px; position: relative; overflow: hidden;
-    flex-shrink: 0;
-  }
-  .cp-thumb img {
-    width: 100%; height: 100%; object-fit: cover;
-  }
-  .cp-thumb-fallback {
-    width: 100%; height: 100%;
-    background: linear-gradient(135deg, rgba(124,58,237,0.18) 0%, var(--local-navy2) 60%, rgba(0,212,255,0.08) 100%);
-    display: flex; align-items: center; justify-content: center;
-  }
-  .cp-thumb-icon {
-    width: 56px; height: 56px; border-radius: 18px;
-    background: rgba(124,58,237,0.15);
-    border: 2px solid rgba(124,58,237,0.3);
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.2s;
-  }
-  .cp-card:hover .cp-thumb-icon { background: rgba(124,58,237,0.22); }
-
-  /* Gradient overlay on thumb */
-  .cp-thumb::after {
-    content: '';
-    position: absolute; inset: 0;
-    background: linear-gradient(to top, rgba(10,14,26,0.85) 0%, transparent 55%);
-    pointer-events: none;
-  }
-
-  /* Batch pill overlaid on thumb bottom */
-  .cp-batch-pill {
-    position: absolute;
-    bottom: 10px; left: 12px; z-index: 2;
-    background: rgba(124,58,237,0.85);
-    backdrop-filter: blur(8px);
-    border: 1.5px solid rgba(255,255,255,0.12);
+  .cp-stage-badge {
+    padding: 0.25rem 0.8rem;
     border-radius: 50px;
-    padding: 0.2rem 0.65rem;
-    font-size: 0.65rem; font-weight: 700;
-    color: #fff; letter-spacing: 0.04em;
+    background: rgba(124, 58, 237, 0.25);
+    border: 1px solid rgba(124, 58, 237, 0.4);
+    font-size: 0.72rem;
+    color: var(--lavender);
+    font-weight: 800;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
   }
 
-  /* Body */
-  .cp-body { padding: 1.25rem; flex: 1; display: flex; flex-direction: column; gap: 0.75rem; }
-  .cp-course-name {
+  /* ── SUBJECT GRID INSIDE STAGE ── */
+  .cp-subjects-container {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .cp-subject-card {
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid var(--card-bdr);
+    border-radius: 20px;
+    padding: 1.25rem;
+    transition: all 0.25s ease;
+    display: flex;
+    flex-direction: column;
+  }
+  .cp-subject-card:hover {
+    border-color: rgba(0, 212, 255, 0.35);
+    background: rgba(0, 212, 255, 0.04);
+    box-shadow: 0 10px 30px -10px rgba(0, 212, 255, 0.18);
+  }
+
+  .cp-subj-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .cp-subj-title {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.95rem; font-weight: 700;
-    line-height: 1.3; color: var(--cream);
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.01em;
   }
-  .cp-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-weight: 600; }
 
-  /* Footer row */
-  .cp-footer {
-    display: flex; align-items: center; justify-content: space-between;
+  /* ── TOPICS TREE ACCORDION ── */
+  .cp-topics-list {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
     padding-top: 0.75rem;
-    border-top: 2px solid var(--card-bdr);
-    margin-top: auto;
   }
-  .cp-meta { display: flex; align-items: center; gap: 0.9rem; }
-  .cp-meta-item { display: flex; align-items: center; gap: 0.3rem; font-size: 0.68rem; color: var(--muted); font-weight: 600; }
-  .cp-arrow {
-    width: 28px; height: 28px; border-radius: 10px;
-    background: rgba(124,58,237,0.1);
-    border: 2px solid rgba(124,58,237,0.25);
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.2s, border-color 0.2s, transform 0.2s;
-    flex-shrink: 0;
+  .cp-topic-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.6rem 0.85rem;
+    border-radius: 12px;
+    background: rgba(15, 22, 41, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
   }
-  .cp-card:hover .cp-arrow {
-    background: rgba(124,58,237,0.25);
-    border-color: var(--violet);
-    transform: translateX(2px);
+  .cp-topic-item:hover {
+    background: rgba(124, 58, 237, 0.18);
+    border-color: rgba(124, 58, 237, 0.35);
+    transform: translateX(3px);
+  }
+  .cp-topic-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--cream);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .cp-topic-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+  .cp-meta-chip {
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    font-weight: 600;
   }
 
-  /* Shimmer skeleton */
-  .cp-skeleton {
-    background: linear-gradient(90deg, var(--color-surface-border) 25%, var(--color-surface-hover) 50%, var(--color-surface-border) 75%);
-    background-size: 200% 100%;
-    animation: cp-shimmer 1.6s ease infinite;
-    border-radius: 14px;
+  .cp-expand-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    margin-top: 0.75rem;
+    padding: 0.5rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--cyan);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
   }
-  @keyframes cp-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-
-  /* Count badge */
-  .cp-count-badge {
-    display: inline-flex; align-items: center; gap: 0.5rem;
-    background: rgba(0,212,255,0.08);
-    border: 2px solid rgba(0,212,255,0.3);
-    border-radius: 50px;
-    padding: 0.25rem 0.75rem;
-    font-size: 0.72rem; font-weight: 700; color: var(--cyan);
-  }
-
-  /* ── Light Mode Overrides ── */
-  .light .cp-header {
-    background: linear-gradient(135deg, rgba(34, 211, 238, 0.12) 0%, rgba(124, 58, 237, 0.18) 60%, rgba(248, 250, 252, 0.8) 100%);
-    border-color: #D2D6FF;
-  }
-  .light .cp-card {
-    background: #F3F4FD;
-    border-color: #D2D6FF;
-  }
-  .light .cp-card:hover {
-    border-color: #B2B9FF;
-    background: #EBEFFF;
-    box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.08);
-  }
-  .light .cp-course-name {
-    color: #0F172A;
-  }
-  .light .cp-footer {
-    border-top-color: #D2D6FF !important;
+  .cp-expand-btn:hover {
+    background: rgba(0, 212, 255, 0.1);
+    border-color: rgba(0, 212, 255, 0.3);
   }
 `;
 
-const fmt = (d) =>
-  d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : null;
-
-/* Cursor-tracking glow on each card */
-function useMouseGlow(ref) {
-  const onMove = (e) => {
-    const r = ref.current?.getBoundingClientRect();
-    if (!r) return;
-    const x = ((e.clientX - r.left) / r.width)  * 100;
-    const y = ((e.clientY - r.top)  / r.height) * 100;
-    if (ref.current) {
-      ref.current.style.setProperty('--mx', `${x}%`);
-      ref.current.style.setProperty('--my', `${y}%`);
-    }
-  };
-  return { onMouseMove: onMove };
-}
-
-import { useRef } from 'react';
-
-function CourseCard({ c, index }) {
-  const ref = useRef(null);
-  const glowProps = useMouseGlow(ref);
-
-  return (
-    <motion.div
-      key={`${c.id}-${c.batch_id}`}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.06, duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-    >
-      <Link
-        to={`/courses/${c.id}/subjects`}
-        ref={ref}
-        className="cp-card"
-        {...glowProps}
-      >
-        {/* Thumbnail */}
-        <div className="cp-thumb">
-          {c.thumbnail_url ? (
-            <img src={c.thumbnail_url} alt={c.name} />
-          ) : (
-            <div className="cp-thumb-fallback">
-              <div className="cp-thumb-icon">
-                <BookOpen size={26} color="rgba(196,181,253,0.7)" />
-              </div>
-            </div>
-          )}
-          <div className="cp-batch-pill">{c.batch_name}</div>
-        </div>
-
-        {/* Body */}
-        <div className="cp-body">
-          <div className="cp-course-name">{c.name}</div>
-          {c.description && <p className="cp-desc">{c.description}</p>}
-
-          <div className="cp-footer">
-            <div className="cp-meta">
-              <span className="cp-meta-item">
-                <Layers size={10} style={{ color: 'var(--violet-l)' }} />
-                {c.subject_count ?? 0} subjects
-              </span>
-              {c.end_date && (
-                <span className="cp-meta-item">
-                  <Calendar size={10} style={{ color: 'var(--cyan)' }} />
-                  Until {fmt(c.end_date)}
-                </span>
-              )}
-            </div>
-            <div className="cp-arrow">
-              <ChevronRight size={13} color="var(--violet-l)" />
-            </div>
-          </div>
-        </div>
-      </Link>
-    </motion.div>
-  );
-}
-
 export default function CoursesPage() {
   const user = useAuthStore((s) => s.user);
-  const { data: curriculums, loading } = useApi(studentApi.getCurriculums);
-  const list = curriculums ?? [];
+
+  // Fetch full nested hierarchy (Stage 1 to N -> Subjects -> Topics)
+  const { data: hierarchy, loading } = useApi(studentApi.getHierarchy);
+  
+  const stagesList = useMemo(() => {
+    if (!hierarchy || !Array.isArray(hierarchy)) return [];
+    if (hierarchy[0] && hierarchy[0].classes) {
+      return hierarchy.flatMap((c) => c.classes || []);
+    }
+    return hierarchy;
+  }, [hierarchy]);
+
+  const [selectedStage, setSelectedStage]       = useState('ALL');
+  const [search, setSearch]                     = useState('');
+  const [dropdownOpen, setDropdownOpen]         = useState(false);
+  const [expandedSubjects, setExpandedSubjects] = useState({});
+
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   if (user && user.role === 'student' && user.curriculum_id) {
     return <Navigate to={`/courses/${user.curriculum_id}/subjects`} replace />;
   }
+
+  const toggleExpand = (subjectId) => {
+    setExpandedSubjects((prev) => ({ ...prev, [subjectId]: !prev[subjectId] }));
+  };
+
+  // Filter stages (Stage 1 to N), subjects, and topics based on search & dropdown selection
+  const filteredStages = useMemo(() => {
+    const q = search.trim().toLowerCase();
+
+    return stagesList
+      .filter((stage) => selectedStage === 'ALL' || stage.name.toLowerCase() === selectedStage.toLowerCase())
+      .map((stage) => {
+        const stageNameMatch = Boolean(q && stage.name.toLowerCase().includes(q));
+
+        const matchingSubjects = (stage.subjects || []).filter((subj) => {
+          // If query is empty or matches stage name itself (e.g. "stage"), show all subjects in this stage!
+          if (!q || stageNameMatch) return true;
+          const matchSubj  = subj.name.toLowerCase().includes(q) || (subj.description && subj.description.toLowerCase().includes(q));
+          const matchTopic = (subj.topics || []).some((t) => t.name.toLowerCase().includes(q));
+          return matchSubj || matchTopic;
+        });
+
+        return { ...stage, subjects: matchingSubjects };
+      })
+      .filter((stage) => !q || stage.subjects.length > 0);
+  }, [stagesList, selectedStage, search]);
+
+  const selectedStageObj = useMemo(() => {
+    if (selectedStage === 'ALL') return null;
+    return stagesList.find((s) => s.name.toLowerCase() === selectedStage.toLowerCase());
+  }, [selectedStage, stagesList]);
 
   return (
     <PageWrapper className="p-6">
       <style>{CSS}</style>
       <div className="cp-root">
 
-        {/* Header */}
+        {/* Hero Header */}
         <motion.div
           className="cp-header"
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <div className="cp-header-blob cp-header-blob-1" />
-          <div className="cp-header-blob cp-header-blob-2" />
+          <div className="cp-header-blob-1" />
+          <div className="cp-header-blob-2" />
           <div style={{ position: 'relative', zIndex: 1, flex: 1 }}>
             <div className="cp-eyebrow">
               <span className="eyebrow-dot" />
-              Your Learning
+              Stage-Wise Curriculum Directory
             </div>
-            <h1 className="cp-title">My Courses</h1>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.5rem' }}>
-              <p className="cp-subtitle">All your enrolled curriculums in one place</p>
-              {!loading && (
-                <motion.span
-                  className="cp-count-badge"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <BookOpen size={11} />
-                  {list.length} curriculum{list.length !== 1 ? 's' : ''}
-                </motion.span>
-              )}
-            </div>
+            <h1 className="cp-title">Stages & Subjects Portal</h1>
+            <p className="cp-subtitle">Browse Stage 1 to N with nested Subjects, Chapters, and Learning Materials.</p>
           </div>
-          <img src="/courses.png?v=2" alt="" className="cp-header-image" />
+          <img src="/courses.png?v=2" alt="Courses" className="cp-header-image" />
         </motion.div>
 
-        {/* Grid */}
-        {loading ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
-            {Array(4).fill(0).map((_, i) => (
-              <div key={i} style={{ borderRadius: 24, overflow: 'hidden', border: '1px solid var(--local-card-bdr)', background: 'var(--local-card-bg)' }}>
-                <div className="cp-skeleton" style={{ height: 160 }} />
-                <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <div className="cp-skeleton" style={{ height: 18, width: '70%' }} />
-                  <div className="cp-skeleton" style={{ height: 13, width: '90%' }} />
-                  <div className="cp-skeleton" style={{ height: 13, width: '55%' }} />
-                </div>
+        {/* Toolbar with Modern Custom Glass Dropdown */}
+        <div className="cp-toolbar">
+
+          {/* CUSTOM GLASS DROPDOWN */}
+          <div className="cp-dropdown-wrap" ref={dropdownRef}>
+            <button
+              type="button"
+              className={`cp-dropdown-btn ${dropdownOpen ? 'open' : ''}`}
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Layers size={16} color="var(--cyan)" />
+                <span>
+                  {selectedStage === 'ALL'
+                    ? `All Stages (${stagesList.length})`
+                    : selectedStageObj
+                    ? `${selectedStageObj.name} (${(selectedStageObj.subjects || []).length} Subjects)`
+                    : selectedStage}
+                </span>
               </div>
+              <ChevronDown
+                size={16}
+                style={{
+                  transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.25s ease',
+                  color: 'var(--cyan)'
+                }}
+              />
+            </button>
+
+            <AnimatePresence>
+              {dropdownOpen && (
+                <motion.div
+                  className="cp-dropdown-menu"
+                  initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                  transition={{ duration: 0.18 }}
+                >
+                  <div
+                    className={`cp-dropdown-item ${selectedStage === 'ALL' ? 'active' : ''}`}
+                    onClick={() => { setSelectedStage('ALL'); setDropdownOpen(false); }}
+                  >
+                    <span>All Stages</span>
+                    <span className="cp-item-badge">{stagesList.length} Stages</span>
+                  </div>
+
+                  <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '4px 0' }} />
+
+                  {stagesList.map((stg) => (
+                    <div
+                      key={stg.id}
+                      className={`cp-dropdown-item ${selectedStage === stg.name ? 'active' : ''}`}
+                      onClick={() => { setSelectedStage(stg.name); setDropdownOpen(false); }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {selectedStage === stg.name && <Check size={14} color="var(--cyan)" />}
+                        <span>{stg.name}</span>
+                      </div>
+                      <span className="cp-item-badge">{(stg.subjects || []).length} Subjects</span>
+                    </div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* SEARCH BAR */}
+          <div className="cp-search-wrap">
+            <Search size={15} className="cp-search-icon" />
+            <input
+              type="text"
+              placeholder="Search stage, subject, or topic..."
+              className="cp-search-input"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* Stage 1 to N Hierarchy List */}
+        {loading ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {Array(3).fill(0).map((_, i) => (
+              <div key={i} style={{ height: 220, borderRadius: 24, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }} />
             ))}
           </div>
-        ) : list.length === 0 ? (
+        ) : filteredStages.length === 0 ? (
           <EmptyState
-            icon={BookOpen}
-            title="No courses yet"
-            description="You haven't been enrolled in any batch. Contact your admin to get started."
+            icon={FolderTree}
+            title="No stages found"
+            description="Try clearing your search query or selecting a different stage from the dropdown."
           />
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
-            {list.map((c, i) => (
-              <CourseCard key={`${c.id}-${c.batch_id}`} c={c} index={i} />
-            ))}
-          </div>
+          filteredStages.map((stage) => {
+            const totalTopics = (stage.subjects || []).reduce((sum, s) => sum + (s.topic_count || 0), 0);
+
+            return (
+              <motion.div
+                key={stage.id}
+                className="cp-stage-card"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35 }}
+              >
+                {/* Stage 1 to N Header Card */}
+                <div className="cp-stage-header">
+                  <div>
+                    <div className="cp-stage-name">
+                      <span>{stage.name}</span>
+                      <span className="cp-stage-badge">{stage.curriculum_name || 'Curriculum Stage'}</span>
+                    </div>
+                    {stage.description && <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.2rem' }}>{stage.description}</p>}
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--cyan)', fontWeight: 800, background: 'rgba(0,212,255,0.1)', padding: '0.35rem 0.85rem', borderRadius: 50 }}>
+                      {(stage.subjects || []).length} Subjects
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--lavender)', fontWeight: 800, background: 'rgba(124,58,237,0.15)', padding: '0.35rem 0.85rem', borderRadius: 50 }}>
+                      {totalTopics} Topics
+                    </span>
+                  </div>
+                </div>
+
+                {/* Subjects & Topics Grid inside this Stage */}
+                <div className="cp-subjects-container">
+                  {(stage.subjects || []).map((subject) => {
+                    const isExpanded = expandedSubjects[subject.id] || false;
+                    const visibleTopics = isExpanded ? (subject.topics || []) : (subject.topics || []).slice(0, 3);
+                    const hasMore = (subject.topics || []).length > 3;
+
+                    return (
+                      <div key={subject.id} className="cp-subject-card">
+                        <div className="cp-subj-top">
+                          <div>
+                            <div className="cp-subj-title">{subject.name}</div>
+                            {subject.description && <p style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '2px' }}>{subject.description}</p>}
+                          </div>
+                          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--cyan)', background: 'rgba(0,212,255,0.1)', padding: '0.2rem 0.65rem', borderRadius: 50 }}>
+                            {subject.topic_count || 0} chapters
+                          </span>
+                        </div>
+
+                        {/* Topics List inside Subject */}
+                        <div className="cp-topics-list">
+                          {(subject.topics || []).length === 0 ? (
+                            <div style={{ fontSize: '0.75rem', color: 'var(--muted)', fontStyle: 'italic', padding: '0.4rem 0' }}>
+                              No topics added yet for this subject.
+                            </div>
+                          ) : (
+                            visibleTopics.map((topic, idx) => (
+                              <Link
+                                key={topic.id}
+                                to={`/topics/${topic.id}`}
+                                className="cp-topic-item"
+                              >
+                                <div className="cp-topic-name">
+                                  <span style={{ color: 'var(--cyan)', fontSize: '0.7rem', fontWeight: 800 }}>#{String(idx + 1).padStart(2, '0')}</span>
+                                  <span>{topic.name}</span>
+                                </div>
+                                <div className="cp-topic-meta">
+                                  {topic.resource_count > 0 && (
+                                    <span className="cp-meta-chip">{topic.resource_count} items</span>
+                                  )}
+                                  {topic.exam_count > 0 && (
+                                    <span className="cp-meta-chip" style={{ color: '#F59E0B' }}>{topic.exam_count} exams</span>
+                                  )}
+                                  <ChevronRight size={12} color="var(--violet-l)" />
+                                </div>
+                              </Link>
+                            ))
+                          )}
+                        </div>
+
+                        {/* Expand Button */}
+                        {hasMore && (
+                          <button
+                            type="button"
+                            className="cp-expand-btn"
+                            onClick={() => toggleExpand(subject.id)}
+                          >
+                            {isExpanded ? (
+                              <>
+                                <span>Show Less</span>
+                                <ChevronUp size={14} />
+                              </>
+                            ) : (
+                              <>
+                                <span>View All {subject.topics.length} Topics</span>
+                                <ChevronDown size={14} />
+                              </>
+                            )}
+                          </button>
+                        )}
+
+                        {/* View Full Subject Link */}
+                        <Link
+                          to={`/subjects/${subject.id}`}
+                          style={{
+                            marginTop: 'auto',
+                            paddingTop: '0.75rem',
+                            fontSize: '0.78rem',
+                            fontWeight: 700,
+                            color: 'var(--cyan)',
+                            textDecoration: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          <span>Explore Subject Chapters</span>
+                          <ChevronRight size={13} />
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            );
+          })
         )}
       </div>
     </PageWrapper>
