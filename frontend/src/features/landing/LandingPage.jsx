@@ -123,7 +123,7 @@ function Header() {
         scrolled ? "bg-zinc-950/90 backdrop-blur-xl border-b border-white/5 h-16" : "bg-transparent h-20"
       } flex items-center`}
     >
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 w-full flex items-center justify-between">
+      <div className="max-w-[1480px] mx-auto px-6 lg:px-12 w-full flex items-center justify-between">
         <a href="#" data-testid="brand-logo" className="flex items-center gap-3 group">
           <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-11 w-11 object-contain transition-transform duration-300 group-hover:scale-105" />
           <span className="font-display font-bold text-[26px] tracking-tight header-gradient-text">Mentara Labs</span>
@@ -237,7 +237,7 @@ function Hero() {
       {/* Grid background */}
       <div className="absolute inset-0 -z-10 bg-grid opacity-30 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]" />
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 grid lg:grid-cols-12 gap-12 items-center">
+      <div className="max-w-[1480px] mx-auto px-6 lg:px-12 grid lg:grid-cols-12 gap-12 items-center">
         {/* Left Column Info */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -503,7 +503,7 @@ function Hero() {
         </motion.div>
       </div>
 
-      <div className="mt-8 max-w-7xl mx-auto px-6 lg:px-8 flex items-center gap-2 text-zinc-500 font-semibold">
+      <div className="mt-8 max-w-[1480px] mx-auto px-6 lg:px-12 flex items-center gap-2 text-zinc-500 font-semibold">
         <ChevronRight className="h-3.5 w-3.5" />
         <span className="font-mono-label text-[10px] uppercase tracking-[0.22em]">Trusted by educators worldwide</span>
       </div>
@@ -560,7 +560,7 @@ function GogoAiTutorSection() {
       {/* Ambient Radial Background Light */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[800px] bg-gradient-to-r from-cyan-500/10 via-purple-600/15 to-emerald-500/10 blur-[140px] pointer-events-none -z-10" />
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
@@ -756,7 +756,7 @@ function GogoAiTutorSection() {
 function FeaturesBento() {
   return (
     <section id="features" data-testid="features-section" className="relative py-8 lg:py-10 bg-zinc-950/20">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
         <div className="max-w-2xl mb-16">
           <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-emerald-400">
             · The platform
@@ -1106,7 +1106,7 @@ function LearningJourney() {
 
   return (
     <section data-testid="journey-section" className="relative py-12 lg:py-14 bg-zinc-950 border-y border-white/5">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 grid lg:grid-cols-12 gap-12">
+      <div className="max-w-[1480px] mx-auto px-6 lg:px-12 grid lg:grid-cols-12 gap-12">
         <div className="lg:col-span-4 lg:sticky lg:top-32 lg:self-start">
           <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
             · Learning journey
@@ -1182,7 +1182,7 @@ function SubjectsGrid() {
 
   return (
     <section id="subjects" data-testid="subjects-section" className="relative py-8 lg:py-10 bg-zinc-950/10">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8">
           <div className="max-w-xl">
             <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-emerald-400">
@@ -1247,7 +1247,7 @@ function Testimonials() {
 
   return (
     <section id="testimonials" data-testid="testimonials-section" className="relative py-8 lg:py-10 bg-zinc-950 border-y border-white/5">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
         <div className="max-w-2xl mb-8">
           <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
             · Student stories
@@ -1395,7 +1395,7 @@ function Pricing() {
 
   return (
     <section id="pricing" data-testid="pricing-section" className="relative pt-4 pb-8 bg-zinc-950/20">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
         <div className="max-w-2xl mb-6">
           <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-emerald-400">
             · Pricing
@@ -1409,12 +1409,12 @@ function Pricing() {
           <p className="text-zinc-400 mt-5 text-lg">No hidden fees. Built for learners and teachers alike.</p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-5 items-stretch">
+        <div className="grid lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
           {PLANS.map((p) => (
             <div
               key={p.id}
               data-testid={`plan-${p.id}`}
-              className={`relative rounded-2xl border p-5 backdrop-blur-2xl transition-all duration-300 flex flex-col justify-between ${
+              className={`relative rounded-3xl border p-7 sm:p-8 backdrop-blur-2xl transition-all duration-300 flex flex-col justify-between min-h-[560px] sm:min-h-[600px] ${
                 p.highlight
                   ? "border-cyan-500/50 bg-gradient-to-br from-cyan-500/[0.08] via-zinc-900/60 to-emerald-500/[0.08] shadow-[0_0_50px_-15px_rgba(34,211,238,0.35)]"
                   : p.id === "teacher"
@@ -1424,7 +1424,7 @@ function Pricing() {
             >
               {/* Badge */}
               {p.badge && (
-                <div className="absolute -top-3 left-6 px-3 py-0.5 rounded-full text-[9px] font-mono-label uppercase tracking-[0.18em] bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 font-black shadow-md">
+                <div className="absolute -top-3.5 left-7 px-3.5 py-1 rounded-full text-[9.5px] font-mono-label uppercase tracking-[0.2em] bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 font-black shadow-md">
                   {p.badge}
                 </div>
               )}
@@ -1432,32 +1432,32 @@ function Pricing() {
               <div>
                 {/* Header */}
                 <div className="flex items-center justify-between">
-                  <span className={`font-mono-label text-[11px] uppercase tracking-[0.22em] font-black ${
+                  <span className={`font-mono-label text-xs uppercase tracking-[0.24em] font-black ${
                     p.highlight ? "text-cyan-400" : p.id === "teacher" ? "text-violet-400" : "text-zinc-400"
                   }`}>
                     {p.name}
                   </span>
                 </div>
 
-                {/* Compact Price Block */}
-                <div className="mt-2 space-y-0.5">
+                {/* Price Block */}
+                <div className="mt-4 space-y-1.5">
                   {/* Original price row */}
-                  <div className="h-5 flex items-center gap-1.5">
+                  <div className="h-5 flex items-center gap-2">
                     {p.originalPrice ? (
                       <>
                         <span className="text-xs line-through text-zinc-500 font-semibold">{p.originalPrice}</span>
-                        <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase tracking-wider">
+                        <span className="text-[9.5px] font-bold px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase tracking-wider">
                           {p.discountBadge}
                         </span>
                       </>
                     ) : (
-                      <span className="text-[10px] text-zinc-500 font-mono-label uppercase tracking-wider">Standard Access</span>
+                      <span className="text-[10.5px] text-zinc-500 font-mono-label uppercase tracking-wider font-bold">Standard Access</span>
                     )}
                   </div>
 
                   {/* Main Price display */}
-                  <div className="flex items-baseline gap-1.5">
-                    <span className={`font-display text-4xl sm:text-5xl font-black tracking-tight ${
+                  <div className="flex items-baseline gap-2">
+                    <span className={`font-display text-5xl sm:text-6xl font-black tracking-tight ${
                       p.highlight
                         ? "bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(52,211,153,0.2)]"
                         : p.id === "teacher"
@@ -1470,9 +1470,9 @@ function Pricing() {
                   </div>
 
                   {/* Savings pill row */}
-                  <div className="h-6 flex items-center">
+                  <div className="h-7 flex items-center pt-1">
                     {p.savingsAmount ? (
-                      <div className={`text-[10.5px] font-semibold flex items-center gap-1 rounded-full py-0.5 px-2.5 border ${
+                      <div className={`text-xs font-semibold flex items-center gap-1 rounded-full py-1 px-3 border ${
                         p.highlight
                           ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
                           : "text-violet-400 bg-violet-500/10 border-violet-500/20"
@@ -1480,33 +1480,33 @@ function Pricing() {
                         <span>🎉 You save {p.savingsAmount} instantly</span>
                       </div>
                     ) : (
-                      <div className="text-[10.5px] font-semibold text-zinc-500 rounded-full py-0.5 px-2.5 border border-white/5 bg-white/[0.02]">
+                      <div className="text-xs font-semibold text-zinc-400 rounded-full py-1 px-3 border border-white/5 bg-white/[0.02]">
                         ✓ Free forever
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* Compact Description */}
-                <p className="text-xs sm:text-[13px] text-zinc-400 mt-2.5 leading-snug min-h-[32px]">{p.description}</p>
+                {/* Description */}
+                <p className="text-xs sm:text-sm text-zinc-400 mt-4 leading-relaxed min-h-[44px]">{p.description}</p>
 
                 {/* Divider */}
-                <div className={`my-3 h-px w-full ${
+                <div className={`my-5 h-px w-full ${
                   p.highlight ? "bg-cyan-500/20" : p.id === "teacher" ? "bg-violet-500/20" : "bg-white/10"
                 }`} />
 
-                {/* Compact Features Checklist */}
-                <ul className="space-y-2 pb-3">
+                {/* Features Checklist */}
+                <ul className="space-y-3.5 pb-4">
                   {p.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-xs sm:text-[13px] text-zinc-200">
-                      <div className={`h-4 w-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                    <li key={f} className="flex items-start gap-3 text-xs sm:text-sm text-zinc-200">
+                      <div className={`h-4.5 w-4.5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
                         p.highlight 
                           ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/30" 
                           : p.id === "teacher" 
                           ? "bg-purple-500/10 text-violet-400 border border-purple-500/30"
                           : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
                       }`}>
-                        <Check className="h-2.5 w-2.5 stroke-[3]" />
+                        <Check className="h-3 w-3 stroke-[3]" />
                       </div>
                       <span className="font-medium leading-tight">{f}</span>
                     </li>
@@ -1514,21 +1514,21 @@ function Pricing() {
                 </ul>
               </div>
 
-              {/* Bottom Pinned Compact CTA Button */}
-              <div className="pt-3 border-t border-white/5 mt-auto">
+              {/* Bottom Pinned CTA Button */}
+              <div className="pt-5 border-t border-white/5 mt-auto">
                 <Link
                   to="/register"
                   data-testid={`plan-cta-${p.id}`}
-                  className={`inline-flex w-full items-center justify-center gap-1.5 px-5 py-2.5 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 ${
+                  className={`inline-flex w-full items-center justify-center gap-2 px-6 py-3.5 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 ${
                     p.highlight
-                      ? "bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 hover:shadow-[0_0_30px_rgba(34,211,238,0.45)] hover:scale-[1.01]"
+                      ? "bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 hover:shadow-[0_0_35px_rgba(34,211,238,0.5)] hover:scale-[1.01]"
                       : p.id === "teacher"
                       ? "bg-gradient-to-r from-violet-500/30 to-purple-500/30 border border-violet-500/50 text-violet-200 hover:bg-violet-500/40 hover:border-violet-400/80 hover:text-white"
                       : "border border-white/20 text-white bg-white/[0.03] hover:bg-white/[0.08] hover:border-white/40"
                   }`}
                 >
                   {p.cta}
-                  <ArrowUpRight className="h-3.5 w-3.5" />
+                  <ArrowUpRight className="h-4 w-4" />
                 </Link>
               </div>
             </div>
@@ -1627,7 +1627,7 @@ function Footer() {
       {/* Glow */}
       <div className="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[60%] bg-gradient-to-r from-cyan-500/10 via-cyan-500/5 to-emerald-500/10 blur-3xl pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 relative">
+      <div className="max-w-[1480px] mx-auto px-6 lg:px-12 relative">
         {/* Links grid */}
         <div className="grid lg:grid-cols-12 gap-10 pb-8">
           <div className="lg:col-span-4">
@@ -1699,7 +1699,7 @@ function Showcase() {
       badge: "Curriculum-Aligned Framework",
       desc: "Empower young minds with interactive lessons, 3D science labs, and drawing worksheets built for Cambridge Primary Stage 1 to 6.",
       img: "/cam1.webp",
-      color: "from-cyan-500/20 to-transparent",
+      color: "from-cyan-500/20 via-blue-600/10 to-transparent",
       accent: "text-cyan-400",
       btnText: "Explore Curriculum →"
     },
@@ -1709,7 +1709,7 @@ function Showcase() {
       badge: "Next-Gen Virtual Suite",
       desc: "Transform lessons into rich digital experiences with interactive whiteboards, live simulations, and auto-submitted checkpoint practice.",
       img: "/feature.webp",
-      color: "from-emerald-500/20 to-transparent",
+      color: "from-emerald-500/20 via-teal-600/10 to-transparent",
       accent: "text-emerald-400",
       btnText: "Explore Features →"
     },
@@ -1718,8 +1718,8 @@ function Showcase() {
       title: "Smart Student & Teacher Hub",
       badge: "Real-Time Growth & Insights",
       desc: "Track study streaks, complete drawable activities, monitor checkpoint progress, and learn alongside GOGO AI Tutor 24/7.",
-      img: "/dashboard.webp",
-      color: "from-violet-500/20 to-transparent",
+      img: "/dashboard.png",
+      color: "from-violet-500/20 via-purple-600/10 to-transparent",
       accent: "text-violet-400",
       btnText: "View Dashboard →"
     }
@@ -1737,7 +1737,7 @@ function Showcase() {
     <section className="py-8 bg-zinc-950/40 relative border-b border-white/5">
       <div className="absolute inset-0 -z-10 bg-grid opacity-10 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]" />
       
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
         <div className="text-center max-w-3xl mx-auto mb-10">
           <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
             · Live Interface
@@ -1756,61 +1756,78 @@ function Showcase() {
             <button
               key={slide.tabLabel}
               onClick={() => setActiveTab(idx)}
-              className={`px-6 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-all border ${
+              className={`relative px-6 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-colors ${
                 activeTab === idx
-                  ? "bg-white/10 border-white/20 text-white shadow-lg scale-[1.02]"
-                  : "bg-transparent border-white/5 text-zinc-400 hover:text-zinc-200 hover:border-white/10"
+                  ? "text-white"
+                  : "text-zinc-400 hover:text-zinc-200"
               }`}
             >
-              {slide.tabLabel}
+              {activeTab === idx && (
+                <motion.div
+                  layoutId="activeShowcaseTab"
+                  className="absolute inset-0 bg-white/10 border border-white/20 rounded-full shadow-lg"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+              <span className="relative z-10">{slide.tabLabel}</span>
             </button>
           ))}
         </div>
 
         {/* Dynamic Display Panel */}
         <div className="grid lg:grid-cols-12 gap-8 items-center bg-zinc-900/40 border border-white/5 rounded-3xl p-8 backdrop-blur-md relative overflow-hidden">
-          <div className={`absolute inset-0 bg-gradient-to-br ${SLIDES[activeTab].color} opacity-40 blur-3xl -z-10`} />
+          <motion.div 
+            key={`glow-${activeTab}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.5 }}
+            transition={{ duration: 0.5 }}
+            className={`absolute inset-0 bg-gradient-to-br ${SLIDES[activeTab].color} blur-3xl -z-10`} 
+          />
 
-          {/* Left panel: Info */}
-          <div className="lg:col-span-4 flex flex-col justify-center">
-            <span className={`font-mono-label text-[9px] uppercase tracking-[0.2em] ${SLIDES[activeTab].accent} font-bold mb-2`}>
-              {SLIDES[activeTab].badge}
-            </span>
-            <h3 className="font-display text-2xl font-bold text-white mb-4">
-              {SLIDES[activeTab].title}
-            </h3>
-            <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed mb-6 font-medium">
-              {SLIDES[activeTab].desc}
-            </p>
-            <Link
-              to="/register"
-              className="inline-flex items-center gap-2 text-xs font-semibold text-white hover:text-cyan-400 transition-colors w-fit"
+          <AnimatePresence mode="wait">
+            <motion.div 
+              key={activeTab}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+              className="lg:col-span-12 grid lg:grid-cols-12 gap-8 items-center"
             >
-              {SLIDES[activeTab].btnText}
-            </Link>
-          </div>
+              {/* Left panel: Info */}
+              <div className="lg:col-span-4 flex flex-col justify-center">
+                <span className={`font-mono-label text-[9px] uppercase tracking-[0.2em] ${SLIDES[activeTab].accent} font-bold mb-2`}>
+                  {SLIDES[activeTab].badge}
+                </span>
+                <h3 className="font-display text-2xl font-bold text-white mb-4">
+                  {SLIDES[activeTab].title}
+                </h3>
+                <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed mb-6 font-medium">
+                  {SLIDES[activeTab].desc}
+                </p>
+                <Link
+                  to="/register"
+                  className="inline-flex items-center gap-2 text-xs font-semibold text-white hover:text-cyan-400 transition-colors w-fit"
+                >
+                  {SLIDES[activeTab].btnText}
+                </Link>
+              </div>
 
-          {/* Right panel: Showcase Image */}
-          <div className="lg:col-span-8">
-            <div className="relative rounded-2xl border border-white/10 overflow-hidden bg-zinc-950/80 shadow-2xl">
-              <AnimatePresence mode="wait">
-                <motion.img
-                  key={activeTab}
-                  src={SLIDES[activeTab].img}
-                  alt={SLIDES[activeTab].title}
-                  initial={{ opacity: 0, x: 25, filter: 'blur(8px)' }}
-                  animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
-                  exit={{ opacity: 0, x: -25, filter: 'blur(8px)' }}
-                  transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-                  className={`w-full h-auto max-h-[460px] aspect-[16/10] ${
-                    SLIDES[activeTab].img === "/feature.webp"
-                      ? "object-contain bg-zinc-950/90 p-4"
-                      : "object-cover object-top"
-                  }`}
-                />
-              </AnimatePresence>
-            </div>
-          </div>
+              {/* Right panel: Showcase Image */}
+              <div className="lg:col-span-8">
+                <div className="relative w-full aspect-[16/10] max-h-[480px] rounded-2xl border border-white/10 overflow-hidden bg-zinc-950 shadow-2xl flex items-center justify-center">
+                  <img
+                    src={SLIDES[activeTab].img}
+                    alt={SLIDES[activeTab].title}
+                    className={`w-full h-full transition-all duration-500 ${
+                      SLIDES[activeTab].img === "/feature.webp"
+                        ? "object-contain bg-zinc-950/90 p-4"
+                        : "object-cover object-top"
+                    }`}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </section>
@@ -1906,7 +1923,7 @@ function ProductDetails() {
   return (
     <section className="pt-8 pb-2 bg-zinc-950/60 relative border-b border-white/5">
       
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
         <div className="text-center max-w-3xl mx-auto mb-10">
           <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
             · PLATFORM HIGHLIGHTS
