@@ -224,7 +224,7 @@ exports.getNoteUrl = async (req, res) => {
     const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
     const { rows } = await db.query(
       `SELECT c.file_url, c.is_premium FROM content c
-       WHERE c.id = $1 AND c.content_type = 'note' AND c.destination IN ('shared', $2)`,
+       WHERE c.id = $1 AND c.content_type = 'note' AND (c.destination IS NULL OR c.destination IN ('shared', $2))`,
       [req.params.contentId, destination]
     );
     if (!rows[0])
@@ -245,7 +245,7 @@ exports.getWorksheetUrl = async (req, res) => {
     const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
     const { rows } = await db.query(
       `SELECT c.file_url, c.is_premium FROM content c
-       WHERE c.id = $1 AND c.content_type = 'worksheet' AND c.destination IN ('shared', $2)`,
+       WHERE c.id = $1 AND c.content_type = 'worksheet' AND (c.destination IS NULL OR c.destination IN ('shared', $2))`,
       [req.params.contentId, destination]
     );
     if (!rows[0])

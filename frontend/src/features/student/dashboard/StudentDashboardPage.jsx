@@ -5,7 +5,7 @@ import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import {
   BookOpen, ChevronRight, Play, Eye, FileText, Sparkles, Image,
   Activity, GraduationCap, Video, CheckCircle, ArrowLeft, Clock,
-  Trophy, Palette, Gamepad2, Map, Star, ArrowRight
+  Trophy, Palette, Gamepad2, Map, Star, ArrowRight, Crown, Lock
 } from 'lucide-react';
 import { PageWrapper, Skeleton, Modal } from '@/components/ui';
 import { useApi } from '@/hooks/useApi';
@@ -444,6 +444,7 @@ export default function StudentDashboardPage() {
   const [selectedVideoContent, setSelectedVideoContent] = useState(null);
   const [activeSimulation, setActiveSimulation] = useState(null);
   const [voiceLauncherItem, setVoiceLauncherItem] = useState(null);
+  const [premiumModalContent, setPremiumModalContent] = useState(null);
 
   const { data: profileRes } = useApi(studentApi.getProfile);
   const profile = profileRes?.data ?? profileRes;
@@ -664,7 +665,8 @@ export default function StudentDashboardPage() {
       }
     } catch (e) {
       console.error('Failed to open worksheet:', e);
-      toast.error('Failed to open worksheet');
+      const msg = e.response?.data?.message || 'Failed to open worksheet';
+      toast.error(msg);
       if (wsWindow) wsWindow.close();
     }
   };
@@ -1112,7 +1114,15 @@ export default function StudentDashboardPage() {
                                     {c.content_type === 'video' ? '🎥' : '📖'}
                                   </div>
                                   <div>
-                                    <div style={{ fontSize: '0.92rem', fontWeight: 800 }}>{c.title}</div>
+                                    <div style={{ fontSize: '0.92rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                      <span>{c.title}</span>
+                                      {c.is_premium && (
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', borderRadius: '50px', background: 'rgba(245,158,11,0.18)', border: '1px solid rgba(245,158,11,0.4)', color: '#FCD34D', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.04em', boxShadow: '0 0 10px rgba(245,158,11,0.2)' }}>
+                                          <Crown size={11} style={{ fill: '#F59E0B', color: '#F59E0B' }} />
+                                          VIP Premium
+                                        </span>
+                                      )}
+                                    </div>
                                     <div style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 600 }}>
                                       {c.content_type === 'video' ? 'Watch Video Story' : 'Read Illustrated Story Book'}
                                     </div>
@@ -1121,13 +1131,21 @@ export default function StudentDashboardPage() {
                                 <button
                                   className="sd-subj-btn"
                                   style={{
-                                    background: c.content_type === 'video' ? 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)' : 'linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%)',
+                                    background: c.is_premium && !user?.is_premium ? 'linear-gradient(135deg, #7C3AED 0%, #F59E0B 100%)' : (c.content_type === 'video' ? 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)' : 'linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%)'),
                                     margin: 0
                                   }}
-                                  onClick={() => c.content_type === 'video' ? handleOpenVideo(c) : handleOpenNote(c)}
+                                  onClick={() => {
+                                    if (c.is_premium && !user?.is_premium) {
+                                      setPremiumModalContent(c);
+                                    } else if (c.content_type === 'video') {
+                                      handleOpenVideo(c);
+                                    } else {
+                                      handleOpenNote(c);
+                                    }
+                                  }}
                                 >
-                                  {c.content_type === 'video' ? <Play size={14} /> : <Eye size={14} />}
-                                  {c.content_type === 'video' ? 'Watch Story' : 'Read Story'}
+                                  {c.is_premium && !user?.is_premium ? <Lock size={14} /> : (c.content_type === 'video' ? <Play size={14} /> : <Eye size={14} />)}
+                                  {c.is_premium && !user?.is_premium ? 'Unlock VIP' : (c.content_type === 'video' ? 'Watch Story' : 'Read Story')}
                                 </button>
                               </div>
                             ))
@@ -1145,16 +1163,31 @@ export default function StudentDashboardPage() {
                                     🎮
                                   </div>
                                   <div>
-                                    <div style={{ fontSize: '0.92rem', fontWeight: 800 }}>{c.title}</div>
+                                    <div style={{ fontSize: '0.92rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                      <span>{c.title}</span>
+                                      {c.is_premium && (
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', borderRadius: '50px', background: 'rgba(245,158,11,0.18)', border: '1px solid rgba(245,158,11,0.4)', color: '#FCD34D', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.04em', boxShadow: '0 0 10px rgba(245,158,11,0.2)' }}>
+                                          <Crown size={11} style={{ fill: '#F59E0B', color: '#F59E0B' }} />
+                                          VIP Premium
+                                        </span>
+                                      )}
+                                    </div>
                                     <div style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 600 }}>Playful 3D Simulation Game</div>
                                   </div>
                                 </div>
                                 <button 
                                   className="sd-subj-btn" 
-                                  style={{ background: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)', margin: 0 }}
-                                  onClick={() => handleOpenAnimation(c)}
+                                  style={{ background: c.is_premium && !user?.is_premium ? 'linear-gradient(135deg, #7C3AED 0%, #F59E0B 100%)' : 'linear-gradient(135deg, #10B981 0%, #34D399 100%)', margin: 0 }}
+                                  onClick={() => {
+                                    if (c.is_premium && !user?.is_premium) {
+                                      setPremiumModalContent(c);
+                                    } else {
+                                      handleOpenAnimation(c);
+                                    }
+                                  }}
                                 >
-                                  <Play size={14} /> Play Game
+                                  {c.is_premium && !user?.is_premium ? <Lock size={14} /> : <Play size={14} />}
+                                  {c.is_premium && !user?.is_premium ? 'Unlock VIP' : 'Play Game'}
                                 </button>
                               </div>
                             ))
@@ -1172,16 +1205,31 @@ export default function StudentDashboardPage() {
                                     🎨
                                   </div>
                                   <div>
-                                    <div style={{ fontSize: '0.92rem', fontWeight: 800 }}>{c.title}</div>
+                                    <div style={{ fontSize: '0.92rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                      <span>{c.title}</span>
+                                      {c.is_premium && (
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', borderRadius: '50px', background: 'rgba(245,158,11,0.18)', border: '1px solid rgba(245,158,11,0.4)', color: '#FCD34D', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.04em', boxShadow: '0 0 10px rgba(245,158,11,0.2)' }}>
+                                          <Crown size={11} style={{ fill: '#F59E0B', color: '#F59E0B' }} />
+                                          VIP Premium
+                                        </span>
+                                      )}
+                                    </div>
                                     <div style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 600 }}>Drawable Coloring Sheet</div>
                                   </div>
                                 </div>
                                 <button 
                                   className="sd-subj-btn" 
-                                  style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', margin: 0 }}
-                                  onClick={() => handleOpenWorksheet(c)}
+                                  style={{ background: c.is_premium && !user?.is_premium ? 'linear-gradient(135deg, #7C3AED 0%, #F59E0B 100%)' : 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', margin: 0 }}
+                                  onClick={() => {
+                                    if (c.is_premium && !user?.is_premium) {
+                                      setPremiumModalContent(c);
+                                    } else {
+                                      handleOpenWorksheet(c);
+                                    }
+                                  }}
                                 >
-                                  <Eye size={14} /> Start Sketching
+                                  {c.is_premium && !user?.is_premium ? <Lock size={14} /> : <Eye size={14} />}
+                                  {c.is_premium && !user?.is_premium ? 'Unlock VIP' : 'Start Sketching'}
                                 </button>
                               </div>
                             ))
@@ -1199,16 +1247,31 @@ export default function StudentDashboardPage() {
                                     🏆
                                   </div>
                                   <div>
-                                    <div style={{ fontSize: '0.92rem', fontWeight: 800 }}>{e.title}</div>
+                                    <div style={{ fontSize: '0.92rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                      <span>{e.title}</span>
+                                      {e.is_premium && (
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', borderRadius: '50px', background: 'rgba(245,158,11,0.18)', border: '1px solid rgba(245,158,11,0.4)', color: '#FCD34D', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.04em', boxShadow: '0 0 10px rgba(245,158,11,0.2)' }}>
+                                          <Crown size={11} style={{ fill: '#F59E0B', color: '#F59E0B' }} />
+                                          VIP Premium
+                                        </span>
+                                      )}
+                                    </div>
                                     <div style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 600 }}>⏱️ {e.duration_minutes} Mins Challenge Quest</div>
                                   </div>
                                 </div>
                                 <button
                                   className="sd-subj-btn"
-                                  style={{ background: 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)', margin: 0 }}
-                                  onClick={() => navigate(`/exams/${e.id}/take`)}
+                                  style={{ background: e.is_premium && !user?.is_premium ? 'linear-gradient(135deg, #7C3AED 0%, #F59E0B 100%)' : 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)', margin: 0 }}
+                                  onClick={() => {
+                                    if (e.is_premium && !user?.is_premium) {
+                                      setPremiumModalContent(e);
+                                    } else {
+                                      navigate(`/exams/${e.id}/take`);
+                                    }
+                                  }}
                                 >
-                                  <CheckCircle size={14} /> Start Quest
+                                  {e.is_premium && !user?.is_premium ? <Lock size={14} /> : <CheckCircle size={14} />}
+                                  {e.is_premium && !user?.is_premium ? 'Unlock VIP' : 'Start Quest'}
                                 </button>
                               </div>
                             ))
@@ -1287,7 +1350,42 @@ export default function StudentDashboardPage() {
           </div>
         </Modal>
 
+        {/* Modal: Premium VIP Upgrade Request */}
+        <Modal
+          open={!!premiumModalContent}
+          onClose={() => setPremiumModalContent(null)}
+          title="Premium VIP Access Required"
+          size="sm"
+        >
+          <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: 'linear-gradient(135deg, rgba(245,158,11,0.2) 0%, rgba(124,58,237,0.2) 100%)', border: '2px solid rgba(245,158,11,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem', boxShadow: '0 0 25px rgba(245,158,11,0.25)' }}>
+              <Crown size={32} style={{ fill: '#F59E0B', color: '#F59E0B' }} />
+            </div>
 
+            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.25rem', fontWeight: 900, color: '#FFF', marginBottom: '0.5rem' }}>
+              Unlock "{premiumModalContent?.title}"
+            </h3>
+
+            <p style={{ fontSize: '0.88rem', color: '#94A3B8', lineHeight: 1.5, marginBottom: '1.5rem', fontWeight: 600 }}>
+              This interactive {premiumModalContent?.content_type || 'learning resource'} is exclusive to Mentara VIP Premium members. Upgrade your account to unlock all worksheets, mock papers, 3D labs, and AI Voice Tutor! 🚀
+            </p>
+
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+              <button
+                onClick={() => setPremiumModalContent(null)}
+                style={{ padding: '0.65rem 1.2rem', borderRadius: '12px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#94A3B8', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer' }}
+              >
+                Close
+              </button>
+              <button
+                onClick={() => { setPremiumModalContent(null); navigate('/student/premium'); }}
+                style={{ padding: '0.65rem 1.4rem', borderRadius: '12px', background: 'linear-gradient(135deg, #F59E0B 0%, #7C3AED 100%)', border: 'none', color: '#FFF', fontSize: '0.85rem', fontWeight: 900, cursor: 'pointer', boxShadow: '0 4px 15px rgba(245,158,11,0.3)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+              >
+                <Crown size={15} style={{ fill: '#FFF' }} /> Upgrade to VIP
+              </button>
+            </div>
+          </div>
+        </Modal>
 
       </div>
     </PageWrapper>
