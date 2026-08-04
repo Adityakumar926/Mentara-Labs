@@ -776,28 +776,29 @@ function FeaturesBento() {
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[minmax(220px,auto)]">
           {/* Simulations */}
           <BentoCard
-            className="md:col-span-2 lg:col-span-2 lg:row-span-2"
+            className="md:col-span-2 lg:col-span-2"
             tag="01 · Interactive simulations"
             tagColor="text-cyan-400"
             title="Drag, adjust, and explore with hands-on labs."
             description="Over 120 interactive Cambridge Primary Science and Math models. Move light sources, adjust variables, watch shadows shift, and build lasting understanding."
+            icon={<Atom className="h-5 w-5 text-cyan-400" />}
             testid="feature-simulations"
           >
-            <div className="mt-6 relative h-56 rounded-xl border border-white/10 overflow-hidden bg-zinc-950">
+            <div className="mt-5 relative h-60 sm:h-64 rounded-xl border border-white/10 overflow-hidden bg-zinc-950">
               <img
-                src="https://images.pexels.com/photos/29067691/pexels-photo-29067691.jpeg?auto=compress&cs=tinysrgb&w=600"
-                alt="Simulation"
-                className="absolute inset-0 w-full h-full object-cover opacity-50"
+                src="/torch.webp"
+                alt="3D Science Simulation Lab"
+                className="absolute inset-0 w-full h-full object-cover object-center opacity-95 scale-110 sm:scale-120"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+              <div className="absolute bottom-3 left-3.5 right-3.5 flex items-end justify-between">
                 <div>
-                  <div className="font-mono-label text-[10px] uppercase tracking-[0.18em] text-cyan-400">
+                  <div className="font-mono-label text-[9.5px] uppercase tracking-[0.18em] text-cyan-400 font-bold">
                     Live · Primary Science · Light & Shadows
                   </div>
-                  <div className="font-display text-lg font-bold text-white mt-1">Shadow Length ⇌ Torch Distance</div>
+                  <div className="font-display text-base font-bold text-white mt-0.5">Shadow Length ⇌ Torch Distance</div>
                 </div>
-                <div className="px-3 py-1 rounded-full border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-mono-label text-[9px] font-bold">
+                <div className="px-2.5 py-0.5 rounded-full border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-mono-label text-[9px] font-bold">
                   RUNNING
                 </div>
               </div>
@@ -887,19 +888,66 @@ function FeaturesBento() {
             </div>
           </BentoCard>
 
-          {/* Auto exams */}
+          {/* Checkpoint Exam Engine */}
           <BentoCard
             className="md:col-span-3 lg:col-span-2"
-            tag="04 · Practice exam engine"
+            tag="04 · Checkpoint Exam Engine"
             tagColor="text-emerald-400"
-            title="Official exam format. Instant feedback."
-            description="Practice past papers under realistic exam timers. Automated grading checks answers instantly and highlights areas for improvement."
+            title="Realistic Checkpoint Exam Simulator."
+            description="Train under real exam conditions with strict timed papers, official Cambridge question formats, and structured scoring criteria."
+            icon={<Timer className="h-5 w-5 text-emerald-400" />}
             testid="feature-exams"
           >
-            <div className="mt-6 grid grid-cols-3 gap-2.5">
-              <MockTimer label="Paper 1" time="00:45:00" pct={62} color="cyan" />
-              <MockTimer label="Paper 2" time="01:15:00" pct={48} color="emerald" />
-              <MockTimer label="Paper 3" time="00:30:00" pct={91} color="cyan" />
+            <div className="mt-5 rounded-xl border border-white/10 bg-zinc-950 p-4 relative overflow-hidden">
+              {/* Header status bar */}
+              <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+                  <span className="font-mono-label text-[10px] uppercase tracking-wider text-zinc-300 font-bold">
+                    Stage 5 Checkpoint Exam
+                  </span>
+                </div>
+                <span className="px-2.5 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-mono-label text-[9px] font-bold uppercase tracking-wider">
+                  Exam Mode Active
+                </span>
+              </div>
+
+              {/* Center HUD: Countdown & Active Question */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-1">
+                <div>
+                  <div className="font-mono text-2xl sm:text-3xl font-black text-white tracking-wider">
+                    00:45:00
+                  </div>
+                  <span className="text-[9.5px] text-zinc-500 font-mono-label uppercase tracking-wider block mt-0.5">
+                    Strict Time Limit · No Pause
+                  </span>
+                </div>
+
+                <div className="w-full sm:w-auto bg-white/[0.03] border border-white/10 rounded-xl p-2.5 text-left">
+                  <div className="text-[10px] font-mono-label text-cyan-400 font-bold">
+                    QUESTION 4 OF 12 · 4 MARKS
+                  </div>
+                  <div className="text-xs text-zinc-300 font-medium mt-1 truncate max-w-[210px]">
+                    Explain using a ray diagram how shadow length changes...
+                  </div>
+                </div>
+              </div>
+
+              {/* Progress bar */}
+              <div className="mt-3.5 pt-3 border-t border-white/5">
+                <div className="flex justify-between text-[9px] font-mono-label text-zinc-400 mb-1.5 font-bold">
+                  <span>EXAM PROGRESS</span>
+                  <span className="text-emerald-400">65% COMPLETED</span>
+                </div>
+                <div className="h-2 w-full rounded-full bg-zinc-900 overflow-hidden">
+                  <motion.div 
+                    className="h-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400"
+                    initial={{ width: "0%" }}
+                    whileInView={{ width: "65%" }}
+                    transition={{ duration: 1.5, ease: "easeOut" }}
+                  />
+                </div>
+              </div>
             </div>
           </BentoCard>
 
