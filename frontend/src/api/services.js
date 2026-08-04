@@ -114,6 +114,7 @@ export const adminApi = {
 
   // Students
   getStudents:          (params)   => api.get('/admin/students', { params }),
+  getStudentDetails:    (id)       => api.get(`/admin/students/${id}/details`),
   toggleStudentPremium: (id, data) => api.patch(`/admin/students/${id}/premium`, data),
 
   // Settings

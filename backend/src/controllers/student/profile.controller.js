@@ -9,11 +9,15 @@ exports.getProfile = async (req, res) => {
       `SELECT
          u.id, u.email, u.full_name, u.role,
          u.is_premium, u.premium_expires_at, u.avatar_url, u.created_at,
+         cl.name AS class_name,
+         c.name AS curriculum_name,
          s.current_streak, s.longest_streak, s.last_activity_date,
          (SELECT COUNT(DISTINCT activity_date) FROM activity_logs WHERE student_id = u.id) AS total_active_days,
          (SELECT COUNT(*)                      FROM exam_submissions WHERE student_id = u.id) AS exams_taken,
          (SELECT ROUND(AVG(percentage),2)      FROM exam_submissions WHERE student_id = u.id) AS avg_exam_score
        FROM users u
+       LEFT JOIN classes cl ON cl.id = u.class_id
+       LEFT JOIN curriculums c ON c.id = u.curriculum_id
        LEFT JOIN streaks s ON s.student_id = u.id
        WHERE u.id = $1`,
       [req.user.id]

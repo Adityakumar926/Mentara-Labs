@@ -445,6 +445,10 @@ export default function StudentDashboardPage() {
   const [activeSimulation, setActiveSimulation] = useState(null);
   const [voiceLauncherItem, setVoiceLauncherItem] = useState(null);
 
+  const { data: profileRes } = useApi(studentApi.getProfile);
+  const profile = profileRes?.data ?? profileRes;
+  const stageName = profile?.class_name || user?.class_name;
+
   const { data: subjectsRes, loading: loadingSubjects } = useApi(
     () => studentApi.getCurriculumSubjects(user.curriculum_id),
     null,
@@ -889,10 +893,20 @@ export default function StudentDashboardPage() {
         >
           {/* Left Text & CTA */}
           <div style={{ flex: 1, zIndex: 5 }}>
-            <div className="sd-badge-pill" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.45rem 1.1rem', borderRadius: '50px', background: 'rgba(139,92,246,0.15)', border: '1.5px solid rgba(139,92,246,0.3)', color: '#A78BFA', fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.85rem' }}>
-              <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
-              🎓 Cambridge Primary Quest
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.65rem', marginBottom: '0.85rem' }}>
+              <div className="sd-badge-pill" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.45rem 1.1rem', borderRadius: '50px', background: 'rgba(139,92,246,0.15)', border: '1.5px solid rgba(139,92,246,0.3)', color: '#A78BFA', fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+                🎓 Cambridge Primary Quest
+              </div>
+
+              {stageName && (
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.45rem 1.1rem', borderRadius: '50px', background: 'linear-gradient(135deg, rgba(0,212,255,0.18) 0%, rgba(16,185,129,0.15) 100%)', border: '1.5px solid rgba(0,212,255,0.4)', color: '#67E8F9', fontSize: '0.78rem', fontWeight: 900, letterSpacing: '0.04em', boxShadow: '0 0 15px rgba(0,212,255,0.2)' }}>
+                  <Sparkles size={13} className="text-cyan-300 animate-pulse" />
+                  <span>{stageName}</span>
+                </div>
+              )}
             </div>
+
             <h1 className="sd-hero-title">
               Hello, {firstName}! 👋
             </h1>

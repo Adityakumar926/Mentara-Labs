@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { 
   Search, Users, Star, Filter, ShieldCheck, GraduationCap, 
-  Crown, Calendar, Mail, CheckCircle2, UserCheck, Sparkles, RefreshCw
+  Crown, Calendar, Mail, CheckCircle2, UserCheck, Sparkles, RefreshCw,
+  Eye, Activity, Flame, Award, BookOpen, Clock, XCircle, FileText, Video, Layers, ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageWrapper, Badge, Skeleton, EmptyState, Modal, Input, Button, ConfirmDialog } from '@/components/ui';
@@ -214,11 +215,25 @@ const CSS = `
   .sp-role-teacher { background: rgba(124,58,237,0.15); color: #C4B5FD; border: 1px solid rgba(124,58,237,0.3); }
   .sp-role-student { background: rgba(0,212,255,0.12); color: #67E8F9; border: 1px solid rgba(0,212,255,0.25); }
 
+  /* stage badge */
+  .sp-stage-badge {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    padding: 0.25rem 0.65rem; border-radius: 10px;
+    font-size: 0.72rem; font-weight: 800;
+    background: rgba(52, 211, 153, 0.12); color: #34D399; border: 1px solid rgba(52, 211, 153, 0.3);
+  }
+
   .sp-manage-btn {
     display: inline-flex; align-items: center; gap: 0.4rem;
     padding: 0.45rem 0.85rem; border-radius: 12px;
     font-size: 0.75rem; font-weight: 700; cursor: pointer;
     transition: all 0.2s ease; border: 1px solid;
+  }
+  .sp-manage-btn.view {
+    background: rgba(0, 212, 255, 0.12); border-color: rgba(0, 212, 255, 0.3); color: #67E8F9;
+  }
+  .sp-manage-btn.view:hover {
+    background: rgba(0, 212, 255, 0.25); border-color: rgba(0, 212, 255, 0.5); color: #FFF; box-shadow: 0 0 15px rgba(0,212,255,0.3);
   }
   .sp-manage-btn.prem {
     background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3); color: #FCD34D;
@@ -232,6 +247,19 @@ const CSS = `
   .sp-manage-btn.grant:hover {
     background: rgba(124,58,237,0.22); border-color: rgba(124,58,237,0.5); color: #FFF;
   }
+
+  /* Modal Tabs */
+  .sp-tab-nav {
+    display: flex; gap: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.25rem; padding-bottom: 0.5rem;
+  }
+  .sp-tab-item {
+    display: flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.85rem; border-radius: 10px;
+    font-size: 0.8rem; font-weight: 700; color: #94A3B8; cursor: pointer; transition: all 0.2s;
+    background: transparent; border: none;
+  }
+  .sp-tab-item.active {
+    color: #FFF; background: rgba(124, 58, 237, 0.2); border: 1px solid rgba(124, 58, 237, 0.4);
+  }
 `;
 
 export default function StudentsPage() {
@@ -241,6 +269,10 @@ export default function StudentsPage() {
   const [premModal, setPremModal]   = useState(null);
   const [expiryDate, setExpiryDate] = useState('');
 
+  // User details view state
+  const [selectedUserForView, setSelectedUserForView] = useState(null);
+  const [viewTab, setViewTab] = useState('overview');
+
   const { data: students, loading, refetch } = useApi(
     adminApi.getStudents,
     { 
@@ -249,6 +281,13 @@ export default function StudentsPage() {
       role: roleFilter || undefined 
     },
     [search, premFilter, roleFilter]
+  );
+
+  // Fetch full details when user selected for view
+  const { data: userDetails, loading: loadingDetails } = useApi(
+    () => selectedUserForView ? adminApi.getStudentDetails(selectedUserForView.id) : null,
+    null,
+    [selectedUserForView?.id]
   );
 
   const { mutate: togglePremium, loading: toggling } = useMutation(
@@ -280,6 +319,11 @@ export default function StudentsPage() {
   const fmt = (d) =>
     d ? new Date(d).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) : null;
 
+  const fmtDateTime = (d) =>
+    d ? new Date(d).toLocaleString('en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : null;
+
+  const details = userDetails ?? {};
+
   return (
     <PageWrapper className="p-6">
       <style>{CSS}</style>
@@ -303,7 +347,7 @@ export default function StudentsPage() {
               </div>
               <h1 className="sp-hero-title">Platform Users</h1>
               <p className="sp-hero-sub">
-                Manage student accounts, teacher roles, and premium subscription access across Mentara Labs.
+                Manage student accounts, teacher roles, stage assignments, and view full activity tracking history.
               </p>
             </div>
           </div>
@@ -426,6 +470,7 @@ export default function StudentsPage() {
                 <thead>
                   <tr>
                     <th>User Profile</th>
+                    <th>Enrolled Stage</th>
                     <th>Account Role</th>
                     <th>Joined Date</th>
                     <th>Subscription Plan</th>
@@ -461,6 +506,18 @@ export default function StudentsPage() {
                           </div>
                         </td>
 
+                        {/* Stage / Class */}
+                        <td>
+                          {s.class_name ? (
+                            <span className="sp-stage-badge">
+                              <Layers size={11} />
+                              {s.class_name}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-slate-500 font-medium">Not Selected</span>
+                          )}
+                        </td>
+
                         {/* Role */}
                         <td>
                           <span className={`sp-role-badge ${s.role === 'teacher' ? 'sp-role-teacher' : 'sp-role-student'}`}>
@@ -492,15 +549,25 @@ export default function StudentsPage() {
                           )}
                         </td>
 
-                        {/* Action */}
+                        {/* Actions */}
                         <td className="text-right">
-                          <button
-                            onClick={() => openPremModal(s)}
-                            className={`sp-manage-btn ${s.is_premium ? 'prem' : 'grant'}`}
-                          >
-                            <Crown size={13} />
-                            {s.is_premium ? 'Manage Plan' : 'Grant Premium'}
-                          </button>
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => { setSelectedUserForView(s); setViewTab('overview'); }}
+                              className="sp-manage-btn view"
+                              title="View complete history and activity details"
+                            >
+                              <Eye size={13} />
+                              View
+                            </button>
+                            <button
+                              onClick={() => openPremModal(s)}
+                              className={`sp-manage-btn ${s.is_premium ? 'prem' : 'grant'}`}
+                            >
+                              <Crown size={13} />
+                              {s.is_premium ? 'Plan' : 'VIP'}
+                            </button>
+                          </div>
                         </td>
                       </motion.tr>
                     ))}
@@ -512,6 +579,247 @@ export default function StudentsPage() {
         )}
 
       </div>
+
+      {/* ── User History & Intelligence Drawer Modal ── */}
+      <Modal
+        open={!!selectedUserForView}
+        onClose={() => setSelectedUserForView(null)}
+        title="User Intelligence & Complete Activity History"
+        size="lg"
+      >
+        {selectedUserForView && (
+          <div className="space-y-4">
+            {/* Header info */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/90 border border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/30 to-cyan-500/20 border border-white/10 flex items-center justify-center text-lg font-black text-white">
+                  {selectedUserForView.avatar_url ? (
+                    <img src={selectedUserForView.avatar_url} alt="" className="w-full h-full rounded-xl object-cover" />
+                  ) : (
+                    selectedUserForView.full_name?.[0]?.toUpperCase()
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">{selectedUserForView.full_name}</h3>
+                  <p className="text-xs text-slate-400 font-mono">{selectedUserForView.email}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className={`sp-role-badge ${selectedUserForView.role === 'teacher' ? 'sp-role-teacher' : 'sp-role-student'}`}>
+                  {selectedUserForView.role === 'teacher' ? 'Teacher' : 'Student'}
+                </span>
+                {selectedUserForView.class_name && (
+                  <span className="sp-stage-badge">
+                    <Layers size={11} /> {selectedUserForView.class_name}
+                  </span>
+                )}
+                <span className={`sp-badge ${selectedUserForView.is_premium ? 'sp-badge-premium' : 'sp-badge-free'}`}>
+                  {selectedUserForView.is_premium ? 'Premium VIP' : 'Free Tier'}
+                </span>
+              </div>
+            </div>
+
+            {/* Modal Navigation Tabs */}
+            <div className="sp-tab-nav">
+              <button
+                className={`sp-tab-item ${viewTab === 'overview' ? 'active' : ''}`}
+                onClick={() => setViewTab('overview')}
+              >
+                <Users size={14} /> Overview
+              </button>
+              <button
+                className={`sp-tab-item ${viewTab === 'activity' ? 'active' : ''}`}
+                onClick={() => setViewTab('activity')}
+              >
+                <Flame size={14} /> Streaks & Activity ({details.activityLogs?.length ?? 0})
+              </button>
+              <button
+                className={`sp-tab-item ${viewTab === 'exams' ? 'active' : ''}`}
+                onClick={() => setViewTab('exams')}
+              >
+                <Award size={14} /> Exam History ({details.examHistory?.length ?? 0})
+              </button>
+              <button
+                className={`sp-tab-item ${viewTab === 'progress' ? 'active' : ''}`}
+                onClick={() => setViewTab('progress')}
+              >
+                <BookOpen size={14} /> Learning Progress
+              </button>
+            </div>
+
+            {loadingDetails ? (
+              <div className="p-8 text-center space-y-3">
+                <RefreshCw size={24} className="animate-spin text-purple-400 mx-auto" />
+                <p className="text-xs text-slate-400 font-semibold">Loading user details and activity logs...</p>
+              </div>
+            ) : (
+              <div>
+                {/* ── TAB 1: OVERVIEW ── */}
+                {viewTab === 'overview' && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                        <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Current Stage</p>
+                        <p className="text-sm font-black text-cyan-400 mt-1">{details.user?.class_name ?? 'Not Selected'}</p>
+                      </div>
+                      <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                        <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Curriculum</p>
+                        <p className="text-sm font-black text-purple-300 mt-1">{details.user?.curriculum_name ?? 'Cambridge Primary'}</p>
+                      </div>
+                      <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                        <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Current Streak</p>
+                        <p className="text-sm font-black text-emerald-400 mt-1">{details.streak?.current_streak ?? 0} Days 🔥</p>
+                      </div>
+                      <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                        <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Active Days</p>
+                        <p className="text-sm font-black text-amber-400 mt-1">{details.streak?.total_active_days ?? 0} Days</p>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
+                      <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">Account Metadata</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <div className="flex justify-between py-1 border-b border-slate-800">
+                          <span className="text-slate-400">Account ID:</span>
+                          <span className="font-mono text-slate-200">{details.user?.id}</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-slate-800">
+                          <span className="text-slate-400">Joined Date:</span>
+                          <span className="text-slate-200 font-semibold">{fmtDateTime(details.user?.created_at)}</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-slate-800">
+                          <span className="text-slate-400">Onboarding Completed:</span>
+                          <span className="text-slate-200 font-semibold">{details.user?.onboarded ? 'Yes ✓' : 'Pending ⏳'}</span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-slate-800">
+                          <span className="text-slate-400">VIP Subscription Expiry:</span>
+                          <span className="text-amber-300 font-semibold">{details.user?.premium_expires_at ? fmt(details.user?.premium_expires_at) : 'Lifetime / None'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── TAB 2: ACTIVITY & STREAKS ── */}
+                {viewTab === 'activity' && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3.5 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                      <div>
+                        <p className="text-xs font-bold text-purple-300">Streak Record</p>
+                        <p className="text-xs text-slate-400 mt-0.5">Best Streak: {details.streak?.longest_streak ?? 0} Days · Last Active: {fmt(details.streak?.last_activity_date) ?? 'N/A'}</p>
+                      </div>
+                      <span className="text-lg font-black text-amber-400">🔥 {details.streak?.current_streak ?? 0} Days</span>
+                    </div>
+
+                    <div className="max-h-[300px] overflow-y-auto space-y-2 pr-1">
+                      {details.activityLogs?.length === 0 ? (
+                        <p className="text-center text-xs text-slate-500 py-6">No activity logs recorded yet.</p>
+                      ) : (
+                        details.activityLogs?.map((log) => (
+                          <div key={log.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-xs">
+                            <div className="flex items-center gap-2.5">
+                              <Activity size={14} className="text-cyan-400 shrink-0" />
+                              <div>
+                                <p className="font-bold text-white">{log.content_title || log.activity_type || 'User Activity'}</p>
+                                <p className="text-[10px] text-slate-400 font-mono">{log.activity_type}</p>
+                              </div>
+                            </div>
+                            <span className="text-slate-400 font-mono text-[11px]">{fmtDateTime(log.created_at || log.activity_date)}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* ── TAB 3: EXAM HISTORY ── */}
+                {viewTab === 'exams' && (
+                  <div className="space-y-3">
+                    {details.examHistory?.length === 0 ? (
+                      <p className="text-center text-xs text-slate-500 py-8">No exam submissions recorded for this user.</p>
+                    ) : (
+                      <div className="max-h-[320px] overflow-y-auto">
+                        <table className="w-full text-left text-xs border-collapse">
+                          <thead>
+                            <tr className="border-b border-slate-800 text-slate-400 uppercase text-[10px] font-bold">
+                              <th className="p-2">Exam Title</th>
+                              <th className="p-2">Subject</th>
+                              <th className="p-2">Score</th>
+                              <th className="p-2">Result</th>
+                              <th className="p-2 text-right">Submitted</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {details.examHistory?.map((ex) => (
+                              <tr key={ex.id} className="border-b border-slate-800/50 hover:bg-slate-900/50">
+                                <td className="p-2 font-bold text-white">{ex.exam_title}</td>
+                                <td className="p-2 text-slate-400">{ex.subject_name || 'General'}</td>
+                                <td className="p-2 font-mono font-bold text-cyan-300">{ex.score} / {ex.total_marks} ({ex.percentage}%)</td>
+                                <td className="p-2">
+                                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${ex.passed ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'}`}>
+                                    {ex.passed ? 'Passed ✓' : 'Needs Practice'}
+                                  </span>
+                                </td>
+                                <td className="p-2 text-right text-slate-400 font-mono text-[11px]">{fmtDateTime(ex.submitted_at)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* ── TAB 4: LEARNING PROGRESS ── */}
+                {viewTab === 'progress' && (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-center">
+                        <p className="text-[10px] uppercase font-bold text-slate-400">Completed Resources</p>
+                        <p className="text-base font-black text-cyan-400 mt-0.5">{details.progressSummary?.completed_resources ?? 0}</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-center">
+                        <p className="text-[10px] uppercase font-bold text-slate-400">Topics Visited</p>
+                        <p className="text-base font-black text-purple-400 mt-0.5">{details.progressSummary?.topics_visited ?? 0}</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-center">
+                        <p className="text-[10px] uppercase font-bold text-slate-400">Videos Watched</p>
+                        <p className="text-base font-black text-emerald-400 mt-0.5">{details.progressSummary?.videos_started ?? 0}</p>
+                      </div>
+                    </div>
+
+                    <div className="max-h-[260px] overflow-y-auto space-y-2">
+                      {details.resourceProgress?.length === 0 ? (
+                        <p className="text-center text-xs text-slate-500 py-6">No learning progress logged yet.</p>
+                      ) : (
+                        details.resourceProgress?.map((res) => (
+                          <div key={res.id} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs">
+                            <div>
+                              <p className="font-bold text-white">{res.content_title || 'Learning Resource'}</p>
+                              <p className="text-[10px] text-slate-400">{res.subject_name} · {res.topic_name}</p>
+                            </div>
+                            <div className="text-right">
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${res.completed ? 'bg-emerald-500/15 text-emerald-400' : 'bg-slate-800 text-slate-400'}`}>
+                                {res.completed ? 'Completed' : `Progress: ${res.video_progress ?? 0}%`}
+                              </span>
+                              <p className="text-[10px] text-slate-500 mt-0.5">{fmt(res.updated_at)}</p>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="flex justify-end mt-5 pt-4 border-t border-slate-800">
+          <Button variant="ghost" onClick={() => setSelectedUserForView(null)}>Close Intelligence View</Button>
+        </div>
+      </Modal>
 
       {/* ── Premium Modal ── */}
       <Modal

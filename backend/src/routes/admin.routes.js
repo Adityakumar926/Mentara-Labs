@@ -179,42 +179,51 @@ router.get('/students', async (req, res) => {
   try {
     const search = req.query.search;
     const isPremiumQuery = req.query.is_premium;
+    const role = req.query.role;
+
     let page  = parseInt(req.query.page  ?? '1',  10);
-    let limit = parseInt(req.query.limit ?? '20', 10);
+    let limit = parseInt(req.query.limit ?? '50', 10);
     if (!Number.isFinite(page)  || page  < 1) page  = 1;
-    if (!Number.isFinite(limit) || limit < 1) limit = 20;
+    if (!Number.isFinite(limit) || limit < 1) limit = 50;
 
     const offset = (page - 1) * limit;
-    const role = req.query.role;
-    const conditions = ["role IN ('student', 'teacher')"];
+    const conditions = ["u.role IN ('student', 'teacher')"];
     const params = [];
 
     if (role && ['student', 'teacher'].includes(role)) {
       params.push(role);
-      conditions.push(`role = $${params.length}`);
+      conditions.push(`u.role = $${params.length}`);
     }
 
-    if (search) {
-      params.push(`%${search}%`);
-      conditions.push(`(full_name ILIKE $${params.length} OR email ILIKE $${params.length})`);
+    if (search && search.trim()) {
+      params.push(`%${search.trim()}%`);
+      conditions.push(`(u.full_name ILIKE $${params.length} OR u.email ILIKE $${params.length})`);
     }
-    if (isPremiumQuery !== undefined) {
+
+    if (isPremiumQuery !== undefined && isPremiumQuery !== '' && isPremiumQuery !== null) {
       params.push(isPremiumQuery === 'true');
-      conditions.push(`is_premium = $${params.length}`);
+      conditions.push(`u.is_premium = $${params.length}`);
     }
 
     params.push(limit, offset);
 
     const { rows } = await db.query(
-      `SELECT id, email, full_name, role, is_premium, premium_expires_at, avatar_url, created_at
-       FROM users
+      `SELECT 
+         u.id, u.email, u.full_name, u.role, u.is_premium, u.premium_expires_at, 
+         u.avatar_url, u.onboarded, u.created_at,
+         cl.name AS class_name,
+         c.name AS curriculum_name
+       FROM users u
+       LEFT JOIN classes cl ON cl.id = u.class_id
+       LEFT JOIN curriculums c ON c.id = u.curriculum_id
        WHERE ${conditions.join(' AND ')}
-       ORDER BY created_at DESC
+       ORDER BY u.created_at DESC
        LIMIT $${params.length - 1} OFFSET $${params.length}`,
       params
     );
     res.json({ success: true, data: rows });
   } catch (err) {
+    console.error('admin getStudents error:', err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
