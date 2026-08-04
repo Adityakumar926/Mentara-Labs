@@ -409,10 +409,13 @@ exports.getAllCurriculums = async (req, res) => {
 exports.getCurriculumClasses = async (req, res) => {
   try {
     const { curriculumId } = req.params;
+    const isTeacherOrAdmin = req.user.role === 'teacher' || req.user.role === 'admin';
+
     const { rows } = await db.query(
       `SELECT id, name, description
        FROM classes
        WHERE curriculum_id = $1
+         ${isTeacherOrAdmin ? '' : "AND LOWER(name) NOT LIKE '%teacher%'"}
        ORDER BY order_index ASC, name ASC`,
       [curriculumId]
     );

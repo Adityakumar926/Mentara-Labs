@@ -29,7 +29,13 @@ export default function OnboardingPage() {
     if (!selectedCurriculum) { setClasses([]); setSelectedClass(null); return; }
     setLoading(true);
     studentApi.getCurriculumClasses(selectedCurriculum.id)
-      .then(({ data }) => { setClasses(data.data || []); setLoading(false); })
+      .then(({ data }) => {
+        const studentClasses = (data.data || []).filter(
+          (cls) => !cls.name.toLowerCase().includes('teacher')
+        );
+        setClasses(studentClasses);
+        setLoading(false);
+      })
       .catch(() => { toast.error('Failed to load stages'); setLoading(false); });
   }, [selectedCurriculum]);
 
