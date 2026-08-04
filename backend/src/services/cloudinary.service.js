@@ -2,6 +2,22 @@ const cloudinary = require('../config/cloudinary');
 const streamifier = require('streamifier');
 
 /**
+ * Sanitizes Cloudinary public_id by removing file extensions (.png, .pdf, .jpg)
+ * and replacing invalid special characters (&, #, ?, %, spaces) with clean underscores.
+ */
+const sanitizePublicId = (publicId) => {
+  if (!publicId) return undefined;
+  const parts = publicId.split('/');
+  const filename = parts.pop();
+  const folder = parts.join('/');
+  const nameWithoutExt = filename.replace(/\.[^/.]+$/, '');
+  const cleanName = nameWithoutExt.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_');
+  return folder ? `${folder}/${cleanName}` : cleanName;
+};
+
+exports.sanitizePublicId = sanitizePublicId;
+
+/**
  * Uploads an image buffer to Cloudinary.
  * @param {Buffer} buffer     - File buffer from multer memoryStorage
  * @param {string} folder     - Cloudinary folder, e.g. 'avatars', 'thumbnails', 'question-images'
@@ -10,6 +26,11 @@ const streamifier = require('streamifier');
  */
 exports.uploadImage = async (buffer, folder, options = {}, retries = 3) => {
   let attempt = 0;
+  const sanitizedOptions = { ...options };
+  if (sanitizedOptions.public_id) {
+    sanitizedOptions.public_id = sanitizePublicId(sanitizedOptions.public_id);
+  }
+
   while (attempt < retries) {
     try {
       return await new Promise((resolve, reject) => {
@@ -18,7 +39,7 @@ exports.uploadImage = async (buffer, folder, options = {}, retries = 3) => {
             folder,
             resource_type: 'image',
             timeout: 60000,
-            ...options,
+            ...sanitizedOptions,
           },
           (error, result) => {
             if (error) return reject(error);
@@ -44,6 +65,11 @@ exports.uploadImage = async (buffer, folder, options = {}, retries = 3) => {
  */
 exports.uploadVideo = async (buffer, folder, options = {}, retries = 3) => {
   let attempt = 0;
+  const sanitizedOptions = { ...options };
+  if (sanitizedOptions.public_id) {
+    sanitizedOptions.public_id = sanitizePublicId(sanitizedOptions.public_id);
+  }
+
   while (attempt < retries) {
     try {
       return await new Promise((resolve, reject) => {
@@ -52,7 +78,7 @@ exports.uploadVideo = async (buffer, folder, options = {}, retries = 3) => {
             folder,
             resource_type: 'video',
             timeout: 180000,
-            ...options,
+            ...sanitizedOptions,
           },
           (error, result) => {
             if (error) return reject(error);
@@ -74,5 +100,6 @@ exports.uploadVideo = async (buffer, folder, options = {}, retries = 3) => {
  * Store the publicId returned from uploadImage if you need to delete later.
  */
 exports.deleteImage = async (publicId, options = {}) => {
-  return cloudinary.uploader.destroy(publicId, options);
+  const cleanId = sanitizePublicId(publicId) || publicId;
+  return cloudinary.uploader.destroy(cleanId, options);
 };

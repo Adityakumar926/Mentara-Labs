@@ -218,7 +218,7 @@ exports.uploadNote = async (req, res) => {
     const cloudinaryService = require('../../services/cloudinary.service');
     const result = await cloudinaryService.uploadImage(req.file.buffer, 'mentara-labs/notes', {
       resource_type: 'raw',
-      public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_')}`,
+      public_id: `${Date.now()}-${req.file.originalname.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_')}`,
       use_filename: false,
     });
     const file_url = result.url;
@@ -266,7 +266,7 @@ exports.replaceNote = async (req, res) => {
       const cloudinaryService = require('../../services/cloudinary.service');
       const result = await cloudinaryService.uploadImage(req.file.buffer, 'mentara-labs/notes', {
         resource_type: 'raw',
-        public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_')}`,
+        public_id: `${Date.now()}-${req.file.originalname.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_')}`,
         use_filename: false,
       });
       file_url = result.url;
@@ -318,7 +318,7 @@ exports.uploadWorksheet = async (req, res) => {
     const cloudinaryService = require('../../services/cloudinary.service');
     const result = await cloudinaryService.uploadImage(req.file.buffer, 'mentara-labs/worksheets', {
       resource_type: 'image',
-      public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_')}`,
+      public_id: `${Date.now()}-${req.file.originalname.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_')}`,
       use_filename: false,
     });
     const file_url = result.url;
@@ -370,7 +370,7 @@ exports.replaceWorksheet = async (req, res) => {
       const cloudinaryService = require('../../services/cloudinary.service');
       const result = await cloudinaryService.uploadImage(req.file.buffer, 'mentara-labs/worksheets', {
         resource_type: 'image',
-        public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_')}`,
+        public_id: `${Date.now()}-${req.file.originalname.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_')}`,
         use_filename: false,
       });
       file_url = result.url;
@@ -417,7 +417,7 @@ exports.uploadVideoFile = async (req, res) => {
     const cloudinaryService = require('../../services/cloudinary.service');
     const result = await cloudinaryService.uploadVideo(req.file.buffer, 'mentara-labs/videos', {
       resource_type: 'video',
-      public_id: `${Date.now()}-${req.file.originalname.replace(/\s+/g, '_')}`,
+      public_id: `${Date.now()}-${req.file.originalname.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_')}`,
       use_filename: false,
     });
     const file_url = result.url;
