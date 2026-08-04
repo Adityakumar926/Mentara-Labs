@@ -303,7 +303,7 @@ export default function StudentsPage() {
     setPremModal(s);
     if (!s.is_premium) {
       const d = new Date();
-      d.setMonth(d.getMonth() + 1);
+      d.setFullYear(d.getFullYear() + 1);
       setExpiryDate(d.toISOString().split('T')[0]);
     } else {
       setExpiryDate(s.premium_expires_at?.split('T')[0] ?? '');

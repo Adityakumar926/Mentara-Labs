@@ -173,7 +173,7 @@ export default function SettingsPage() {
 
   // Teacher pricing
   const [teacherPrice, setTeacherPrice] = useState('65');
-  const [teacherDuration, setTeacherDuration] = useState('1');
+  const [teacherDuration, setTeacherDuration] = useState('12');
   const [teacherCurrency, setTeacherCurrency] = useState('$');
   const [teacherBillingPeriod, setTeacherBillingPeriod] = useState('/ year');
   const [teacherDiscount, setTeacherDiscount] = useState('40');
@@ -193,7 +193,7 @@ export default function SettingsPage() {
         if (settingsRes.data.success) {
           const d = settingsRes.data.data;
           setTeacherPrice(d.premium_price || '65');
-          setTeacherDuration(d.premium_duration_months || '1');
+          setTeacherDuration(d.premium_duration_months || '12');
           setTeacherCurrency(d.premium_currency || '$');
           setTeacherBillingPeriod(d.premium_billing_period || '/ year');
           setTeacherDiscount(d.premium_discount || '40');
