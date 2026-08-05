@@ -129,6 +129,12 @@ router.post(
   qCtrl.uploadImage
 );
 router.post(
+  '/questions/audio',
+  upload('audio').single('file'),
+  handleUploadError,
+  qCtrl.uploadAudio
+);
+router.post(
   '/questions/bulk-upload',
   upload('image').array('images', 50),
   handleUploadError,

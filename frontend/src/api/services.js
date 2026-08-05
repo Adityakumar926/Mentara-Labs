@@ -77,6 +77,11 @@ export const adminApi = {
     fd.append('file', file);
     return api.post('/admin/questions/image', fd);
   },
+  uploadQuestionAudio:   (file)     => {
+    const fd = new FormData();
+    fd.append('file', file);
+    return api.post('/admin/questions/audio', fd);
+  },
   bulkUploadQuestions: (formData, onUploadProgress) => {
     return api.post('/admin/questions/bulk-upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },

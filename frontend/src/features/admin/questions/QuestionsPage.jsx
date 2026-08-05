@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Plus, Star, Lock, Trash2, Edit2, Search, Filter, Image as ImageIcon, X, UploadCloud, FolderPlus, CheckCircle2, AlertCircle, Sparkles, Maximize2 } from 'lucide-react';
+import { Plus, Star, Lock, Trash2, Edit2, Search, Filter, Image as ImageIcon, X, UploadCloud, FolderPlus, CheckCircle2, AlertCircle, Sparkles, Maximize2, Volume2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   PageWrapper, Button, Input, Select, Card,
@@ -26,6 +26,7 @@ const BLANK_Q = {
   correct_answer: '', explanation: '', subject_id: '', curriculum_id: '', class_id: '', is_premium: false,
   photoAnswerFormat: 'mcq', // UI-only: for question_type 'photo', toggles between MCQ options and a text answer
   image_url: '', // for question_type 'photo': the uploaded question image
+  audio_url: '', // optional audio passage for listening assessment questions
 };
 
 /* ─── CSS ─── */
@@ -701,6 +702,27 @@ export default function QuestionsPage() {
   };
   const removeImage = () => set('image_url', '');
 
+  const [audioUploading, setAudioUploading] = useState(false);
+  const [audioError, setAudioError] = useState('');
+
+  const handleAudioSelect = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAudioError('');
+    setAudioUploading(true);
+    try {
+      const { data } = await adminApi.uploadQuestionAudio(file);
+      set('audio_url', data.data.url);
+      toast.success('Question audio passage uploaded!');
+    } catch (err) {
+      setAudioError(err?.response?.data?.message ?? 'Audio upload failed. Please try again.');
+    } finally {
+      setAudioUploading(false);
+      e.target.value = '';
+    }
+  };
+  const removeAudio = () => set('audio_url', '');
+
   const filtered = useMemo(() => {
     const list = Array.isArray(questions) ? questions : [];
     if (!filters.search || !filters.search.trim()) return list;
@@ -1072,6 +1094,42 @@ export default function QuestionsPage() {
                 {imageError && <p className="ui-error" style={{ marginTop: '0.4rem' }}>{imageError}</p>}
               </div>
             )}
+
+            {/* Optional Question Listening Audio Passage */}
+            <div>
+              <p className="qp-section-label">
+                🎧 Question Listening Audio Passage (Optional)
+              </p>
+              {form.audio_url ? (
+                <div className="qp-image-preview-wrap" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.85rem 1rem', background: 'rgba(0,212,255,0.06)', borderRadius: '12px', border: '1px solid rgba(0,212,255,0.3)' }}>
+                  <Volume2 size={20} color="#00D4FF" />
+                  <audio controls src={form.audio_url} style={{ flex: 1, height: '36px' }} />
+                  <button type="button" className="qp-image-remove-btn" onClick={removeAudio} title="Remove audio passage">
+                    <X size={13} />
+                  </button>
+                </div>
+              ) : (
+                <label className={clsx('qp-image-dropzone', audioUploading && 'uploading')}>
+                  <input
+                    type="file"
+                    accept="audio/*"
+                    onChange={handleAudioSelect}
+                    disabled={audioUploading}
+                    style={{ display: 'none' }}
+                  />
+                  {audioUploading ? (
+                    <span className="qp-spinner" />
+                  ) : (
+                    <>
+                      <Volume2 size={20} color="#00D4FF" />
+                      <span>Click to upload listening audio passage</span>
+                      <span className="qp-image-hint">MP3, WAV, M4A, OGG or WebM · up to 50MB</span>
+                    </>
+                  )}
+                </label>
+              )}
+              {audioError && <p className="ui-error" style={{ marginTop: '0.4rem' }}>{audioError}</p>}
+            </div>
 
             {/* MCQ Options */}
             {form.question_type === 'mcq' && (

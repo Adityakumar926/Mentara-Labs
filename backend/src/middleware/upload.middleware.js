@@ -6,6 +6,7 @@ const MAX_FILE_SIZE_MB = {
   note:       20,   // PDFs / notes → Cloudinary (resource_type: raw)
   image:      25,   // Avatars, question photos, camera shots → Cloudinary
   examPhoto:  25,   // Photos of handwritten exam answers → Cloudinary
+  audio:      50,   // Question audio passages → Cloudinary
   video:     500,   // Videos → Mux direct upload
 };
 
@@ -13,6 +14,7 @@ const ALLOWED_MIME = {
   note:      ['application/pdf'],
   image:     ['image/jpeg', 'image/png', 'image/webp'],
   examPhoto: ['image/jpeg', 'image/png', 'image/webp'],
+  audio:     ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/x-wav', 'audio/wave', 'audio/ogg', 'audio/m4a', 'audio/x-m4a', 'audio/aac', 'audio/mp4', 'audio/webm'],
   video:     ['video/mp4', 'video/quicktime', 'video/x-matroska', 'video/webm'],
 };
 

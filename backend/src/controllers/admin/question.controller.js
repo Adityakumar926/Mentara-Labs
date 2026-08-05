@@ -4,7 +4,7 @@ const cloudinaryService = require('../../services/cloudinary.service');
 // Whitelist of columns that can be updated via the API
 const UPDATABLE_FIELDS = new Set([
   'subject_id', 'topic_id', 'question_type', 'question_text', 'options',
-  'correct_answer', 'explanation', 'difficulty', 'tags', 'is_premium', 'image_url', 'destination'
+  'correct_answer', 'explanation', 'difficulty', 'tags', 'is_premium', 'image_url', 'audio_url', 'destination'
 ]);
 
 exports.getAll = async (req, res) => {
@@ -30,7 +30,8 @@ exports.getAll = async (req, res) => {
         COALESCE(cl.name, '') ILIKE $${params.length} OR
         COALESCE(c.name, '') ILIKE $${params.length} OR
         COALESCE(q.difficulty, '') ILIKE $${params.length} OR
-        COALESCE(q.image_url, '') ILIKE $${params.length}
+        COALESCE(q.image_url, '') ILIKE $${params.length} OR
+        COALESCE(q.audio_url, '') ILIKE $${params.length}
       )`);
     }
 
@@ -63,7 +64,7 @@ exports.create = async (req, res) => {
   try {
     const {
       subject_id, topic_id, question_type, question_text, options,
-      correct_answer, explanation, difficulty, tags, is_premium, image_url, destination
+      correct_answer, explanation, difficulty, tags, is_premium, image_url, audio_url, destination
     } = req.body;
 
     if (!subject_id || !question_type)
@@ -74,13 +75,13 @@ exports.create = async (req, res) => {
     const { rows } = await db.query(
       `INSERT INTO questions
        (subject_id, topic_id, question_type, question_text, options, correct_answer,
-        explanation, difficulty, tags, is_premium, image_url, created_by, destination)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
+        explanation, difficulty, tags, is_premium, image_url, audio_url, created_by, destination)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
       [
         subject_id, topic_id || null, question_type, question_text || null,
         JSON.stringify(options ?? []),
         correct_answer, explanation, difficulty, tags,
-        is_premium ?? false, image_url ?? null, req.user.id, targetDestination
+        is_premium ?? false, image_url ?? null, audio_url ?? null, req.user.id, targetDestination
       ]
     );
     res.status(201).json({ success: true, data: rows[0] });
@@ -196,6 +197,22 @@ exports.uploadImage = async (req, res) => {
     const { url, publicId } = await cloudinaryService.uploadImage(
       req.file.buffer,
       'question-images'
+    );
+    res.json({ success: true, data: { url, publicId } });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Uploads a question's audio file to Cloudinary and returns its URL.
+exports.uploadAudio = async (req, res) => {
+  try {
+    if (!req.file)
+      return res.status(400).json({ success: false, message: 'No audio file uploaded' });
+
+    const { url, publicId } = await cloudinaryService.uploadAudio(
+      req.file.buffer,
+      'question-audios'
     );
     res.json({ success: true, data: { url, publicId } });
   } catch (err) {

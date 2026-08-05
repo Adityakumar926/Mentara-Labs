@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Clock, ChevronLeft, ChevronRight, Send, AlertTriangle, Maximize2, Minimize2, Paintbrush, Slash, Eraser, Undo2, Redo2, RefreshCw, Loader2 } from 'lucide-react';
+import { Clock, ChevronLeft, ChevronRight, Send, AlertTriangle, Maximize2, Minimize2, Paintbrush, Slash, Eraser, Undo2, Redo2, RefreshCw, Loader2, Volume2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button, Modal } from '@/components/ui';
 import { studentApi } from '@/api/services';
@@ -1484,6 +1484,38 @@ export default function ExamTakePage() {
                           background: 'rgba(0,0,0,0.2)',
                           padding: '0.5rem'
                         }} 
+                      />
+                    </div>
+                  )}
+
+                  {/* Optional Question Listening Audio Passage Player */}
+                  {q.audio_url && (
+                    <div style={{
+                      marginTop: '1.2rem',
+                      padding: '1rem 1.25rem',
+                      borderRadius: '16px',
+                      background: 'linear-gradient(135deg, rgba(124,58,237,0.25) 0%, rgba(0,212,255,0.15) 100%)',
+                      border: '1px solid rgba(0,212,255,0.45)',
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.25)'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.65rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                          <div style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(0,212,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(0,212,255,0.4)' }}>
+                            <Volume2 size={18} color="#00D4FF" />
+                          </div>
+                          <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#FFF', letterSpacing: '-0.01em' }}>
+                            Question Listening Passage
+                          </span>
+                        </div>
+                        <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#00D4FF', background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.3)', padding: '0.2rem 0.65rem', borderRadius: 50 }}>
+                          Listen & Answer
+                        </span>
+                      </div>
+                      <audio
+                        controls
+                        controlsList="nodownload"
+                        src={q.audio_url}
+                        style={{ width: '100%', borderRadius: '10px', height: '42px', outline: 'none' }}
                       />
                     </div>
                   )}

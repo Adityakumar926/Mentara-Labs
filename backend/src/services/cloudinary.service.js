@@ -103,3 +103,38 @@ exports.deleteImage = async (publicId, options = {}) => {
   const cleanId = sanitizePublicId(publicId) || publicId;
   return cloudinary.uploader.destroy(cleanId, options);
 };
+
+/**
+ * Uploads an audio buffer to Cloudinary.
+ */
+exports.uploadAudio = async (buffer, folder, options = {}, retries = 3) => {
+  let attempt = 0;
+  const sanitizedOptions = { ...options };
+  if (sanitizedOptions.public_id) {
+    sanitizedOptions.public_id = sanitizePublicId(sanitizedOptions.public_id);
+  }
+
+  while (attempt < retries) {
+    try {
+      return await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder,
+            resource_type: 'video', // Cloudinary uses video resource_type for audio formats
+            timeout: 180000,
+            ...sanitizedOptions,
+          },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve({ url: result.secure_url, publicId: result.public_id });
+          }
+        );
+        streamifier.createReadStream(buffer).pipe(uploadStream);
+      });
+    } catch (err) {
+      attempt++;
+      if (attempt >= retries) throw err;
+      await new Promise((r) => setTimeout(r, attempt * 1000));
+    }
+  }
+};
