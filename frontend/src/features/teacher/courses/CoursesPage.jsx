@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { ChevronRight, Search, ChevronDown, ChevronUp, FolderTree, Layers, Check, Sparkles } from 'lucide-react';
+import { ChevronRight, Search, ChevronDown, ChevronUp, FolderTree, Layers, Check, Sparkles, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageWrapper, EmptyState } from '@/components/ui';
 import { useApi } from '@/hooks/useApi';
@@ -372,10 +372,19 @@ export default function CoursesPage() {
   
   const stagesList = useMemo(() => {
     if (!hierarchy || !Array.isArray(hierarchy)) return [];
+    let list = [];
     if (hierarchy[0] && hierarchy[0].classes) {
-      return hierarchy.flatMap((c) => c.classes || []);
+      list = hierarchy.flatMap((c) => c.classes || []);
+    } else {
+      list = hierarchy;
     }
-    return hierarchy;
+    return [...list].sort((a, b) => {
+      const aIsTeacher = a.name.toLowerCase().includes('teacher') || a.name.toLowerCase().includes('zone');
+      const bIsTeacher = b.name.toLowerCase().includes('teacher') || b.name.toLowerCase().includes('zone');
+      if (aIsTeacher && !bIsTeacher) return -1;
+      if (!aIsTeacher && bIsTeacher) return 1;
+      return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+    });
   }, [hierarchy]);
 
   const [selectedStage, setSelectedStage]       = useState('ALL');
@@ -413,7 +422,6 @@ export default function CoursesPage() {
         const stageNameMatch = Boolean(q && stage.name.toLowerCase().includes(q));
 
         const matchingSubjects = (stage.subjects || []).filter((subj) => {
-          // If query is empty or matches stage name itself (e.g. "stage"), show all subjects in this stage!
           if (!q || stageNameMatch) return true;
           const matchSubj  = subj.name.toLowerCase().includes(q) || (subj.description && subj.description.toLowerCase().includes(q));
           const matchTopic = (subj.topics || []).some((t) => t.name.toLowerCase().includes(q));
@@ -435,26 +443,6 @@ export default function CoursesPage() {
       <style>{CSS}</style>
       <div className="cp-root">
 
-        {/* Hero Header */}
-        <motion.div
-          className="cp-header"
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          <div className="cp-header-blob-1" />
-          <div className="cp-header-blob-2" />
-          <div style={{ position: 'relative', zIndex: 1, flex: 1 }}>
-            <div className="cp-eyebrow">
-              <span className="eyebrow-dot" />
-              Stage-Wise Curriculum Directory
-            </div>
-            <h1 className="cp-title">Stages & Subjects Portal</h1>
-            <p className="cp-subtitle">Browse Stage 1 to N with nested Subjects, Chapters, and Learning Materials.</p>
-          </div>
-          <img src="/courses.png?v=2" alt="Courses" className="cp-header-image" />
-        </motion.div>
-
         {/* Toolbar with Modern Custom Glass Dropdown */}
         <div className="cp-toolbar">
 
@@ -469,7 +457,7 @@ export default function CoursesPage() {
                 <Layers size={16} color="var(--cyan)" />
                 <span>
                   {selectedStage === 'ALL'
-                    ? `All Stages (${stagesList.length})`
+                    ? `All Zones & Stages (${stagesList.length})`
                     : selectedStageObj
                     ? `${selectedStageObj.name} (${(selectedStageObj.subjects || []).length} Subjects)`
                     : selectedStage}
@@ -498,25 +486,31 @@ export default function CoursesPage() {
                     className={`cp-dropdown-item ${selectedStage === 'ALL' ? 'active' : ''}`}
                     onClick={() => { setSelectedStage('ALL'); setDropdownOpen(false); }}
                   >
-                    <span>All Stages</span>
-                    <span className="cp-item-badge">{stagesList.length} Stages</span>
+                    <span>All Zones & Stages</span>
+                    <span className="cp-item-badge">{stagesList.length} Total</span>
                   </div>
 
                   <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '4px 0' }} />
 
-                  {stagesList.map((stg) => (
-                    <div
-                      key={stg.id}
-                      className={`cp-dropdown-item ${selectedStage === stg.name ? 'active' : ''}`}
-                      onClick={() => { setSelectedStage(stg.name); setDropdownOpen(false); }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {selectedStage === stg.name && <Check size={14} color="var(--cyan)" />}
-                        <span>{stg.name}</span>
+                  {stagesList.map((stg) => {
+                    const isTeacher = stg.name.toLowerCase().includes('teacher') || stg.name.toLowerCase().includes('zone');
+                    return (
+                      <div
+                        key={stg.id}
+                        className={`cp-dropdown-item ${selectedStage.toLowerCase() === stg.name.toLowerCase() ? 'active' : ''}`}
+                        onClick={() => { setSelectedStage(stg.name); setDropdownOpen(false); }}
+                        style={isTeacher ? { background: 'rgba(124, 58, 237, 0.15)', borderLeft: '3px solid #C4B5FD' } : {}}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          {selectedStage.toLowerCase() === stg.name.toLowerCase() && <Check size={14} color="var(--cyan)" />}
+                          <span style={{ fontWeight: isTeacher ? 800 : 600, color: isTeacher ? '#FDE68A' : 'inherit' }}>
+                            {stg.name}
+                          </span>
+                        </div>
+                        <span className="cp-item-badge">{(stg.subjects || []).length} Subjects</span>
                       </div>
-                      <span className="cp-item-badge">{(stg.subjects || []).length} Subjects</span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -550,6 +544,7 @@ export default function CoursesPage() {
           />
         ) : (
           filteredStages.map((stage) => {
+            const isTeacherZone = stage.name.toLowerCase().includes('teacher') || stage.name.toLowerCase().includes('zone');
             const totalTopics = (stage.subjects || []).reduce((sum, s) => sum + (s.topic_count || 0), 0);
 
             return (
@@ -559,25 +554,60 @@ export default function CoursesPage() {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35 }}
+                style={isTeacherZone ? {
+                  background: 'linear-gradient(135deg, rgba(15, 22, 41, 0.95) 0%, rgba(124, 58, 237, 0.15) 50%, rgba(10, 14, 26, 0.85) 100%)',
+                  border: '2px solid rgba(124, 58, 237, 0.35)',
+                  borderRadius: '28px',
+                  padding: '2.25rem 2.5rem',
+                  marginBottom: '2.5rem',
+                  boxShadow: '0 20px 50px rgba(0, 0, 0, 0.4), 0 0 30px rgba(124, 58, 237, 0.2)'
+                } : {}}
               >
-                {/* Stage 1 to N Header Card */}
-                <div className="cp-stage-header">
-                  <div>
-                    <div className="cp-stage-name">
-                      <span>{stage.name}</span>
-                      <span className="cp-stage-badge">{stage.curriculum_name || 'Curriculum Stage'}</span>
+                {isTeacherZone ? (
+                  /* ── EXACT TEACHER'S ZONE HEADER (MATCHING USER SCREENSHOT) ── */
+                  <div style={{ marginBottom: '2rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+                      <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(2rem, 4vw, 2.75rem)', fontWeight: 900, letterSpacing: '-0.03em', color: '#FFF', margin: 0 }}>
+                        Teacher's zone
+                      </h1>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0.35rem 1rem', borderRadius: '50px', background: 'rgba(124, 58, 237, 0.25)', border: '1px solid rgba(124, 58, 237, 0.5)', color: '#C4B5FD', fontSize: '0.75rem', fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase', boxShadow: '0 0 15px rgba(124, 58, 237, 0.3)' }}>
+                        CAMBRIDGE PRIMARY
+                      </span>
                     </div>
-                    {stage.description && <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.2rem' }}>{stage.description}</p>}
+
+                    <p style={{ fontSize: '0.92rem', color: 'rgba(245, 240, 232, 0.8)', lineHeight: 1.65, maxWidth: '960px', marginBottom: '1.25rem', fontWeight: 500 }}>
+                      Discover a collection of practical teaching approaches designed for Cambridge Primary educators. From active learning and differentiation to metacognition and assessment for learning, these resources provide clear guidance, classroom strategies, and ready-to-use ideas to help create engaging, inclusive, and learner-centred classrooms.
+                    </p>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '0.78rem', color: '#00D4FF', fontWeight: 800, background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.3)', padding: '0.45rem 1.1rem', borderRadius: 50 }}>
+                        {(stage.subjects || []).length || 8} Subjects
+                      </span>
+                      <span style={{ fontSize: '0.78rem', color: '#C4B5FD', fontWeight: 800, background: 'rgba(124,58,237,0.18)', border: '1px solid rgba(124,58,237,0.35)', padding: '0.45rem 1.1rem', borderRadius: 50 }}>
+                        {totalTopics || 8} Topics
+                      </span>
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--cyan)', fontWeight: 800, background: 'rgba(0,212,255,0.1)', padding: '0.35rem 0.85rem', borderRadius: 50 }}>
-                      {(stage.subjects || []).length} Subjects
-                    </span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--lavender)', fontWeight: 800, background: 'rgba(124,58,237,0.15)', padding: '0.35rem 0.85rem', borderRadius: 50 }}>
-                      {totalTopics} Topics
-                    </span>
+                ) : (
+                  /* Standard Stage 1 to N Header Card */
+                  <div className="cp-stage-header">
+                    <div>
+                      <div className="cp-stage-name">
+                        <span>{stage.name}</span>
+                        <span className="cp-stage-badge">{stage.curriculum_name || 'Curriculum Stage'}</span>
+                      </div>
+                      {stage.description && <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.2rem' }}>{stage.description}</p>}
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--cyan)', fontWeight: 800, background: 'rgba(0,212,255,0.1)', padding: '0.35rem 0.85rem', borderRadius: 50 }}>
+                        {(stage.subjects || []).length} Subjects
+                      </span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--lavender)', fontWeight: 800, background: 'rgba(124,58,237,0.15)', padding: '0.35rem 0.85rem', borderRadius: 50 }}>
+                        {totalTopics} Topics
+                      </span>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Subjects & Topics Grid inside this Stage */}
                 <div className="cp-subjects-container">
