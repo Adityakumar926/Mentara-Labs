@@ -71,6 +71,7 @@ exports.getOne = async (req, res) => {
                'options', q.options,
                'correct_answer', q.correct_answer,
                'image_url', q.image_url,
+               'audio_url', q.audio_url,
                'explanation', q.explanation,
                'difficulty', q.difficulty,
                'marks', eq.marks,

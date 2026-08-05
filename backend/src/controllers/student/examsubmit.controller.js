@@ -139,6 +139,7 @@ exports.getExamQuestions = async (req, res) => {
          q.question_type,
          q.options,
          q.image_url,
+         q.audio_url,
          q.difficulty,
          eq.marks,
          eq.order_index
@@ -177,6 +178,7 @@ exports.getExamQuestions = async (req, res) => {
                q.question_type,
                q.options,
                q.image_url,
+               q.audio_url,
                q.difficulty,
                eq.marks,
                eq.order_index
