@@ -198,5 +198,5 @@ export const studentApi = {
 
 // ── AI VOICE TUTOR ────────────────────────────────────────────────────────────
 export const aiApi = {
-  voiceTutor: (message, history) => api.post('/ai/voice-tutor', { message, history }),
+  voiceTutor: (message, history, examContext) => api.post('/ai/voice-tutor', { message, history, examContext }),
 };

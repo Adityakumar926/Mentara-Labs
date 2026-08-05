@@ -91,6 +91,7 @@ const TOKENS = `
   .ui-modal-xl  { max-width: 960px; }
   .ui-modal-2xl { max-width: 1400px; }
   .ui-modal-fs  { max-width: 98vw; }
+  .ui-modal-full { max-width: 100vw !important; width: 100vw !important; height: 100vh !important; max-height: 100vh !important; border-radius: 0 !important; padding: 0 !important; border: none !important; }
 
   .ui-modal-header {
     display: flex; align-items: center; justify-content: space-between;
@@ -509,9 +510,9 @@ export function SkeletonCard() {
 /* ─────────────────────────────────────────────
    MODAL
 ───────────────────────────────────────────── */
-export function Modal({ open, onClose, title, children, size = 'md', preventOutsideClickClose = false, tall = false }) {
+export function Modal({ open, onClose, title, children, size = 'md', preventOutsideClickClose = false, tall = false, hideHeader = false }) {
   ensureTokens();
-  const s = { sm: 'ui-modal-sm', md: 'ui-modal-md', lg: 'ui-modal-lg', xl: 'ui-modal-xl', '2xl': 'ui-modal-2xl', fs: 'ui-modal-fs' };
+  const s = { sm: 'ui-modal-sm', md: 'ui-modal-md', lg: 'ui-modal-lg', xl: 'ui-modal-xl', '2xl': 'ui-modal-2xl', fs: 'ui-modal-fs', full: 'ui-modal-full' };
   return (
     <AnimatePresence>
       {open && (
@@ -524,11 +525,13 @@ export function Modal({ open, onClose, title, children, size = 'md', preventOuts
             exit={{ opacity: 0, scale: 0.94, y: 20 }}
             transition={{ type: 'spring', stiffness: 320, damping: 28 }}
           >
-            <div className="ui-modal-header">
-              <h2 className="ui-modal-title">{title}</h2>
-              <button className="ui-modal-close" onClick={onClose}><X size={15} /></button>
-            </div>
-            <div className="ui-modal-body">
+            {(!hideHeader && title) && (
+              <div className="ui-modal-header">
+                <h2 className="ui-modal-title">{title}</h2>
+                <button className="ui-modal-close" onClick={onClose}><X size={15} /></button>
+              </div>
+            )}
+            <div className="ui-modal-body" style={size === 'full' ? { padding: 0, overflow: 'hidden' } : undefined}>
               {children}
             </div>
           </motion.div>

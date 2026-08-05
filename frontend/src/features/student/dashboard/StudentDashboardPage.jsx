@@ -14,6 +14,7 @@ import useAuthStore from '@/store/authStore';
 import MuxPlayer from '@mux/mux-player-react';
 import toast from 'react-hot-toast';
 import PdfViewerModal from '@/components/shared/PdfViewerModal';
+import WorksheetCanvas from '@/components/shared/WorksheetCanvas';
 
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Quicksand:wght@600;700;800&display=swap');
@@ -640,34 +641,37 @@ export default function StudentDashboardPage() {
     }
   };
 
+  const [activeWorksheetModal, setActiveWorksheetModal] = useState(null);
+
   const handleOpenWorksheet = async (content) => {
-    const wsWindow = window.open('', '_blank');
-    if (wsWindow) {
-      wsWindow.document.write('<div style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;background:#0A0E1A;color:#fff;">Loading Worksheet...</div>');
-    }
     try {
       const res = await studentApi.getWorksheetUrl(content.id);
-      const wsUrl = res.data.url;
-      if (wsUrl && wsWindow) {
-        window.onWorksheetSubmit = (cid) => {
-          studentApi.trackResource({ contentId: cid, completed: true })
-            .then(() => {
-              if (selectedTopic) {
-                studentApi.getTopicContent(selectedTopic.id)
-                  .then(r => setTopicContent(r.data?.data ?? r.data ?? r));
-              }
-            })
-            .catch(err => console.error('Failed to update worksheet progress:', err));
+      const wsUrl = res.data?.url || res.data;
+      if (wsUrl) {
+        setActiveWorksheetModal({
+          id: content.id,
+          title: content.title || 'Interactive Worksheet',
+          imageUrl: wsUrl
+        });
+
+        // Set GOGO AI Voice Tutor active worksheet context
+        const ctx = {
+          questionNumber: 1,
+          totalQuestions: 1,
+          questionText: content.title || 'Worksheet Task',
+          options: [],
+          imageUrl: wsUrl,
+          extractedText: null
         };
-        openWorksheetInNewTab(wsUrl, content.id, wsWindow);
-      } else if (wsWindow) {
-        wsWindow.close();
+        window.activeExamContext = ctx;
+        window.dispatchEvent(new CustomEvent('active-exam-question-changed', { detail: ctx }));
+      } else {
+        toast.error('Worksheet URL unavailable.');
       }
     } catch (e) {
       console.error('Failed to open worksheet:', e);
       const msg = e.response?.data?.message || 'Failed to open worksheet';
       toast.error(msg);
-      if (wsWindow) wsWindow.close();
     }
   };
 
@@ -1385,6 +1389,37 @@ export default function StudentDashboardPage() {
               </button>
             </div>
           </div>
+        </Modal>
+
+        {/* Modal: Interactive Worksheet Drawing Canvas */}
+        <Modal
+          open={!!activeWorksheetModal}
+          onClose={() => {
+            setActiveWorksheetModal(null);
+            window.activeExamContext = null;
+            window.dispatchEvent(new CustomEvent('active-exam-question-changed', { detail: null }));
+          }}
+          title={activeWorksheetModal?.title || 'Interactive Worksheet'}
+          size="full"
+          hideHeader={true}
+        >
+          {activeWorksheetModal && (
+            <WorksheetCanvas
+              imageUrl={activeWorksheetModal.imageUrl}
+              contentId={activeWorksheetModal.id}
+              title={activeWorksheetModal.title}
+              onSubmit={(cid) => {
+                studentApi.trackResource({ contentId: cid, completed: true })
+                  .then(() => toast.success('Worksheet submitted successfully! 🎉'))
+                  .catch(err => console.error('Failed to submit worksheet:', err));
+              }}
+              onClose={() => {
+                setActiveWorksheetModal(null);
+                window.activeExamContext = null;
+                window.dispatchEvent(new CustomEvent('active-exam-question-changed', { detail: null }));
+              }}
+            />
+          )}
         </Modal>
 
       </div>

@@ -1054,6 +1054,27 @@ function WorksheetCanvas({ imageUrl, contentId, onSubmit, onClose }) {
     setImgLoaded(true);
   }, []);
 
+  // Broadcast active worksheet context to GOGO AI Voice Tutor
+  useEffect(() => {
+    if (imageUrl) {
+      const ctx = {
+        questionNumber: 1,
+        totalQuestions: 1,
+        questionText: 'Worksheet Task',
+        options: [],
+        imageUrl: imageUrl,
+        extractedText: null
+      };
+      window.activeExamContext = ctx;
+      window.dispatchEvent(new CustomEvent('active-exam-question-changed', { detail: ctx }));
+    }
+
+    return () => {
+      window.activeExamContext = null;
+      window.dispatchEvent(new CustomEvent('active-exam-question-changed', { detail: null }));
+    };
+  }, [imageUrl]);
+
   // Re-sync canvas size if the container is resized (e.g. modal resize)
   useEffect(() => {
     const img = canvasRef.current;

@@ -218,7 +218,17 @@ Return a JSON object ONLY with the keys:
    * STRICT SECURITY ISOLATION: Strictly queries items scoped to req.user.class_id
    */
   async actionToolNode(state) {
-    const { message, intent, user } = state;
+    const { message, intent, user, examContext } = state;
+
+    // SECURITY & OVERRIDE RULE: If the student is inside an ACTIVE EXAM or WORKSHEET, NEVER perform navigation actions!
+    if (examContext) {
+      return {
+        ...state,
+        action: null,
+        foundDataSummary: `ACTIVE EXAM MODE: Student is currently taking Question #${examContext.questionNumber || 1}. Navigation disabled during active exam.`,
+        actionStepExecuted: true
+      };
+    }
 
     let action = null;
     let foundDataSummary = '';
@@ -411,7 +421,7 @@ Return a JSON object ONLY with the keys:
    * Executes using llama-3.3-70b-versatile with tailored agent persona
    */
   async specialistNode(state) {
-    const { message, intent, contextSummary, activeHistory, currentTopic, action, foundDataSummary, user, dashboardOverview } = state;
+    const { message, intent, contextSummary, activeHistory, currentTopic, action, foundDataSummary, user, dashboardOverview, examContext } = state;
 
     // Define Specialized Agent System Prompts based on Intent & Security Scoping
     let agentRolePrompt = `You are Gogo, a friendly, encouraging, and super-smart AI Voice Tutor for students (ages 5 to 14).
@@ -425,7 +435,30 @@ Strict Rules:
 3. You can reply warmly to general greetings or conversational small talk (e.g. "hello", "how are you", "thank you") without declining.
 4. Keep your answer clear, engaging, friendly, and under 100 words.`;
 
-    if (action) {
+    if (examContext) {
+      const allQuestionContent = `${examContext.questionText || ''} ${examContext.extractedText || ''}`;
+      const isListeningTest = /listening|listen|part 1|audio/i.test(allQuestionContent);
+
+      agentRolePrompt += `\n\n[ACTIVE EXAM / WORKSHEET SOCRATIC ASSISTANT MODE]:
+The student is currently taking an exam or worksheet.
+Active Question Details:
+- Question #${examContext.questionNumber || 1}: "${examContext.questionText || 'Active Question'}"
+${examContext.options ? `- Options: ${JSON.stringify(examContext.options)}` : ''}
+${examContext.extractedText ? `- Extracted Image/PDF Text: "${examContext.extractedText}"` : ''}
+
+${isListeningTest ? `🎧 DYNAMIC LISTENING & AUDIO TEST MODE ACTIVE:
+You are dynamically analyzing a Cambridge Primary Listening/Audio test question from the student's active screen.
+
+PURELY DYNAMIC AI INSTRUCTIONS:
+1. Dynamically analyze the "Active Question Details" (Question Text, Options, and Extracted Image/PDF Text).
+2. Dynamically identify the specific active question prompt (e.g. Question #${examContext.questionNumber || 1}) and its options (A, B, C).
+3. Generate a realistic, child-friendly audio script/passage for Question #${examContext.questionNumber || 1} where ONE of the exact options dynamically present in the active question is the correct answer.
+4. DO NOT invent objects, characters, or options that do not exist in the active question details.
+5. When asked "which option" or for the answer, dynamically identify and state the exact correct option letter (A, B, or C) with a clear explanation!` : `SOCRATIC TUTOR GUIDANCE RULES:
+1. When the student asks for help, concept explanation, or a hint, ALWAYS provide an encouraging HINT and explain the concept FIRST. Do NOT give away the direct answer option immediately.
+2. Encourage the student to give it a try with the hint.
+3. IF AND ONLY IF the student explicitly asks for the answer (e.g., "tell me the answer of 1st one", "what is the answer", "tell me answer", "give me the answer"), OR says they are completely stuck, provide the full step-by-step working and state the correct option/answer clearly!`}`;
+    } else if (action) {
       agentRolePrompt += `\n[ACTION REQUIRED]: You are automatically taking the student to their requested dashboard page (${action.label}). ${foundDataSummary} Warmly tell the student that you found it in their dashboard and are opening it right now!`;
     } else if (intent === 'QUIZ_OR_PRACTICE') {
       agentRolePrompt += `\nProvide 1 fun practice question or mini-challenge based on ${currentTopic}, and ask the student to give their answer!`;
@@ -477,11 +510,12 @@ Strict Rules:
   /**
    * Execute State Graph Workflow Pipeline
    */
-  async run(message, history = [], user = null) {
+  async run(message, history = [], user = null, examContext = null) {
     let state = {
       message,
       history: Array.isArray(history) ? history : [],
       user,
+      examContext,
       intent: null,
       currentTopic: null,
       isFollowUp: false,

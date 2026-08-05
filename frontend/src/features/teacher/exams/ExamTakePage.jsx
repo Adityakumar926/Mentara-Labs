@@ -7,6 +7,7 @@ import { studentApi } from '@/api/services';
 import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
+import VoiceTutor from '@/components/shared/VoiceTutor';
 
 /* ─── CSS ─────────────────────────────────────────────────────────────────── */
 const CSS = `
@@ -1122,6 +1123,32 @@ export default function ExamTakePage() {
 
   const { remaining, label: timerLabel, expired } = useCountdown(deadline, serverOffset);
 
+  // Broadcast current active question context to GOGO AI Voice Tutor
+  useEffect(() => {
+    if (questions && questions.length > 0 && questions[current]) {
+      const q = questions[current];
+      const img = q.image_url || q.worksheet_url || q.file_url || q.image || q.question_image || q.url || q.content_url || null;
+      const ctx = {
+        questionNumber: current + 1,
+        totalQuestions: questions.length,
+        questionText: q.question_text || q.text || q.prompt || q.title || '',
+        options: q.options || [],
+        imageUrl: img,
+        extractedText: null
+      };
+      window.activeExamContext = ctx;
+      window.dispatchEvent(new CustomEvent('active-exam-question-changed', { detail: ctx }));
+    } else {
+      window.activeExamContext = null;
+      window.dispatchEvent(new CustomEvent('active-exam-question-changed', { detail: null }));
+    }
+
+    return () => {
+      window.activeExamContext = null;
+      window.dispatchEvent(new CustomEvent('active-exam-question-changed', { detail: null }));
+    };
+  }, [current, questions]);
+
   useEffect(() => {
     const handleFsChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
@@ -1655,6 +1682,9 @@ export default function ExamTakePage() {
             </button>
           </div>
         </Modal>
+
+        {/* ── GOGO AI Voice Tutor Widget for Exams ── */}
+        <VoiceTutor />
 
       </div>
     </>

@@ -1,11 +1,13 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { ChevronRight, Search, ChevronDown, ChevronUp, FolderTree, Layers, Check, Sparkles, BookOpen } from 'lucide-react';
+import { ChevronRight, Search, ChevronDown, ChevronUp, FolderTree, Layers, Check, Sparkles, BookOpen, Eye, ArrowRight, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PageWrapper, EmptyState } from '@/components/ui';
+import { PageWrapper, EmptyState, Modal } from '@/components/ui';
 import { useApi } from '@/hooks/useApi';
 import { studentApi } from '@/api/services';
 import useAuthStore from '@/store/authStore';
+import PdfViewerModal from '@/components/shared/PdfViewerModal';
+import toast from 'react-hot-toast';
 
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
@@ -391,6 +393,48 @@ export default function CoursesPage() {
   const [search, setSearch]                     = useState('');
   const [dropdownOpen, setDropdownOpen]         = useState(false);
   const [expandedSubjects, setExpandedSubjects] = useState({});
+  const [activeSubjectModal, setActiveSubjectModal] = useState(null);
+  const [activeTeacherZoneModal, setActiveTeacherZoneModal] = useState(null);
+  const [activePdfModal, setActivePdfModal] = useState({ open: false, url: '', title: '' });
+
+  const handleViewTopicContent = async (topicId, topicName) => {
+    try {
+      toast.loading('Opening document...', { id: 'pdf-load' });
+      const res = await studentApi.getTopicContent(topicId);
+      toast.dismiss('pdf-load');
+      const items = res.data?.data?.items || [];
+      const docItem = items.find(item => item.file_url) || items[0];
+      if (docItem && docItem.file_url) {
+        setActivePdfModal({ open: true, url: docItem.file_url, title: docItem.title || topicName });
+      } else if (items.length > 0 && items[0].id) {
+        const noteRes = await studentApi.getNoteUrl(items[0].id);
+        if (noteRes.data?.data?.note_url) {
+          setActivePdfModal({ open: true, url: noteRes.data.data.note_url, title: items[0].title || topicName });
+        } else {
+          toast.error('No document file attached to this topic yet.');
+        }
+      } else {
+        toast.error('No document file found for this topic.');
+      }
+    } catch (err) {
+      toast.dismiss('pdf-load');
+      console.error('Failed to load topic document', err);
+      toast.error('Could not open document');
+    }
+  };
+
+  const getSubjectIcon = (name = '') => {
+    const n = name.toLowerCase();
+    if (n.includes('active')) return '⚡';
+    if (n.includes('assessment')) return '🎯';
+    if (n.includes('language skills')) return '🗣️';
+    if (n.includes('differentiation')) return '🧩';
+    if (n.includes('questioning')) return '❓';
+    if (n.includes('awareness')) return '🌐';
+    if (n.includes('metacognition')) return '🧠';
+    if (n.includes('life')) return '🚀';
+    return '📚';
+  };
 
   const dropdownRef = useRef(null);
 
@@ -564,148 +608,424 @@ export default function CoursesPage() {
                 } : {}}
               >
                 {isTeacherZone ? (
-                  /* ── EXACT TEACHER'S ZONE HEADER (MATCHING USER SCREENSHOT) ── */
-                  <div style={{ marginBottom: '2rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-                      <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(2rem, 4vw, 2.75rem)', fontWeight: 900, letterSpacing: '-0.03em', color: '#FFF', margin: 0 }}>
-                        Teacher's zone
-                      </h1>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0.35rem 1rem', borderRadius: '50px', background: 'rgba(124, 58, 237, 0.25)', border: '1px solid rgba(124, 58, 237, 0.5)', color: '#C4B5FD', fontSize: '0.75rem', fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase', boxShadow: '0 0 15px rgba(124, 58, 237, 0.3)' }}>
-                        CAMBRIDGE PRIMARY
-                      </span>
+                  /* ── SINGLE SUBJECT CARD FOR WHOLE TEACHER'S ZONE ── */
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                        <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(1.75rem, 3.5vw, 2.35rem)', fontWeight: 900, color: '#FFF', margin: 0 }}>
+                          Teacher's zone
+                        </h1>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0.3rem 0.85rem', borderRadius: '50px', background: 'rgba(124, 58, 237, 0.25)', border: '1px solid rgba(124, 58, 237, 0.5)', color: '#C4B5FD', fontSize: '0.72rem', fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                          CAMBRIDGE PRIMARY
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                        <span style={{ fontSize: '0.78rem', color: '#00D4FF', fontWeight: 800, background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.3)', padding: '0.35rem 0.95rem', borderRadius: 50 }}>
+                          {(stage.subjects || []).length || 8} Subjects
+                        </span>
+                        <span style={{ fontSize: '0.78rem', color: '#C4B5FD', fontWeight: 800, background: 'rgba(124,58,237,0.18)', border: '1px solid rgba(124,58,237,0.35)', padding: '0.35rem 0.95rem', borderRadius: 50 }}>
+                          {totalTopics || 8} Topics
+                        </span>
+                      </div>
                     </div>
 
-                    <p style={{ fontSize: '0.92rem', color: 'rgba(245, 240, 232, 0.8)', lineHeight: 1.65, maxWidth: '960px', marginBottom: '1.25rem', fontWeight: 500 }}>
+                    <p style={{ fontSize: '0.88rem', color: 'rgba(245, 240, 232, 0.8)', lineHeight: 1.65, maxWidth: '960px', margin: 0, fontWeight: 500 }}>
                       Discover a collection of practical teaching approaches designed for Cambridge Primary educators. From active learning and differentiation to metacognition and assessment for learning, these resources provide clear guidance, classroom strategies, and ready-to-use ideas to help create engaging, inclusive, and learner-centred classrooms.
                     </p>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                      <span style={{ fontSize: '0.78rem', color: '#00D4FF', fontWeight: 800, background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.3)', padding: '0.45rem 1.1rem', borderRadius: 50 }}>
-                        {(stage.subjects || []).length || 8} Subjects
-                      </span>
-                      <span style={{ fontSize: '0.78rem', color: '#C4B5FD', fontWeight: 800, background: 'rgba(124,58,237,0.18)', border: '1px solid rgba(124,58,237,0.35)', padding: '0.45rem 1.1rem', borderRadius: 50 }}>
-                        {totalTopics || 8} Topics
-                      </span>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTeacherZoneModal(stage)}
+                      style={{
+                        width: '100%',
+                        padding: '0.85rem 1.5rem',
+                        borderRadius: '14px',
+                        background: 'linear-gradient(135deg, #7C3AED 0%, #00D4FF 100%)',
+                        border: 'none',
+                        color: '#FFF',
+                        fontWeight: 900,
+                        fontSize: '0.92rem',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.6rem',
+                        boxShadow: '0 6px 20px rgba(124, 58, 237, 0.35)',
+                        transition: 'transform 0.15s ease'
+                      }}
+                    >
+                      <Eye size={18} color="#FFF" />
+                      <span>View Inside Content</span>
+                    </button>
                   </div>
                 ) : (
-                  /* Standard Stage 1 to N Header Card */
-                  <div className="cp-stage-header">
-                    <div>
-                      <div className="cp-stage-name">
-                        <span>{stage.name}</span>
-                        <span className="cp-stage-badge">{stage.curriculum_name || 'Curriculum Stage'}</span>
-                      </div>
-                      {stage.description && <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.2rem' }}>{stage.description}</p>}
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--cyan)', fontWeight: 800, background: 'rgba(0,212,255,0.1)', padding: '0.35rem 0.85rem', borderRadius: 50 }}>
-                        {(stage.subjects || []).length} Subjects
-                      </span>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--lavender)', fontWeight: 800, background: 'rgba(124,58,237,0.15)', padding: '0.35rem 0.85rem', borderRadius: 50 }}>
-                        {totalTopics} Topics
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Subjects & Topics Grid inside this Stage */}
-                <div className="cp-subjects-container">
-                  {(stage.subjects || []).map((subject) => {
-                    const isExpanded = expandedSubjects[subject.id] || false;
-                    const visibleTopics = isExpanded ? (subject.topics || []) : (subject.topics || []).slice(0, 3);
-                    const hasMore = (subject.topics || []).length > 3;
-
-                    return (
-                      <div key={subject.id} className="cp-subject-card">
-                        <div className="cp-subj-top">
-                          <div>
-                            <div className="cp-subj-title">{subject.name}</div>
-                            {subject.description && <p style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '2px' }}>{subject.description}</p>}
-                          </div>
-                          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--cyan)', background: 'rgba(0,212,255,0.1)', padding: '0.2rem 0.65rem', borderRadius: 50 }}>
-                            {subject.topic_count || 0} chapters
-                          </span>
+                  <>
+                    {/* Standard Stage 1 to N Header Card */}
+                    <div className="cp-stage-header">
+                      <div>
+                        <div className="cp-stage-name">
+                          <span>{stage.name}</span>
+                          <span className="cp-stage-badge">{stage.curriculum_name || 'Curriculum Stage'}</span>
                         </div>
+                        {stage.description && <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.2rem' }}>{stage.description}</p>}
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--cyan)', fontWeight: 800, background: 'rgba(0,212,255,0.1)', padding: '0.35rem 0.85rem', borderRadius: 50 }}>
+                          {(stage.subjects || []).length} Subjects
+                        </span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--lavender)', fontWeight: 800, background: 'rgba(124,58,237,0.15)', padding: '0.35rem 0.85rem', borderRadius: 50 }}>
+                          {totalTopics} Topics
+                        </span>
+                      </div>
+                    </div>
 
-                        {/* Topics List inside Subject */}
-                        <div className="cp-topics-list">
-                          {(subject.topics || []).length === 0 ? (
-                            <div style={{ fontSize: '0.75rem', color: 'var(--muted)', fontStyle: 'italic', padding: '0.4rem 0' }}>
-                              No topics added yet for this subject.
+                    <div className="cp-subjects-container">
+                    {(stage.subjects || []).map((subject) => {
+                      const isExpanded = expandedSubjects[subject.id] || false;
+                      const visibleTopics = isExpanded ? (subject.topics || []) : (subject.topics || []).slice(0, 3);
+                      const hasMore = (subject.topics || []).length > 3;
+
+                      return (
+                        <div key={subject.id} className="cp-subject-card">
+                          <div className="cp-subj-top">
+                            <div>
+                              <div className="cp-subj-title">{subject.name}</div>
+                              {subject.description && <p style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '2px' }}>{subject.description}</p>}
                             </div>
-                          ) : (
-                            visibleTopics.map((topic, idx) => (
-                              <Link
-                                key={topic.id}
-                                to={`/topics/${topic.id}`}
-                                className="cp-topic-item"
-                              >
-                                <div className="cp-topic-name">
-                                  <span style={{ color: 'var(--cyan)', fontSize: '0.7rem', fontWeight: 800 }}>#{String(idx + 1).padStart(2, '0')}</span>
-                                  <span>{topic.name}</span>
-                                </div>
-                                <div className="cp-topic-meta">
-                                  {topic.resource_count > 0 && (
-                                    <span className="cp-meta-chip">{topic.resource_count} items</span>
-                                  )}
-                                  {topic.exam_count > 0 && (
-                                    <span className="cp-meta-chip" style={{ color: '#F59E0B' }}>{topic.exam_count} exams</span>
-                                  )}
-                                  <ChevronRight size={12} color="var(--violet-l)" />
-                                </div>
-                              </Link>
-                            ))
-                          )}
-                        </div>
+                            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--cyan)', background: 'rgba(0,212,255,0.1)', padding: '0.2rem 0.65rem', borderRadius: 50 }}>
+                              {subject.topic_count || 0} chapters
+                            </span>
+                          </div>
 
-                        {/* Expand Button */}
-                        {hasMore && (
-                          <button
-                            type="button"
-                            className="cp-expand-btn"
-                            onClick={() => toggleExpand(subject.id)}
-                          >
-                            {isExpanded ? (
-                              <>
-                                <span>Show Less</span>
-                                <ChevronUp size={14} />
-                              </>
+                          {/* Topics List inside Subject */}
+                          <div className="cp-topics-list">
+                            {(subject.topics || []).length === 0 ? (
+                              <div style={{ fontSize: '0.75rem', color: 'var(--muted)', fontStyle: 'italic', padding: '0.4rem 0' }}>
+                                No topics added yet for this subject.
+                              </div>
                             ) : (
-                              <>
-                                <span>View All {subject.topics.length} Topics</span>
-                                <ChevronDown size={14} />
-                              </>
+                              visibleTopics.map((topic, idx) => (
+                                <Link
+                                  key={topic.id}
+                                  to={`/topics/${topic.id}`}
+                                  className="cp-topic-item"
+                                >
+                                  <div className="cp-topic-name">
+                                    <span style={{ color: 'var(--cyan)', fontSize: '0.7rem', fontWeight: 800 }}>#{String(idx + 1).padStart(2, '0')}</span>
+                                    <span>{topic.name}</span>
+                                  </div>
+                                  <div className="cp-topic-meta">
+                                    {topic.resource_count > 0 && (
+                                      <span className="cp-meta-chip">{topic.resource_count} items</span>
+                                    )}
+                                    {topic.exam_count > 0 && (
+                                      <span className="cp-meta-chip" style={{ color: '#F59E0B' }}>{topic.exam_count} exams</span>
+                                    )}
+                                    <ChevronRight size={12} color="var(--violet-l)" />
+                                  </div>
+                                </Link>
+                              ))
                             )}
-                          </button>
-                        )}
+                          </div>
 
-                        {/* View Full Subject Link */}
-                        <Link
-                          to={`/subjects/${subject.id}`}
-                          style={{
-                            marginTop: 'auto',
-                            paddingTop: '0.75rem',
-                            fontSize: '0.78rem',
-                            fontWeight: 700,
-                            color: 'var(--cyan)',
-                            textDecoration: 'none',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}
-                        >
-                          <span>Explore Subject Chapters</span>
-                          <ChevronRight size={13} />
-                        </Link>
-                      </div>
-                    );
-                  })}
-                </div>
+                          {/* Expand Button */}
+                          {hasMore && (
+                            <button
+                              type="button"
+                              className="cp-expand-btn"
+                              onClick={() => toggleExpand(subject.id)}
+                            >
+                              {isExpanded ? (
+                                <>
+                                  <span>Show Less</span>
+                                  <ChevronUp size={14} />
+                                </>
+                              ) : (
+                                <>
+                                  <span>View All {subject.topics.length} Topics</span>
+                                  <ChevronDown size={14} />
+                                </>
+                              )}
+                            </button>
+                          )}
+
+                          {/* View Full Subject Link */}
+                          <Link
+                            to={`/subjects/${subject.id}`}
+                            style={{
+                              marginTop: 'auto',
+                              paddingTop: '0.75rem',
+                              fontSize: '0.78rem',
+                              fontWeight: 700,
+                              color: 'var(--cyan)',
+                              textDecoration: 'none',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <span>Explore Subject Chapters</span>
+                            <ChevronRight size={13} />
+                          </Link>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
               </motion.div>
             );
           })
         )}
+        {/* Modal: Subject Content Explorer */}
+        <Modal
+          open={!!activeSubjectModal}
+          onClose={() => setActiveSubjectModal(null)}
+          size="2xl"
+          title={activeSubjectModal?.name || 'Subject Content'}
+        >
+          {activeSubjectModal && (
+            <div style={{ padding: '0.5rem 0' }}>
+              {/* Header Banner */}
+              <div style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.25) 0%, rgba(0,212,255,0.12) 100%)', border: '1px solid rgba(124,58,237,0.4)', borderRadius: '20px', padding: '1.5rem', marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '1.6rem' }}>{getSubjectIcon(activeSubjectModal.name)}</span>
+                  <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.5rem', fontWeight: 900, color: '#FFF', margin: 0 }}>
+                    {activeSubjectModal.name}
+                  </h2>
+                  <span style={{ padding: '0.25rem 0.85rem', borderRadius: 50, background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.35)', color: '#00D4FF', fontSize: '0.72rem', fontWeight: 900, textTransform: 'uppercase' }}>
+                    Cambridge Primary
+                  </span>
+                </div>
+                <p style={{ fontSize: '0.88rem', color: 'rgba(245,240,232,0.82)', lineHeight: 1.6, margin: 0, fontWeight: 500 }}>
+                  {activeSubjectModal.description || 'Explore teaching guidance, classroom strategies, and ready-to-use ideas for this approach.'}
+                </p>
+              </div>
+
+              {/* Chapters & Topics List */}
+              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#FFF', marginBottom: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <BookOpen size={16} color="#00D4FF" />
+                <span>Chapters & Learning Documents ({(activeSubjectModal.topics || []).length})</span>
+              </h3>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                {(activeSubjectModal.topics || []).length === 0 ? (
+                  <div style={{ padding: '2rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', color: 'rgba(245,240,232,0.5)', fontStyle: 'italic' }}>
+                    No chapters found for this subject yet.
+                  </div>
+                ) : (
+                  activeSubjectModal.topics.map((topic, idx) => (
+                    <Link
+                      key={topic.id}
+                      to={`/topics/${topic.id}`}
+                      onClick={() => setActiveSubjectModal(null)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '1rem 1.25rem',
+                        borderRadius: '14px',
+                        background: 'rgba(255,255,255,0.03)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        color: '#FFF',
+                        textDecoration: 'none',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(124,58,237,0.18)';
+                        e.currentTarget.style.borderColor = 'rgba(0,212,255,0.35)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                        <span style={{ color: '#00D4FF', fontWeight: 900, fontSize: '0.82rem' }}>#{String(idx + 1).padStart(2, '0')}</span>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: '0.92rem' }}>{topic.name}</div>
+                          {topic.resource_count > 0 && (
+                            <div style={{ fontSize: '0.75rem', color: 'rgba(245,240,232,0.5)', marginTop: '2px' }}>
+                              📁 {topic.resource_count} items available
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#C4B5FD', fontWeight: 700, fontSize: '0.8rem' }}>
+                        <span>Open Chapter</span>
+                        <ChevronRight size={15} />
+                      </div>
+                    </Link>
+                  ))
+                )}
+              </div>
+
+              {/* Footer Action */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+                <Link
+                  to={`/subjects/${activeSubjectModal.id}`}
+                  onClick={() => setActiveSubjectModal(null)}
+                  style={{
+                    padding: '0.65rem 1.4rem',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(135deg, #7C3AED 0%, #00D4FF 100%)',
+                    color: '#FFF',
+                    fontWeight: 800,
+                    fontSize: '0.85rem',
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    boxShadow: '0 4px 15px rgba(124,58,237,0.3)'
+                  }}
+                >
+                  <span>Explore Full Subject Page</span>
+                  <ArrowRight size={15} />
+                </Link>
+              </div>
+            </div>
+          )}
+        </Modal>
+
+        {/* Modal: Full Teacher's Zone Explorer */}
+        <Modal
+          open={!!activeTeacherZoneModal}
+          onClose={() => setActiveTeacherZoneModal(null)}
+          size="2xl"
+          title="Teacher's Zone - Practical Teaching Approaches"
+        >
+          {activeTeacherZoneModal && (
+            <div style={{ padding: '0.25rem 0' }}>
+              {/* Header Banner */}
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(124,58,237,0.2) 0%, rgba(0,212,255,0.1) 100%)',
+                border: '1px solid rgba(124,58,237,0.35)',
+                borderRadius: '20px',
+                padding: '1.4rem 1.6rem',
+                marginBottom: '1.5rem'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <BookOpen size={20} color="#00D4FF" />
+                    </div>
+                    <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.45rem', fontWeight: 900, color: '#FFF', margin: 0, letterSpacing: '-0.02em' }}>
+                      Teacher's Zone Approaches
+                    </h2>
+                  </div>
+                  <span style={{ padding: '0.3rem 0.9rem', borderRadius: 50, background: 'rgba(124,58,237,0.25)', border: '1px solid rgba(124,58,237,0.5)', color: '#C4B5FD', fontSize: '0.72rem', fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                    CAMBRIDGE PRIMARY
+                  </span>
+                </div>
+                <p style={{ fontSize: '0.86rem', color: 'rgba(245,240,232,0.8)', lineHeight: 1.6, margin: 0, fontWeight: 500 }}>
+                  Discover practical teaching methodologies and reference guidance designed for Cambridge Primary educators. Click any approach card to open and view its official document.
+                </p>
+              </div>
+
+              {/* Grid of all 8 Teaching Approach Subjects */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem' }}>
+                {(activeTeacherZoneModal.subjects || []).map((subject) => {
+                  const iconEmoji = getSubjectIcon(subject.name);
+                  const topicsList = subject.topics || [];
+
+                  return (
+                    <div
+                      key={subject.id}
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(15, 22, 41, 0.85) 0%, rgba(26, 35, 62, 0.65) 100%)',
+                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        borderRadius: '20px',
+                        padding: '1.5rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        transition: 'all 0.25s ease',
+                        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.25)'
+                      }}
+                    >
+                      <div>
+                        {/* Top Meta Row */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
+                          <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'rgba(124, 58, 237, 0.18)', border: '1px solid rgba(124, 58, 237, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.35rem' }}>
+                            {iconEmoji}
+                          </div>
+                          <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#00D4FF', background: 'rgba(0, 212, 255, 0.1)', border: '1px solid rgba(0, 212, 255, 0.25)', padding: '0.2rem 0.7rem', borderRadius: 50 }}>
+                            {topicsList.length || 1} {topicsList.length === 1 ? 'document' : 'documents'}
+                          </span>
+                        </div>
+
+                        {/* Approach Title */}
+                        <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.18rem', fontWeight: 800, color: '#FFFFFF', marginBottom: '0.5rem', lineHeight: 1.35 }}>
+                          {subject.name}
+                        </h3>
+
+                        {/* Approach Description */}
+                        <p style={{
+                          fontSize: '0.84rem',
+                          color: 'rgba(245, 240, 232, 0.75)',
+                          lineHeight: 1.6,
+                          marginBottom: '1.5rem'
+                        }}>
+                          {subject.description || 'Clear guidance, classroom strategies, and ready-to-use ideas.'}
+                        </p>
+                      </div>
+
+                      {/* Single Professional Action Button Row */}
+                      <div style={{ marginTop: 'auto' }}>
+                        {topicsList.map((tp) => (
+                          <button
+                            key={tp.id}
+                            type="button"
+                            onClick={() => handleViewTopicContent(tp.id, tp.name)}
+                            style={{
+                              width: '100%',
+                              padding: '0.75rem 1rem',
+                              borderRadius: '14px',
+                              background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.4) 0%, rgba(0, 212, 255, 0.25) 100%)',
+                              border: '1px solid rgba(0, 212, 255, 0.45)',
+                              color: '#FFF',
+                              fontSize: '0.83rem',
+                              fontWeight: 800,
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              gap: '0.5rem',
+                              transition: 'all 0.2s ease',
+                              boxShadow: '0 4px 15px rgba(0, 212, 255, 0.15)',
+                              marginBottom: topicsList.length > 1 ? '0.5rem' : '0'
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', overflow: 'hidden' }}>
+                              <FileText size={16} color="#00D4FF" style={{ flexShrink: 0 }} />
+                              <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                View Document
+                              </span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.15)', padding: '0.2rem 0.55rem', borderRadius: '50px', fontSize: '0.7rem', fontWeight: 900, flexShrink: 0 }}>
+                              <Eye size={12} />
+                              <span>Read</span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </Modal>
+
+        {/* Pdf Viewer Modal: Direct 1-Click Document Access */}
+        <PdfViewerModal
+          open={activePdfModal.open}
+          onClose={() => setActivePdfModal({ open: false, url: '', title: '' })}
+          pdfUrl={activePdfModal.url}
+          title={activePdfModal.title || 'Teacher Approach Document'}
+        />
+
       </div>
     </PageWrapper>
   );

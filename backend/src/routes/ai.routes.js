@@ -4,7 +4,7 @@ const { protect } = require('../middleware/auth.middleware');
 const AgenticTutorGraph = require('../services/agenticTutorGraph');
 
 router.post('/voice-tutor', protect, async (req, res) => {
-  const { message, history } = req.body;
+  const { message, history, examContext } = req.body;
 
   if (!message) {
     return res.status(400).json({ success: false, message: 'Message is required.' });
@@ -19,8 +19,8 @@ router.post('/voice-tutor', protect, async (req, res) => {
     // Instantiate State Graph Agentic Tutor
     const agentGraph = new AgenticTutorGraph(apiKey);
 
-    // Execute multi-node workflow (RouterNode -> MemoryNode -> ActionToolNode -> SpecialistNode -> FormatterNode)
-    const result = await agentGraph.run(message, history, req.user);
+    // Execute multi-node workflow with optional exam/worksheet context
+    const result = await agentGraph.run(message, history, req.user, examContext);
 
     return res.json({
       success: true,

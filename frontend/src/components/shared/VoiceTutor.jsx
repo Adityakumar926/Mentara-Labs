@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, MicOff, Volume2, VolumeX, X, Sparkles, AlertCircle, Play, Square, Settings, RefreshCw, Send } from 'lucide-react';
+import { Mic, MicOff, Volume2, VolumeX, X, Sparkles, AlertCircle, Play, Square, Settings, RefreshCw, Send, Loader2 } from 'lucide-react';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { aiApi } from '@/api/services';
 import toast from 'react-hot-toast';
@@ -23,11 +23,27 @@ export default function VoiceTutor() {
   const [isWhiteboardOpen, setIsWhiteboardOpen] = useState(false);
   const [textInput, setTextInput] = useState('');
 
+  // Active Exam & Worksheet Context
+  const [activeExamContext, setActiveExamContext] = useState(null);
+  const [ocrLoading, setOcrLoading] = useState(false);
+
   const recognitionRef = useRef(null);
   const chatEndRef = useRef(null);
   const selectedVoiceRef = useRef(selectedVoiceName);
   const isMutedRef = useRef(isMuted);
   const handleSendToAIRef = useRef(null);
+
+  // Listen for active exam question context changes
+  useEffect(() => {
+    const handleExamContext = (e) => {
+      setActiveExamContext(e.detail || null);
+    };
+    window.addEventListener('active-exam-question-changed', handleExamContext);
+    if (window.activeExamContext) {
+      setActiveExamContext(window.activeExamContext);
+    }
+    return () => window.removeEventListener('active-exam-question-changed', handleExamContext);
+  }, []);
 
   // Listen for whiteboard open/close — shrink chatbot when whiteboard is active
   useEffect(() => {
@@ -234,17 +250,87 @@ export default function VoiceTutor() {
 
   const [agentMetadata, setAgentMetadata] = useState(null);
 
+  // Client-side OCR Image & PDF Text Extractor using Tesseract.js
+  const handleOCRScan = async () => {
+    const ctx = activeExamContext || window.activeExamContext;
+    if (!ctx || (!ctx.imageUrl && !ctx.canvasElement)) {
+      toast.error('No question image or canvas found to scan.');
+      return;
+    }
+    setOcrLoading(true);
+    const toastId = toast.loading('Extracting question text with OCR...');
+    try {
+      const { createWorker } = await import('tesseract.js');
+      const worker = await createWorker('eng');
+      const ret = await worker.recognize(ctx.imageUrl || ctx.canvasElement);
+      await worker.terminate();
+      const extracted = ret.data?.text?.trim() || '';
+      
+      if (!extracted) {
+        toast.error('Could not extract readable text from image.', { id: toastId });
+        setOcrLoading(false);
+        return;
+      }
+
+      toast.success('Question text extracted!', { id: toastId });
+      setOcrLoading(false);
+      
+      const updatedContext = { ...ctx, extractedText: extracted };
+      setActiveExamContext(updatedContext);
+      window.activeExamContext = updatedContext;
+
+      // Ask GOGO AI Tutor about the extracted text
+      handleSendToAI(`I scanned Question #${ctx.questionNumber || 1}: "${extracted}". Give me a hint to solve it!`, updatedContext);
+    } catch (err) {
+      console.error('OCR Extraction error:', err);
+      toast.error('Failed to extract text from question image.', { id: toastId });
+      setOcrLoading(false);
+    }
+  };
+
+  const sanitizeExamContext = (ctx) => {
+    if (!ctx) return null;
+    return {
+      questionNumber: ctx.questionNumber || 1,
+      totalQuestions: ctx.totalQuestions || 1,
+      questionText: typeof ctx.questionText === 'string' ? ctx.questionText : '',
+      options: Array.isArray(ctx.options) ? ctx.options : [],
+      imageUrl: typeof ctx.imageUrl === 'string' ? ctx.imageUrl : null,
+      extractedText: typeof ctx.extractedText === 'string' ? ctx.extractedText : null
+    };
+  };
+
   // Send request to Groq backend (State Graph Agentic Tutor)
-  const handleSendToAI = async (textQuery) => {
+  const handleSendToAI = async (textQuery, overrideExamContext = null) => {
     setStatus('thinking');
+    let targetExamContext = overrideExamContext || activeExamContext || window.activeExamContext;
     
+    // Auto-scan question image with OCR if question text is missing or short!
+    if (targetExamContext && targetExamContext.imageUrl && !targetExamContext.extractedText && (!targetExamContext.questionText || targetExamContext.questionText.trim().length < 5)) {
+      try {
+        const { createWorker } = await import('tesseract.js');
+        const worker = await createWorker('eng');
+        const ret = await worker.recognize(targetExamContext.imageUrl);
+        await worker.terminate();
+        const extracted = ret.data?.text?.trim() || '';
+        if (extracted) {
+          targetExamContext = { ...targetExamContext, extractedText: extracted };
+          setActiveExamContext(targetExamContext);
+          window.activeExamContext = targetExamContext;
+        }
+      } catch (ocrErr) {
+        console.warn('Auto OCR failed silently:', ocrErr);
+      }
+    }
+
     // Pass current conversation history so the backend State Graph maintains context
     const currentHistory = [...history];
     const updatedHistory = [...history, { role: 'user', content: textQuery }];
     setHistory(updatedHistory);
 
     try {
-      const res = await aiApi.voiceTutor(textQuery, currentHistory);
+      const cleanContext = sanitizeExamContext(targetExamContext);
+      const res = await aiApi.voiceTutor(textQuery, currentHistory, cleanContext);
       
       if (res.data.success) {
         const aiResponse = res.data.response;
@@ -571,6 +657,54 @@ export default function VoiceTutor() {
                 <span className="shrink-0 bg-purple-900/60 px-2 py-0.5 rounded-md text-[9px] text-cyan-300 font-extrabold uppercase border border-purple-700/50">
                   {agentMetadata.intent || 'TUTORING'}
                 </span>
+              </div>
+            )}
+            {/* Active Exam / Worksheet Socratic Assistant Banner */}
+            {activeExamContext && (
+              <div className="bg-gradient-to-r from-amber-500/15 via-purple-600/15 to-cyan-500/15 px-4 py-2 border-b border-amber-500/30 flex flex-col gap-1.5 shrink-0">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300">
+                    <Sparkles size={13} className="text-amber-400 animate-spin-slow" />
+                    <span>Exam Coach: Question #{activeExamContext.questionNumber || 1}</span>
+                  </div>
+                  <span className="text-[10px] text-cyan-300 font-extrabold bg-cyan-950/60 px-2 py-0.5 rounded-full border border-cyan-800/40">
+                    GROQ AI SOCRATIC
+                  </span>
+                </div>
+                
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar">
+                  <button
+                    type="button"
+                    onClick={() => handleSendToAI(`Play and read out the audio passage for Question #${activeExamContext.questionNumber || 1}`)}
+                    className="shrink-0 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-200 text-[11px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all"
+                  >
+                    🎧 Play Listening Audio
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSendToAI(`Give me a hint for Question #${activeExamContext.questionNumber || 1}`)}
+                    className="shrink-0 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 text-[11px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all"
+                  >
+                    💡 Get Hint
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSendToAI(`Tell me the answer of Question #${activeExamContext.questionNumber || 1}`)}
+                    className="shrink-0 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-200 text-[11px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all"
+                  >
+                    🏆 Full Answer
+                  </button>
+                  {(activeExamContext.imageUrl || activeExamContext.canvasElement) && (
+                    <button
+                      type="button"
+                      onClick={handleOCRScan}
+                      disabled={ocrLoading}
+                      className="shrink-0 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-200 text-[11px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all disabled:opacity-50"
+                    >
+                      {ocrLoading ? <Loader2 size={12} className="animate-spin" /> : '📸 Scan Image/Text'}
+                    </button>
+                  )}
+                </div>
               </div>
             )}
 
