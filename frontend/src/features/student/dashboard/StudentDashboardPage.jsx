@@ -576,15 +576,28 @@ export default function StudentDashboardPage() {
   const items = topicContent?.items ?? [];
   const exams = topicContent?.exams ?? [];
 
+  const [selectedNoteTitle, setSelectedNoteTitle] = useState('Cambridge Primary Story Book');
+
   const handleOpenNote = async (content) => {
-    const toastId = toast.loading('Loading study note...');
+    const toastId = toast.loading('Loading study story book...');
     try {
-      const res = await studentApi.getNoteUrl(content.id);
-      const url = res.data?.data ?? res.data ?? res;
-      setPdfUrl(url);
-      toast.success('Note loaded!', { id: toastId });
+      let url = content?.file_url || content?.url;
+      if (!url && content?.id) {
+        const res = await studentApi.getNoteUrl(content.id);
+        url = res.data?.url || res.data?.data || (typeof res.data === 'string' ? res.data : null);
+      }
+      if (typeof url === 'object' && url !== null) {
+        url = url.url || url.file_url || url.data;
+      }
+      if (url && typeof url === 'string') {
+        setSelectedNoteTitle(content.title || 'Cambridge Primary Story Book');
+        setPdfUrl(url);
+        toast.success('Story book loaded!', { id: toastId });
+      } else {
+        toast.error('Could not load PDF document', { id: toastId });
+      }
     } catch (e) {
-      toast.error('Failed to view note', { id: toastId });
+      toast.error('Failed to view story book', { id: toastId });
     }
   };
 
@@ -1320,8 +1333,8 @@ export default function StudentDashboardPage() {
         <PdfViewerModal
           open={!!pdfUrl}
           onClose={() => setPdfUrl(null)}
-          pdfUrl={pdfUrl}
-          title="Cambridge Primary Study Notes"
+          pdfUrl={typeof pdfUrl === 'string' ? pdfUrl : (pdfUrl?.url || pdfUrl?.file_url)}
+          title={selectedNoteTitle || 'Cambridge Primary Story Book'}
         />
 
         {/* Modal: Mux Video Player */}
