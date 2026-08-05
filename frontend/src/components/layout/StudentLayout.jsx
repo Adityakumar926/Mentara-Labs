@@ -504,12 +504,7 @@ export default function StudentLayout() {
 
           {/* Nav */}
           <nav className="sl-nav">
-            {(() => {
-              const navItems = [...NAV];
-              if (user?.role === 'teacher') {
-                navItems.splice(1, 0, { to: '/materials', icon: FileText, label: 'Materials' });
-              }
-              return navItems.map(({ to, icon: Icon, label }, i) => (
+            {NAV.map(({ to, icon: Icon, label }, i) => (
                 <motion.div
                   key={to}
                   initial={{ opacity: 0, x: -10 }}
@@ -525,8 +520,7 @@ export default function StudentLayout() {
                     <ChevronRight size={11} className="sl-nav-chevron" />
                   </NavLink>
                 </motion.div>
-              ));
-            })()}
+              ))}
           </nav>
 
           {/* Teacher Smart Whiteboard */}

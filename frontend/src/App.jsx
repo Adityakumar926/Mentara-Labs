@@ -109,7 +109,7 @@ export default function App() {
           <Route element={<StudentLayout />}>
             <Route path="/courses"                                           element={<CoursesPage />} />
             <Route path="/courses/:id"                                       element={<CurriculumDetail />} />
-            <Route path="/materials"                                         element={<MaterialsPage />} />
+            <Route path="/materials"                                         element={<Navigate to="/explore" replace />} />
             <Route path="/subjects/:subjectId"                               element={<TopicsPage />} />
             <Route path="/topics/:topicId"                                   element={<SubjectPage />} />
             <Route path="/courses/subjects/:subjectId"                       element={<TopicsPage />} />
