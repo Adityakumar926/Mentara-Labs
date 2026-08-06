@@ -72,22 +72,35 @@ const CSS = `
   }
 
   /* ── SIDEBAR (desktop) ── */
-  .sl-aside {
+  .sl-aside-wrapper {
     width: 56px;
     flex-shrink: 0;
+    position: relative;
+    z-index: 50;
+    height: 100vh;
+  }
+  @media (max-width: 767px) { .sl-aside-wrapper { display: none; } }
+
+  .sl-aside {
+    width: 56px;
+    height: 100vh;
     display: flex;
     flex-direction: column;
-    background: var(--local-card-bg);
+    background: var(--color-surface);
     border-right: 1px solid var(--local-card-bdr);
-    position: relative;
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
     overflow: hidden;
-    transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 20;
+    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s ease, background 0.3s ease;
+    z-index: 50;
   }
   .sl-aside:hover {
     width: 220px;
+    box-shadow: 12px 0 36px rgba(0, 0, 0, 0.5);
   }
-  @media (max-width: 767px) { .sl-aside { display: none; } }
+  .light .sl-aside:hover {
+    box-shadow: 12px 0 36px rgba(0, 0, 0, 0.12);
+  }
 
   .sl-aside::before {
     content: '';
@@ -461,120 +474,122 @@ export default function StudentLayout() {
       <div className="sl-root">
 
         {/* ── Sidebar (desktop) ── */}
-        <motion.aside
-          className="sl-aside"
-          initial={{ x: -22, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-        >
-          {/* Logo */}
-          <div className="sl-logo">
-            <div className="sl-logo-left">
-              <div className="sl-logo-mark">
-                <img src="/mentara-new.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+        <div className="sl-aside-wrapper">
+          <motion.aside
+            className="sl-aside"
+            initial={{ x: -22, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
+            {/* Logo */}
+            <div className="sl-logo">
+              <div className="sl-logo-left">
+                <div className="sl-logo-mark">
+                  <img src="/mentara-new.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
+                </div>
+                <span className="sl-logo-text">Mentara Labs</span>
               </div>
-              <span className="sl-logo-text">Mentara Labs</span>
-            </div>
-            <div className="sl-logo-actions">
-              <button
-                type="button"
-                onClick={toggleTheme}
-                title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: 'var(--color-text-secondary)',
-                  cursor: 'pointer',
-                  padding: '0.35rem',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'color 0.2s, background 0.2s',
-                  flexShrink: 0
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--local-cream)'; e.currentTarget.style.background = 'var(--color-surface-hover)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-secondary)'; e.currentTarget.style.background = 'transparent'; }}
-              >
-                {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
-              </button>
-              <NotificationBell variant="desktop" />
-            </div>
-          </div>
-
-          {/* Nav */}
-          <nav className="sl-nav">
-            {NAV.map(({ to, icon: Icon, label }, i) => (
-                <motion.div
-                  key={to}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.06 + i * 0.05, duration: 0.25 }}
+              <div className="sl-logo-actions">
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'var(--color-text-secondary)',
+                    cursor: 'pointer',
+                    padding: '0.35rem',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'color 0.2s, background 0.2s',
+                    flexShrink: 0
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--local-cream)'; e.currentTarget.style.background = 'var(--color-surface-hover)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-secondary)'; e.currentTarget.style.background = 'transparent'; }}
                 >
-                  <NavLink
-                    to={to}
-                    className={({ isActive }) => `sl-nav-item${isActive ? ' active' : ''}`}
-                  >
-                    <Icon size={15} className="sl-nav-icon" />
-                    <span className="sl-nav-label">{label}</span>
-                    <ChevronRight size={11} className="sl-nav-chevron" />
-                  </NavLink>
-                </motion.div>
-              ))}
-          </nav>
-
-          {/* Teacher Smart Whiteboard */}
-          {user?.role === 'teacher' && <TeacherWhiteboard />}
-
-          {/* Premium badge / Upgrade CTA */}
-          {user?.is_premium ? (
-            <motion.div
-              className="sl-premium"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.45 }}
-            >
-              <span className="sl-premium-star">⭐</span>
-              <span className="sl-premium-text">Premium Member</span>
-            </motion.div>
-          ) : (
-            <motion.button
-              className="sl-upgrade"
-              onClick={handleUpgradeClick}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.45 }}
-            >
-              <span className="sl-upgrade-icon">
-                <Sparkles size={13} />
-              </span>
-              <span className="sl-upgrade-copy">
-                <span className="sl-upgrade-title">Upgrade to Premium</span>
-                <span className="sl-upgrade-sub">Unlock all courses & exams</span>
-              </span>
-            </motion.button>
-          )}
-
-          {/* User footer */}
-          <div className="sl-footer">
-            <div className="sl-user-row">
-              <div className="sl-avatar">
-                {user?.avatar_url ? (
-                  <img src={user.avatar_url} alt="" />
-                ) : (
-                  initial
-                )}
+                  {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
+                </button>
+                <NotificationBell variant="desktop" />
               </div>
-              <div className="sl-user-info">
-                <div className="sl-user-name">{user?.full_name}</div>
-                <div className="sl-user-email">{user?.email}</div>
-              </div>
-              <button className="sl-logout" onClick={handleLogout} title="Log out">
-                <LogOut size={13} />
-              </button>
             </div>
-          </div>
-        </motion.aside>
+
+            {/* Nav */}
+            <nav className="sl-nav">
+              {NAV.map(({ to, icon: Icon, label }, i) => (
+                  <motion.div
+                    key={to}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.06 + i * 0.05, duration: 0.25 }}
+                  >
+                    <NavLink
+                      to={to}
+                      className={({ isActive }) => `sl-nav-item${isActive ? ' active' : ''}`}
+                    >
+                      <Icon size={15} className="sl-nav-icon" />
+                      <span className="sl-nav-label">{label}</span>
+                      <ChevronRight size={11} className="sl-nav-chevron" />
+                    </NavLink>
+                  </motion.div>
+                ))}
+            </nav>
+
+            {/* Teacher Smart Whiteboard */}
+            {user?.role === 'teacher' && <TeacherWhiteboard />}
+
+            {/* Premium badge / Upgrade CTA */}
+            {user?.is_premium ? (
+              <motion.div
+                className="sl-premium"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.45 }}
+              >
+                <span className="sl-premium-star">⭐</span>
+                <span className="sl-premium-text">Premium Member</span>
+              </motion.div>
+            ) : (
+              <motion.button
+                className="sl-upgrade"
+                onClick={handleUpgradeClick}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.45 }}
+              >
+                <span className="sl-upgrade-icon">
+                  <Sparkles size={13} />
+                </span>
+                <span className="sl-upgrade-copy">
+                  <span className="sl-upgrade-title">Upgrade to Premium</span>
+                  <span className="sl-upgrade-sub">Unlock all courses & exams</span>
+                </span>
+              </motion.button>
+            )}
+
+            {/* User footer */}
+            <div className="sl-footer">
+              <div className="sl-user-row">
+                <div className="sl-avatar">
+                  {user?.avatar_url ? (
+                    <img src={user.avatar_url} alt="" />
+                  ) : (
+                    initial
+                  )}
+                </div>
+                <div className="sl-user-info">
+                  <div className="sl-user-name">{user?.full_name}</div>
+                  <div className="sl-user-email">{user?.email}</div>
+                </div>
+                <button className="sl-logout" onClick={handleLogout} title="Log out">
+                  <LogOut size={13} />
+                </button>
+              </div>
+            </div>
+          </motion.aside>
+        </div>
 
         {/* ── Main ── */}
         <main className="sl-main">

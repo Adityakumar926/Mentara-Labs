@@ -45,17 +45,30 @@ const CSS = `
     --local-cyan: #0284C7;
   }
 
+  .sl-aside-wrapper {
+    width: 68px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 50;
+    height: 100vh;
+  }
+
   .sl-aside {
-    width: 68px; height: 100%; background: var(--color-surface);
+    width: 68px; height: 100vh; background: var(--color-surface);
     border-right: 1.5px solid var(--color-surface-border);
     display: flex; flex-direction: column; flex-shrink: 0;
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s ease;
     overflow: hidden;
-    position: relative;
-    z-index: 40;
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    z-index: 50;
   }
   .sl-aside:hover {
     width: 260px;
+    box-shadow: 12px 0 36px rgba(0, 0, 0, 0.5);
+  }
+  .light .sl-aside:hover {
+    box-shadow: 12px 0 36px rgba(0, 0, 0, 0.12);
   }
 
   .sl-logo {
@@ -239,89 +252,91 @@ export default function StudentUserLayout() {
       <div className="sl-root">
 
         {/* ── Collapsible Sidebar ── */}
-        <aside className="sl-aside">
-          {/* Logo */}
-          <div className="sl-logo">
-            <div className="sl-logo-left">
-              <div className="sl-logo-mark">
-                <img src="/mentara-new.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-              </div>
-              <div className="sl-logo-text-group">
-                <span className="sl-logo-text">Mentara Labs</span>
-                <span className="sl-logo-subtext">Cambridge Primary</span>
+        <div className="sl-aside-wrapper">
+          <aside className="sl-aside">
+            {/* Logo */}
+            <div className="sl-logo">
+              <div className="sl-logo-left">
+                <div className="sl-logo-mark">
+                  <img src="/mentara-new.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                </div>
+                <div className="sl-logo-text-group">
+                  <span className="sl-logo-text">Mentara Labs</span>
+                  <span className="sl-logo-subtext">Cambridge Primary</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Nav */}
-          <nav className="sl-nav">
-            {NAV.map(({ to, icon: Icon, label }) => (
-              <NavLink
-                key={to}
-                to={to}
-                className={({ isActive }) => `sl-nav-item${isActive ? ' active' : ''}`}
+            {/* Nav */}
+            <nav className="sl-nav">
+              {NAV.map(({ to, icon: Icon, label }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  className={({ isActive }) => `sl-nav-item${isActive ? ' active' : ''}`}
+                >
+                  <Icon size={18} className="sl-nav-icon" />
+                  <span className="sl-nav-label">{label}</span>
+                  <ChevronRight size={13} className="sl-nav-chevron" />
+                </NavLink>
+              ))}
+            </nav>
+
+            {/* Theme & Notifications Bar */}
+            <div className="sl-theme-bar">
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="sl-theme-btn"
+                title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
               >
-                <Icon size={18} className="sl-nav-icon" />
-                <span className="sl-nav-label">{label}</span>
-                <ChevronRight size={13} className="sl-nav-chevron" />
-              </NavLink>
-            ))}
-          </nav>
-
-          {/* Theme & Notifications Bar */}
-          <div className="sl-theme-bar">
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="sl-theme-btn"
-              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
-            >
-              {theme === 'light' ? <Moon size={14} /> : <Sun size={14} />}
-              <span className="sl-theme-text">{theme === 'light' ? 'Dark' : 'Light'}</span>
-            </button>
-            <div className="sl-notif-wrap">
-              <NotificationBell variant="desktop" />
-            </div>
-          </div>
-
-          {/* Premium badge / Upgrade CTA */}
-          {user?.is_premium ? (
-            <div className="sl-premium">
-              <span className="sl-premium-star">⭐</span>
-              <span className="sl-premium-text">Premium Member</span>
-            </div>
-          ) : (
-            <button className="sl-upgrade" onClick={handleUpgradeClick}>
-              <span className="sl-upgrade-icon">
-                <Sparkles size={16} />
-              </span>
-              <span className="sl-upgrade-copy">
-                <span className="sl-upgrade-title">Upgrade Premium</span>
-                <span className="sl-upgrade-sub">Unlock 3D simulations</span>
-              </span>
-            </button>
-          )}
-
-          {/* User footer */}
-          <div className="sl-footer">
-            <div className="sl-user-row">
-              <div className="sl-avatar">
-                {user?.avatar_url ? (
-                  <img src={user.avatar_url} alt="" />
-                ) : (
-                  initial
-                )}
-              </div>
-              <div className="sl-user-details">
-                <div className="sl-user-name">{user?.full_name}</div>
-                <div className="sl-user-email">{user?.email}</div>
-              </div>
-              <button className="sl-logout" onClick={handleLogout} title="Log out">
-                <LogOut size={15} />
+                {theme === 'light' ? <Moon size={14} /> : <Sun size={14} />}
+                <span className="sl-theme-text">{theme === 'light' ? 'Dark' : 'Light'}</span>
               </button>
+              <div className="sl-notif-wrap">
+                <NotificationBell variant="desktop" />
+              </div>
             </div>
-          </div>
-        </aside>
+
+            {/* Premium badge / Upgrade CTA */}
+            {user?.is_premium ? (
+              <div className="sl-premium">
+                <span className="sl-premium-star">⭐</span>
+                <span className="sl-premium-text">Premium Member</span>
+              </div>
+            ) : (
+              <button className="sl-upgrade" onClick={handleUpgradeClick}>
+                <span className="sl-upgrade-icon">
+                  <Sparkles size={16} />
+                </span>
+                <span className="sl-upgrade-copy">
+                  <span className="sl-upgrade-title">Upgrade Premium</span>
+                  <span className="sl-upgrade-sub">Unlock 3D simulations</span>
+                </span>
+              </button>
+            )}
+
+            {/* User footer */}
+            <div className="sl-footer">
+              <div className="sl-user-row">
+                <div className="sl-avatar">
+                  {user?.avatar_url ? (
+                    <img src={user.avatar_url} alt="" />
+                  ) : (
+                    initial
+                  )}
+                </div>
+                <div className="sl-user-details">
+                  <div className="sl-user-name">{user?.full_name}</div>
+                  <div className="sl-user-email">{user?.email}</div>
+                </div>
+                <button className="sl-logout" onClick={handleLogout} title="Log out">
+                  <LogOut size={15} />
+                </button>
+              </div>
+            </div>
+          </aside>
+        </div>
 
         {/* ── Main Dashboard Content Area ── */}
         <main className="sl-main">

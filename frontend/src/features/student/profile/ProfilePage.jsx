@@ -541,32 +541,6 @@ export default function ProfilePage() {
     }
   };
 
-  const [pwForm, setPwForm]     = useState({ current_password: '', new_password: '', confirm: '' });
-  const [pwErrors, setPwErrors] = useState({});
-
-  const { mutate: changePw, loading: changingPw } = useMutation(
-    studentApi.changePassword,
-    {
-      onSuccess: () => setPwForm({ current_password: '', new_password: '', confirm: '' }),
-      successMsg: 'Password changed',
-    }
-  );
-
-  const validatePw = () => {
-    const e = {};
-    if (!pwForm.current_password)             e.current = 'Required';
-    if (pwForm.new_password.length < 8)       e.new     = 'Minimum 8 characters';
-    if (pwForm.new_password !== pwForm.confirm) e.confirm = 'Passwords do not match';
-    setPwErrors(e);
-    return Object.keys(e).length === 0;
-  };
-
-  const handleChangePw = () => {
-    if (!validatePw()) return;
-    const { current_password, new_password } = pwForm;
-    changePw({ current_password, new_password });
-  };
-
   const { data: profile, loading: loadingProfile } = useApi(studentApi.getProfile);
   const { data: progress, loading: loadingProgress } = useApi(studentApi.getProgress);
 
@@ -635,7 +609,6 @@ export default function ProfilePage() {
 
   const TABS = [
     { key: 'profile',  icon: User,       label: 'Profile'  },
-    { key: 'password', icon: Shield,     label: 'Security' },
     { key: 'progress', icon: TrendingUp, label: 'Progress' },
     { key: 'streak',   icon: Flame,      label: 'Streak'   },
   ];
@@ -902,62 +875,7 @@ export default function ProfilePage() {
             </motion.div>
           )}
 
-          {/* ── SECURITY TAB ── */}
-          {tab === 'password' && (
-            <motion.div
-              key="password"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.25 }}
-            >
-              <TiltCard className="prof-card" style={{ padding: '2rem', maxWidth: 520 }}>
-                <div style={{ marginBottom: '1.5rem' }}>
-                  <h2 style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.3rem' }}>
-                    Change Password
-                  </h2>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Keep your account secure with a strong password.</p>
-                </div>
 
-                {[
-                  { key: 'current_password', label: 'CURRENT PASSWORD', placeholder: '••••••••', errKey: 'current' },
-                  { key: 'new_password',     label: 'NEW PASSWORD',     placeholder: 'Min. 8 characters', errKey: 'new' },
-                  { key: 'confirm',          label: 'CONFIRM PASSWORD', placeholder: 'Re-enter new password', errKey: 'confirm' },
-                ].map((f) => (
-                  <div key={f.key} className="prof-form-field">
-                    <label className="prof-label">{f.label}</label>
-                    <input
-                      type="password"
-                      className={clsx('prof-input', pwErrors[f.errKey] && 'error')}
-                      value={pwForm[f.key]}
-                      placeholder={f.placeholder}
-                      onChange={(e) => setPwForm({ ...pwForm, [f.key]: e.target.value })}
-                    />
-                    {pwErrors[f.errKey] && (
-                      <motion.span initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="field-error">
-                        {pwErrors[f.errKey]}
-                      </motion.span>
-                    )}
-                  </div>
-                ))}
-
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
-                  <button
-                    className="prof-save-btn"
-                    disabled={changingPw}
-                    onClick={handleChangePw}
-                  >
-                    {changingPw ? (
-                      <>
-                        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }} style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%' }} />
-                        Updating…
-                      </>
-                    ) : 'Update Password'}
-                  </button>
-                </div>
-              </TiltCard>
-            </motion.div>
-          )}
 
           {/* ── PROGRESS TAB ── */}
           {tab === 'progress' && (
