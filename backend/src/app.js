@@ -48,7 +48,14 @@ app.use('/api/student', studentRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/ai', aiRoutes);
 
-// Health check
+// Robots.txt for API domain (prevents search engines from indexing backend endpoints)
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.send('User-agent: *\nDisallow: /\n');
+});
+
+// Root & Health check
+app.get('/', (req, res) => res.json({ name: 'Mentara Labs API', status: 'online' }));
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 // Exam scheduler — auto-starts and auto-ends exams, auto-submits attempts

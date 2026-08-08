@@ -1,0 +1,16 @@
+{
+  "short_name": "Mentara",
+  "name": "Mentara Labs - Cambridge Primary Learning",
+  "icons": [
+    {
+      "src": "/mentara-new.png",
+      "type": "image/png",
+      "sizes": "192x192 512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#080C16",
+  "theme_color": "#7C3AED",
+  "display": "standalone",
+  "orientation": "portrait"
+}
