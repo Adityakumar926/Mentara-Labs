@@ -257,7 +257,7 @@ function Hero() {
           </div>
 
           <h1 className="font-display font-black text-5xl sm:text-6xl lg:text-7xl leading-[0.95] tracking-tighter text-white">
-            The new operating system for{" "}
+            A better way to learn{" "}
             <span className="bg-gradient-to-r from-cyan-300 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
               Cambridge Primary.
             </span>
