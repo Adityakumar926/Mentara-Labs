@@ -6,7 +6,7 @@
  * 1. RouterNode (Intent & Context Classification using llama-3.1-8b-instant)
  * 2. MemoryNode (State Graph Context & Memory Synthesizer)
  * 3. ActionToolNode (Class-Scoped Database Search & Navigation Tool Node)
- * 4. SpecialistNode (Deep Educational Reasoning using llama-3.3-70b-versatile)
+ * 4. SpecialistNode (Deep Educational Reasoning using llama-3.3-70b-specdec)
  * 5. OutputFormatterNode (Voice, Action & Agent Metadata Synthesizer)
  */
 
@@ -476,13 +476,42 @@ PURELY DYNAMIC AI INSTRUCTIONS:
       { role: 'user', content: message }
     ];
 
-    const modelToUse = 'llama-3.3-70b-versatile';
-    const rawResponse = await this.callGroq(modelToUse, payload, 0.6, 220);
+    // Multi-Model Routing Strategy (Qwen 2.5 32B for Math/Logic, GPT OSS 120B for Deep Reasoning, Llama 3.3 70B Specdec for Voice Tutoring)
+    let primaryModel = process.env.GROQ_MODEL;
+
+    if (!primaryModel) {
+      if (intent === 'CODE_OR_MATH') {
+        // Qwen 2.5 32B excels at math, calculations, and logic breakdown
+        primaryModel = 'qwen-2.5-32b';
+      } else if (intent === 'CONCEPT_EXPLANATION' && message.length > 200) {
+        // GPT OSS 120B / deep reasoning for long, complex conceptual analysis
+        primaryModel = 'gpt-oss-120b';
+      } else {
+        // Llama 3.3 70B Specdec for instant Socratic voice tutoring & primary education (300+ tok/s)
+        primaryModel = 'llama-3.3-70b-specdec';
+      }
+    }
+
+    let rawResponse = '';
+    let selectedModel = primaryModel;
+
+    // Multi-tier Fallback Pipeline (Primary -> 70B Specdec -> Qwen 32B -> 8B Instant)
+    const modelPipeline = [...new Set([primaryModel, 'llama-3.3-70b-specdec', 'qwen-2.5-32b', 'llama-3.1-8b-instant'])];
+
+    for (const modelCandidate of modelPipeline) {
+      try {
+        rawResponse = await this.callGroq(modelCandidate, payload, 0.6, 220);
+        selectedModel = modelCandidate;
+        break; // Successfully generated response!
+      } catch (err) {
+        console.warn(`Groq Model (${modelCandidate}) failed: ${err.message}. Retrying with next fallback model...`);
+      }
+    }
 
     return {
       ...state,
       aiResponse: rawResponse,
-      selectedModel: modelToUse,
+      selectedModel,
       specialistStepExecuted: true
     };
   }
