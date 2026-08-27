@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import useAuthStore from "@/store/authStore";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "framer-motion";
 import { studentApi } from "@/api/services";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { 
-  ArrowUpRight, Play, Timer, Atom, PenTool, Sparkles, ChevronRight, 
+  ArrowUpRight, Play, Timer, Atom, PenTool, Sparkles, ChevronRight, ChevronLeft,
   Globe, BookOpen, GraduationCap, Award, Library, Compass, X, Menu,
   Dna, Sigma, Code2, LineChart, Globe2, BookText, Check, Quote,
   Github, Twitter, Linkedin, Youtube, Star, BarChart3, Layers, FlaskConical,
-  Presentation, Zap, Navigation, Brain, Search, Mic, Bot, MessageSquare
+  Presentation, Zap, Navigation, Brain, Search, Mic, Bot, MessageSquare, ShieldCheck
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -84,11 +84,10 @@ export default function LandingPage() {
       <main className="relative min-h-screen bg-zinc-950 text-zinc-100 overflow-hidden font-sans">
         <Header />
         <Hero />
-        <GogoAiTutorSection />
-        <Showcase />
+        <FeaturesBento />
+        <VirtualClassroomShowcase />
         <ProductDetails />
         <Pricing />
-        <FeaturesBento />
         <SubjectsGrid />
         <Testimonials />
         <Footer />
@@ -205,70 +204,67 @@ function Header() {
   );
 }
 
-/* ── 2. HERO ── */
+/* ── 2. HERO (Matching User Screenshot media_1787852283925.png) ── */
 function Hero() {
-  const [torchDist, setTorchDist] = useState(1.2);
-  const [shadowHt, setShadowHt] = useState(32);
-
-  useEffect(() => {
-    let forward = true;
-    const timer = setInterval(() => {
-      setTorchDist((d) => {
-        let next = forward ? d - 0.1 : d + 0.1;
-        if (next <= 0.5) { forward = false; next = 0.5; }
-        if (next >= 1.5) { forward = true; next = 1.5; }
-        // Calculate scientifically accurate shadow height: H_shadow = 18 / distance
-        setShadowHt(Math.round(18 / next));
-        return parseFloat(next.toFixed(1));
-      });
-    }, 600);
-    return () => clearInterval(timer);
-  }, []);
-
   return (
-    <section data-testid="hero-section" className="relative pt-24 pb-4 lg:pt-28 lg:pb-6 overflow-hidden bg-zinc-950">
-      {/* Animated background orbs */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute top-1/4 -left-32 h-[480px] w-[480px] rounded-full bg-cyan-500/20 blur-[120px] animate-blob" />
-        <div className="absolute top-1/3 right-0 h-[520px] w-[520px] rounded-full bg-emerald-500/15 blur-[140px] animate-blob" style={{ animationDelay: "-4s" }} />
-        <div className="absolute bottom-0 left-1/3 h-[360px] w-[360px] rounded-full bg-teal-500/10 blur-[120px] animate-blob" style={{ animationDelay: "-8s" }} />
+    <section data-testid="hero-section" className="relative pt-24 pb-16 lg:pt-32 lg:pb-20 overflow-hidden bg-zinc-950 min-h-[580px] lg:min-h-[640px] flex items-center">
+      {/* Background Video - Darkened for High Contrast */}
+      <div className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
+        <video
+          src="/product_video_final_clean_v2.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover object-center scale-[1.08] opacity-75"
+        >
+          <source src="/product_video_final_clean_v2.mp4" type="video/mp4" />
+        </video>
+        
+        {/* Darkening Gradient Mask Layer for High Text Legibility */}
+        <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/90 via-zinc-950/50 to-zinc-950/30 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/60 via-transparent to-zinc-950/40 z-10" />
       </div>
 
-      {/* Grid background */}
-      <div className="absolute inset-0 -z-10 bg-grid opacity-30 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]" />
-
-      <div className="max-w-[1480px] mx-auto px-6 lg:px-12 grid lg:grid-cols-12 gap-12 items-center">
-        {/* Left Column Info */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: "easeOut" }}
-          className="lg:col-span-7"
-        >
-          {/* Left Column Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-white/10 bg-white/[0.02] backdrop-blur-md mb-8" data-testid="hero-badge">
-            <span className="relative flex h-2 w-2">
+      <div className="max-w-[1480px] mx-auto px-6 lg:px-12 relative z-20 w-full">
+        <div className="max-w-3xl">
+          {/* Single Unified Hero Banner (Moved Upwards) */}
+          <div className="mb-6 inline-flex flex-wrap items-center gap-2.5 px-4 py-1.5 rounded-full border border-cyan-500/35 bg-zinc-950/90 backdrop-blur-xl shadow-[0_0_25px_rgba(6,182,212,0.18)] transition-all hover:border-cyan-400/60" data-testid="hero-unified-banner">
+            <span className="relative flex h-2 w-2 shrink-0">
               <span className="absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75 animate-ping" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" />
             </span>
-            <span className="font-mono-label text-[10px] uppercase tracking-[0.22em] text-zinc-300 font-bold">
-              Built for Cambridge Primary
+            <span className="font-mono-label text-[10.5px] uppercase tracking-[0.2em] font-extrabold text-cyan-300">
+              BUILT FOR CAMBRIDGE PRIMARY
+            </span>
+            <span className="text-zinc-500 font-bold">•</span>
+            <span className="font-mono-label text-[10.5px] uppercase tracking-[0.18em] font-bold text-zinc-200">
+              DESKTOP & TABLET FIRST
+            </span>
+            <span className="text-zinc-500 font-bold">•</span>
+            <span className="font-mono-label text-[10.5px] uppercase tracking-[0.16em] font-semibold text-emerald-400">
+              REDUCED MOBILE ADDICTION
             </span>
           </div>
 
-          <h1 className="font-display font-black text-5xl sm:text-6xl lg:text-7xl leading-[0.95] tracking-tighter text-white">
-            Everything you need to teach and learn{" "}
-            <span className="bg-gradient-to-r from-cyan-300 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+          {/* Main Hero Heading with High-Contrast Punchy 4-Color Gradient */}
+          <h1 className="font-display font-black text-5xl sm:text-6xl lg:text-7xl leading-[0.96] tracking-tighter">
+            <span className="bg-gradient-to-r from-cyan-300 via-violet-300 via-fuchsia-300 to-amber-200 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
+              Everything you need to teach and learn{" "}
+            </span>
+            <span className="bg-gradient-to-r from-cyan-400 via-fuchsia-400 via-amber-300 to-emerald-400 bg-clip-text text-transparent drop-shadow-[0_0_35px_rgba(56,189,248,0.4)]">
               Cambridge Primary.
             </span>
           </h1>
 
-          <p className="mt-7 text-lg leading-relaxed text-zinc-400 max-w-xl">
+          {/* Body Subtext */}
+          <p className="mt-5 text-base sm:text-lg leading-relaxed text-zinc-300 max-w-2xl font-medium">
             Mentara Labs equips Cambridge Primary students with interactive 3D simulations,
             digital worksheets, and practical exam prep built to boost understanding and confidence.
           </p>
 
-          <div className="mt-10 flex flex-wrap items-center gap-4">
+          {/* CTA Buttons */}
+          <div className="mt-6 flex flex-wrap items-center gap-4">
             <Link
               to="/register"
               data-testid="hero-cta-primary"
@@ -280,14 +276,15 @@ function Hero() {
             <a
               href="#features"
               data-testid="hero-cta-secondary"
-              className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-full border border-white/10 bg-white/[0.02] backdrop-blur-md text-zinc-200 font-medium text-sm hover:border-white/25 hover:bg-white/[0.04] transition-all"
+              className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-full border border-white/15 bg-zinc-900/80 backdrop-blur-md text-zinc-200 font-medium text-sm hover:border-white/30 hover:bg-zinc-900 transition-all"
             >
               <Play className="h-3.5 w-3.5 fill-cyan-400 text-cyan-400" />
               Explore Features
             </a>
           </div>
 
-          <div className="mt-12 grid grid-cols-3 gap-6 max-w-md border-t border-white/5 pt-8">
+          {/* Stats Row */}
+          <div className="mt-7 grid grid-cols-3 gap-6 max-w-md border-t border-white/10 pt-4">
             {[
               { stat: "12k+", label: "Active learners" },
               { stat: "98%", label: "Syllabus Pass Rate" },
@@ -295,742 +292,565 @@ function Hero() {
             ].map((s) => (
               <div key={s.label}>
                 <div className="font-display text-2xl font-bold text-white">{s.stat}</div>
-                <div className="text-xs text-zinc-500 mt-1">{s.label}</div>
+                <div className="text-xs text-zinc-400 font-medium mt-0.5">{s.label}</div>
               </div>
             ))}
           </div>
-        </motion.div>
-
-        {/* Right Column Floating UI Mockups */}
-        <motion.div
-          initial={{ opacity: 0, y: 32 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.2, ease: "easeOut" }}
-          className="lg:col-span-5 relative"
-        >
-          {/* Floating Independent Top-Right Device Notice Badge - Positioned High (-top-20 sm:-top-24) */}
-          <div className="absolute -top-20 sm:-top-24 right-0 z-20 flex justify-end" data-testid="device-notice-badge">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-cyan-500/30 bg-zinc-950/90 backdrop-blur-xl shadow-lg">
-              <span className="relative flex h-2 w-2 shrink-0">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75 animate-ping" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" />
-              </span>
-              <span className="font-mono-label text-[10px] uppercase tracking-[0.22em] text-cyan-300 font-bold">
-                Desktop & Tablet First
-              </span>
-              <span className="text-zinc-500">•</span>
-              <span className="font-mono-label text-[10px] uppercase tracking-[0.16em] text-zinc-300 font-medium">
-                Designed to reduce mobile screen addiction
-              </span>
-            </div>
-          </div>
-          <div className="relative h-[480px] w-full">
-            {/* Glow */}
-            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-emerald-500/10 blur-2xl pointer-events-none" />
-
-            {/* Light & Shadows simulation Card */}
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute top-2 left-2 right-2 rounded-2xl border border-white/10 bg-zinc-900/65 backdrop-blur-2xl p-5 shadow-2xl"
-              data-testid="hero-mock-simulation"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-1.5">
-                  <div className="h-2.5 w-2.5 rounded-full bg-rose-500/80" />
-                  <div className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
-                  <div className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
-                </div>
-                <span className="font-mono-label text-[10px] uppercase tracking-[0.18em] text-zinc-500">
-                  science · light & shadows
-                </span>
-              </div>
-              <div className="relative h-40 rounded-lg bg-zinc-950/80 border border-white/5 overflow-hidden">
-                <svg viewBox="0 0 320 180" className="w-full h-full">
-                  <defs>
-                    <linearGradient id="beam-grad" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.35" />
-                      <stop offset="100%" stopColor="#22d3ee" stopOpacity="0.02" />
-                    </linearGradient>
-                  </defs>
-                  
-                  {/* Grid Lines */}
-                  {[...Array(8)].map((_, i) => (
-                    <line key={`v${i}`} x1={i * 40} y1="0" x2={i * 40} y2="180" stroke="rgba(255,255,255,0.02)" />
-                  ))}
-                  {[...Array(5)].map((_, i) => (
-                    <line key={`h${i}`} x1="0" y1={i * 40} x2="320" y2={i * 40} stroke="rgba(255,255,255,0.02)" />
-                  ))}
-
-                  {/* Ground line */}
-                  <line x1="10" y1="130" x2="310" y2="130" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
-                  
-                  {/* Wall line */}
-                  <line x1="260" y1="20" x2="260" y2="130" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
-
-                  {/* Symmetrical Light Beam Cone (stretches from torch to wall, calculated dynamically) */}
-                  <polygon fill="url(#beam-grad)">
-                    <animate 
-                      attributeName="points"
-                      values="50,103 260,91 260,130 50,117; 125,103 260,75 260,130 125,117; 50,103 260,91 260,130 50,117"
-                      dur="5s"
-                      repeatCount="indefinite"
-                      keyTimes="0; 0.5; 1"
-                      calcMode="spline"
-                      keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"
-                    />
-                  </polygon>
-
-                  {/* Mathematically Cast Shadow (changes y & height in sync with light angle) */}
-                  <rect x="260" fill="rgba(15, 23, 42, 0.85)" rx="1">
-                    <animate 
-                      attributeName="y"
-                      values="91; 75; 91"
-                      dur="5s"
-                      repeatCount="indefinite"
-                      keyTimes="0; 0.5; 1"
-                      calcMode="spline"
-                      keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"
-                    />
-                    <animate 
-                      attributeName="height"
-                      values="39; 55; 39"
-                      dur="5s"
-                      repeatCount="indefinite"
-                      keyTimes="0; 0.5; 1"
-                      calcMode="spline"
-                      keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"
-                    />
-                    <animate 
-                      attributeName="width"
-                      values="8; 14; 8"
-                      dur="5s"
-                      repeatCount="indefinite"
-                      keyTimes="0; 0.5; 1"
-                      calcMode="spline"
-                      keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"
-                    />
-                  </rect>
-
-                  {/* Fixed Obstacle Block (Primary science) */}
-                  <rect x="160" y="100" width="16" height="30" fill="#f59e0b" rx="3" className="shadow-md" />
-
-                  {/* Torch (Flashlight) translate animation */}
-                  <g>
-                    <animateTransform 
-                      attributeName="transform" 
-                      type="translate" 
-                      values="0,0; 75,0; 0,0" 
-                      dur="5s" 
-                      repeatCount="indefinite" 
-                      keyTimes="0; 0.5; 1"
-                      calcMode="spline"
-                      keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"
-                    />
-                    <rect x="20" y="104" width="25" height="12" fill="#71717a" rx="2" />
-                    <polygon points="45,100 50,96 50,124 45,120" fill="#a1a1aa" />
-                    <circle cx="25" cy="110" r="2.5" fill="#f43f5e" />
-                  </g>
-                </svg>
-              </div>
-              <div className="mt-4 grid grid-cols-3 gap-2.5">
-                {[
-                  { label: "Torch Dist.", value: `${torchDist} m` },
-                  { label: "Shadow Ht.", value: `${shadowHt} cm` },
-                  { label: "Light Status", value: "Active" },
-                ].map((m) => (
-                  <div key={m.label} className="rounded-lg border border-white/5 bg-white/[0.01] px-3 py-2">
-                    <div className="font-mono-label text-[9px] uppercase tracking-wider text-zinc-500">{m.label}</div>
-                    <div className="font-display text-xs text-white font-bold mt-0.5">{m.value}</div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Timer card */}
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.4 }}
-              className="absolute bottom-4 left-2 w-56 rounded-xl border border-cyan-500/20 bg-zinc-900/80 backdrop-blur-2xl p-4 shadow-[0_0_35px_rgba(34,211,238,0.12)]"
-              data-testid="hero-mock-timer"
-            >
-              <div className="flex items-center gap-2 mb-2.5">
-                <Timer className="h-3.5 w-3.5 text-cyan-400" />
-                <span className="font-mono-label text-[10px] uppercase tracking-[0.18em] text-zinc-400">
-                  Checkpoint Prep · Cambridge Primary
-                </span>
-              </div>
-              <div className="font-display text-2xl font-black tabular-nums text-white">
-                01<span className="text-cyan-400">:</span>24<span className="text-cyan-400">:</span>17
-              </div>
-              <div className="mt-3 h-1 rounded-full bg-zinc-800 overflow-hidden">
-                <div className="h-full w-2/3 bg-gradient-to-r from-cyan-400 to-emerald-400" />
-              </div>
-            </motion.div>
-
-            {/* Draw tool card */}
-            <motion.div
-              animate={{ y: [0, -6, 0] }}
-              transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 0.8 }}
-              className="absolute bottom-4 right-2 w-48 rounded-xl border border-emerald-500/20 bg-zinc-900/80 backdrop-blur-2xl p-4 shadow-[0_0_35px_rgba(52,211,153,0.1)]"
-              data-testid="hero-mock-worksheet"
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <PenTool className="h-3.5 w-3.5 text-emerald-400" />
-                <span className="font-mono-label text-[10px] uppercase tracking-[0.18em] text-zinc-400">
-                  Draw Tool
-                </span>
-              </div>
-              <svg viewBox="0 0 200 80" className="w-full">
-                <path d="M10 50 Q 40 10 70 40 T 130 35 T 190 55" stroke="#34d399" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-                <text x="10" y="75" fontFamily="monospace" fontSize="8" fill="#71717a">Angle of Incidence = Angle of Reflection</text>
-              </svg>
-            </motion.div>
-
-            {/* Streak pill */}
-            <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.2 }}
-              className="absolute -top-3 right-6 px-3.5 py-2 rounded-full border border-white/10 bg-zinc-900/80 backdrop-blur-2xl flex items-center gap-2"
-              data-testid="hero-mock-streak"
-            >
-              <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-              <span className="font-mono-label text-[10px] uppercase tracking-[0.18em] text-zinc-300">
-                7-Day Streak
-              </span>
-            </motion.div>
-          </div>
-        </motion.div>
-      </div>
-
-      <div className="mt-8 max-w-[1480px] mx-auto px-6 lg:px-12 flex items-center gap-2 text-zinc-500 font-semibold">
-        <ChevronRight className="h-3.5 w-3.5" />
-        <span className="font-mono-label text-[10px] uppercase tracking-[0.22em]">Trusted by educators worldwide</span>
+        </div>
       </div>
     </section>
   );
 }
 
-/* ── 3.5. GOGO AI TUTOR AGENT SECTION ── */
-function GogoAiTutorSection() {
-  const [activePromptIndex, setActivePromptIndex] = useState(0);
 
-  const DEMO_PROMPTS = [
+
+/* ── ULTRA-SENSITIVE SCIENTIFIC 3D TILT HOVER CARD ── */
+function Card3DTilt({ children, hoverBorder = "hover:border-cyan-500/60 hover:shadow-[0_30px_70px_rgba(6,182,212,0.35)]", accentGlow = "rgba(6, 182, 212, 0.45)" }) {
+  const cardRef = React.useRef(null);
+  const [rotateX, setRotateX] = useState(0);
+  const [rotateY, setRotateY] = useState(0);
+  const [glarePos, setGlarePos] = useState({ x: 50, y: 50, opacity: 0 });
+  const [shadowPos, setShadowPos] = useState({ x: 0, y: 20 });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    // Normalized position (-0.5 to 0.5) from center
+    const normX = (x / rect.width) - 0.5;
+    const normY = (y / rect.height) - 0.5;
+    
+    // Highly sensitive & scientific 26-degree 3D tilt formula
+    const targetRotX = -normY * 26;
+    const targetRotY = normX * 26;
+    
+    setRotateX(targetRotX);
+    setRotateY(targetRotY);
+
+    // Dynamic physical shadow casting opposite to mouse cursor position
+    setShadowPos({
+      x: -normX * 35,
+      y: 22 + Math.abs(normY) * 20,
+    });
+
+    setGlarePos({ 
+      x: (x / rect.width) * 100, 
+      y: (y / rect.height) * 100, 
+      opacity: 0.5 
+    });
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setRotateX(0);
+    setRotateY(0);
+    setGlarePos({ x: 50, y: 50, opacity: 0 });
+    setShadowPos({ x: 0, y: 15 });
+    setIsHovered(false);
+  };
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="[perspective:1200px] h-full py-2 cursor-pointer"
+    >
+      <motion.div
+        animate={{
+          rotateX,
+          rotateY,
+          scale: isHovered ? 1.04 : 1,
+        }}
+        transition={{ type: "spring", stiffness: 350, damping: 20, mass: 0.4 }}
+        style={{
+          transformStyle: "preserve-3d",
+          boxShadow: isHovered 
+            ? `${shadowPos.x}px ${shadowPos.y}px 50px rgba(0, 0, 0, 0.8), 0 0 35px ${accentGlow}`
+            : "0 15px 35px rgba(0, 0, 0, 0.5)",
+        }}
+        className={`relative flex flex-col justify-between h-full rounded-3xl border border-zinc-800/80 bg-zinc-950 overflow-hidden transition-colors duration-200 ${hoverBorder}`}
+      >
+        {/* Dynamic Specular Light Glare Reflection */}
+        <div
+          className="pointer-events-none absolute inset-0 z-30 transition-opacity duration-200 rounded-3xl"
+          style={{
+            opacity: glarePos.opacity,
+            background: `radial-gradient(circle at ${glarePos.x}% ${glarePos.y}%, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.1) 30%, transparent 70%)`,
+          }}
+        />
+
+        {/* 3D Reflection Rim Light */}
+        <div 
+          className="pointer-events-none absolute inset-0 z-20 rounded-3xl transition-opacity duration-300"
+          style={{
+            opacity: isHovered ? 1 : 0,
+            border: "1px solid rgba(255, 255, 255, 0.18)",
+          }}
+        />
+        
+        {/* 3D Multi-Layer Parallax Depth */}
+        <div style={{ transform: "translateZ(35px)", transformStyle: "preserve-3d" }} className="flex flex-col justify-between h-full">
+          {children}
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+/* ── 3D DRAMATIC CIRCULAR ARC SCROLL-UNFOLD CARD WRAPPER ── */
+function Card3DScrollArc({ index, totalCards = 4, children, scrollProgress }) {
+  // Dramatic 3D semicircle arc calculation
+  const offset = index - (totalCards - 1) / 2;
+  const initialRotY = offset * 34;
+  const initialRotZ = offset * 10;
+  const initialY = Math.pow(Math.abs(offset), 1.5) * 32;
+  const initialZ = -Math.pow(Math.abs(offset), 1.5) * 75;
+
+  // Delayed range [0.15, 0.85] so user sees 3D arc unfolding right in view
+  const rotateY = useTransform(scrollProgress, [0.15, 0.85], [initialRotY, 0]);
+  const rotateZ = useTransform(scrollProgress, [0.15, 0.85], [initialRotZ, 0]);
+  const translateY = useTransform(scrollProgress, [0.15, 0.85], [initialY, 0]);
+  const translateZ = useTransform(scrollProgress, [0.15, 0.85], [initialZ, 0]);
+  const opacity = useTransform(scrollProgress, [0.1, 0.45], [0.3, 1]);
+
+  return (
+    <motion.div
+      style={{
+        rotateY,
+        rotateZ,
+        translateY,
+        translateZ,
+        opacity,
+        transformStyle: "preserve-3d",
+      }}
+      className="h-full"
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/* ── 4. FEATURES BENTO (Matching User Screenshot media_1787853829963.png) ── */
+function FeaturesBento() {
+  const [torchPos, setTorchPos] = useState(1.0);
+  const sectionRef = useRef(null);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start 50%", "center 30%"],
+  });
+
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 120,
+    damping: 20,
+    mass: 0.6,
+  });
+
+  return (
+    <section 
+      ref={sectionRef} 
+      id="features" 
+      data-testid="features-section" 
+      className="relative py-10 lg:py-14 bg-zinc-950 border-t border-white/5 [perspective:1400px] overflow-hidden"
+    >
+      <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
+        {/* Section Heading */}
+        <div className="text-center max-w-3xl mx-auto mb-8 lg:mb-10">
+          <span className="font-mono-label text-xs uppercase tracking-[0.25em] text-cyan-400 font-bold px-3 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/10 inline-block mb-3">
+            · Platform Features
+          </span>
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight bg-gradient-to-r from-cyan-300 via-sky-300 to-blue-500 bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(6,182,212,0.4)]">
+            Platform Features
+          </h2>
+          <p className="mt-3 text-zinc-400 text-base sm:text-lg">
+            Everything students need for Cambridge Primary success, all in one connected environment.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch [transform-style:preserve-3d]">
+          
+          {/* Card 1: 3D Science Simulations (Teal Header) */}
+          <Card3DScrollArc index={0} scrollProgress={smoothProgress}>
+            <Card3DTilt hoverBorder="hover:border-emerald-500/50 hover:shadow-[0_20px_50px_rgba(52,211,153,0.25)]">
+              <div className="p-6 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 flex items-center justify-between">
+                <div className="h-12 w-12 rounded-2xl bg-zinc-950/80 border border-white/10 flex items-center justify-center shadow-lg" style={{ transform: "translateZ(30px)" }}>
+                  <Atom className="h-6 w-6 text-emerald-300" />
+                </div>
+                <span className="px-3.5 py-1 rounded-full bg-zinc-950/80 border border-emerald-400/30 text-emerald-300 font-mono-label text-xs font-bold" style={{ transform: "translateZ(30px)" }}>
+                  Interactive Lab
+                </span>
+              </div>
+
+              <div className="p-6 flex flex-col justify-between h-full">
+                <div>
+                  <h3 className="font-display text-2xl font-bold text-white tracking-tight">
+                    3D Science<br />Simulations
+                  </h3>
+                  <p className="mt-4 text-sm text-zinc-300 leading-relaxed font-normal">
+                    Interactive 3D physics & optics labs (Light & Shadows, Reflection, Forces) with live slider controls and shadow math calculations.
+                  </p>
+                </div>
+
+                <div className="mt-6 p-4 rounded-2xl border border-white/10 bg-zinc-900/90" style={{ transform: "translateZ(25px)" }}>
+                  <div className="flex items-center justify-between text-xs font-mono text-zinc-300 mb-2 font-semibold">
+                    <span>Torch: <strong className="text-cyan-400">{torchPos.toFixed(1)}m</strong></span>
+                    <span>Shadow: <strong className="text-emerald-400">{Math.round(torchPos * 18)}cm</strong></span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="2.0"
+                    step="0.1"
+                    value={torchPos}
+                    onChange={(e) => setTorchPos(parseFloat(e.target.value))}
+                    className="w-full accent-emerald-400 bg-zinc-800 h-1.5 rounded-lg cursor-pointer"
+                  />
+                </div>
+              </div>
+            </Card3DTilt>
+          </Card3DScrollArc>
+
+          {/* Card 2: Gogo AI Voice Agent (Purple Header) */}
+          <Card3DScrollArc index={1} scrollProgress={smoothProgress}>
+            <Card3DTilt hoverBorder="hover:border-purple-500/50 hover:shadow-[0_20px_50px_rgba(168,85,247,0.25)]">
+              <div className="p-6 bg-gradient-to-r from-purple-600 via-indigo-500 to-purple-500 flex items-center justify-between">
+                <div className="h-12 w-12 rounded-2xl bg-zinc-950/80 border border-white/10 flex items-center justify-center shadow-lg" style={{ transform: "translateZ(30px)" }}>
+                  <Bot className="h-6 w-6 text-purple-300" />
+                </div>
+                <span className="px-3.5 py-1 rounded-full bg-zinc-950/80 border border-purple-400/30 text-purple-300 font-mono-label text-xs font-bold" style={{ transform: "translateZ(30px)" }}>
+                  Voice Tutor
+                </span>
+              </div>
+
+              <div className="p-6 flex flex-col justify-between h-full">
+                <div>
+                  <h3 className="font-display text-2xl font-bold text-white tracking-tight">
+                    Gogo AI Voice Agent
+                  </h3>
+                  <p className="mt-4 text-sm text-zinc-300 leading-relaxed font-normal">
+                    Real-time Socratic voice assistant guiding Cambridge Primary students step-by-step through science and math concepts.
+                  </p>
+                </div>
+
+                <div className="mt-6 p-4 rounded-2xl border border-white/10 bg-zinc-900/90 flex items-center justify-between" style={{ transform: "translateZ(25px)" }}>
+                  <div className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full bg-purple-400 animate-pulse" />
+                    <span className="text-xs font-mono text-white font-semibold">Voice Active</span>
+                  </div>
+                  <div className="flex items-end gap-1 h-5">
+                    {[12, 20, 16, 24, 14, 18].map((h, i) => (
+                      <motion.span
+                        key={i}
+                        className="w-1 bg-purple-400 rounded-full"
+                        animate={{ height: [8, h, 8] }}
+                        transition={{ repeat: Infinity, duration: 1, delay: i * 0.15 }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </Card3DTilt>
+          </Card3DScrollArc>
+
+          {/* Card 3: Checkpoint Exams (Blue Header) */}
+          <Card3DScrollArc index={2} scrollProgress={smoothProgress}>
+            <Card3DTilt hoverBorder="hover:border-sky-500/50 hover:shadow-[0_20px_50px_rgba(56,189,248,0.25)]">
+              <div className="p-6 bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 flex items-center justify-between">
+                <div className="h-12 w-12 rounded-2xl bg-zinc-950/80 border border-white/10 flex items-center justify-center shadow-lg" style={{ transform: "translateZ(30px)" }}>
+                  <GraduationCap className="h-6 w-6 text-sky-300" />
+                </div>
+                <span className="px-3.5 py-1 rounded-full bg-zinc-950/80 border border-sky-400/30 text-sky-300 font-mono-label text-xs font-bold" style={{ transform: "translateZ(30px)" }}>
+                  Stage 1–5
+                </span>
+              </div>
+
+              <div className="p-6 flex flex-col justify-between h-full">
+                <div>
+                  <h3 className="font-display text-2xl font-bold text-white tracking-tight">
+                    Checkpoint Exams
+                  </h3>
+                  <p className="mt-4 text-sm text-zinc-300 leading-relaxed font-normal">
+                    Timed Cambridge Primary Checkpoint paper simulator with auto-graded MCQs and instant score breakdown.
+                  </p>
+                </div>
+
+                <div className="mt-6 p-4 rounded-2xl border border-white/10 bg-zinc-900/90 flex items-center justify-between text-xs font-mono" style={{ transform: "translateZ(25px)" }}>
+                  <span className="text-zinc-300">Timer: <strong className="text-cyan-400">45:00</strong></span>
+                  <span className="text-emerald-400 font-bold">Auto-Graded</span>
+                </div>
+              </div>
+            </Card3DTilt>
+          </Card3DScrollArc>
+
+          {/* Card 4: Digital Worksheets (Orange Header) */}
+          <Card3DScrollArc index={3} scrollProgress={smoothProgress}>
+            <Card3DTilt hoverBorder="hover:border-amber-500/50 hover:shadow-[0_20px_50px_rgba(245,158,11,0.25)]">
+              <div className="p-6 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 flex items-center justify-between">
+                <div className="h-12 w-12 rounded-2xl bg-zinc-950/80 border border-white/10 flex items-center justify-center shadow-lg" style={{ transform: "translateZ(30px)" }}>
+                  <PenTool className="h-6 w-6 text-amber-300" />
+                </div>
+                <span className="px-3.5 py-1 rounded-full bg-zinc-950/80 border border-amber-400/30 text-amber-300 font-mono-label text-xs font-bold" style={{ transform: "translateZ(30px)" }}>
+                  Digital Canvas
+                </span>
+              </div>
+
+              <div className="p-6 flex flex-col justify-between h-full">
+                <div>
+                  <h3 className="font-display text-2xl font-bold text-white tracking-tight">
+                    Digital Worksheets
+                  </h3>
+                  <p className="mt-4 text-sm text-zinc-300 leading-relaxed font-normal">
+                    On-screen drawing canvas tools for solving geometry problems, measuring angles, and labeling science diagrams.
+                  </p>
+                </div>
+
+                <div className="mt-6 p-4 rounded-2xl border border-white/10 bg-zinc-900/90 flex items-center justify-between text-xs font-mono" style={{ transform: "translateZ(25px)" }}>
+                  <span className="text-zinc-300">Drawing Tool</span>
+                  <span className="text-amber-400 font-bold">Angle Mode: 45°</span>
+                </div>
+              </div>
+            </Card3DTilt>
+          </Card3DScrollArc>
+
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── 4.5. VIRTUAL CLASSROOM AUTO SLIDESHOW SHOWCASE (cam1, dashboard, feature Images) ── */
+function VirtualClassroomShowcase() {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const SHOWCASE_ITEMS = [
     {
-      user: "GOGO, take me to Primary Science Light & Shadows simulator!",
-      response: "Navigating to Science Lab #04 (Light & Shadows) right now! 🚀",
-      action: "Launching Interactive Simulator...",
-      tag: "Auto Navigation",
-      badgeColor: "text-cyan-400 bg-cyan-500/10 border-cyan-500/30"
+      id: "cam1",
+      tag: "Cambridge Primary",
+      badgeText: "· Live Interface",
+      title: "Interactive Learning",
+      description: "Empower young minds with interactive lessons, 3D science labs, and drawing worksheets built for Cambridge Primary Stage 1 to 6.",
+      image: "/cam1.webp",
+      alt: "Cambridge Primary Interactive Learning Suite",
+      accentColor: "text-cyan-400 border-cyan-500/30 bg-cyan-500/10",
+      glowColor: "from-cyan-500/20 via-teal-500/10 to-transparent",
+      barGrad: "from-cyan-400 to-teal-400",
+      icon: Atom
     },
     {
-      user: "Help me find Stage 3 Cambridge Math geometry worksheets.",
-      response: "Found 14 Stage 3 Geometry worksheets with printable drawing activities! 📐",
-      action: "Opening Worksheets Hub...",
-      tag: "Worksheet Finder",
-      badgeColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30"
+      id: "dashboard",
+      tag: "Student Dashboard",
+      badgeText: "· Growth & Analytics",
+      title: "Real-Time Growth & Insights",
+      description: "Track study streaks, complete drawable activities, monitor checkpoint progress, and learn alongside GOGO AI Tutor 24/7.",
+      image: "/dashboard.webp",
+      alt: "Student Dashboard & AI Analytics",
+      accentColor: "text-purple-400 border-purple-500/30 bg-purple-500/10",
+      glowColor: "from-purple-500/20 via-indigo-500/10 to-transparent",
+      barGrad: "from-purple-400 to-indigo-400",
+      icon: Bot
     },
     {
-      user: "Explain how solar eclipses work in simple terms.",
-      response: "When the Moon passes directly between the Sun and Earth, blocking sunlight!",
-      action: "Teaching Concept with Voice...",
-      tag: "Voice Tutor",
-      badgeColor: "text-purple-400 bg-purple-500/10 border-purple-500/30"
-    },
-    {
-      user: "Start a mock Checkpoint exam for Primary English.",
-      response: "Preparing 45-minute timed Primary English Checkpoint exam with auto-grading!",
-      action: "Starting Timed Exam Engine...",
-      tag: "Exam Assistant",
-      badgeColor: "text-amber-400 bg-amber-500/10 border-amber-500/30"
+      id: "feature",
+      tag: "Curriculum Excellence",
+      badgeText: "· Platform Suite",
+      title: "Curriculum-Aligned Framework",
+      description: "Take a look inside the modern teacher learning suite built specifically for Cambridge Primary Stage 1 to 6.",
+      image: "/feature.webp",
+      alt: "Curriculum Aligned Suite Features",
+      accentColor: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10",
+      glowColor: "from-emerald-500/20 via-teal-500/10 to-transparent",
+      barGrad: "from-emerald-400 to-teal-400",
+      icon: GraduationCap
     }
   ];
 
+  // Guaranteed 5-Second Auto-Play Loop (Runs continuously every 5s)
   useEffect(() => {
     const timer = setInterval(() => {
-      setActivePromptIndex((prev) => (prev + 1) % DEMO_PROMPTS.length);
-    }, 4200);
-    return () => clearInterval(timer);
-  }, []);
+      setActiveIndex((prevIndex) => (prevIndex + 1) % SHOWCASE_ITEMS.length);
+    }, 5000);
 
-  const activeDemo = DEMO_PROMPTS[activePromptIndex];
+    return () => clearInterval(timer);
+  }, [SHOWCASE_ITEMS.length]);
+
+  const currentItem = SHOWCASE_ITEMS[activeIndex];
 
   return (
-    <section id="gogo-tutor" data-testid="gogo-tutor-section" className="relative pt-8 pb-14 lg:pt-10 lg:pb-16 bg-gradient-to-b from-zinc-950 via-zinc-900/60 to-zinc-950 border-b border-white/5 overflow-hidden">
-      {/* Ambient Radial Background Light */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[800px] bg-gradient-to-r from-cyan-500/10 via-purple-600/15 to-emerald-500/10 blur-[140px] pointer-events-none -z-10" />
+    <section 
+      id="virtual-classroom" 
+      data-testid="virtual-classroom-section" 
+      className="relative py-10 lg:py-14 bg-zinc-950 border-t border-white/5 overflow-hidden"
+    >
+      {/* Dynamic Background Glow */}
+      <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[550px] w-[850px] bg-gradient-to-r ${currentItem.glowColor} blur-[160px] pointer-events-none transition-all duration-700 -z-10`} />
 
       <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/5 backdrop-blur-md mb-4" data-testid="gogo-badge">
+        <div className="text-center max-w-3xl mx-auto mb-8">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 backdrop-blur-md mb-4">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75 animate-ping" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" />
             </span>
-            <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400 font-bold">
-              Autonomous AI Learning Agent
+            <span className="font-mono-label text-xs uppercase tracking-[0.24em] text-cyan-400 font-bold">
+              · Live Interface
             </span>
           </div>
 
-          <h2 className="font-display font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight text-white leading-[1.05]">
-            Meet <span className="bg-gradient-to-r from-cyan-300 via-purple-300 to-emerald-300 bg-clip-text text-transparent">GOGO AI Tutor (Agent)</span>
+          <h2 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl tracking-tight leading-tight bg-gradient-to-r from-cyan-300 via-sky-300 to-blue-500 bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(6,182,212,0.4)]">
+            Explore the Virtual Classroom
           </h2>
 
           <p className="mt-4 text-zinc-400 text-base sm:text-lg leading-relaxed font-medium">
-            GOGO is an intelligent study assistant built for Cambridge Primary. Ask questions anytime, get help with tricky topics, find worksheets, and explore interactive lessons effortlessly.
+            Take a look inside the modern teacher learning suite built specifically for Cambridge curriculums.
           </p>
         </div>
 
-        {/* Main Grid: Left Features + Right Visual Hologram */}
-        <div className="grid lg:grid-cols-12 gap-12 items-center">
+        {/* Tab Buttons Navigation */}
+        <div className="flex flex-col items-center gap-4 mb-12">
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            {SHOWCASE_ITEMS.map((item, idx) => {
+              const Icon = item.icon;
+              const isActive = activeIndex === idx;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveIndex(idx)}
+                  className={`relative flex items-center gap-2.5 px-5 py-3 rounded-2xl font-mono-label text-xs font-bold transition-all duration-300 ${
+                    isActive
+                      ? `${item.accentColor} shadow-xl scale-105 border`
+                      : "bg-white/[0.03] border border-white/10 text-zinc-400 hover:text-white hover:border-white/20"
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{item.tag}</span>
+
+                  {/* Active Indicator Pulse */}
+                  {isActive && (
+                    <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-400" />
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 5-Second Active Progress Bar Ticker */}
+          <div className="flex items-center gap-2">
+            {SHOWCASE_ITEMS.map((item, idx) => {
+              const isActive = activeIndex === idx;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveIndex(idx)}
+                  aria-label={`Select ${item.tag}`}
+                  className="h-1.5 rounded-full overflow-hidden transition-all duration-500 bg-zinc-800"
+                  style={{ width: isActive ? "36px" : "8px" }}
+                >
+                  {isActive && (
+                    <motion.div
+                      key={activeIndex}
+                      initial={{ width: "0%" }}
+                      animate={{ width: "100%" }}
+                      transition={{ duration: 5, ease: "linear" }}
+                      className={`h-full bg-gradient-to-r ${item.barGrad}`}
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Active Display Panel: Left Info + Right Image Showcase */}
+        <div className="grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           
-          {/* Left Column: Capabilities Grid */}
-          <div className="lg:col-span-6 space-y-4">
-            {[
-              {
-                icon: Navigation,
-                title: "Instant Navigation & Search",
-                desc: "Ask GOGO to find any lesson, lab, or topic (such as 'Light and Shadows' or 'Grade 4 Math') and go straight to the page.",
-                color: "text-cyan-400",
-                bg: "bg-cyan-500/10 border-cyan-500/20"
-              },
-              {
-                icon: Brain,
-                title: "Simple Concept Explanations",
-                desc: "GOGO explains Science, Math, and English in clear, friendly language with guided walkthroughs for young learners.",
-                color: "text-purple-400",
-                bg: "bg-purple-500/10 border-purple-500/20"
-              },
-              {
-                icon: Search,
-                title: "Worksheet & Exam Finder",
-                desc: "Find digital drawing sheets, interactive experiments, and practice checkpoint papers tailored to your student's grade level.",
-                color: "text-emerald-400",
-                bg: "bg-emerald-500/10 border-emerald-500/20"
-              },
-              {
-                icon: Mic,
-                title: "Voice & Speech Interaction",
-                desc: "Students can speak naturally with GOGO and listen to clear voice responses, making learning hands free and engaging.",
-                color: "text-amber-400",
-                bg: "bg-amber-500/10 border-amber-500/20"
-              }
-            ].map((cap, idx) => (
+          {/* Left Column Text Details */}
+          <div className="lg:col-span-5 relative min-h-[260px] overflow-hidden">
+            <AnimatePresence mode="wait">
               <motion.div
-                key={cap.title}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
-                className="group flex gap-4 p-5 rounded-2xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] hover:border-cyan-500/30 transition-all duration-300"
+                key={currentItem.id}
+                initial={{ opacity: 0, x: 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -40 }}
+                transition={{ duration: 0.45, ease: "easeOut" }}
+                className="space-y-6"
               >
-                <div className={`h-11 w-11 rounded-xl flex items-center justify-center border shrink-0 transition-transform group-hover:scale-110 ${cap.bg}`}>
-                  <cap.icon className={`h-5 w-5 ${cap.color}`} />
+                <div className="inline-block">
+                  <span className={`px-3.5 py-1 rounded-full text-xs font-mono-label font-bold border ${currentItem.accentColor}`}>
+                    {currentItem.badgeText}
+                  </span>
                 </div>
-                <div>
-                  <h3 className="font-display text-base font-bold text-white group-hover:text-cyan-300 transition-colors">
-                    {cap.title}
-                  </h3>
-                  <p className="text-zinc-400 text-xs sm:text-sm mt-1 leading-relaxed">
-                    {cap.desc}
-                  </p>
+
+                <h3 className="font-display font-black text-3xl sm:text-4xl text-white tracking-tight leading-tight">
+                  {currentItem.title}
+                </h3>
+
+                <p className="text-zinc-300 text-base sm:text-lg leading-relaxed font-medium">
+                  {currentItem.description}
+                </p>
+
+                <div className="pt-4">
+                  <Link
+                    to="/register"
+                    className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 font-bold text-sm hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] transition-all"
+                  >
+                    Explore Curriculum <ArrowUpRight className="h-4 w-4 stroke-[2.5] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </Link>
                 </div>
               </motion.div>
-            ))}
+            </AnimatePresence>
           </div>
 
-          {/* Right Column: Interactive Visual Display of GOGO AI Chatbot */}
-          <div className="lg:col-span-6 relative">
-            
-            {/* Cybernetic Container Frame */}
-            <div className="relative rounded-3xl border border-cyan-500/30 bg-zinc-950/80 p-6 backdrop-blur-2xl shadow-[0_0_50px_rgba(34,211,238,0.15)] overflow-hidden">
+          {/* Right Column: Glassmorphic Image Frame with Sliding Track */}
+          <div className="lg:col-span-7 relative">
+            <div className="relative rounded-3xl border border-white/15 bg-zinc-950/90 p-3 shadow-[0_20px_60px_rgba(0,0,0,0.8)] backdrop-blur-2xl overflow-hidden group">
               
-              {/* Top Bar of GOGO Display */}
-              <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-400" />
-                  </div>
-                  <span className="font-display text-sm font-bold text-white tracking-wide">
-                    GOGO AI Tutor (Agent)
-                  </span>
-                </div>
-
-                <span className="font-mono-label text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-bold">
-                  ● Agent Online
-                </span>
-              </div>
-
-              {/* Center Robot Display with Cyber Hologram Effect */}
-              <div className="relative flex flex-col items-center justify-center py-2">
-                
-                {/* Robot Halo Background */}
-                <div className="absolute h-44 w-44 rounded-full bg-gradient-to-r from-cyan-500/20 via-purple-600/20 to-amber-500/15 blur-2xl animate-pulse" />
-                
-                {/* GOGO DotLottie Avatar Image */}
-                <div className="relative z-10 w-44 h-44 sm:w-48 sm:h-48 drop-shadow-[0_15px_30px_rgba(0,0,0,0.8)]">
-                  <DotLottieReact src="/RobotSaludando.json" loop autoplay style={{ width: '100%', height: '100%' }} />
-                </div>
-
-                {/* Floating Tag under Robot */}
-                <div className="mt-1 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300 text-xs font-bold font-mono-label">
-                  <Sparkles className="h-3.5 w-3.5 text-amber-300 animate-pulse" />
-                  AI Agent Powered by Mentara Engine
-                </div>
-              </div>
-
-              {/* Dynamic Live Chat Simulation Bubble */}
-              <div className="mt-4 space-y-3 border-t border-white/10 pt-4">
-                
-                {/* User Prompt */}
-                <motion.div 
-                  key={`user-${activePromptIndex}`}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-start gap-2.5 justify-end"
-                >
-                  <div className="bg-zinc-800/90 border border-white/10 rounded-2xl rounded-tr-none px-4 py-2.5 text-xs text-zinc-200 max-w-[85%] shadow-md">
-                    <p className="font-medium">{activeDemo.user}</p>
-                  </div>
-                  <div className="h-7 w-7 rounded-full bg-zinc-800 border border-white/20 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
-                    You
-                  </div>
-                </motion.div>
-
-                {/* GOGO Agent Response */}
-                <motion.div 
-                  key={`gogo-${activePromptIndex}`}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="flex items-start gap-2.5"
-                >
-                  <div className="h-7 w-7 rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400 flex items-center justify-center text-zinc-950 font-black text-xs shrink-0 shadow-lg">
-                    🤖
-                  </div>
-                  <div className="bg-cyan-950/40 border border-cyan-500/30 rounded-2xl rounded-tl-none px-4 py-2.5 text-xs text-cyan-100 max-w-[85%] shadow-lg">
-                    <p className="font-semibold text-white">{activeDemo.response}</p>
-                    
-                    <div className="mt-2 flex items-center justify-between gap-2 pt-2 border-t border-cyan-500/20">
-                      <span className={`text-[10px] font-mono-label font-bold px-2 py-0.5 rounded border ${activeDemo.badgeColor}`}>
-                        {activeDemo.action}
-                      </span>
-                      <span className="text-[10px] text-cyan-300/70 font-mono-label font-bold">
-                        {activeDemo.tag}
-                      </span>
-                    </div>
-                  </div>
-                </motion.div>
-
-              </div>
-
-              {/* Bottom Quick Feature Tickers */}
-              <div className="mt-4 grid grid-cols-3 gap-2 text-center pt-3 border-t border-white/5">
-                <div className="bg-white/[0.02] p-2 rounded-xl border border-white/5">
-                  <div className="text-[10px] font-bold text-cyan-400 font-mono-label">Auto-Nav</div>
-                  <div className="text-[9px] text-zinc-500 font-medium">Topic Navigation</div>
-                </div>
-                <div className="bg-white/[0.02] p-2 rounded-xl border border-white/5">
-                  <div className="text-[10px] font-bold text-emerald-400 font-mono-label">Voice Sync</div>
-                  <div className="text-[9px] text-zinc-500 font-medium">Natural Audio</div>
-                </div>
-                <div className="bg-white/[0.02] p-2 rounded-xl border border-white/5">
-                  <div className="text-[10px] font-bold text-purple-400 font-mono-label">Smart Search</div>
-                  <div className="text-[9px] text-zinc-500 font-medium">Labs & Papers</div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ── 4. FEATURES BENTO ── */
-function FeaturesBento() {
-  return (
-    <section id="features" data-testid="features-section" className="relative py-8 lg:py-10 bg-zinc-950/20">
-      <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
-        <div className="max-w-2xl mb-16">
-          <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-emerald-400">
-            · The platform
-          </span>
-          <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tighter mt-3 leading-[1.05] text-white">
-            Built for how students{" "}
-            <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
-              actually learn.
-            </span>
-          </h2>
-          <p className="text-zinc-400 mt-5 text-lg leading-relaxed">
-            Four product pillars, one cohesive learning environment. No more juggling tabs, PDFs
-            and broken simulations.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[minmax(220px,auto)]">
-          {/* Simulations */}
-          <BentoCard
-            className="md:col-span-2 lg:col-span-2"
-            tag="01 · Interactive simulations"
-            tagColor="text-cyan-400"
-            title="Drag, adjust, and explore with hands-on labs."
-            description="Over 120 interactive Cambridge Primary Science and Math models. Move light sources, adjust variables, watch shadows shift, and build lasting understanding."
-            icon={<Atom className="h-5 w-5 text-cyan-400" />}
-            testid="feature-simulations"
-          >
-            <div className="mt-5 relative h-60 sm:h-64 rounded-xl border border-white/10 overflow-hidden bg-zinc-950">
-              <img
-                src="/torch.webp"
-                alt="3D Science Simulation Lab"
-                className="absolute inset-0 w-full h-full object-cover object-center opacity-95 scale-110 sm:scale-120"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-transparent" />
-              <div className="absolute bottom-3 left-3.5 right-3.5 flex items-end justify-between">
-                <div>
-                  <div className="font-mono-label text-[9.5px] uppercase tracking-[0.18em] text-cyan-400 font-bold">
-                    Live · Primary Science · Light & Shadows
-                  </div>
-                  <div className="font-display text-base font-bold text-white mt-0.5">Shadow Length ⇌ Torch Distance</div>
-                </div>
-                <div className="px-2.5 py-0.5 rounded-full border border-cyan-500/40 bg-cyan-500/10 text-cyan-300 font-mono-label text-[9px] font-bold">
-                  RUNNING
-                </div>
-              </div>
-            </div>
-          </BentoCard>
-
-          {/* Draw tools */}
-          <BentoCard
-            tag="02 · Draw tools"
-            tagColor="text-emerald-400"
-            title="Annotate worksheets like paper."
-            description="Sketch diagrams, solve problems, and highlight key answers. All work saves automatically."
-            icon={<PenTool className="h-5 w-5 text-emerald-400" />}
-            testid="feature-drawtools"
-          >
-            <div className="mt-5 rounded-lg border border-white/10 bg-zinc-950 p-3">
-              <svg viewBox="0 0 220 90" className="w-full h-20">
-                <path d="M10 70 Q 40 10 80 40 T 160 30 T 215 60" stroke="#34d399" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-                <path d="M10 80 L 215 80" stroke="rgba(255,255,255,0.08)" />
-                <circle cx="80" cy="40" r="3" fill="#22d3ee" />
-                <text x="88" y="36" fontFamily="monospace" fontSize="8" fill="#a1a1aa">shadow path</text>
-              </svg>
-              <div className="flex items-center gap-1 mt-2">
-                {["#22d3ee", "#34d399", "#f59e0b", "#f43f5e"].map((c) => (
-                  <div key={c} className="h-2.5 w-2.5 rounded-full" style={{ background: c }} />
-                ))}
-                <div className="ml-auto font-mono-label text-[9px] uppercase tracking-wider text-zinc-500">Auto Saved</div>
-              </div>
-            </div>
-          </BentoCard>
-
-          {/* Student Dashboard */}
-          <BentoCard
-            tag="03 · Student Dashboard"
-            tagColor="text-cyan-400"
-            title="Everything in one place."
-            description="A central hub where students track daily streaks, monitor subject progress, and open interactive labs."
-            icon={<GraduationCap className="h-5 w-5 text-cyan-400" />}
-            testid="feature-studentdashboard"
-          >
-            <div className="mt-5 rounded-lg border border-white/10 bg-zinc-950 p-4 relative overflow-hidden flex flex-col justify-center h-[120px]">
-              {/* Pulsing indicator */}
-              <div className="absolute top-2 right-2 flex items-center gap-1.5 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-full">
-                <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                <span className="text-[8px] font-mono text-cyan-400 font-bold uppercase tracking-wider">Student Hub</span>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-2 mt-2 h-[80px]">
-                {/* Left Card: Streak */}
-                <div className="rounded-xl border border-white/5 bg-white/[0.01] p-2.5 flex flex-col justify-between">
-                  <div className="flex items-center gap-1">
-                    <svg className="w-3.5 h-3.5 text-amber-500 fill-amber-500" viewBox="0 0 24 24">
-                      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3.5z"/>
-                    </svg>
-                    <span className="text-[8px] font-mono-label text-zinc-400 font-bold">STREAK</span>
-                  </div>
-                  <div>
-                    <div className="text-sm font-display font-black text-white leading-none">5 Days</div>
-                    <span className="text-[6.5px] text-zinc-500 font-semibold mt-0.5 block leading-none">Daily Goals Met</span>
-                  </div>
-                </div>
-
-                {/* Right Card: Progress Circle */}
-                <div className="rounded-xl border border-white/5 bg-white/[0.01] p-2.5 flex items-center gap-2">
-                  <div className="relative w-8 h-8 flex-shrink-0">
-                    <svg className="w-full h-full transform -rotate-90">
-                      <circle cx="16" cy="16" r="13" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="2.5" />
-                      <motion.circle 
-                        cx="16" cy="16" r="13" 
-                        fill="none" 
-                        stroke="#22d3ee" 
-                        strokeWidth="2.5" 
-                        strokeDasharray={2 * Math.PI * 13}
-                        initial={{ strokeDashoffset: 2 * Math.PI * 13 }}
-                        animate={{ strokeDashoffset: 2 * Math.PI * 13 * (1 - 0.78) }}
-                        transition={{ duration: 2, ease: "easeOut" }}
-                      />
-                    </svg>
-                    <span className="absolute inset-0 flex items-center justify-center text-[7.5px] font-mono font-bold text-cyan-400">78%</span>
-                  </div>
-                  <div>
-                    <div className="text-[8px] font-mono-label text-zinc-400 font-bold">MASTERY</div>
-                    <span className="text-[6.5px] text-zinc-500 font-semibold block leading-tight mt-0.5">Syllabus complete</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </BentoCard>
-
-          {/* Checkpoint Exam Engine */}
-          <BentoCard
-            className="md:col-span-3 lg:col-span-2"
-            tag="04 · Checkpoint Exam Engine"
-            tagColor="text-emerald-400"
-            title="Realistic Checkpoint Exam Simulator."
-            description="Train under real exam conditions with strict timed papers, official Cambridge question formats, and structured scoring criteria."
-            icon={<Timer className="h-5 w-5 text-emerald-400" />}
-            testid="feature-exams"
-          >
-            <div className="mt-5 rounded-xl border border-white/10 bg-zinc-950 p-4 relative overflow-hidden">
-              {/* Header status bar */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
+              {/* Browser Window Header Bar */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-white/[0.02] mb-3 rounded-t-2xl">
                 <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-                  <span className="font-mono-label text-[10px] uppercase tracking-wider text-zinc-300 font-bold">
-                    Stage 5 Checkpoint Exam
-                  </span>
+                  <div className="h-3 w-3 rounded-full bg-rose-500/90" />
+                  <div className="h-3 w-3 rounded-full bg-amber-400/90" />
+                  <div className="h-3 w-3 rounded-full bg-emerald-400/90" />
+                  <span className="text-[10px] font-mono text-zinc-500 ml-2 font-semibold">Mentara Classroom Suite</span>
                 </div>
-                <span className="px-2.5 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 font-mono-label text-[9px] font-bold uppercase tracking-wider">
-                  Exam Mode Active
+                <span className="font-mono-label text-[10px] uppercase tracking-widest text-cyan-300 font-bold">
+                  {currentItem.tag}
                 </span>
               </div>
 
-              {/* Center HUD: Countdown & Active Question */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-1">
-                <div>
-                  <div className="font-mono text-2xl sm:text-3xl font-black text-white tracking-wider">
-                    00:45:00
-                  </div>
-                  <span className="text-[9.5px] text-zinc-500 font-mono-label uppercase tracking-wider block mt-0.5">
-                    Strict Time Limit · No Pause
-                  </span>
-                </div>
-
-                <div className="w-full sm:w-auto bg-white/[0.03] border border-white/10 rounded-xl p-2.5 text-left">
-                  <div className="text-[10px] font-mono-label text-cyan-400 font-bold">
-                    QUESTION 4 OF 12 · 4 MARKS
-                  </div>
-                  <div className="text-xs text-zinc-300 font-medium mt-1 truncate max-w-[210px]">
-                    Explain using a ray diagram how shadow length changes...
-                  </div>
-                </div>
-              </div>
-
-              {/* Progress bar */}
-              <div className="mt-3.5 pt-3 border-t border-white/5">
-                <div className="flex justify-between text-[9px] font-mono-label text-zinc-400 mb-1.5 font-bold">
-                  <span>EXAM PROGRESS</span>
-                  <span className="text-emerald-400">65% COMPLETED</span>
-                </div>
-                <div className="h-2 w-full rounded-full bg-zinc-900 overflow-hidden">
-                  <motion.div 
-                    className="h-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400"
-                    initial={{ width: "0%" }}
-                    whileInView={{ width: "65%" }}
-                    transition={{ duration: 1.5, ease: "easeOut" }}
-                  />
-                </div>
-              </div>
-            </div>
-          </BentoCard>
-
-          {/* Analytics */}
-          <BentoCard
-            className="md:col-span-2 lg:col-span-2"
-            tag="05 · Learning analytics"
-            tagColor="text-cyan-400"
-            title="See progress and target weak spots."
-            description="Detailed topic tracking that highlights progress for every subject and keeps students on schedule."
-            icon={<BarChart3 className="h-5 w-5 text-cyan-400" />}
-            testid="feature-analytics"
-          >
-            <div className="mt-6 grid sm:grid-cols-2 gap-4 items-stretch">
-              {/* Mini Curriculum Progress Card */}
-              <div className="p-4 rounded-xl border border-white/5 bg-zinc-950/60 flex flex-col justify-between">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-display font-bold text-xs text-white">Cambridge Primary</span>
-                  <span className="font-mono-label text-[10px] text-rose-500 font-bold">88% avg</span>
-                </div>
-                <div className="grid grid-cols-3 gap-2 mb-4">
-                  <div className="bg-white/[0.02] border border-white/5 rounded-lg p-2 text-center">
-                    <div className="font-display text-sm font-bold text-white">3</div>
-                    <div className="text-[8px] text-zinc-500 font-mono-label uppercase tracking-wider">Subjects</div>
-                  </div>
-                  <div className="bg-white/[0.02] border border-white/5 rounded-lg p-2 text-center">
-                    <div className="font-display text-sm font-bold text-white">12</div>
-                    <div className="text-[8px] text-zinc-500 font-mono-label uppercase tracking-wider">Studied</div>
-                  </div>
-                  <div className="bg-white/[0.02] border border-white/5 rounded-lg p-2 text-center">
-                    <div className="font-display text-sm font-bold text-white">15/15</div>
-                    <div className="text-[8px] text-zinc-500 font-mono-label uppercase tracking-wider">Tasks</div>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-[8px] text-zinc-500 font-mono-label mb-1">
-                    <span>PROGRESS</span>
-                    <span>100%</span>
-                  </div>
-                  <div className="h-2 w-full rounded-full bg-zinc-900 overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-violet-500 via-purple-500 to-cyan-400" style={{ width: "100%" }} />
-                  </div>
-                </div>
-              </div>
-
-              {/* Mini Weekly Study Velocity Bar Chart */}
-              <div className="p-4 rounded-xl border border-white/5 bg-zinc-950/60 relative overflow-hidden flex flex-col justify-between">
-                <div className="absolute inset-0 flex flex-col justify-between p-3 pointer-events-none opacity-20">
-                  <div className="w-full h-px bg-white/10" />
-                  <div className="w-full h-px bg-white/10" />
-                  <div className="w-full h-px bg-white/10" />
-                </div>
-                
-                <div className="relative flex items-end justify-between gap-1.5 h-16 mt-2">
-                  {[0, 0, 2, 2, 2, 2, 0].map((val, idx) => {
-                    const days = ["Fri", "Sat", "Sun", "Mon", "Tue", "Wed", "Thu"];
-                    const heightPercent = val === 2 ? "70%" : "8%";
-                    return (
-                      <div key={idx} className="flex-1 flex flex-col items-center gap-1 group/bar relative">
-                        <div className="absolute -top-7 scale-0 group-hover/bar:scale-100 transition-all duration-200 bg-zinc-900 border border-white/10 text-[9px] px-1.5 py-0.5 rounded text-white font-mono-label z-10">
-                          {val} hrs
-                        </div>
-                        <div 
-                          className={`w-full rounded-md transition-all duration-300 ${
-                            val > 0 
-                              ? "bg-violet-600 shadow-[0_0_12px_rgba(139,92,246,0.35)] group-hover/bar:shadow-[0_0_20px_rgba(139,92,246,0.65)]" 
-                              : "bg-white/5"
-                          }`}
-                          style={{ height: heightPercent }}
-                        />
-                      </div>
-                    )
-                  })}
-                </div>
-                <div className="mt-3 flex items-center justify-between text-[8px] font-mono-label text-zinc-500 font-bold">
-                  {["Fri", "Sat", "Sun", "Mon", "Tue", "Wed", "Thu"].map(d => (
-                    <span key={d}>{d}</span>
+              {/* Display Image Container with Sliding Horizontal Track */}
+              <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 shadow-inner">
+                <motion.div
+                  className="flex w-full h-full"
+                  animate={{ x: `-${activeIndex * 100}%` }}
+                  transition={{ type: "spring", stiffness: 180, damping: 24 }}
+                >
+                  {SHOWCASE_ITEMS.map((item) => (
+                    <div key={item.id} className="w-full h-full shrink-0 relative">
+                      <img
+                        src={item.image}
+                        alt={item.alt}
+                        className="w-full h-full object-cover rounded-2xl"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/40 via-transparent to-transparent pointer-events-none" />
+                    </div>
                   ))}
-                </div>
+                </motion.div>
               </div>
+
             </div>
-          </BentoCard>
+          </div>
+
         </div>
+
       </div>
     </section>
   );
@@ -1105,7 +925,7 @@ function LearningJourney() {
   ];
 
   return (
-    <section data-testid="journey-section" className="relative py-12 lg:py-14 bg-zinc-950 border-y border-white/5">
+    <section data-testid="journey-section" className="relative py-8 lg:py-10 bg-zinc-950 border-y border-white/5">
       <div className="max-w-[1480px] mx-auto px-6 lg:px-12 grid lg:grid-cols-12 gap-12">
         <div className="lg:col-span-4 lg:sticky lg:top-32 lg:self-start">
           <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
@@ -1123,7 +943,7 @@ function LearningJourney() {
         <div className="lg:col-span-8 relative">
           <div className="absolute left-[19px] top-2 bottom-2 w-px bg-gradient-to-b from-cyan-500/40 via-emerald-500/30 to-transparent pointer-events-none" />
 
-          <div className="space-y-12">
+          <div className="space-y-8">
             {STEPS.map((s, i) => (
               <motion.div
                 key={s.n}
@@ -1154,75 +974,165 @@ function LearningJourney() {
 }
 
 /* ── 6. SUBJECTS GRID ── */
+/* ── 6. SUBJECTS GRID (Tactile 3D Material Design matching media_1787856582952.png) ── */
 function SubjectsGrid() {
   const SUBJECTS = [
-    { name: "English", icon: BookText, topics: 14, accent: "emerald" },
-    { name: "Mathematics", icon: Sigma, topics: 18, accent: "cyan" },
-    { name: "Science", icon: FlaskConical, topics: 16, accent: "emerald" },
-    { name: "Global Perspectives", icon: Globe, topics: 12, accent: "violet" },
+    {
+      id: "math",
+      name: "Mathematics",
+      subtitle: "Numbers • Logic • Problem Solving",
+      topics: 24,
+      watermark: "π",
+      borderGlow: "hover:border-blue-400/60 hover:shadow-[0_25px_60px_rgba(37,99,235,0.35)]",
+      waveGrad: "from-blue-600/30 via-blue-500/10 to-transparent",
+      iconGrad: "from-blue-500 via-blue-700 to-blue-950",
+      watermarkColor: "text-blue-400/25",
+      icon: (
+        <svg className="w-7 h-7 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <rect x="4" y="2" width="16" height="20" rx="3" strokeWidth="2" />
+          <line x1="8" y1="6" x2="16" y2="6" strokeWidth="2" />
+          <line x1="16" y1="14" x2="16" y2="18" strokeWidth="2" />
+          <path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01" strokeWidth="3" strokeLinecap="round" />
+        </svg>
+      )
+    },
+    {
+      id: "science",
+      name: "Science",
+      subtitle: "Thinking Scientifically • Living Things • Forces • Earth & Space",
+      topics: 28,
+      watermark: "⚛",
+      borderGlow: "hover:border-teal-400/60 hover:shadow-[0_25px_60px_rgba(20,184,166,0.35)]",
+      waveGrad: "from-teal-600/30 via-emerald-500/10 to-transparent",
+      iconGrad: "from-teal-500 via-teal-700 to-teal-950",
+      watermarkColor: "text-teal-400/25",
+      icon: (
+        <svg className="w-7 h-7 text-teal-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L5.6 15.12a2 2 0 00-1.785 2.87l1.7 3.4a2 2 0 001.785 1.11h9.4a2 2 0 001.785-1.11l1.7-3.4a2 2 0 00-.357-2.562zM12 3v9" />
+        </svg>
+      )
+    },
+    {
+      id: "english",
+      name: "English",
+      subtitle: "Grammar • Reading • Composition",
+      topics: 20,
+      watermark: "Aa",
+      borderGlow: "hover:border-purple-400/60 hover:shadow-[0_25px_60px_rgba(147,51,234,0.35)]",
+      waveGrad: "from-purple-600/30 via-indigo-500/10 to-transparent",
+      iconGrad: "from-purple-500 via-purple-700 to-purple-950",
+      watermarkColor: "text-purple-400/25",
+      icon: (
+        <svg className="w-7 h-7 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+      )
+    },
+    {
+      id: "global",
+      name: "Global Perspectives",
+      subtitle: "Culture • Geography • Citizenship",
+      topics: 18,
+      watermark: "🌐",
+      borderGlow: "hover:border-sky-400/60 hover:shadow-[0_25px_60px_rgba(14,165,233,0.35)]",
+      waveGrad: "from-sky-600/30 via-cyan-500/10 to-transparent",
+      iconGrad: "from-sky-500 via-sky-700 to-sky-950",
+      watermarkColor: "text-sky-400/25",
+      icon: (
+        <svg className="w-7 h-7 text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3.6 9h16.8M3.6 15h16.8M12 3a15.3 15.3 0 014 9 15.3 15.3 0 01-4 9 15.3 15.3 0 01-4-9 15.3 15.3 0 014-9z" />
+        </svg>
+      )
+    }
   ];
 
-  const ACCENT = {
-    cyan: {
-      border: "hover:border-cyan-500/40",
-      iconWrap: "border-cyan-500/20 bg-cyan-500/5 group-hover:bg-cyan-500/10",
-      icon: "text-cyan-400",
-    },
-    emerald: {
-      border: "hover:border-emerald-500/40",
-      iconWrap: "border-emerald-500/20 bg-emerald-500/5 group-hover:bg-emerald-500/10",
-      icon: "text-emerald-400",
-    },
-    violet: {
-      border: "hover:border-violet-500/40",
-      iconWrap: "border-violet-500/20 bg-violet-500/5 group-hover:bg-violet-500/10",
-      icon: "text-violet-400",
-    },
-  };
-
   return (
-    <section id="subjects" data-testid="subjects-section" className="relative py-8 lg:py-10 bg-zinc-950/10">
+    <section id="subjects" data-testid="subjects-section" className="relative py-10 lg:py-14 bg-zinc-950 border-t border-white/5">
       <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8">
+        
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-6">
           <div className="max-w-xl">
-            <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-emerald-400">
+            <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400 font-bold px-3.5 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/10 inline-block mb-3">
               · Subjects
             </span>
-            <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tighter mt-3 leading-[1.05] text-white">
-              Syllabus-aligned subjects.
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight bg-gradient-to-r from-cyan-300 via-sky-300 to-blue-500 bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(6,182,212,0.4)]">
+              Syllabus-Aligned Subjects
             </h2>
           </div>
-          <p className="text-zinc-500 text-sm max-w-sm font-semibold">
-            Interactive labs, drawing worksheets and mock checkpoint papers for all core primary subjects.
+          <p className="text-zinc-400 text-sm sm:text-base max-w-md font-medium leading-relaxed">
+            Interactive 3D labs, drawing worksheets and auto-graded mock checkpoint papers tailored to Cambridge Primary Stage 1 to 6.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-          {SUBJECTS.map((s) => {
-            const a = ACCENT[s.accent];
-            return (
-              <div
-                key={s.name}
-                data-testid={`subject-${s.name.toLowerCase().replace(/[^a-z]/g, "")}`}
-                className={`group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-md p-6 ${a.border} hover:-translate-y-0.5 transition-all duration-300 cursor-pointer`}
-              >
-                <div className={`h-10 w-10 rounded-lg border ${a.iconWrap} grid place-items-center mb-4 transition-colors`}>
-                  <s.icon className={`h-5 w-5 ${a.icon}`} />
-                </div>
-                <div className="font-display text-lg font-bold text-white tracking-tight">{s.name}</div>
-                <div className="font-mono-label text-[10px] uppercase tracking-wider text-zinc-500 mt-1 font-bold">
-                  {s.topics} Topics · Cambridge Curriculum
-                </div>
+        {/* 3D Material Subject Cards Grid (4 in a single row) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
+          {SUBJECTS.map((s) => (
+            <motion.div
+              key={s.id}
+              whileHover={{ y: -6, scale: 1.015 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              data-testid={`subject-card-${s.id}`}
+              className={`group relative rounded-[24px] border border-white/12 bg-gradient-to-br from-zinc-900/90 via-zinc-950 to-black p-5 sm:p-6 shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.15),_0_20px_40px_-12px_rgba(0,0,0,0.85)] backdrop-blur-2xl overflow-hidden transition-all duration-300 cursor-pointer ${s.borderGlow}`}
+            >
+              {/* Corner Translucent Glass Wave Overlay */}
+              <div className={`absolute bottom-0 right-0 w-48 h-48 bg-gradient-to-tl ${s.waveGrad} rounded-tl-[90px] pointer-events-none transition-opacity duration-500 group-hover:opacity-100 opacity-70`} />
+
+              {/* Subject 3D Watermark Icon in Corner */}
+              <div className={`absolute -bottom-1 right-3 font-serif font-black text-6xl sm:text-7xl select-none pointer-events-none transition-transform duration-500 group-hover:scale-110 drop-shadow-[0_0_15px_rgba(56,189,248,0.2)] ${s.watermarkColor}`}>
+                {s.watermark}
               </div>
-            );
-          })}
+
+              {/* Card Content Row */}
+              <div className="relative z-10 flex flex-col justify-between h-full min-h-[160px]">
+                
+                {/* Top Row: 3D Tactile Icon + Top Right Arrow */}
+                <div className="flex items-start justify-between gap-3 mb-4">
+                  
+                  {/* 3D Tactile Icon Badge Container */}
+                  <div className={`h-12 w-12 rounded-[16px] bg-gradient-to-br ${s.iconGrad} p-0.5 shadow-[inset_0_2px_3px_rgba(255,255,255,0.4),_0_8px_16px_rgba(0,0,0,0.7)] flex items-center justify-center border border-white/20 group-hover:scale-105 transition-transform duration-300`}>
+                    <div className="h-full w-full rounded-[13px] bg-zinc-950/60 backdrop-blur-sm flex items-center justify-center border border-white/10 shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)]">
+                      {s.icon}
+                    </div>
+                  </div>
+
+                  {/* Top-Right Arrow Action Button */}
+                  <div className="h-9 w-9 rounded-full border border-white/15 bg-white/10 group-hover:bg-cyan-400 group-hover:text-zinc-950 group-hover:border-cyan-300 flex items-center justify-center text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),_0_6px_14px_rgba(0,0,0,0.5)] transition-all duration-300">
+                    <ArrowUpRight className="h-4 w-4 stroke-[2.5]" />
+                  </div>
+                </div>
+
+                {/* Middle Row: Title & Subtitle */}
+                <div className="mb-5">
+                  <h3 className="font-display font-black text-lg sm:text-xl text-white tracking-tight leading-snug group-hover:text-cyan-300 transition-colors">
+                    {s.name}
+                  </h3>
+                  <p className="text-zinc-400 text-[11px] sm:text-xs font-medium mt-1.5 leading-relaxed tracking-wide">
+                    {s.subtitle}
+                  </p>
+                </div>
+
+                {/* Bottom Row: Tactile Glass Topic Badge Pill */}
+                <div className="inline-flex items-center">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/12 bg-white/[0.06] backdrop-blur-md shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),_0_6px_14px_rgba(0,0,0,0.5)]">
+                    <BarChart3 className="h-3.5 w-3.5 text-cyan-400" />
+                    <span className="font-mono-label text-[11px] font-bold text-zinc-100 tracking-wider">
+                      {s.topics} Topics
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+            </motion.div>
+          ))}
         </div>
+
       </div>
     </section>
   );
 }
 
-/* ── 7. TESTIMONIALS ── */
+/* ── 7. TESTIMONIALS (Clean 3-Card Grid Layout) ── */
 function Testimonials() {
   const TESTIMONIAL_DATA = [
     {
@@ -1246,38 +1156,59 @@ function Testimonials() {
   ];
 
   return (
-    <section id="testimonials" data-testid="testimonials-section" className="relative py-8 lg:py-10 bg-zinc-950 border-y border-white/5">
+    <section id="testimonials" data-testid="testimonials-section" className="relative py-12 lg:py-16 bg-zinc-950 border-y border-white/5">
       <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
-        <div className="max-w-2xl mb-8">
-          <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
-            · Student stories
+        
+        {/* Section Header */}
+        <div className="max-w-2xl mb-10">
+          <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400 font-bold px-3 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/10 inline-block mb-3">
+            · Student Stories
           </span>
-          <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tighter mt-3 leading-[1.05] text-white">
-            Results that speak louder than marketing copy.
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight bg-gradient-to-r from-cyan-300 via-sky-300 to-blue-500 bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(6,182,212,0.4)]">
+            Results That Speak Louder Than Marketing Copy
           </h2>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-5">
+        {/* Simple 3-Card Grid */}
+        <div className="grid md:grid-cols-3 gap-6">
           {TESTIMONIAL_DATA.map((t, i) => (
             <div
               key={i}
               data-testid={`testimonial-${i}`}
-              className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-2xl p-7 hover:border-cyan-500/30 transition-all duration-300"
+              className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-2xl p-7 hover:border-cyan-500/40 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
             >
-              <Quote className="h-5 w-5 text-cyan-400/60 mb-5" />
-              <p className="text-zinc-200 leading-relaxed text-[15px]">{t.quote}</p>
-              <div className="mt-7 flex items-center gap-3 pt-5 border-t border-white/5">
-                <div className="relative h-10 w-10 rounded-full overflow-hidden border border-white/10 bg-zinc-900">
+              <div>
+                {/* 5-Star Rating */}
+                <div className="flex items-center gap-1 mb-5">
+                  {[...Array(5)].map((_, starIdx) => (
+                    <Star key={starIdx} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+
+                {/* Quote */}
+                <p className="text-zinc-200 leading-relaxed text-[15px] font-medium">
+                  "{t.quote}"
+                </p>
+              </div>
+
+              {/* Author Footer */}
+              <div className="mt-8 flex items-center gap-3.5 pt-5 border-t border-white/10">
+                <div className="relative h-11 w-11 rounded-full overflow-hidden border border-white/20 bg-zinc-900 shrink-0">
                   <img src={t.img} alt={t.name} className="h-full w-full object-cover" />
                 </div>
                 <div>
-                  <div className="font-display font-semibold text-sm text-white">{t.name}</div>
-                  <div className="font-mono-label text-[10px] uppercase tracking-wider text-zinc-500 font-bold">{t.role}</div>
+                  <div className="font-display font-bold text-sm text-white group-hover:text-cyan-300 transition-colors">
+                    {t.name}
+                  </div>
+                  <div className="font-mono-label text-[11px] text-zinc-400 font-semibold mt-0.5">
+                    {t.role}
+                  </div>
                 </div>
               </div>
             </div>
           ))}
         </div>
+
       </div>
     </section>
   );
@@ -1921,10 +1852,10 @@ function ProductDetails() {
   ];
 
   return (
-    <section className="pt-8 pb-2 bg-zinc-950/60 relative border-b border-white/5">
+    <section className="py-8 bg-zinc-950/60 relative border-b border-white/5">
       
       <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
-        <div className="text-center max-w-3xl mx-auto mb-10">
+        <div className="text-center max-w-3xl mx-auto mb-6">
           <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
             · PLATFORM HIGHLIGHTS
           </span>
