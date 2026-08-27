@@ -108,11 +108,10 @@ function Header() {
   }, []);
 
   const NAV_LINKS = [
-    { label: "GOGO AI Tutor", href: "#gogo-tutor" },
+    { label: "Home", href: "#" },
     { label: "Features", href: "#features" },
-    { label: "Subjects", href: "#subjects" },
-    { label: "Stories", href: "#testimonials" },
     { label: "Pricing", href: "#pricing" },
+    { label: "Subjects", href: "#subjects" },
   ];
 
   return (
