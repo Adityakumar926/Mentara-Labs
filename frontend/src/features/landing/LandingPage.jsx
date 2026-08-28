@@ -285,7 +285,7 @@ function Hero() {
           {/* Stats Row */}
           <div className="mt-7 grid grid-cols-3 gap-6 max-w-md border-t border-white/10 pt-4">
             {[
-              { stat: "12k+", label: "Active learners" },
+              { stat: "500+", label: "Active learners" },
               { stat: "98%", label: "Syllabus Pass Rate" },
               { stat: "240+", label: "Interactive Labs" },
             ].map((s) => (
@@ -462,8 +462,8 @@ function FeaturesBento() {
           <span className="font-mono-label text-xs uppercase tracking-[0.25em] text-cyan-400 font-bold px-3 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/10 inline-block mb-3">
             · Platform Features
           </span>
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight bg-gradient-to-r from-cyan-300 via-sky-300 to-blue-500 bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(6,182,212,0.4)]">
-            Platform Features
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+            Platform <span className="bg-gradient-to-r from-cyan-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">Features</span>
           </h2>
           <p className="mt-3 text-zinc-400 text-base sm:text-lg">
             Everything students need for Cambridge Primary success, all in one connected environment.
@@ -701,8 +701,8 @@ function VirtualClassroomShowcase() {
             </span>
           </div>
 
-          <h2 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl tracking-tight leading-tight bg-gradient-to-r from-cyan-300 via-sky-300 to-blue-500 bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(6,182,212,0.4)]">
-            Explore the Virtual Classroom
+          <h2 className="font-display font-black text-3xl sm:text-4xl lg:text-5xl tracking-tight leading-tight text-white">
+            Explore the <span className="bg-gradient-to-r from-cyan-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">Virtual Classroom</span>
           </h2>
 
           <p className="mt-4 text-zinc-400 text-base sm:text-lg leading-relaxed font-medium">
@@ -1055,8 +1055,8 @@ function SubjectsGrid() {
             <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400 font-bold px-3.5 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/10 inline-block mb-3">
               · Subjects
             </span>
-            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight bg-gradient-to-r from-cyan-300 via-sky-300 to-blue-500 bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(6,182,212,0.4)]">
-              Syllabus-Aligned Subjects
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-white">
+              Syllabus-Aligned <span className="bg-gradient-to-r from-cyan-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">Subjects</span>
             </h2>
           </div>
           <p className="text-zinc-400 text-sm sm:text-base max-w-md font-medium leading-relaxed">
@@ -1163,8 +1163,8 @@ function Testimonials() {
           <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400 font-bold px-3 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/10 inline-block mb-3">
             · Student Stories
           </span>
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight bg-gradient-to-r from-cyan-300 via-sky-300 to-blue-500 bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(6,182,212,0.4)]">
-            Results That Speak Louder Than Marketing Copy
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-white">
+            Results That Speak Louder Than <span className="bg-gradient-to-r from-cyan-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">Marketing Copy</span>
           </h2>
         </div>
 
