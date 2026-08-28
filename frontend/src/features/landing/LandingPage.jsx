@@ -1543,8 +1543,9 @@ function FAQItem({ q, a, i }) {
   );
 }
 
-/* ── 10. FOOTER ── */
 function Footer() {
+  const [activeModal, setActiveModal] = useState(null);
+
   const COLS = [
     { title: "Platform", links: ["Simulations", "Worksheets", "Auto Exams", "Analytics"] },
     { title: "Curriculum", links: ["Cambridge Primary Science", "Cambridge Primary Math", "Cambridge Primary English", "Cambridge Global Perspectives"] },
@@ -1553,68 +1554,208 @@ function Footer() {
   ];
 
   return (
-    <footer data-testid="site-footer" className="relative pt-8 pb-6 bg-black border-t border-white/5 overflow-hidden">
-      {/* Glow */}
-      <div className="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[60%] bg-gradient-to-r from-cyan-500/10 via-cyan-500/5 to-emerald-500/10 blur-3xl pointer-events-none" />
+    <>
+      <footer data-testid="site-footer" className="relative pt-8 pb-6 bg-black border-t border-white/5 overflow-hidden">
+        {/* Glow */}
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[60%] bg-gradient-to-r from-cyan-500/10 via-cyan-500/5 to-emerald-500/10 blur-3xl pointer-events-none" />
 
-      <div className="max-w-[1480px] mx-auto px-6 lg:px-12 relative">
-        {/* Links grid */}
-        <div className="grid lg:grid-cols-12 gap-10 pb-8">
-          <div className="lg:col-span-4">
-            <div className="flex items-center gap-3 mb-5">
-              <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-9 w-9 object-contain" />
-              <span className="font-display font-bold text-[18px] tracking-tight header-gradient-text">Mentara Labs</span>
+        <div className="max-w-[1480px] mx-auto px-6 lg:px-12 relative">
+          {/* Links grid */}
+          <div className="grid lg:grid-cols-12 gap-10 pb-8">
+            <div className="lg:col-span-4">
+              <div className="flex items-center gap-3 mb-5">
+                <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-9 w-9 object-contain" />
+                <span className="font-display font-bold text-[18px] tracking-tight header-gradient-text">Mentara Labs</span>
+              </div>
+              <p className="text-sm text-zinc-400 leading-relaxed max-w-sm font-medium">
+                Interactive 3D labs, practice worksheets, and Cambridge Primary tools crafted to help every student learn with joy and confidence.
+              </p>
+              <div className="flex items-center gap-3 mt-6">
+                {[Twitter, Linkedin, Youtube, Github].map((Icon, i) => (
+                  <a
+                    key={i}
+                    href="#"
+                    data-testid={`social-${i}`}
+                    aria-label="social"
+                    className="h-9 w-9 rounded-full border border-white/10 grid place-items-center text-zinc-500 hover:text-cyan-400 hover:border-cyan-500/40 transition-all"
+                  >
+                    <Icon className="h-4 w-4" />
+                  </a>
+                ))}
+              </div>
             </div>
-            <p className="text-sm text-zinc-400 leading-relaxed max-w-sm font-medium">
-              Interactive 3D labs, practice worksheets, and Cambridge Primary tools crafted to help every student learn with joy and confidence.
-            </p>
-            <div className="flex items-center gap-3 mt-6">
-              {[Twitter, Linkedin, Youtube, Github].map((Icon, i) => (
-                <a
-                  key={i}
-                  href="#"
-                  data-testid={`social-${i}`}
-                  aria-label="social"
-                  className="h-9 w-9 rounded-full border border-white/10 grid place-items-center text-zinc-500 hover:text-cyan-400 hover:border-cyan-500/40 transition-all"
-                >
-                  <Icon className="h-4 w-4" />
-                </a>
+
+            <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+              {COLS.map((c) => (
+                <div key={c.title}>
+                  <div className="font-mono-label text-[10px] uppercase tracking-[0.22em] text-zinc-500 mb-4 font-bold">
+                    {c.title}
+                  </div>
+                  <ul className="space-y-2.5">
+                    {c.links.map((l) => (
+                      <li key={l}>
+                        <a href="#" className="text-sm text-zinc-300 hover:text-cyan-400 transition-colors font-semibold">
+                          {l}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
             </div>
           </div>
 
-          <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-8">
-            {COLS.map((c) => (
-              <div key={c.title}>
-                <div className="font-mono-label text-[10px] uppercase tracking-[0.22em] text-zinc-500 mb-4 font-bold">
-                  {c.title}
-                </div>
-                <ul className="space-y-2.5">
-                  {c.links.map((l) => (
-                    <li key={l}>
-                      <a href="#" className="text-sm text-zinc-300 hover:text-cyan-400 transition-colors font-semibold">
-                        {l}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+          <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="font-mono-label text-[10px] uppercase tracking-[0.22em] text-zinc-600 font-bold">
+              © 2026 Mentara Labs · All rights reserved
+            </div>
+            <div className="flex items-center gap-5 text-[12px] text-zinc-500 font-semibold">
+              <button onClick={() => setActiveModal("privacy")} className="hover:text-zinc-300 transition-colors">Privacy Policy</button>
+              <button onClick={() => setActiveModal("terms")} className="hover:text-zinc-300 transition-colors">Terms of Service</button>
+              <button onClick={() => setActiveModal("cookies")} className="hover:text-zinc-300 transition-colors">Cookie Policy</button>
+            </div>
           </div>
         </div>
+      </footer>
 
-        <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="font-mono-label text-[10px] uppercase tracking-[0.22em] text-zinc-600 font-bold">
-            © 2026 Mentara Labs · All rights reserved
-          </div>
-          <div className="flex items-center gap-5 text-[12px] text-zinc-500 font-semibold">
-            <a href="#" className="hover:text-zinc-300">Privacy</a>
-            <a href="#" className="hover:text-zinc-300">Terms</a>
-            <a href="#" className="hover:text-zinc-300">Cookies</a>
+      {/* Cookie Acceptance Banner */}
+      <CookieBanner onOpenPolicy={() => setActiveModal("cookies")} />
+
+      {/* Interactive Legal Modal */}
+      {activeModal && (
+        <LegalModal type={activeModal} onClose={() => setActiveModal(null)} />
+      )}
+    </>
+  );
+}
+
+function CookieBanner({ onOpenPolicy }) {
+  const [accepted, setAccepted] = useState(true);
+
+  useEffect(() => {
+    const consent = localStorage.getItem("mentara_cookie_consent");
+    if (!consent) {
+      setAccepted(false);
+    }
+  }, []);
+
+  const handleAccept = () => {
+    localStorage.setItem("mentara_cookie_consent", "true");
+    setAccepted(true);
+  };
+
+  if (accepted) return null;
+
+  return (
+    <div className="fixed bottom-5 right-5 left-5 md:left-auto md:max-w-md z-[90] bg-zinc-950/95 border border-cyan-500/30 backdrop-blur-2xl p-4 sm:p-5 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.8)]">
+      <div className="flex items-start gap-3">
+        <span className="text-2xl shrink-0">🍪</span>
+        <div className="space-y-2">
+          <h4 className="font-display font-bold text-sm text-white">We Value Your Privacy</h4>
+          <p className="text-xs text-zinc-400 leading-relaxed font-medium">
+            Mentara Labs uses essential cookies to preserve your login session, progress, and preferences across Cambridge Primary modules.
+          </p>
+          <div className="flex items-center gap-3 pt-1">
+            <button
+              onClick={handleAccept}
+              className="px-4 py-1.5 rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 font-bold text-xs hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] transition-all"
+            >
+              Accept Cookies
+            </button>
+            <button
+              onClick={onOpenPolicy}
+              className="text-xs text-zinc-400 hover:text-white font-semibold underline underline-offset-2 transition-colors"
+            >
+              Cookie Policy
+            </button>
           </div>
         </div>
       </div>
-    </footer>
+    </div>
+  );
+}
+
+function LegalModal({ type, onClose }) {
+  if (!type) return null;
+
+  const CONTENT = {
+    privacy: {
+      title: "Privacy Policy",
+      updated: "Last updated: August 2026",
+      text: (
+        <div className="space-y-4 text-sm text-zinc-300 leading-relaxed">
+          <p>At Mentara Labs, we take student and user data privacy very seriously. This Privacy Policy explains how we collect, use, and safeguard information when you use our platform.</p>
+          <h4 className="font-bold text-white text-base">1. Student Data Protection</h4>
+          <p>We strictly adhere to student data protection standards. We do not sell student data, show targeted ads, or share personal information with unauthorized third parties.</p>
+          <h4 className="font-bold text-white text-base">2. Information We Collect</h4>
+          <p>We collect essential account details (such as email address, name, and role) and learning progress analytics to deliver personalized Cambridge Primary practice.</p>
+          <h4 className="font-bold text-white text-base">3. Security & Encryption</h4>
+          <p>All transmitted data is protected using industry-standard 256-bit SSL encryption and secure cloud database infrastructure.</p>
+        </div>
+      )
+    },
+    terms: {
+      title: "Terms of Service",
+      updated: "Last updated: August 2026",
+      text: (
+        <div className="space-y-4 text-sm text-zinc-300 leading-relaxed">
+          <p>By accessing or using Mentara Labs, you agree to comply with and be bound by the following terms and conditions of use.</p>
+          <h4 className="font-bold text-white text-base">1. Platform Usage & License</h4>
+          <p>Mentara Labs grants subscribed students, parents, and teachers a non-exclusive, non-transferable license to access interactive labs, drawing worksheets, and practice resources.</p>
+          <h4 className="font-bold text-white text-base">2. Account Responsibility</h4>
+          <p>Users are responsible for maintaining the confidentiality of their account credentials and for all activities that occur under their account.</p>
+          <h4 className="font-bold text-white text-base">3. Intellectual Property</h4>
+          <p>All interactive 3D simulations, Cambridge Primary practice worksheets, and platform software are the exclusive intellectual property of Mentara Labs.</p>
+        </div>
+      )
+    },
+    cookies: {
+      title: "Cookie Policy",
+      updated: "Last updated: August 2026",
+      text: (
+        <div className="space-y-4 text-sm text-zinc-300 leading-relaxed">
+          <p>Mentara Labs uses essential cookies and browser local storage to provide a seamless learning experience.</p>
+          <h4 className="font-bold text-white text-base">1. Essential Cookies</h4>
+          <p>Necessary for user authentication, session security, and preserving your active learning state across interactive modules.</p>
+          <h4 className="font-bold text-white text-base">2. Performance & Preference Cookies</h4>
+          <p>Used to remember your preferences (such as audio settings and theme choices) and improve platform load speeds.</p>
+          <h4 className="font-bold text-white text-base">3. Managing Cookies</h4>
+          <p>You can choose to disable cookies through your browser settings, though certain interactive features may require cookies to function properly.</p>
+        </div>
+      )
+    }
+  };
+
+  const item = CONTENT[type];
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+      <div className="relative w-full max-w-xl bg-zinc-900 border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
+        <div className="flex items-center justify-between pb-4 border-b border-white/10">
+          <div>
+            <h3 className="font-display font-bold text-xl text-white">{item.title}</h3>
+            <span className="text-xs text-zinc-500 font-mono-label">{item.updated}</span>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="py-6 overflow-y-auto space-y-4 pr-1">
+          {item.text}
+        </div>
+        <div className="pt-4 border-t border-white/10 flex justify-end">
+          <button
+            onClick={onClose}
+            className="px-5 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white font-semibold text-xs transition-colors"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 

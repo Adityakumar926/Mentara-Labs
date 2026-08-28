@@ -42,11 +42,38 @@ export default function LoginPage() {
   const [errors, setErrors]   = useState({});
   const [quoteIdx, setQuoteIdx]     = useState(0);
   const [quoteVisible, setQuoteVisible] = useState(true);
+  const [savedAccount, setSavedAccount] = useState(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("mentara_saved_account");
+      if (raw) {
+        setSavedAccount(JSON.parse(raw));
+      }
+    } catch (err) {
+      // ignore
+    }
+  }, []);
+
+  const saveAccountToCache = (userObj) => {
+    try {
+      if (userObj && (userObj.email || userObj.full_name)) {
+        localStorage.setItem("mentara_saved_account", JSON.stringify({
+          email: userObj.email,
+          name: userObj.full_name,
+          role: userObj.role
+        }));
+      }
+    } catch (e) {
+      // ignore
+    }
+  };
 
   const handleGoogleCallback = async (response) => {
     try {
       const user = await loginWithGoogle(response.credential);
-      toast.success(`Welcome, ${user.full_name.split(' ')[0]}!`);
+      saveAccountToCache(user);
+      toast.success(`Welcome back, ${user.full_name.split(' ')[0]}!`);
       navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
     } catch (err) {
       toast.error(err.message);
@@ -64,6 +91,7 @@ export default function LoginPage() {
           document.getElementById('google-btn-container'),
           { theme: 'filled_black', size: 'large', width: '380', shape: 'pill', text: 'continue_with' }
         );
+        window.google.accounts.id.prompt();
       }
     };
 
@@ -101,6 +129,7 @@ export default function LoginPage() {
     if (!validate()) return;
     try {
       const user = await login(form);
+      saveAccountToCache(user);
       toast.success(`Welcome back, ${user.full_name.split(' ')[0]}!`);
       navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
     } catch (err) {
@@ -605,6 +634,53 @@ export default function LoginPage() {
             <div className="form-eyebrow">Welcome back</div>
             <h1 className="form-title">Sign in</h1>
             <p className="form-sub">Enter your credentials to continue learning.</p>
+
+            {savedAccount && (
+              <div style={{
+                marginBottom: '1.5rem',
+                padding: '0.85rem 1rem',
+                borderRadius: '16px',
+                background: 'rgba(34, 211, 238, 0.06)',
+                border: '1px solid rgba(34, 211, 238, 0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                boxShadow: '0 0 20px rgba(34, 211, 238, 0.1)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{
+                    width: '38px', height: '38px', borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #22d3ee, #34d399)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.9rem', color: '#09090b'
+                  }}>
+                    {savedAccount.name ? savedAccount.name[0].toUpperCase() : (savedAccount.email ? savedAccount.email[0].toUpperCase() : 'U')}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '0.68rem', fontFamily: 'Space Grotesk, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#22d3ee', fontWeight: 700 }}>Saved Account</div>
+                    <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#ffffff', lineHeight: 1.2 }}>{savedAccount.name || savedAccount.email}</div>
+                    <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)' }}>{savedAccount.email}</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setForm((prev) => ({ ...prev, email: savedAccount.email }))}
+                  style={{
+                    padding: '0.4rem 0.85rem',
+                    borderRadius: '50px',
+                    background: 'rgba(34, 211, 238, 0.15)',
+                    border: '1px solid rgba(34, 211, 238, 0.35)',
+                    color: '#22d3ee',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  Continue →
+                </button>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} noValidate style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
               <Field label="Email" error={errors.email}>
