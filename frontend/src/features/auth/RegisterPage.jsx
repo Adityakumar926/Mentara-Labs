@@ -478,8 +478,8 @@ export default function RegisterPage() {
             <h2 className="panel-headline">Every exam starts<br />with <span>showing up.</span></h2>
             <p className="panel-sub">Structured courses, adaptive mock exams, and a streak system built to make consistency your competitive edge.</p>
             <div className="panel-stats">
-              <div><div className="ps-num">12K+</div><div className="ps-label">Active Learners</div></div>
-              <div><div className="ps-num">500+</div><div className="ps-label">Questions</div></div>
+              <div><div className="ps-num">500+</div><div className="ps-label">Active Learners</div></div>
+              <div><div className="ps-num">1K+</div><div className="ps-label">Questions</div></div>
               <div><div className="ps-num">98%</div><div className="ps-label">Satisfaction</div></div>
             </div>
           </div>
