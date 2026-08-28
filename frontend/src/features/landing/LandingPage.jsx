@@ -1565,8 +1565,8 @@ function Footer() {
               <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-9 w-9 object-contain" />
               <span className="font-display font-bold text-[18px] tracking-tight header-gradient-text">Mentara Labs</span>
             </div>
-            <p className="text-sm text-zinc-500 leading-relaxed max-w-xs font-semibold">
-              The premium learning operating system for global curricula. Built by educators, examiners and engineers.
+            <p className="text-sm text-zinc-400 leading-relaxed max-w-sm font-medium">
+              Interactive 3D labs, practice worksheets, and Cambridge Primary tools crafted to help every student learn with joy and confidence.
             </p>
             <div className="flex items-center gap-3 mt-6">
               {[Twitter, Linkedin, Youtube, Github].map((Icon, i) => (
