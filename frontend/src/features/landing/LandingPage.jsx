@@ -1339,12 +1339,12 @@ function Pricing() {
           <p className="text-zinc-400 mt-5 text-lg">No hidden fees. Built for learners and teachers alike.</p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
+        <div className="grid lg:grid-cols-3 gap-6 sm:gap-6 items-stretch">
           {PLANS.map((p) => (
             <div
               key={p.id}
               data-testid={`plan-${p.id}`}
-              className={`relative rounded-3xl border p-7 sm:p-8 backdrop-blur-2xl transition-all duration-300 flex flex-col justify-between min-h-[560px] sm:min-h-[600px] ${
+              className={`relative rounded-3xl border p-5 sm:p-6 backdrop-blur-2xl transition-all duration-300 flex flex-col justify-between ${
                 p.highlight
                   ? "border-cyan-500/50 bg-gradient-to-br from-cyan-500/[0.08] via-zinc-900/60 to-emerald-500/[0.08] shadow-[0_0_50px_-15px_rgba(34,211,238,0.35)]"
                   : p.id === "teacher"
@@ -1354,7 +1354,7 @@ function Pricing() {
             >
               {/* Badge */}
               {p.badge && (
-                <div className="absolute -top-3.5 left-7 px-3.5 py-1 rounded-full text-[9.5px] font-mono-label uppercase tracking-[0.2em] bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 font-black shadow-md">
+                <div className="absolute -top-3.5 left-6 px-3.5 py-1 rounded-full text-[9.5px] font-mono-label uppercase tracking-[0.2em] bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 font-black shadow-md">
                   {p.badge}
                 </div>
               )}
@@ -1370,7 +1370,7 @@ function Pricing() {
                 </div>
 
                 {/* Price Block */}
-                <div className="mt-4 space-y-1.5">
+                <div className="mt-3 space-y-1">
                   {/* Original price row */}
                   <div className="h-5 flex items-center gap-2">
                     {p.originalPrice ? (
@@ -1387,7 +1387,7 @@ function Pricing() {
 
                   {/* Main Price display */}
                   <div className="flex items-baseline gap-2">
-                    <span className={`font-display text-5xl sm:text-6xl font-black tracking-tight ${
+                    <span className={`font-display text-4xl sm:text-5xl font-black tracking-tight ${
                       p.highlight
                         ? "bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(52,211,153,0.2)]"
                         : p.id === "teacher"
@@ -1400,9 +1400,9 @@ function Pricing() {
                   </div>
 
                   {/* Savings pill row */}
-                  <div className="h-7 flex items-center pt-1">
+                  <div className="h-6 flex items-center pt-0.5">
                     {p.savingsAmount ? (
-                      <div className={`text-xs font-semibold flex items-center gap-1 rounded-full py-1 px-3 border ${
+                      <div className={`text-[11px] font-semibold flex items-center gap-1 rounded-full py-0.5 px-2.5 border ${
                         p.highlight
                           ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
                           : "text-violet-400 bg-violet-500/10 border-violet-500/20"
@@ -1410,7 +1410,7 @@ function Pricing() {
                         <span>🎉 You save {p.savingsAmount} instantly</span>
                       </div>
                     ) : (
-                      <div className="text-xs font-semibold text-zinc-400 rounded-full py-1 px-3 border border-white/5 bg-white/[0.02]">
+                      <div className="text-[11px] font-semibold text-zinc-400 rounded-full py-0.5 px-2.5 border border-white/5 bg-white/[0.02]">
                         ✓ Free forever
                       </div>
                     )}
@@ -1418,25 +1418,25 @@ function Pricing() {
                 </div>
 
                 {/* Description */}
-                <p className="text-xs sm:text-sm text-zinc-400 mt-4 leading-relaxed min-h-[44px]">{p.description}</p>
+                <p className="text-xs sm:text-sm text-zinc-400 mt-3 leading-relaxed min-h-[36px]">{p.description}</p>
 
                 {/* Divider */}
-                <div className={`my-5 h-px w-full ${
+                <div className={`my-3.5 h-px w-full ${
                   p.highlight ? "bg-cyan-500/20" : p.id === "teacher" ? "bg-violet-500/20" : "bg-white/10"
                 }`} />
 
                 {/* Features Checklist */}
-                <ul className="space-y-3.5 pb-4">
+                <ul className="space-y-2.5 pb-2">
                   {p.features.map((f) => (
-                    <li key={f} className="flex items-start gap-3 text-xs sm:text-sm text-zinc-200">
-                      <div className={`h-4.5 w-4.5 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                    <li key={f} className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-200">
+                      <div className={`h-4 w-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
                         p.highlight 
                           ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/30" 
                           : p.id === "teacher" 
                           ? "bg-purple-500/10 text-violet-400 border border-purple-500/30"
                           : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
                       }`}>
-                        <Check className="h-3 w-3 stroke-[3]" />
+                        <Check className="h-2.5 w-2.5 stroke-[3]" />
                       </div>
                       <span className="font-medium leading-tight">{f}</span>
                     </li>
@@ -1445,11 +1445,11 @@ function Pricing() {
               </div>
 
               {/* Bottom Pinned CTA Button */}
-              <div className="pt-5 border-t border-white/5 mt-auto">
+              <div className="pt-3 border-t border-white/5 mt-auto">
                 <Link
                   to="/register"
                   data-testid={`plan-cta-${p.id}`}
-                  className={`inline-flex w-full items-center justify-center gap-2 px-6 py-3.5 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 ${
+                  className={`inline-flex w-full items-center justify-center gap-2 px-5 py-3 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 ${
                     p.highlight
                       ? "bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 hover:shadow-[0_0_35px_rgba(34,211,238,0.5)] hover:scale-[1.01]"
                       : p.id === "teacher"
