@@ -12,6 +12,8 @@ import {
   Presentation, Zap, Navigation, Brain, Search, Mic, Bot, MessageSquare, ShieldCheck
 } from "lucide-react";
 
+import LaptopScrollShowcase from "./LaptopScrollShowcase";
+
 export default function LandingPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
@@ -81,12 +83,12 @@ export default function LandingPage() {
         }
       `}</style>
 
-      <main className="relative min-h-screen bg-zinc-950 text-zinc-100 overflow-hidden font-sans">
+      <main className="relative min-h-screen bg-zinc-950 text-zinc-100 font-sans">
         <Header />
         <Hero />
         <FeaturesBento />
         <VirtualClassroomShowcase />
-        <ProductDetails />
+        <LaptopScrollShowcase />
         <Pricing />
         <SubjectsGrid />
         <Testimonials />
@@ -973,7 +975,132 @@ function LearningJourney() {
 }
 
 /* ── 6. SUBJECTS GRID ── */
-/* ── 6. SUBJECTS GRID (Tactile 3D Material Design matching media_1787856582952.png) ── */
+function SubjectCard3DTilt({
+  children,
+  borderGlow = "",
+}) {
+  const cardRef = React.useRef(null);
+
+  const [rotateX, setRotateX] = useState(0);
+  const [rotateY, setRotateY] = useState(0);
+  const [glarePos, setGlarePos] = useState({
+    x: 50,
+    y: 50,
+    opacity: 0,
+  });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+
+    const rect = cardRef.current.getBoundingClientRect();
+
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const normX = x / rect.width - 0.5;
+    const normY = y / rect.height - 0.5;
+
+    // Controlled mouse tilt
+    setRotateX(-normY * 12);
+    setRotateY(normX * 14);
+
+    setGlarePos({
+      x: (x / rect.width) * 100,
+      y: (y / rect.height) * 100,
+      opacity: 0.4,
+    });
+
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setRotateX(0);
+    setRotateY(0);
+    setGlarePos({ x: 50, y: 50, opacity: 0 });
+    setIsHovered(false);
+  };
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="relative h-full cursor-pointer [perspective:1200px]"
+    >
+      <motion.div
+        animate={{
+          rotateX,
+          rotateY,
+          scale: isHovered ? 1.025 : 1,
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 300,
+          damping: 22,
+          mass: 0.5,
+        }}
+        style={{
+          transformStyle: "preserve-3d",
+          boxShadow: isHovered
+            ? "0 25px 60px rgba(0, 0, 0, 0.9)"
+            : "0 15px 40px rgba(0, 0, 0, 0.7)",
+        }}
+        className={`
+          group
+          relative
+          flex
+          flex-col
+          justify-between
+          h-full
+          min-h-[440px]
+          overflow-hidden
+          rounded-[28px]
+          border
+          border-white/20
+          bg-gradient-to-b
+          from-zinc-900/95
+          via-zinc-950
+          to-black
+          p-6
+          backdrop-blur-2xl
+          transition-colors
+          duration-300
+          ${borderGlow}
+        `}
+      >
+        {/* SPECULAR LIGHT GLARE OVERLAY */}
+        <div
+          className="pointer-events-none absolute inset-0 z-30 transition-opacity duration-200 rounded-[28px]"
+          style={{
+            opacity: glarePos.opacity,
+            background: `radial-gradient(circle at ${glarePos.x}% ${glarePos.y}%, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.05) 35%, transparent 70%)`,
+          }}
+        />
+
+        {/* GLASS INNER BORDER HIGHLIGHT */}
+        <div
+          className="pointer-events-none absolute inset-[1px] z-30 rounded-[27px]"
+          style={{
+            border: "1px solid rgba(255, 255, 255, 0.12)",
+          }}
+        />
+
+        {/* 3D PARALLAX CONTENT CONTAINER */}
+        <div
+          style={{
+            transform: "translateZ(30px)",
+            transformStyle: "preserve-3d",
+          }}
+          className="relative z-40 flex flex-col justify-between h-full"
+        >
+          {children}
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 function SubjectsGrid() {
   const SUBJECTS = [
     {
@@ -981,18 +1108,31 @@ function SubjectsGrid() {
       name: "Mathematics",
       subtitle: "Number • Geometry & Measure • Statistics & Probability",
       topics: 10,
-      watermark: "π",
-      borderGlow: "hover:border-blue-400/60 hover:shadow-[0_25px_60px_rgba(37,99,235,0.35)]",
-      waveGrad: "from-blue-600/30 via-blue-500/10 to-transparent",
-      iconGrad: "from-blue-500 via-blue-700 to-blue-950",
-      watermarkColor: "text-blue-400/25",
+      borderGlow: "hover:border-blue-400/80",
+      iconBoxBg: "bg-blue-500/20 border border-blue-400/40 text-blue-200",
+      badgeStyle: "bg-white/[0.08] border border-white/15 text-zinc-100",
       icon: (
-        <svg className="w-7 h-7 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <rect x="4" y="2" width="16" height="20" rx="3" strokeWidth="2" />
           <line x1="8" y1="6" x2="16" y2="6" strokeWidth="2" />
-          <line x1="16" y1="14" x2="16" y2="18" strokeWidth="2" />
-          <path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01" strokeWidth="3" strokeLinecap="round" />
+          <path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01" strokeWidth="2.5" strokeLinecap="round" />
         </svg>
+      ),
+      center3D: (
+        <div className="relative w-full h-44 flex items-center justify-center">
+          {/* 3D Stage Pedestal */}
+          <div className="absolute bottom-2 w-36 h-12 rounded-[100%] border border-blue-400/40 bg-gradient-to-b from-blue-500/20 to-transparent [transform:rotateX(68deg)] flex items-center justify-center">
+            <div className="w-24 h-8 rounded-[100%] border border-cyan-300/50 bg-cyan-400/15" />
+          </div>
+          {/* Floating 3D Pi Symbol */}
+          <motion.div
+            animate={{ y: [-5, 5, -5], rotateY: [-6, 6, -6] }}
+            transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut" }}
+            className="relative z-10 text-6xl sm:text-7xl font-serif font-black bg-gradient-to-b from-cyan-100 via-cyan-300 to-blue-500 bg-clip-text text-transparent drop-shadow-md flex items-center justify-center"
+          >
+            π
+          </motion.div>
+        </div>
       )
     },
     {
@@ -1000,15 +1140,40 @@ function SubjectsGrid() {
       name: "Science",
       subtitle: "Biology • Chemistry • Physics • Earth & Space",
       topics: 11,
-      watermark: "⚛",
-      borderGlow: "hover:border-teal-400/60 hover:shadow-[0_25px_60px_rgba(20,184,166,0.35)]",
-      waveGrad: "from-teal-600/30 via-emerald-500/10 to-transparent",
-      iconGrad: "from-teal-500 via-teal-700 to-teal-950",
-      watermarkColor: "text-teal-400/25",
+      borderGlow: "hover:border-emerald-400/80",
+      iconBoxBg: "bg-emerald-500/20 border border-emerald-400/40 text-emerald-200",
+      badgeStyle: "bg-white/[0.08] border border-white/15 text-zinc-100",
       icon: (
-        <svg className="w-7 h-7 text-teal-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L5.6 15.12a2 2 0 00-1.785 2.87l1.7 3.4a2 2 0 001.785 1.11h9.4a2 2 0 001.785-1.11l1.7-3.4a2 2 0 00-.357-2.562zM12 3v9" />
         </svg>
+      ),
+      center3D: (
+        <div className="relative w-full h-44 flex items-center justify-center">
+          {/* 3D Stage Pedestal */}
+          <div className="absolute bottom-2 w-36 h-12 rounded-[100%] border border-emerald-400/40 bg-gradient-to-b from-emerald-500/20 to-transparent [transform:rotateX(68deg)] flex items-center justify-center">
+            <div className="w-24 h-8 rounded-[100%] border border-teal-300/50 bg-teal-400/15" />
+          </div>
+          {/* Floating 3D Glass Flask Beaker */}
+          <motion.div
+            animate={{ y: [-6, 4, -6] }}
+            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+            className="relative z-10 flex items-center justify-center drop-shadow-md"
+          >
+            <svg className="w-24 h-28 text-emerald-300" viewBox="0 0 100 120" fill="none">
+              <path d="M40 10 H60 V40 L85 90 A10 10 0 0 1 76 105 H24 A10 10 0 0 1 15 90 L40 40 Z" stroke="rgba(110, 231, 183, 0.9)" strokeWidth="3.5" fill="rgba(16, 185, 129, 0.2)" />
+              <path d="M24 75 Q 50 68, 76 75 L 78 92 A 5 5 0 0 1 73 98 H 27 A 5 5 0 0 1 22 92 Z" fill="url(#emeraldLiquidSimple)" opacity="0.9" />
+              <circle cx="42" cy="62" r="3" fill="#6ee7b7" className="animate-ping" />
+              <circle cx="58" cy="52" r="2" fill="#a7f3d0" />
+              <defs>
+                <linearGradient id="emeraldLiquidSimple" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#34d399" />
+                  <stop offset="100%" stopColor="#059669" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </motion.div>
+        </div>
       )
     },
     {
@@ -1016,15 +1181,29 @@ function SubjectsGrid() {
       name: "English",
       subtitle: "Reading • Writing • Speaking & Listening",
       topics: 16,
-      watermark: "Aa",
-      borderGlow: "hover:border-purple-400/60 hover:shadow-[0_25px_60px_rgba(147,51,234,0.35)]",
-      waveGrad: "from-purple-600/30 via-indigo-500/10 to-transparent",
-      iconGrad: "from-purple-500 via-purple-700 to-purple-950",
-      watermarkColor: "text-purple-400/25",
+      borderGlow: "hover:border-purple-400/80",
+      iconBoxBg: "bg-purple-500/20 border border-purple-400/40 text-purple-200",
+      badgeStyle: "bg-white/[0.08] border border-white/15 text-zinc-100",
       icon: (
-        <svg className="w-7 h-7 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
         </svg>
+      ),
+      center3D: (
+        <div className="relative w-full h-44 flex items-center justify-center">
+          {/* 3D Stage Pedestal */}
+          <div className="absolute bottom-2 w-36 h-12 rounded-[100%] border border-purple-400/40 bg-gradient-to-b from-purple-500/20 to-transparent [transform:rotateX(68deg)] flex items-center justify-center">
+            <div className="w-24 h-8 rounded-[100%] border border-violet-300/50 bg-violet-400/15" />
+          </div>
+          {/* Floating 3D "Aa" Text */}
+          <motion.div
+            animate={{ y: [-5, 5, -5], rotateY: [6, -6, 6] }}
+            transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
+            className="relative z-10 text-6xl sm:text-7xl font-display font-black bg-gradient-to-b from-purple-100 via-purple-300 to-indigo-500 bg-clip-text text-transparent drop-shadow-md flex items-center justify-center tracking-tighter"
+          >
+            Aa
+          </motion.div>
+        </div>
       )
     },
     {
@@ -1032,28 +1211,48 @@ function SubjectsGrid() {
       name: "Global Perspectives",
       subtitle: "Research • Analysis • Evaluation • Reflection",
       topics: 6,
-      watermark: "🌐",
-      borderGlow: "hover:border-sky-400/60 hover:shadow-[0_25px_60px_rgba(14,165,233,0.35)]",
-      waveGrad: "from-sky-600/30 via-cyan-500/10 to-transparent",
-      iconGrad: "from-sky-500 via-sky-700 to-sky-950",
-      watermarkColor: "text-sky-400/25",
+      borderGlow: "hover:border-cyan-400/80",
+      iconBoxBg: "bg-cyan-500/20 border border-cyan-400/40 text-cyan-200",
+      badgeStyle: "bg-white/[0.08] border border-white/15 text-zinc-100",
       icon: (
-        <svg className="w-7 h-7 text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3.6 9h16.8M3.6 15h16.8M12 3a15.3 15.3 0 014 9 15.3 15.3 0 01-4 9 15.3 15.3 0 01-4-9 15.3 15.3 0 014-9z" />
+        <svg className="w-5 h-5 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0zM3.6 9h16.8M3.6 15h16.8M12 3a15.3 15.3 0 014 9 15.3 15.3 0 01-4 9 15.3 15.3 0 014-9z" />
         </svg>
+      ),
+      center3D: (
+        <div className="relative w-full h-44 flex items-center justify-center">
+          {/* 3D Stage Pedestal */}
+          <div className="absolute bottom-2 w-36 h-12 rounded-[100%] border border-cyan-400/40 bg-gradient-to-b from-cyan-500/20 to-transparent [transform:rotateX(68deg)] flex items-center justify-center">
+            <div className="w-24 h-8 rounded-[100%] border border-sky-300/50 bg-sky-400/15" />
+          </div>
+          {/* Floating 3D Globe */}
+          <motion.div
+            animate={{ y: [-5, 4, -5], rotate: 360 }}
+            transition={{ y: { duration: 3.8, repeat: Infinity, ease: "easeInOut" }, rotate: { duration: 25, repeat: Infinity, ease: "linear" } }}
+            className="relative z-10 drop-shadow-md flex items-center justify-center"
+          >
+            <svg className="w-24 h-24 text-cyan-300" viewBox="0 0 100 100" fill="none">
+              <circle cx="50" cy="50" r="42" stroke="rgba(56, 189, 248, 0.85)" strokeWidth="3" fill="rgba(6, 182, 212, 0.15)" />
+              <ellipse cx="50" cy="50" rx="42" ry="16" stroke="rgba(56, 189, 248, 0.7)" strokeWidth="2" />
+              <ellipse cx="50" cy="50" rx="16" ry="42" stroke="rgba(56, 189, 248, 0.7)" strokeWidth="2" />
+              <line x1="8" y1="50" x2="92" y2="50" stroke="rgba(56, 189, 248, 0.8)" strokeWidth="2.5" />
+              <path d="M 28 32 C 38 25, 45 35, 42 45 C 35 48, 26 42, 28 32 Z" fill="rgba(34, 211, 238, 0.7)" />
+              <path d="M 58 55 C 68 50, 78 58, 72 70 C 62 72, 58 64, 58 55 Z" fill="rgba(34, 211, 238, 0.7)" />
+            </svg>
+          </motion.div>
+        </div>
       )
     }
   ];
 
   return (
-    <section id="subjects" data-testid="subjects-section" className="relative py-10 lg:py-14 bg-zinc-950 border-t border-white/5">
+    <section id="subjects" data-testid="subjects-section" className="relative py-12 lg:py-16 bg-zinc-950 border-t border-white/5">
       <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
-        
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-6">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
           <div className="max-w-xl">
-            <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400 font-bold px-3.5 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/10 inline-block mb-3">
-              · Subjects
+            <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400 font-bold px-3.5 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/10 inline-block mb-3 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+              · SUBJECTS
             </span>
             <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-white">
               Syllabus-Aligned <span className="bg-gradient-to-r from-cyan-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">Subjects</span>
@@ -1064,68 +1263,42 @@ function SubjectsGrid() {
           </p>
         </div>
 
-        {/* 3D Material Subject Cards Grid (4 in a single row) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
+        {/* 4-Column Clean High-Contrast Glass Subject Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {SUBJECTS.map((s) => (
-            <motion.div
-              key={s.id}
-              whileHover={{ y: -6, scale: 1.015 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              data-testid={`subject-card-${s.id}`}
-              className={`group relative rounded-[24px] border border-white/12 bg-gradient-to-br from-zinc-900/90 via-zinc-950 to-black p-5 sm:p-6 shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.15),_0_20px_40px_-12px_rgba(0,0,0,0.85)] backdrop-blur-2xl overflow-hidden transition-all duration-300 cursor-pointer ${s.borderGlow}`}
-            >
-              {/* Corner Translucent Glass Wave Overlay */}
-              <div className={`absolute bottom-0 right-0 w-48 h-48 bg-gradient-to-tl ${s.waveGrad} rounded-tl-[90px] pointer-events-none transition-opacity duration-500 group-hover:opacity-100 opacity-70`} />
-
-              {/* Subject 3D Watermark Icon in Corner */}
-              <div className={`absolute -bottom-1 right-3 font-serif font-black text-6xl sm:text-7xl select-none pointer-events-none transition-transform duration-500 group-hover:scale-110 drop-shadow-[0_0_15px_rgba(56,189,248,0.2)] ${s.watermarkColor}`}>
-                {s.watermark}
+            <SubjectCard3DTilt key={s.id} borderGlow={s.borderGlow}>
+              <div className="flex items-center justify-between">
+                <div className={`h-11 w-11 rounded-2xl border flex items-center justify-center backdrop-blur-md ${s.iconBoxBg}`}>
+                  {s.icon}
+                </div>
+                <div className="h-9 w-9 rounded-full border border-white/20 bg-zinc-900/90 group-hover:bg-cyan-400 group-hover:text-zinc-950 group-hover:border-cyan-300 flex items-center justify-center text-white shadow-md transition-all duration-300">
+                  <ArrowUpRight className="h-4 w-4 stroke-[2.5]" />
+                </div>
               </div>
 
-              {/* Card Content Row */}
-              <div className="relative z-10 flex flex-col justify-between h-full min-h-[160px]">
-                
-                {/* Top Row: 3D Tactile Icon + Top Right Arrow */}
-                <div className="flex items-start justify-between gap-3 mb-4">
-                  
-                  {/* 3D Tactile Icon Badge Container */}
-                  <div className={`h-12 w-12 rounded-[16px] bg-gradient-to-br ${s.iconGrad} p-0.5 shadow-[inset_0_2px_3px_rgba(255,255,255,0.4),_0_8px_16px_rgba(0,0,0,0.7)] flex items-center justify-center border border-white/20 group-hover:scale-105 transition-transform duration-300`}>
-                    <div className="h-full w-full rounded-[13px] bg-zinc-950/60 backdrop-blur-sm flex items-center justify-center border border-white/10 shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)]">
-                      {s.icon}
-                    </div>
-                  </div>
+              <div className="my-2 flex items-center justify-center">
+                {s.center3D}
+              </div>
 
-                  {/* Top-Right Arrow Action Button */}
-                  <div className="h-9 w-9 rounded-full border border-white/15 bg-white/10 group-hover:bg-cyan-400 group-hover:text-zinc-950 group-hover:border-cyan-300 flex items-center justify-center text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),_0_6px_14px_rgba(0,0,0,0.5)] transition-all duration-300">
-                    <ArrowUpRight className="h-4 w-4 stroke-[2.5]" />
-                  </div>
-                </div>
-
-                {/* Middle Row: Title & Subtitle */}
-                <div className="mb-5">
-                  <h3 className="font-display font-black text-lg sm:text-xl text-white tracking-tight leading-snug group-hover:text-cyan-300 transition-colors">
-                    {s.name}
-                  </h3>
-                  <p className="text-zinc-400 text-[11px] sm:text-xs font-medium mt-1.5 leading-relaxed tracking-wide">
-                    {s.subtitle}
-                  </p>
-                </div>
-
-                {/* Bottom Row: Tactile Glass Topic Badge Pill */}
-                <div className="inline-flex items-center">
-                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/12 bg-white/[0.06] backdrop-blur-md shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),_0_6px_14px_rgba(0,0,0,0.5)]">
+              <div className="pt-2 border-t border-white/10">
+                <h3 className="font-display font-black text-2xl text-white tracking-tight leading-tight group-hover:text-cyan-300 transition-colors">
+                  {s.name}
+                </h3>
+                <p className="text-zinc-400 text-xs font-medium mt-1.5 leading-relaxed tracking-normal line-clamp-2">
+                  {s.subtitle}
+                </p>
+                <div className="mt-4 flex items-center justify-between">
+                  <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl backdrop-blur-md shadow-inner ${s.badgeStyle}`}>
                     <BarChart3 className="h-3.5 w-3.5 text-cyan-400" />
-                    <span className="font-mono-label text-[11px] font-bold text-zinc-100 tracking-wider">
+                    <span className="font-mono text-xs font-extrabold tracking-wider">
                       {s.topics} Topics
                     </span>
                   </div>
                 </div>
-
               </div>
-            </motion.div>
+            </SubjectCard3DTilt>
           ))}
         </div>
-
       </div>
     </section>
   );
