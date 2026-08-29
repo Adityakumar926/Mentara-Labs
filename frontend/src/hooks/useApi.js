@@ -15,7 +15,7 @@ export const useApi = (fn, params = null, deps = []) => {
     setError(null);
     try {
       const res  = await (params !== null ? fn(params) : fn());
-      setData(res.data.data ?? res.data);
+      setData(res?.data?.data ?? res?.data ?? res);
     } catch (err) {
       const msg = err.response?.data?.message ?? err.message ?? 'Something went wrong';
       setError(msg);

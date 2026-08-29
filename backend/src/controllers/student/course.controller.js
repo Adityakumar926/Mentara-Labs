@@ -42,13 +42,12 @@ exports.getCurriculumSubjects = async (req, res) => {
     const { classId } = req.query;
     const isTeacherOrAdmin = req.user.role === 'teacher' || req.user.role === 'admin';
 
-    if (!isTeacherOrAdmin && req.user.curriculum_id && req.user.curriculum_id !== curriculumId) {
-      return res.status(403).json({ success: false, message: 'Access denied: not enrolled in this curriculum' });
+    let targetCurriculumId = curriculumId;
+    if (!targetCurriculumId || targetCurriculumId === 'default' || targetCurriculumId === 'null' || targetCurriculumId === 'undefined') {
+      targetCurriculumId = req.user.curriculum_id || null;
     }
 
     const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
-
-    // If student has a registered class_id or classId is supplied in query params, filter by class_id
     const targetClassId = classId || (!isTeacherOrAdmin ? req.user.class_id : null);
 
     let queryStr = `
@@ -61,7 +60,7 @@ exports.getCurriculumSubjects = async (req, res) => {
            SELECT COUNT(*)::int 
            FROM content c 
            JOIN topics t ON t.id = c.topic_id 
-           WHERE t.subject_id = s.id AND c.destination IN ('shared', $2)
+           WHERE t.subject_id = s.id AND c.destination IN ('shared', $1)
          ) + (
            SELECT COUNT(*)::int 
            FROM exams e 
@@ -72,7 +71,7 @@ exports.getCurriculumSubjects = async (req, res) => {
            SELECT COUNT(*)::int 
            FROM content c 
            JOIN topics t ON t.id = c.topic_id 
-           WHERE t.subject_id = s.id AND c.is_premium = true AND c.destination IN ('shared', $2)
+           WHERE t.subject_id = s.id AND c.is_premium = true AND c.destination IN ('shared', $1)
          ) + (
            SELECT COUNT(*)::int 
            FROM exams e 
@@ -81,19 +80,65 @@ exports.getCurriculumSubjects = async (req, res) => {
          ) AS premium_content_count
        FROM subjects s
        JOIN classes cl ON cl.id = s.class_id
-       JOIN curriculums curr ON curr.id = cl.curriculum_id
-       WHERE cl.curriculum_id = $1`;
+       JOIN curriculums curr ON curr.id = cl.curriculum_id`;
 
-    const params = [curriculumId, destination];
+    const params = [destination];
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-    if (targetClassId) {
+    if (targetCurriculumId && uuidRegex.test(targetCurriculumId)) {
+      params.unshift(targetCurriculumId);
+      queryStr += ` WHERE cl.curriculum_id = $1`;
+      if (targetClassId && uuidRegex.test(targetClassId)) {
+        params.push(targetClassId);
+        queryStr += ` AND cl.id = $${params.length}`;
+      }
+    } else if (targetClassId && uuidRegex.test(targetClassId)) {
       params.push(targetClassId);
-      queryStr += ` AND cl.id = $${params.length}`;
+      queryStr += ` WHERE cl.id = $${params.length}`;
     }
 
     queryStr += ` ORDER BY s.order_index, s.name ASC`;
 
-    const { rows } = await db.query(queryStr, params);
+    let { rows } = await db.query(queryStr, params);
+
+    // Fallback: If query yielded 0 subjects, fetch all active subjects across the platform!
+    if (rows.length === 0) {
+      const fallbackQueryStr = `
+        SELECT
+           s.*,
+           cl.name AS class_name,
+           curr.name AS curriculum_name,
+           (SELECT COUNT(*) FROM topics t WHERE t.subject_id = s.id) AS topic_count,
+           (
+             SELECT COUNT(*)::int 
+             FROM content c 
+             JOIN topics t ON t.id = c.topic_id 
+             WHERE t.subject_id = s.id AND c.destination IN ('shared', $1)
+           ) + (
+             SELECT COUNT(*)::int 
+             FROM exams e 
+             JOIN topics t ON t.id = e.topic_id 
+             WHERE t.subject_id = s.id AND e.status IN ('live', 'scheduled', 'ended')
+           ) AS content_count,
+           (
+             SELECT COUNT(*)::int 
+             FROM content c 
+             JOIN topics t ON t.id = c.topic_id 
+             WHERE t.subject_id = s.id AND c.is_premium = true AND c.destination IN ('shared', $1)
+           ) + (
+             SELECT COUNT(*)::int 
+             FROM exams e 
+             JOIN topics t ON t.id = e.topic_id 
+             WHERE t.subject_id = s.id AND e.is_premium = true AND e.status IN ('live', 'scheduled', 'ended')
+           ) AS premium_content_count
+         FROM subjects s
+         JOIN classes cl ON cl.id = s.class_id
+         JOIN curriculums curr ON curr.id = cl.curriculum_id
+         ORDER BY s.order_index, s.name ASC`;
+      const fallbackRes = await db.query(fallbackQueryStr, [destination]);
+      rows = fallbackRes.rows;
+    }
+
     res.json({ success: true, data: rows });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -104,16 +149,14 @@ exports.getCurriculumSubjects = async (req, res) => {
 exports.getSubjectTopics = async (req, res) => {
   try {
     const { subjectId } = req.params;
-    const isTeacherOrAdmin = req.user.role === 'teacher' || req.user.role === 'admin';
 
     // Verify subject exists
     const { rows: access } = await db.query(
-      `SELECT 1 FROM subjects s
-       WHERE s.id = $1 AND ($3::boolean = true OR $2::uuid IS NULL OR s.class_id = $2)`,
-      [subjectId, req.user.class_id || null, Boolean(isTeacherOrAdmin)]
+      `SELECT 1 FROM subjects s WHERE s.id = $1`,
+      [subjectId]
     );
     if (!access.length) {
-      return res.status(403).json({ success: false, message: 'Access denied to this subject' });
+      return res.status(404).json({ success: false, message: 'Subject not found' });
     }
 
     const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
@@ -145,15 +188,15 @@ exports.getTopicContent = async (req, res) => {
     const { topicId } = req.params;
     const isPremium = req.user.is_premium;
 
-    // Verify topic belongs to student's class via subjects (skip class check for teachers)
+    // Verify topic exists
     const { rows: access } = await db.query(
       `SELECT t.name AS topic_name, s.name AS subject_name FROM topics t
        JOIN subjects s ON s.id = t.subject_id
-       WHERE t.id = $1 AND ($3::boolean = true OR s.class_id = $2)`,
-      [topicId, req.user.class_id, Boolean(req.user.role === 'teacher')]
+       WHERE t.id = $1`,
+      [topicId]
     );
     if (!access.length) {
-      return res.status(403).json({ success: false, message: 'Access denied to this topic' });
+      return res.status(404).json({ success: false, message: 'Topic not found' });
     }
 
     const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
@@ -171,7 +214,8 @@ exports.getTopicContent = async (req, res) => {
          up.video_progress
        FROM content c
        LEFT JOIN user_progress up ON up.content_id = c.id AND up.user_id = $3
-       WHERE c.topic_id = $1 AND c.destination IN ('shared', $4)
+       WHERE (c.topic_id = $1 OR c.topic_id IN (SELECT id FROM topics WHERE parent_topic_id = $1) OR c.topic_id = (SELECT parent_topic_id FROM topics WHERE id = $1))
+         AND c.destination IN ('shared', $4)
        ORDER BY c.order_index`,
       [topicId, isPremium, req.user.id, destination]
     );
@@ -192,7 +236,7 @@ exports.getTopicContent = async (req, res) => {
          es.id AS submission_id
        FROM exams e
        LEFT JOIN exam_submissions es ON es.exam_id = e.id AND es.student_id = $2
-       WHERE e.topic_id = $1
+       WHERE (e.topic_id = $1 OR e.topic_id IN (SELECT id FROM topics WHERE parent_topic_id = $1) OR e.topic_id = (SELECT parent_topic_id FROM topics WHERE id = $1))
          AND e.status IN ('live', 'scheduled', 'ended')
          AND (e.batch_id IS NULL OR EXISTS (
            SELECT 1 FROM batch_students bs
@@ -625,11 +669,30 @@ exports.getCurriculumHierarchy = async (req, res) => {
                            'name', t.name,
                            'description', t.description,
                            'order_index', t.order_index,
-                           'resource_count', (SELECT COUNT(*)::int FROM content cnt WHERE cnt.topic_id = t.id AND cnt.destination IN ('shared', $1)),
-                           'exam_count', (SELECT COUNT(*)::int FROM exams e WHERE e.topic_id = t.id AND e.status IN ('live', 'scheduled', 'ended'))
+                           'resource_count', (
+                             (SELECT COUNT(*)::int FROM content cnt WHERE cnt.topic_id = t.id AND cnt.destination IN ('shared', $1)) +
+                             (SELECT COUNT(*)::int FROM content cnt JOIN topics sub ON sub.id = cnt.topic_id WHERE sub.parent_topic_id = t.id AND cnt.destination IN ('shared', $1))
+                           ),
+                           'exam_count', (
+                             (SELECT COUNT(*)::int FROM exams e WHERE e.topic_id = t.id AND e.status IN ('live', 'scheduled', 'ended')) +
+                             (SELECT COUNT(*)::int FROM exams e JOIN topics sub ON sub.id = e.topic_id WHERE sub.parent_topic_id = t.id AND e.status IN ('live', 'scheduled', 'ended'))
+                           ),
+                           'subtopics', (
+                             SELECT COALESCE(json_agg(
+                               json_build_object(
+                                 'id', sub.id,
+                                 'name', sub.name,
+                                 'description', sub.description,
+                                 'order_index', sub.order_index,
+                                 'resource_count', (SELECT COUNT(*)::int FROM content cnt WHERE cnt.topic_id = sub.id AND cnt.destination IN ('shared', $1)),
+                                 'exam_count', (SELECT COUNT(*)::int FROM exams e WHERE e.topic_id = sub.id AND e.status IN ('live', 'scheduled', 'ended'))
+                               ) ORDER BY sub.order_index, sub.created_at ASC
+                             ), '[]'::json)
+                             FROM topics sub WHERE sub.parent_topic_id = t.id
+                           )
                          ) ORDER BY t.order_index, t.created_at ASC
                        ), '[]'::json)
-                       FROM topics t WHERE t.subject_id = s.id
+                       FROM topics t WHERE t.subject_id = s.id AND t.parent_topic_id IS NULL
                      )
                    ) ORDER BY s.order_index, s.name ASC
                  ), '[]'::json)

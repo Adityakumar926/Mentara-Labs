@@ -360,6 +360,11 @@ const CSS = `
     flex: 1; overflow-y: auto; overflow-x: hidden;
     background: var(--color-navy);
     padding-bottom: 0;
+    overscroll-behavior-y: contain;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    transform: translateZ(0);
+    will-change: scroll-position;
   }
   @media (max-width: 767px) { .sl-main { padding-bottom: 72px; } }
   .sl-main::-webkit-scrollbar { width: 6px; }

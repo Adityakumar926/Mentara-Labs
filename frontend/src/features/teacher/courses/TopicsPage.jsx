@@ -223,7 +223,16 @@ export default function TopicsPage() {
       <div className="top-root">
         {/* Header */}
         <div className="top-header">
-          <button className="top-back-btn" onClick={() => navigate(`/courses/${curriculumId}/subjects`)}>
+          <button 
+            className="top-back-btn" 
+            onClick={() => {
+              if (curriculumId) {
+                navigate(`/courses/${curriculumId}/subjects`);
+              } else {
+                navigate('/courses');
+              }
+            }}
+          >
             <ArrowLeft size={16} />
           </button>
           <div className="top-header-text">

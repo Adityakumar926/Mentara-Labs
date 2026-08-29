@@ -816,19 +816,28 @@ export default function SubjectPage() {
           transition={{ duration: 0.35 }}
         >
           <div className="sp-header-blob" />
-          <button className="sp-back-btn" onClick={() => navigate(`/courses/${curriculumId}/subjects/${subjectId}`)}>
+          <button 
+            className="sp-back-btn" 
+            onClick={() => {
+              if (curriculumId && subjectId) {
+                navigate(`/courses/${curriculumId}/subjects/${subjectId}`);
+              } else if (subjectId) {
+                navigate(`/subjects/${subjectId}`);
+              } else {
+                navigate('/courses');
+              }
+            }}
+          >
             <ArrowLeft size={16} />
           </button>
           <div className="sp-header-text">
-            {subjectName && (
-              <div className="sp-eyebrow">
-                <span className="sp-eyebrow-dot" />
-                {subjectName}
-              </div>
-            )}
-            <h1 className="sp-title">{loading ? 'Loading…' : (topicName || 'Topic Resources')}</h1>
+            <div className="sp-eyebrow">
+              <span className="sp-eyebrow-dot" />
+              {subjectName || 'CAMBRIDGE PRIMARY'}
+            </div>
+            <h1 className="sp-title">{loading ? 'Loading Topic...' : (topicName || 'Topic Resources')}</h1>
             <p className="sp-count">
-              {loading ? '' : `${totalItemsCount} item${totalItemsCount !== 1 ? 's' : ''} available`}
+              {loading ? '' : `${totalItemsCount} resource${totalItemsCount !== 1 ? 's' : ''} available`}
             </p>
           </div>
         </motion.div>

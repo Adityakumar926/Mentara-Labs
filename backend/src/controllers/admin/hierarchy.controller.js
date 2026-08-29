@@ -6,7 +6,7 @@ exports.getTree = async (req, res) => {
       db.query("SELECT id, name, description FROM curriculums ORDER BY name"),
       db.query("SELECT id, curriculum_id, name, description, order_index FROM public.classes ORDER BY order_index, name"),
       db.query("SELECT id, class_id, name, description, order_index FROM public.subjects ORDER BY order_index, name"),
-      db.query("SELECT id, subject_id, parent_topic_id, name, description, order_index FROM public.topics ORDER BY order_index, name")
+      db.query("SELECT id, subject_id, parent_topic_id, name, description, order_index, (SELECT COUNT(*)::int FROM content c WHERE c.topic_id = topics.id) AS resource_count FROM public.topics ORDER BY order_index, name")
     ]);
 
     const curriculums = currRes.rows;

@@ -5,7 +5,7 @@ import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import {
   BookOpen, ChevronRight, Play, Eye, FileText, Sparkles, Image,
   Activity, GraduationCap, Video, CheckCircle, ArrowLeft, Clock,
-  Trophy, Palette, Gamepad2, Map, Star, ArrowRight, Crown, Lock
+  Trophy, Palette, Gamepad2, Map, Star, ArrowRight, Crown, Lock, Check
 } from 'lucide-react';
 import { PageWrapper, Skeleton, Modal } from '@/components/ui';
 import { useApi } from '@/hooks/useApi';
@@ -303,38 +303,50 @@ const CSS = `
 
   .sd-tabs-bar {
     display: flex;
-    gap: 0.65rem;
-    border-bottom: 2px solid var(--card-bdr);
-    padding-bottom: 1rem;
-    margin-bottom: 1.5rem;
-    overflow-x: auto;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.35rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 18px;
+    margin-bottom: 1.65rem;
+    align-items: center;
+  }
+
+  html.light .sd-tabs-bar {
+    background: rgba(0, 0, 0, 0.04);
   }
 
   .sd-tab-btn {
-    padding: 0.6rem 1.15rem;
-    border-radius: 16px;
-    font-size: 0.85rem;
+    flex: 1 1 auto;
+    min-width: 140px;
+    padding: 0.65rem 1.1rem;
+    border-radius: 14px;
+    font-size: 0.88rem;
     font-weight: 800;
     color: var(--muted);
     background: transparent;
-    border: 1.5px solid var(--card-bdr);
+    border: none;
     cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
     white-space: nowrap;
   }
 
   .sd-tab-btn:hover {
     color: var(--cream);
-    background: rgba(255, 255, 255, 0.05);
-    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.06);
+    transform: none;
   }
 
   .sd-tab-btn.active {
-    color: #fff;
-    background: linear-gradient(135deg, var(--violet) 0%, var(--violet-l) 100%);
-    border-color: var(--violet);
-    box-shadow: 0 6px 18px rgba(139, 92, 246, 0.35);
-    transform: translateY(-2px) scale(1.02);
+    color: #ffffff;
+    background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+    border: none;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+    transform: none;
   }
 
   .sd-resource-card {
@@ -398,7 +410,7 @@ const CSS = `
 `;
 
 const getSubjectStyle = (name) => {
-  const n = name.toLowerCase();
+  const n = (name || '').toLowerCase();
   if (n.includes('science')) {
     return {
       iconBg: 'rgba(16, 185, 129, 0.18)',
@@ -431,6 +443,77 @@ const getSubjectStyle = (name) => {
   };
 };
 
+function SafeLottie({ src, style, fallbackIcon }) {
+  const [hasError, setHasError] = useState(false);
+  if (hasError || !src) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', ...style }}>
+        {fallbackIcon || <GraduationCap size={40} color="var(--violet-l)" />}
+      </div>
+    );
+  }
+  try {
+    return (
+      <DotLottieReact
+        src={src}
+        loop
+        autoplay
+        style={style}
+        onError={() => setHasError(true)}
+      />
+    );
+  } catch (e) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', ...style }}>
+        {fallbackIcon || <GraduationCap size={40} color="var(--violet-l)" />}
+      </div>
+    );
+  }
+}
+
+const renderEmptyState = (type) => {
+  const meta = {
+    notes: { icon: '📖', title: 'Study Storybook Arena', sub: 'Illustrated reading books and video adventures will appear here.' },
+    simulators: { icon: '🎮', title: '3D Simulation Lab', sub: 'Interactive 3D simulators and games are currently being calibrated.' },
+    worksheets: { icon: '🎨', title: 'Coloring Sheet Canvas', sub: 'Interactive coloring sheets and printable worksheets will appear here.' },
+    exams: { icon: '🏆', title: 'Checkpoint Quest Arena', sub: 'Fun mini-checkpoints and challenge quests are coming soon for this lesson.' },
+  }[type] || { icon: '✨', title: 'Content Arena', sub: 'Check back soon for new learning resources.' };
+
+  return (
+    <div style={{
+      textAlign: 'center',
+      padding: '3rem 1.5rem',
+      borderRadius: '20px',
+      background: 'rgba(255, 255, 255, 0.015)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '0.75rem'
+    }}>
+      <div style={{
+        width: '56px',
+        height: '56px',
+        borderRadius: '18px',
+        background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.15) 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '1.75rem',
+        boxShadow: '0 4px 15px rgba(99, 102, 241, 0.15)'
+      }}>
+        {meta.icon}
+      </div>
+      <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--cream)', fontFamily: 'Outfit, sans-serif' }}>
+        {meta.title}
+      </div>
+      <p style={{ fontSize: '0.85rem', color: 'var(--muted)', fontWeight: 500, maxWidth: '360px', margin: 0, lineHeight: 1.45 }}>
+        {meta.sub}
+      </p>
+    </div>
+  );
+};
+
 export default function StudentDashboardPage() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
@@ -451,12 +534,76 @@ export default function StudentDashboardPage() {
   const profile = profileRes?.data ?? profileRes;
   const stageName = profile?.class_name || user?.class_name;
 
+  const curriculumId = user?.curriculum_id;
+
   const { data: subjectsRes, loading: loadingSubjects } = useApi(
-    () => studentApi.getCurriculumSubjects(user.curriculum_id),
-    null,
-    [user.curriculum_id]
+    async () => {
+      let cid = curriculumId;
+      if (!cid) {
+        try {
+          const currsRes = await studentApi.getCurriculums();
+          const currs = currsRes?.data?.data ?? currsRes?.data ?? currsRes ?? [];
+          if (Array.isArray(currs) && currs.length > 0) cid = currs[0].id;
+        } catch (e) {}
+      }
+
+      let list = [];
+      try {
+        const res = await studentApi.getCurriculumSubjects(cid || 'all');
+        list = res?.data?.data ?? res?.data ?? res ?? [];
+      } catch (e) {}
+
+      if (!Array.isArray(list) || list.length === 0) {
+        try {
+          const hRes = await studentApi.getHierarchy();
+          const hData = hRes?.data?.data ?? hRes?.data ?? hRes ?? [];
+          if (Array.isArray(hData) && hData.length > 0) {
+            const allSubs = [];
+            hData.forEach(curr => {
+              const classes = curr.classes || curr.coalesce || curr.json_agg || curr.stages || [];
+              if (Array.isArray(classes)) {
+                classes.forEach(cls => {
+                  if (Array.isArray(cls.subjects)) {
+                    cls.subjects.forEach(s => {
+                      if (s && s.id && !allSubs.some(existing => existing.id === s.id)) {
+                        allSubs.push(s);
+                      }
+                    });
+                  }
+                });
+              }
+              if (Array.isArray(curr.subjects)) {
+                curr.subjects.forEach(s => {
+                  if (s && s.id && !allSubs.some(existing => existing.id === s.id)) {
+                    allSubs.push(s);
+                  }
+                });
+              }
+            });
+            list = allSubs;
+          }
+        } catch (e) {}
+      }
+
+      return { data: Array.isArray(list) ? list : [] };
+    },
+    [],
+    [curriculumId]
   );
-  const subjects = subjectsRes?.data ?? subjectsRes ?? [];
+  const rawSubjects = Array.isArray(subjectsRes?.data) ? subjectsRes.data : (Array.isArray(subjectsRes) ? subjectsRes : []);
+  const allowedStudentSubjects = ['english', 'mathematics', 'maths', 'math', 'science', 'global perspectives', 'global'];
+
+  const subjects = [];
+  rawSubjects.forEach(s => {
+    if (!s || !s.name) return;
+    const lowerName = s.name.trim().toLowerCase();
+    const isAllowed = allowedStudentSubjects.some(t => lowerName.includes(t));
+    if (isAllowed && s.destination !== 'teacher') {
+      if (!subjects.some(existing => existing.name.trim().toLowerCase() === lowerName)) {
+        subjects.push(s);
+      }
+    }
+  });
 
 
 
@@ -495,12 +642,16 @@ export default function StudentDashboardPage() {
     return () => window.removeEventListener('VOICE_TUTOR_ACTION', onCustomEvent);
   }, [subjects]);
 
+  const [selectedStrand, setSelectedStrand] = useState(null);
+  const [allTopics, setAllTopics] = useState([]);
   const [topics, setTopics] = useState([]);
   const [loadingTopics, setLoadingTopics] = useState(false);
 
   useEffect(() => {
     if (!selectedSubject) {
+      setAllTopics([]);
       setTopics([]);
+      setSelectedStrand(null);
       setSelectedTopic(null);
       return;
     }
@@ -508,8 +659,12 @@ export default function StudentDashboardPage() {
     studentApi.getSubjectTopics(selectedSubject.id)
       .then(res => {
         const list = res.data?.data ?? res.data ?? res ?? [];
+        setAllTopics(list);
         const roots = list.filter(t => !t.parent_topic_id);
         setTopics(roots);
+
+        setSelectedStrand(null);
+        setSelectedTopic(null);
         setLoadingTopics(false);
       })
       .catch(() => {
@@ -519,11 +674,9 @@ export default function StudentDashboardPage() {
   }, [selectedSubject]);
 
   useEffect(() => {
-    if (topics.length === 0) return;
+    if (!pendingVoiceAction || allTopics.length === 0) return;
 
     const pending = pendingVoiceAction;
-    let targetTopic = null;
-
     if (pending && pending.subject && pending.topic) {
       const isSubMatch = selectedSubject && (
         selectedSubject.name.toLowerCase().includes(pending.subject.toLowerCase()) ||
@@ -532,25 +685,16 @@ export default function StudentDashboardPage() {
 
       if (isSubMatch) {
         const cleanPendingTopic = pending.topic.toLowerCase().replace(/[^\w\s]/g, '').trim();
-        targetTopic = topics.find(t => {
-          const cleanRootName = t.name.toLowerCase().replace(/[^\w\s]/g, '').trim();
-          return cleanRootName.includes(cleanPendingTopic) || cleanPendingTopic.includes(cleanRootName);
+        const targetTopic = allTopics.find(t => {
+          const cleanName = t.name.toLowerCase().replace(/[^\w\s]/g, '').trim();
+          return cleanName.includes(cleanPendingTopic) || cleanPendingTopic.includes(cleanName);
         });
+        if (targetTopic) {
+          setSelectedTopic(targetTopic);
+        }
       }
     }
-
-    if (targetTopic) {
-      if (!selectedTopic || selectedTopic.id !== targetTopic.id) {
-        setSelectedTopic(targetTopic);
-      }
-    } else {
-      // Default to first topic if nothing selected or current selection is not in the active subject topics
-      const isCurrentTopicInNewTopics = topics.some(t => selectedTopic && t.id === selectedTopic.id);
-      if (!isCurrentTopicInNewTopics && topics[0]) {
-        setSelectedTopic(topics[0]);
-      }
-    }
-  }, [topics, pendingVoiceAction, selectedSubject, selectedTopic]);
+  }, [pendingVoiceAction, allTopics, selectedSubject]);
 
   const [topicContent, setTopicContent] = useState(null);
   const [loadingContents, setLoadingContents] = useState(false);
@@ -573,8 +717,11 @@ export default function StudentDashboardPage() {
       });
   }, [selectedTopic]);
 
-  const items = topicContent?.items ?? [];
-  const exams = topicContent?.exams ?? [];
+  const items = Array.isArray(topicContent?.items) ? topicContent.items : (Array.isArray(topicContent) ? topicContent : []);
+  const exams = Array.isArray(topicContent?.exams) ? topicContent.exams : [];
+
+  const safeItems = Array.isArray(items) ? items : [];
+  const safeExams = Array.isArray(exams) ? exams : [];
 
   const [selectedNoteTitle, setSelectedNoteTitle] = useState('Cambridge Primary Story Book');
 
@@ -615,7 +762,7 @@ export default function StudentDashboardPage() {
   };
 
   const handleOpenAnimation = async (content) => {
-    if (!content.animation_id) {
+    if (!content?.animation_id) {
       toast.error('Simulation ID is missing.');
       return;
     }
@@ -637,16 +784,19 @@ export default function StudentDashboardPage() {
     }
 
     try {
-      const res = await studentApi.getAnimation(content.animation_id);
-      const anim = res.data?.data ?? res.data ?? res;
-      if (anim?.html_content && animWindow) {
-        animWindow.document.open();
-        animWindow.document.write(anim.html_content);
-        animWindow.document.close();
-        toast.success('Simulation ready!');
+      const animRes = await studentApi.getAnimation(content.animation_id);
+      const animData = animRes.data?.data || animRes.data || animRes;
+      const targetUrl = animData?.sim_url || animData?.preview_url || animData?.animation_url || animData?.url;
+
+      if (targetUrl) {
+        if (animWindow) {
+          animWindow.location.href = targetUrl;
+        } else {
+          window.open(targetUrl, '_blank');
+        }
       } else {
         if (animWindow) animWindow.close();
-        toast.error('No simulator contents found.');
+        toast.error('Simulation URL not available.');
       }
     } catch (e) {
       if (animWindow) animWindow.close();
@@ -689,11 +839,13 @@ export default function StudentDashboardPage() {
   };
 
   useEffect(() => {
-    if (pendingVoiceAction && (items.length > 0 || exams.length > 0)) {
+    if (pendingVoiceAction && (safeItems.length > 0 || safeExams.length > 0)) {
       const pending = pendingVoiceAction;
-      const match = items.find(item => 
-        item.title.toLowerCase().includes(pending.matchedItem.toLowerCase()) ||
-        pending.matchedItem.toLowerCase().includes(item.title.toLowerCase())
+      const match = safeItems.find(item => 
+        item && item.title && (
+          item.title.toLowerCase().includes((pending.matchedItem || '').toLowerCase()) ||
+          (pending.matchedItem || '').toLowerCase().includes(item.title.toLowerCase())
+        )
       );
       
       if (match) {
@@ -715,9 +867,11 @@ export default function StudentDashboardPage() {
           handleOpenNote(match);
         }
       } else {
-        const examMatch = exams.find(exam => 
-          exam.title.toLowerCase().includes(pending.matchedItem.toLowerCase()) ||
-          pending.matchedItem.toLowerCase().includes(exam.title.toLowerCase())
+        const examMatch = safeExams.find(exam => 
+          exam && exam.title && (
+            exam.title.toLowerCase().includes((pending.matchedItem || '').toLowerCase()) ||
+            (pending.matchedItem || '').toLowerCase().includes(exam.title.toLowerCase())
+          )
         );
         if (examMatch) {
           setPendingVoiceAction(null);
@@ -734,7 +888,7 @@ export default function StudentDashboardPage() {
         }
       }
     }
-  }, [pendingVoiceAction, topicContent, items, exams]);
+  }, [pendingVoiceAction, topicContent, safeItems, safeExams]);
 
   const openWorksheetInNewTab = (imageUrl, contentId, wsWindow) => {
     if (!imageUrl) return;
@@ -937,10 +1091,8 @@ export default function StudentDashboardPage() {
 
           {/* Animated Mascot Lottie Graphic */}
           <div style={{ width: '220px', height: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <DotLottieReact
+            <SafeLottie
               src="/header_card_animation.json"
-              loop
-              autoplay
               style={{ width: '100%', height: '100%' }}
             />
           </div>
@@ -963,28 +1115,35 @@ export default function StudentDashboardPage() {
           ) : (
             <div className="sd-grid-3">
               {subjects.map((sub, i) => {
+                if (!sub) return null;
                 const isActive = selectedSubject?.id === sub.id;
-                const style = getSubjectStyle(sub.name);
+                const subTitle = sub.name || 'Subject';
+                const style = getSubjectStyle(subTitle);
+                const sName = subTitle.toLowerCase();
+
                 return (
                   <motion.div
-                    key={sub.id}
+                    key={sub.id || i}
                     className={`sd-subject-card ${isActive ? 'active' : ''}`}
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.08, duration: 0.3 }}
-                    onClick={() => setSelectedSubject(isActive ? null : sub)}
+                    onClick={() => {
+                      setSelectedSubject(sub);
+                      setSelectedStrand(null);
+                      setSelectedTopic(null);
+                    }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div>
-                        <h3 style={{ fontSize: sub.name.length > 15 ? '1.1rem' : '1.25rem', fontWeight: 800, margin: 0, color: style.color, lineHeight: 1.2 }}>
-                          {sub.name}
+                        <h3 style={{ fontSize: subTitle.length > 15 ? '1.1rem' : '1.25rem', fontWeight: 800, margin: 0, color: style.color, lineHeight: 1.2 }}>
+                          {subTitle}
                         </h3>
                         <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.35rem', margin: 0, fontWeight: 500, lineHeight: 1.4, maxWidth: '210px' }}>
                           {sub.description || 'Access worksheets, games & illustrated stories.'}
                         </p>
                       </div>
                       {(() => {
-                        const sName = sub.name.toLowerCase();
                         const isEnglish = sName.includes('english');
                         const isMath = sName.includes('math') || sName.includes('arithmetic');
                         const isScience = sName.includes('science');
@@ -1006,10 +1165,8 @@ export default function StudentDashboardPage() {
                             style={{ background: isLottie ? 'transparent' : style.iconBg, overflow: 'hidden' }}
                           >
                             {isLottie ? (
-                              <DotLottieReact
+                              <SafeLottie
                                 src={lottieSrc}
-                                loop
-                                autoplay
                                 style={{ width: '85px', height: '85px' }}
                               />
                             ) : (
@@ -1022,11 +1179,11 @@ export default function StudentDashboardPage() {
 
                     <button className="sd-subj-btn" style={{ background: style.btnBg }}>
                       {isActive ? 'Selected' : `Explore ${
-                        sub.name.toLowerCase().includes('global') || sub.name.toLowerCase().includes('perspective')
+                        sName.includes('global') || sName.includes('perspective')
                           ? 'Global'
-                          : sub.name.toLowerCase().includes('math')
+                          : sName.includes('math')
                           ? 'Math'
-                          : sub.name
+                          : subTitle
                       }`} <ArrowRight size={14} />
                     </button>
                   </motion.div>
@@ -1036,53 +1193,244 @@ export default function StudentDashboardPage() {
           )}
         </div>
 
-        {/* ── 3. Selected Subject Split View (Topics & Learning Resources) ── */}
-        <AnimatePresence mode="wait">
-          {selectedSubject && (
-            <motion.div
-              className="sd-dashboard-layout"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              {/* Sidebar: Adventure Topics */}
-              <div style={{ background: 'var(--navy2)', border: '2px solid var(--card-bdr)', borderRadius: '28px', padding: '1.35rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.25rem' }}>
-                  <Activity size={18} style={{ color: 'var(--violet-l)' }} />
-                  <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.15rem', fontWeight: 800, margin: 0 }}>
-                    Adventure Topics 🎯
-                  </h3>
+        {/* ── 3. Selected Subject View (Strands Left -> Sub-strands Right -> Content Down) ── */}
+        {!selectedSubject && (
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{
+              background: 'var(--navy2)',
+              border: '2px solid var(--card-bdr)',
+              borderRadius: '28px',
+              padding: '3.5rem 1.5rem',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.75rem'
+            }}
+          >
+            <div style={{ fontSize: '2.5rem' }}>🎓</div>
+            <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--cream)', fontFamily: 'Outfit, sans-serif' }}>
+              Choose a Subject to Begin Your Quest!
+            </div>
+            <p style={{ fontSize: '0.88rem', color: 'var(--muted)', margin: 0, fontWeight: 500, maxWidth: '420px', lineHeight: 1.45 }}>
+              Click any subject card above (English, Mathematics, Science, or Global Perspectives) to start your learning adventure!
+            </p>
+          </motion.div>
+        )}
+
+        {selectedSubject && (
+          <motion.div
+            key={selectedSubject.id || 'selected-subject'}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+          >
+              {/* TOP SPLIT ROW: STRANDS (LEFT) & SUB-STRANDS (RIGHT) */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+                
+                {/* LEFT PANEL: 1. SELECT STRAND */}
+                <div style={{ background: 'var(--navy2)', border: '2px solid var(--card-bdr)', borderRadius: '28px', padding: '1.35rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.1rem' }}>
+                    <Activity size={18} style={{ color: 'var(--cyan)' }} />
+                    <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>
+                      1. Select Strand
+                    </h3>
+                  </div>
+
+                  {loadingTopics ? (
+                    <Skeleton style={{ height: 160, borderRadius: 18 }} />
+                  ) : topics.length === 0 ? (
+                    <p style={{ fontSize: '0.85rem', color: 'var(--muted)', textAlign: 'center', padding: '1.5rem 0', fontWeight: 700 }}>No strands found.</p>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                      {topics.map((root) => {
+                        const isStrandActive = selectedStrand?.id === root.id;
+                        const subCount = allTopics.filter(t => t.parent_topic_id === root.id).length;
+
+                        return (
+                          <motion.div
+                            key={root.id}
+                            whileHover={{ scale: 1.01, x: 3 }}
+                            whileTap={{ scale: 0.98 }}
+                            className={`sd-topic-item ${isStrandActive ? 'active' : ''}`}
+                            style={{
+                              marginBottom: 0,
+                              padding: '0.85rem 1.15rem',
+                              borderRadius: '20px',
+                              background: isStrandActive ? 'linear-gradient(90deg, rgba(139, 92, 246, 0.25) 0%, rgba(15, 22, 41, 0.95) 100%)' : 'rgba(255, 255, 255, 0.02)',
+                              border: isStrandActive ? '2px solid var(--violet)' : '1.5px solid var(--card-bdr)',
+                              boxShadow: isStrandActive ? '0 8px 25px rgba(139, 92, 246, 0.25)' : 'none',
+                              cursor: 'pointer'
+                            }}
+                            onClick={() => {
+                              setSelectedStrand(root);
+                              setSelectedTopic(null);
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: 0 }}>
+                              <div style={{
+                                width: '32px',
+                                height: '32px',
+                                borderRadius: '10px',
+                                background: isStrandActive ? 'rgba(139, 92, 246, 0.3)' : 'rgba(255, 255, 255, 0.05)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: isStrandActive ? '#A78BFA' : 'var(--muted)'
+                              }}>
+                                <Sparkles size={15} />
+                              </div>
+                              <span style={{ fontWeight: 800, color: '#FFF', fontSize: '0.93rem' }}>{root.name}</span>
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                              {subCount > 0 && (
+                                <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--violet-l)', background: 'rgba(139, 92, 246, 0.2)', padding: '0.2rem 0.65rem', borderRadius: '50px', border: '1px solid rgba(139,92,246,0.3)' }}>
+                                  {subCount} sub-strands
+                                </span>
+                              )}
+                              <ChevronRight size={16} style={{ color: isStrandActive ? 'var(--cyan)' : 'var(--muted)' }} />
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
-                {loadingTopics ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    {Array(4).fill(0).map((_, i) => (
-                      <Skeleton key={i} style={{ height: 48, borderRadius: 18 }} />
-                    ))}
+                {/* RIGHT PANEL: 2. SELECT SUB-STRAND FLASHCARDS */}
+                <div style={{ background: 'var(--navy2)', border: '2px solid var(--card-bdr)', borderRadius: '28px', padding: '1.35rem', perspective: '1000px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Sparkles size={18} style={{ color: 'var(--violet-l)' }} />
+                      <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>
+                        2. Select Sub-strand Topic
+                      </h3>
+                    </div>
+
+                    {selectedStrand && (
+                      <span style={{ fontSize: '0.75rem', color: 'var(--cyan)', fontWeight: 900, background: 'rgba(0,212,255,0.12)', border: '1.5px solid rgba(0,212,255,0.3)', padding: '0.25rem 0.75rem', borderRadius: 50 }}>
+                        ✨ {selectedStrand.name}
+                      </span>
+                    )}
                   </div>
-                ) : topics.length === 0 ? (
-                  <p style={{ fontSize: '0.85rem', color: 'var(--muted)', textAlign: 'center', padding: '1.5rem 0', fontWeight: 700 }}>No topics found.</p>
-                ) : (
-                  <div>
-                    {topics.map((t) => {
-                      const isAct = selectedTopic?.id === t.id;
+
+                  <AnimatePresence mode="wait">
+                    {(() => {
+                      const activeSubtopics = selectedStrand ? allTopics.filter(t => t.parent_topic_id === selectedStrand.id) : [];
+
+                      if (!selectedStrand) {
+                        return (
+                          <motion.div
+                            key="no-strand"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            style={{ textAlign: 'center', padding: '2.5rem 1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '20px', border: '1.5px dashed var(--card-bdr)' }}
+                          >
+                            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>👈</div>
+                            <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--cream)', marginBottom: '0.25rem' }}>Select a Strand</div>
+                            <p style={{ fontSize: '0.8rem', color: 'var(--muted)', margin: 0, fontWeight: 600 }}>Click any strand on the left panel to flip open its interactive sub-strand flashcards!</p>
+                          </motion.div>
+                        );
+                      }
+
+                      if (activeSubtopics.length === 0) {
+                        return (
+                          <motion.div
+                            key="single-strand"
+                            initial={{ opacity: 0, rotateY: -30 }}
+                            animate={{ opacity: 1, rotateY: 0 }}
+                            transition={{ type: 'spring', stiffness: 200 }}
+                            className="sd-topic-item active"
+                            style={{ padding: '1rem 1.15rem', borderRadius: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                            onClick={() => setSelectedTopic(selectedStrand)}
+                          >
+                            <span style={{ fontWeight: 800, color: '#FFF', fontSize: '0.92rem' }}>{selectedStrand.name} (General Content)</span>
+                            <Check size={18} color="var(--cyan)" />
+                          </motion.div>
+                        );
+                      }
+
                       return (
-                        <div
-                          key={t.id}
-                          className={`sd-topic-item ${isAct ? 'active' : ''}`}
-                          onClick={() => setSelectedTopic(t)}
+                        <motion.div
+                          key={selectedStrand.id}
+                          initial="hidden"
+                          animate="show"
+                          variants={{
+                            hidden: { opacity: 0 },
+                            show: { opacity: 1, transition: { staggerChildren: 0.07 } }
+                          }}
+                          style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}
                         >
-                          <span style={{ fontSize: '0.88rem', fontWeight: 800 }}>{t.name}</span>
-                          <ChevronRight size={15} style={{ color: isAct ? 'var(--violet)' : 'var(--muted)' }} />
-                        </div>
+                          {activeSubtopics.map((sub, sIdx) => {
+                            const isSubActive = selectedTopic?.id === sub.id;
+                            return (
+                              <motion.div
+                                key={sub.id}
+                                variants={{
+                                  hidden: { opacity: 0, rotateY: -60, y: 15 },
+                                  show: { opacity: 1, rotateY: 0, y: 0 }
+                                }}
+                                transition={{ type: 'spring', stiffness: 240, damping: 18 }}
+                                whileHover={{ scale: 1.02, x: 4 }}
+                                whileTap={{ scale: 0.97 }}
+                                style={{
+                                  padding: '0.85rem 1.1rem',
+                                  borderRadius: '18px',
+                                  background: isSubActive ? 'linear-gradient(135deg, rgba(6, 182, 212, 0.22) 0%, rgba(139, 92, 246, 0.2) 100%)' : 'rgba(255, 255, 255, 0.025)',
+                                  border: isSubActive ? '2px solid #06B6D4' : '1.5px solid var(--card-bdr)',
+                                  boxShadow: isSubActive ? '0 8px 24px rgba(6, 182, 212, 0.25)' : '0 4px 12px rgba(0,0,0,0.08)',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  backdropFilter: 'blur(8px)'
+                                }}
+                                onClick={() => setSelectedTopic(sub)}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: 0 }}>
+                                  <div style={{
+                                    width: '32px',
+                                    height: '32px',
+                                    borderRadius: '10px',
+                                    background: isSubActive ? 'linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%)' : 'rgba(255, 255, 255, 0.06)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: isSubActive ? '#FFF' : 'var(--cyan)',
+                                    fontWeight: 900
+                                  }}>
+                                    <BookOpen size={15} />
+                                  </div>
+                                  <span style={{ fontWeight: 800, color: isSubActive ? '#00D4FF' : 'var(--cream)', fontSize: '0.91rem' }}>
+                                    {sub.name}
+                                  </span>
+                                </div>
+
+                                {isSubActive ? (
+                                  <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#06B6D4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Check size={13} color="#FFF" />
+                                  </div>
+                                ) : (
+                                  <ChevronRight size={16} style={{ color: 'var(--muted)', opacity: 0.6 }} />
+                                )}
+                              </motion.div>
+                            );
+                          })}
+                        </motion.div>
                       );
-                    })}
-                  </div>
-                )}
+                    })()}
+                  </AnimatePresence>
+                </div>
+
               </div>
 
-              {/* Main Contents Panel */}
+              {/* BOTTOM PANEL: 3. INTERACTIVE CONTENT INTERFACE */}
               <div style={{ background: 'var(--navy2)', border: '2px solid var(--card-bdr)', borderRadius: '28px', padding: '1.65rem' }}>
                 {selectedTopic ? (
                   <>
@@ -1096,7 +1444,7 @@ export default function StudentDashboardPage() {
                     {/* Tab Navigation */}
                     <div className="sd-tabs-bar">
                       {[
-                        { id: 'exams', label: '🏆 Mock Quests', count: exams.length },
+                        { id: 'exams', label: '🏆 Mock Quests', count: safeExams.length },
                         { id: 'worksheets', label: '🎨 Coloring Sheets', count: worksheets.length },
                         { id: 'simulators', label: '🎮 Play Simulators', count: simulators.length },
                         { id: 'notes', label: '📖 Study Adventure', count: notesAndVideos.length }
@@ -1106,7 +1454,17 @@ export default function StudentDashboardPage() {
                           className={`sd-tab-btn ${activeTab === t.id ? 'active' : ''}`}
                           onClick={() => setActiveTab(t.id)}
                         >
-                          {t.label} <span style={{ marginLeft: 4, opacity: 0.6 }}>({t.count})</span>
+                          <span>{t.label}</span>
+                          <span style={{
+                            fontSize: '0.72rem',
+                            fontWeight: 900,
+                            padding: '0.15rem 0.55rem',
+                            borderRadius: '50px',
+                            background: activeTab === t.id ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)',
+                            color: activeTab === t.id ? '#FFF' : 'var(--muted)'
+                          }}>
+                            {t.count}
+                          </span>
                         </button>
                       ))}
                     </div>
@@ -1122,7 +1480,7 @@ export default function StudentDashboardPage() {
                       <div style={{ minHeight: '200px' }}>
                         {activeTab === 'notes' && (
                           notesAndVideos.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)', fontWeight: 700 }}>No study guides available yet.</div>
+                            renderEmptyState('notes')
                           ) : (
                             notesAndVideos.map((c) => (
                               <div key={c.id} id={`resource-card-${c.id}`} className={`sd-resource-card ${highlightedItemId === c.id ? 'highlighted-voice-item' : ''}`}>
@@ -1171,7 +1529,7 @@ export default function StudentDashboardPage() {
 
                         {activeTab === 'simulators' && (
                           simulators.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)', fontWeight: 700 }}>No game simulators available yet.</div>
+                            renderEmptyState('simulators')
                           ) : (
                             simulators.map((c) => (
                               <div key={c.id} id={`resource-card-${c.id}`} className={`sd-resource-card ${highlightedItemId === c.id ? 'highlighted-voice-item' : ''}`}>
@@ -1213,7 +1571,7 @@ export default function StudentDashboardPage() {
 
                         {activeTab === 'worksheets' && (
                           worksheets.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)', fontWeight: 700 }}>No worksheets available yet.</div>
+                            renderEmptyState('worksheets')
                           ) : (
                             worksheets.map((c) => (
                               <div key={c.id} id={`resource-card-${c.id}`} className={`sd-resource-card ${highlightedItemId === c.id ? 'highlighted-voice-item' : ''}`}>
@@ -1255,7 +1613,7 @@ export default function StudentDashboardPage() {
 
                         {activeTab === 'exams' && (
                           exams.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--muted)', fontWeight: 700 }}>No mock quests found.</div>
+                            renderEmptyState('exams')
                           ) : (
                             exams.map((e) => (
                               <div key={e.id} id={`resource-card-${e.id}`} className={`sd-resource-card ${highlightedItemId === e.id ? 'highlighted-voice-item' : ''}`}>
@@ -1298,23 +1656,26 @@ export default function StudentDashboardPage() {
                     )}
                   </>
                 ) : (
-                  <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--muted)', fontWeight: 700 }}>
-                    Please select a topic from the sidebar.
+                  <div style={{ textAlign: 'center', padding: '3.5rem 1.5rem', background: 'rgba(255, 255, 255, 0.015)', borderRadius: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.65rem' }}>
+                    <div style={{ fontSize: '2.2rem' }}>👇</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--cream)', fontFamily: 'Outfit, sans-serif' }}>
+                      Select a Sub-strand Topic
+                    </div>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: 0, fontWeight: 500, maxWidth: '380px', lineHeight: 1.45 }}>
+                      Click any sub-strand flashcard box above to reveal its interactive learning quests, coloring sheets & games!
+                    </p>
                   </div>
                 )}
               </div>
             </motion.div>
           )}
-        </AnimatePresence>
 
         {/* ── 4. Bottom Superstar Mascot Banner ── */}
         <div className="sd-superstar-banner">
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
             <div style={{ width: '115px', height: '115px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <DotLottieReact
+              <SafeLottie
                 src="/Cute Tiger_animation.json"
-                loop
-                autoplay
                 style={{ width: '100%', height: '100%' }}
               />
             </div>
