@@ -67,16 +67,19 @@ exports.uploadAvatar = async (req, res) => {
 
     const cloudinaryService = require('../../services/cloudinary.service');
 
-    // Look up the existing avatar so we can clean it up after a successful replace
+    // Look up user full_name and existing avatar
     const { rows: existing } = await db.query(
-      `SELECT avatar_url FROM users WHERE id = $1`,
+      `SELECT full_name, avatar_url FROM users WHERE id = $1`,
       [req.user.id]
     );
-    const oldAvatarUrl = existing[0]?.avatar_url;
+    const userObj = existing[0] || {};
+    const oldAvatarUrl = userObj.avatar_url;
+    const cleanUserName = (userObj.full_name || 'User').trim().replace(/[\/\?\<\>\\:\*\|"']/g, '-').replace(/\s+/g, ' ');
+    const avatarFolder = `Users/${cleanUserName}/avatars`;
 
     const { url, publicId } = await cloudinaryService.uploadImage(
       req.file.buffer,
-      'mentara-labs/avatars',
+      avatarFolder,
       {
         // Auto-crop to a square face thumbnail
         transformation: [{ width: 256, height: 256, crop: 'fill', gravity: 'face' }],
