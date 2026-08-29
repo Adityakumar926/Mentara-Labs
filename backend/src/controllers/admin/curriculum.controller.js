@@ -214,9 +214,15 @@ exports.uploadNote = async (req, res) => {
       return res.status(400).json({ success: false, message: 'title is required' });
 
     const targetDestination = ['shared', 'student', 'teacher'].includes(destination) ? destination : 'shared';
+    const { buildCloudinaryPath } = require('../../utils/cloudinaryPathBuilder');
+    const folder = await buildCloudinaryPath({
+      topicId: req.params.topicId,
+      contentType: 'notes',
+      destination: targetDestination
+    });
 
     const cloudinaryService = require('../../services/cloudinary.service');
-    const result = await cloudinaryService.uploadImage(req.file.buffer, 'mentara-labs/notes', {
+    const result = await cloudinaryService.uploadImage(req.file.buffer, folder, {
       resource_type: 'raw',
       public_id: `${Date.now()}-${req.file.originalname.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_')}`,
       use_filename: false,
@@ -310,13 +316,19 @@ exports.uploadWorksheet = async (req, res) => {
       return res.status(400).json({ success: false, message: 'title is required' });
 
     const targetDestination = ['shared', 'student', 'teacher'].includes(destination) ? destination : 'shared';
+    const { buildCloudinaryPath } = require('../../utils/cloudinaryPathBuilder');
+    const folder = await buildCloudinaryPath({
+      topicId: req.params.topicId,
+      contentType: 'worksheets',
+      destination: targetDestination
+    });
 
     const allowed = ['image/jpeg', 'image/png', 'image/webp'];
     if (!allowed.includes(req.file.mimetype))
       return res.status(400).json({ success: false, message: 'Only JPG, PNG, or WebP images are accepted' });
 
     const cloudinaryService = require('../../services/cloudinary.service');
-    const result = await cloudinaryService.uploadImage(req.file.buffer, 'mentara-labs/worksheets', {
+    const result = await cloudinaryService.uploadImage(req.file.buffer, folder, {
       resource_type: 'image',
       public_id: `${Date.now()}-${req.file.originalname.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_')}`,
       use_filename: false,
@@ -413,9 +425,15 @@ exports.uploadVideoFile = async (req, res) => {
       return res.status(400).json({ success: false, message: 'title is required' });
 
     const targetDestination = ['shared', 'student', 'teacher'].includes(destination) ? destination : 'shared';
+    const { buildCloudinaryPath } = require('../../utils/cloudinaryPathBuilder');
+    const folder = await buildCloudinaryPath({
+      topicId: req.params.topicId,
+      contentType: 'videos',
+      destination: targetDestination
+    });
 
     const cloudinaryService = require('../../services/cloudinary.service');
-    const result = await cloudinaryService.uploadVideo(req.file.buffer, 'mentara-labs/videos', {
+    const result = await cloudinaryService.uploadVideo(req.file.buffer, folder, {
       resource_type: 'video',
       public_id: `${Date.now()}-${req.file.originalname.replace(/\.[^/.]+$/, '').replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_')}`,
       use_filename: false,

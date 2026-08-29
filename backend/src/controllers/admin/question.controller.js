@@ -194,9 +194,18 @@ exports.uploadImage = async (req, res) => {
     if (!req.file)
       return res.status(400).json({ success: false, message: 'No file uploaded' });
 
+    const { topic_id, subject_id, destination } = req.body || {};
+    const { buildCloudinaryPath } = require('../../utils/cloudinaryPathBuilder');
+    const folder = await buildCloudinaryPath({
+      topicId: topic_id,
+      subjectId: subject_id,
+      contentType: 'questions/images',
+      destination: destination || 'shared'
+    });
+
     const { url, publicId } = await cloudinaryService.uploadImage(
       req.file.buffer,
-      'question-images'
+      folder
     );
     res.json({ success: true, data: { url, publicId } });
   } catch (err) {
@@ -210,9 +219,18 @@ exports.uploadAudio = async (req, res) => {
     if (!req.file)
       return res.status(400).json({ success: false, message: 'No audio file uploaded' });
 
+    const { topic_id, subject_id, destination } = req.body || {};
+    const { buildCloudinaryPath } = require('../../utils/cloudinaryPathBuilder');
+    const folder = await buildCloudinaryPath({
+      topicId: topic_id,
+      subjectId: subject_id,
+      contentType: 'questions/audio',
+      destination: destination || 'shared'
+    });
+
     const { url, publicId } = await cloudinaryService.uploadAudio(
       req.file.buffer,
-      'question-audios'
+      folder
     );
     res.json({ success: true, data: { url, publicId } });
   } catch (err) {
@@ -249,13 +267,21 @@ exports.bulkUploadImages = async (req, res) => {
     const targetDestination = ['shared', 'student', 'teacher'].includes(destination) ? destination : 'shared';
     const isPrem = is_premium === 'true' || is_premium === true;
 
+    const { buildCloudinaryPath } = require('../../utils/cloudinaryPathBuilder');
+    const folder = await buildCloudinaryPath({
+      topicId: topic_id,
+      subjectId: subject_id,
+      contentType: 'questions/images',
+      destination: targetDestination
+    });
+
     // Upload to Cloudinary in parallel chunks of 10 while preserving exact 1-to-1 index order
     const uploadResults = new Array(files.length);
     const BATCH_SIZE = 10;
     for (let i = 0; i < files.length; i += BATCH_SIZE) {
       const chunk = files.slice(i, i + BATCH_SIZE);
       const chunkResults = await Promise.allSettled(
-        chunk.map(file => cloudinaryService.uploadImage(file.buffer, 'question-images'))
+        chunk.map(file => cloudinaryService.uploadImage(file.buffer, folder))
       );
       
       chunkResults.forEach((res, idx) => {

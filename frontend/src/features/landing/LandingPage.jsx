@@ -979,8 +979,8 @@ function SubjectsGrid() {
     {
       id: "math",
       name: "Mathematics",
-      subtitle: "Numbers • Logic • Problem Solving",
-      topics: 24,
+      subtitle: "Number • Geometry & Measure • Statistics & Probability",
+      topics: 10,
       watermark: "π",
       borderGlow: "hover:border-blue-400/60 hover:shadow-[0_25px_60px_rgba(37,99,235,0.35)]",
       waveGrad: "from-blue-600/30 via-blue-500/10 to-transparent",
@@ -998,8 +998,8 @@ function SubjectsGrid() {
     {
       id: "science",
       name: "Science",
-      subtitle: "Thinking Scientifically • Living Things • Forces • Earth & Space",
-      topics: 28,
+      subtitle: "Biology • Chemistry • Physics • Earth & Space",
+      topics: 11,
       watermark: "⚛",
       borderGlow: "hover:border-teal-400/60 hover:shadow-[0_25px_60px_rgba(20,184,166,0.35)]",
       waveGrad: "from-teal-600/30 via-emerald-500/10 to-transparent",
@@ -1014,8 +1014,8 @@ function SubjectsGrid() {
     {
       id: "english",
       name: "English",
-      subtitle: "Grammar • Reading • Composition",
-      topics: 20,
+      subtitle: "Reading • Writing • Speaking & Listening",
+      topics: 16,
       watermark: "Aa",
       borderGlow: "hover:border-purple-400/60 hover:shadow-[0_25px_60px_rgba(147,51,234,0.35)]",
       waveGrad: "from-purple-600/30 via-indigo-500/10 to-transparent",
@@ -1030,8 +1030,8 @@ function SubjectsGrid() {
     {
       id: "global",
       name: "Global Perspectives",
-      subtitle: "Culture • Geography • Citizenship",
-      topics: 18,
+      subtitle: "Research • Analysis • Evaluation • Reflection",
+      topics: 6,
       watermark: "🌐",
       borderGlow: "hover:border-sky-400/60 hover:shadow-[0_25px_60px_rgba(14,165,233,0.35)]",
       waveGrad: "from-sky-600/30 via-cyan-500/10 to-transparent",
