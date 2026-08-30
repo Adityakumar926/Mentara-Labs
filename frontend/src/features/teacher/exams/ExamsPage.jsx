@@ -662,10 +662,13 @@ function ScheduledTab({ exams, loading, isFiltered }) {
 
 function AnimatedNumber({ value }) {
   const [display, setDisplay] = useState(0);
-  useState(() => {
+  useEffect(() => {
     let start = 0;
     const end = parseFloat(value) || 0;
-    if (!end) return;
+    if (!end) {
+      setDisplay(0);
+      return;
+    }
     const step = end / (700 / 16);
     const t = setInterval(() => {
       start += step;
@@ -673,12 +676,12 @@ function AnimatedNumber({ value }) {
       else setDisplay(Math.floor(start));
     }, 16);
     return () => clearInterval(t);
-  });
+  }, [value]);
   return <>{display}</>;
 }
 
 function HistoryTab({ history, loading, isFiltered }) {
-  const historyList = history ?? [];
+  const historyList = Array.isArray(history) ? history : (history?.data ?? []);
   const passed   = historyList.filter((r) => r.passed).length;
   const avgScore = historyList.length
     ? (historyList.reduce((a, r) => a + parseFloat(r.percentage || 0), 0) / historyList.length).toFixed(1)
@@ -799,11 +802,11 @@ export default function StudentExamsPage() {
     null,
     [curriculumId]
   );
-  const curriculumSubjects = curriculumSubjectsRes ?? [];
+  const curriculumSubjects = Array.isArray(curriculumSubjectsRes) ? curriculumSubjectsRes : (curriculumSubjectsRes?.data ?? []);
 
-  const liveList      = (liveRes?.data      ?? liveRes)      ?? [];
-  const scheduledList = (scheduledRes?.data ?? scheduledRes) ?? [];
-  const historyList   = history ?? [];
+  const liveList      = Array.isArray(liveRes) ? liveRes : (liveRes?.data ?? []);
+  const scheduledList = Array.isArray(scheduledRes) ? scheduledRes : (scheduledRes?.data ?? []);
+  const historyList   = Array.isArray(history) ? history : (history?.data ?? []);
 
   // Find selected subject's ID to fetch its topics
   const selectedSubjectObj = useMemo(() => {
@@ -822,30 +825,39 @@ export default function StudentExamsPage() {
     null,
     [selectedSubjectObj?.id]
   );
-  const subjectTopics = (subjectTopicsRes?.data ?? subjectTopicsRes) ?? [];
+  const subjectTopics = Array.isArray(subjectTopicsRes) ? subjectTopicsRes : (subjectTopicsRes?.data ?? []);
 
   // Fetch topics for all subjects in parallel when no subject is selected (for "All Subjects" option)
+  const curriculumSubjectsIds = curriculumSubjects.map(s => s.id).join(',');
   const { data: allTopicsRes } = useApi(
-    () => {
-      if (curriculumSubjects.length === 0) return Promise.resolve([]);
-      return Promise.all(
-        curriculumSubjects.map(s => 
-          studentApi.getSubjectTopics(s.id)
-            .then(res => (res?.data ?? res ?? []))
-            .catch(() => [])
-        )
-      ).then(arrays => arrays.flat());
+    async () => {
+      if (!curriculumSubjects || curriculumSubjects.length === 0) return [];
+      try {
+        const arrays = await Promise.all(
+          curriculumSubjects.map(s => 
+            studentApi.getSubjectTopics(s.id)
+              .then(res => {
+                const list = Array.isArray(res) ? res : (res?.data ?? []);
+                return Array.isArray(list) ? list : [];
+              })
+              .catch(() => [])
+          )
+        );
+        return arrays.flat();
+      } catch (e) {
+        return [];
+      }
     },
-    [],
-    [curriculumSubjects]
+    null,
+    [curriculumSubjectsIds]
   );
-  const allTopics = allTopicsRes ?? [];
+  const allTopics = Array.isArray(allTopicsRes) ? allTopicsRes : [];
 
   // Get unique subjects
   const uniqueSubjects = useMemo(() => {
-    const subjectsFromCurriculum = curriculumSubjects.map(s => s.name);
+    const subjectsFromCurriculum = curriculumSubjects.map(s => s?.name);
     const combinedExams = [...liveList, ...scheduledList, ...historyList];
-    const subjectsFromExams = combinedExams.map(e => e.subject_name);
+    const subjectsFromExams = combinedExams.map(e => e?.subject_name);
     const set = new Set([...subjectsFromCurriculum, ...subjectsFromExams].filter(Boolean));
     return Array.from(set);
   }, [curriculumSubjects, liveList, scheduledList, historyList]);
@@ -853,18 +865,19 @@ export default function StudentExamsPage() {
   // Filter topics list into only parent topics (those without a parent_topic_id)
   const uniqueTopics = useMemo(() => {
     let rawTopics = selectedSubject === 'all' ? allTopics : subjectTopics;
+    if (!Array.isArray(rawTopics)) rawTopics = [];
     // Keep only root parent topics
-    const parentTopics = rawTopics.filter(t => !t.parent_topic_id);
+    const parentTopics = rawTopics.filter(t => t && !t.parent_topic_id);
     
     // Also include root topics from exams
     const combinedExams = [...liveList, ...scheduledList, ...historyList];
     const filteredExams = selectedSubject === 'all' 
       ? combinedExams 
-      : combinedExams.filter(e => e.subject_name === selectedSubject);
+      : combinedExams.filter(e => e && e.subject_name === selectedSubject);
     
     const set = new Set([
-      ...parentTopics.map(t => t.name),
-      ...filteredExams.map(e => e.topic_name)
+      ...parentTopics.map(t => t?.name),
+      ...filteredExams.map(e => e?.topic_name)
     ].filter(Boolean));
     return Array.from(set);
   }, [allTopics, subjectTopics, liveList, scheduledList, historyList, selectedSubject]);
@@ -872,15 +885,17 @@ export default function StudentExamsPage() {
   // Selected topic object (for subtopic logic)
   const selectedParentTopicObj = useMemo(() => {
     if (selectedTopic === 'all') return null;
-    const rawTopics = selectedSubject === 'all' ? allTopics : subjectTopics;
-    return rawTopics.find(t => t.name?.toLowerCase().trim() === selectedTopic.toLowerCase().trim());
+    let rawTopics = selectedSubject === 'all' ? allTopics : subjectTopics;
+    if (!Array.isArray(rawTopics)) rawTopics = [];
+    return rawTopics.find(t => t && t.name?.toLowerCase().trim() === selectedTopic.toLowerCase().trim());
   }, [selectedTopic, allTopics, subjectTopics, selectedSubject]);
 
   // Find all child subtopics belonging to selected parent topic
   const childSubtopics = useMemo(() => {
     if (selectedTopic === 'all' || !selectedParentTopicObj) return [];
-    const rawTopics = selectedSubject === 'all' ? allTopics : subjectTopics;
-    return rawTopics.filter(t => t.parent_topic_id === selectedParentTopicObj.id);
+    let rawTopics = selectedSubject === 'all' ? allTopics : subjectTopics;
+    if (!Array.isArray(rawTopics)) rawTopics = [];
+    return rawTopics.filter(t => t && t.parent_topic_id === selectedParentTopicObj.id);
   }, [selectedTopic, selectedParentTopicObj, allTopics, subjectTopics, selectedSubject]);
 
   // Topic names matching range (includes parent topic name and all its subtopics)
@@ -888,15 +903,17 @@ export default function StudentExamsPage() {
     if (selectedTopic === 'all') return null;
     const names = [selectedTopic.toLowerCase().trim()];
     if (selectedParentTopicObj?.id) {
-      const rawTopics = selectedSubject === 'all' ? allTopics : subjectTopics;
-      const children = rawTopics.filter(t => t.parent_topic_id === selectedParentTopicObj.id);
-      names.push(...children.map(c => c.name?.toLowerCase().trim()));
+      let rawTopics = selectedSubject === 'all' ? allTopics : subjectTopics;
+      if (!Array.isArray(rawTopics)) rawTopics = [];
+      const children = rawTopics.filter(t => t && t.parent_topic_id === selectedParentTopicObj.id);
+      names.push(...children.map(c => c?.name?.toLowerCase().trim()).filter(Boolean));
     }
     return names;
   }, [selectedTopic, selectedParentTopicObj, allTopics, subjectTopics, selectedSubject]);
 
   // Filter function
   const filterExam = (exam, isHistory = false) => {
+    if (!exam) return false;
     // Hierarchy sidebar node filter
     if (selectedNode) {
       if (selectedNode.type === 'curriculum' && exam.curriculum_id && exam.curriculum_id !== selectedNode.id) return false;
