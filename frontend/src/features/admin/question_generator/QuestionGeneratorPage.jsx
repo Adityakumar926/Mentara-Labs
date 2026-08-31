@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { 
   Sparkles, Upload, FileText, CheckCircle2, AlertCircle, Trash2, 
   BookOpen, Layers, Sliders, Database, Save, Eye, RefreshCw, 
-  Check, HelpCircle, FileCheck, ArrowRight, ExternalLink, Cpu
+  Check, HelpCircle, FileCheck, ArrowRight, ExternalLink, Cpu, Download
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageWrapper, Button, EmptyState } from '@/components/ui';
@@ -12,17 +13,20 @@ import toast from 'react-hot-toast';
 import clsx from 'clsx';
 import html2canvas from 'html2canvas';
 
-export default function QuestionGeneratorPage() {
+export default function QuestionGeneratorPage({ isSimpleMode = false }) {
+  const location = useLocation();
+  const hideAdvancedOptions = isSimpleMode || (location.pathname && (location.pathname.includes('/student/') || location.pathname === '/question-generator'));
+
   const [activeTab, setActiveTab] = useState('generator'); // 'generator', 'documents'
   
   // Controls state
-  const [stage, setStage] = useState('Stage 6');
+  const [stage, setStage] = useState('Stage 2');
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
   const [selectedSubjectName, setSelectedSubjectName] = useState('Mathematics');
   const [selectedTopicId, setSelectedTopicId] = useState('');
-  const [selectedTopicName, setSelectedTopicName] = useState('Angles & Geometry');
+  const [selectedTopicName, setSelectedTopicName] = useState('Counting & Sequences');
   const [difficulty, setDifficulty] = useState('mixed'); // 'easy', 'medium', 'hard', 'mixed'
-  const [questionType, setQuestionType] = useState('mcq'); // 'mcq', 'short_answer', 'true_false', 'mixed'
+  const [questionType, setQuestionType] = useState('fill_in_lines'); // 'mcq', 'short_answer', 'true_false', 'mixed'
   const [questionCount, setQuestionCount] = useState(5);
   const [selectedDocumentId, setSelectedDocumentId] = useState('');
   const [additionalInstructions, setAdditionalInstructions] = useState('');
@@ -37,6 +41,8 @@ export default function QuestionGeneratorPage() {
   const [generatedQuestions, setGeneratedQuestions] = useState([]);
   const [selectedQuestionIndexes, setSelectedQuestionIndexes] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [viewMode, setViewMode] = useState('carousel'); // 'carousel' or 'list'
 
   // Fetch subjects & curriculum tree from API
   const { data: subjectsRes } = useApi(adminApi.getSubjects);
@@ -155,11 +161,14 @@ export default function QuestionGeneratorPage() {
       const res = await adminApi.generateQuestions({
         stage,
         subject: selectedSubjectName,
+        strand: selectedTopicName,
+        substrand: additionalInstructions || 'General Practice',
         topic: selectedTopicName,
+        subtopic: additionalInstructions,
         count: parseInt(questionCount, 10),
         difficulty,
+        format: questionType,
         question_type: questionType,
-        document_id: selectedDocumentId || null,
         additional_instructions: additionalInstructions,
         ai_model: aiModel
       });
@@ -167,6 +176,7 @@ export default function QuestionGeneratorPage() {
       const rawData = res.data?.data ?? res.data;
       const qList = Array.isArray(rawData) ? rawData : (Array.isArray(res.data?.questions) ? res.data.questions : []);
       setGeneratedQuestions(qList);
+      setCurrentCardIndex(0);
       // Select all by default
       setSelectedQuestionIndexes(qList.map((_, i) => i));
       if (qList.length > 0) {
@@ -196,6 +206,108 @@ export default function QuestionGeneratorPage() {
     } else {
       setSelectedQuestionIndexes([...selectedQuestionIndexes, idx]);
     }
+  };
+
+  // Handle Export to PDF
+  const handleDownloadPdf = () => {
+    const questionsToExport = generatedQuestions.filter((_, idx) => selectedQuestionIndexes.includes(idx));
+    if (!questionsToExport.length) {
+      return toast.error('Please select at least one question to export as PDF');
+    }
+
+    const totalMarks = questionsToExport.reduce((acc, q) => acc + (q.total_marks || (q.sub_parts ? q.sub_parts.length : 1)), 0);
+
+    const questionsHtml = questionsToExport.map((q, idx) => {
+      const subPartsHtml = (q.sub_parts || []).map(sp => `
+        <div style="margin-top: 10px; font-size: 14px; line-height: 1.6;">
+          <div style="font-weight: 600; display: flex; justify-content: space-between;">
+            <span>${sp.label} ${sp.text}</span>
+            <span style="font-weight: 700; color: #4b5563;">[${sp.marks || 1}]</span>
+          </div>
+          <div style="margin-top: 16px; margin-bottom: 20px; border-bottom: 2px dashed #9ca3af; height: 12px; width: 100%;"></div>
+        </div>
+      `).join('');
+
+      return `
+        <div style="margin-bottom: 24px; padding: 16px 20px; border: 1.5px solid #cbd5e1; border-radius: 12px; page-break-inside: avoid; background: #ffffff;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; margin-bottom: 12px;">
+            <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0;">Question ${idx + 1} (${q.title || 'Question'})</h3>
+            <span style="font-size: 12px; font-weight: 700; background: #e0f2fe; color: #0369a1; padding: 3px 10px; border-radius: 20px;">[ ${q.total_marks || 3} Marks ]</span>
+          </div>
+          <div style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 10px;">
+            ${q.main_instruction || ''}
+          </div>
+          ${q.svg_diagram ? `<div style="margin: 12px 0; text-align: center;">${q.svg_diagram}</div>` : ''}
+          ${subPartsHtml}
+        </div>
+      `;
+    }).join('');
+
+    const solutionsHtml = questionsToExport.map((q, idx) => `
+      <div style="margin-bottom: 14px; padding: 12px 16px; border-left: 4px solid #10b981; background: #f0fdf4; border-radius: 6px; page-break-inside: avoid;">
+        <div style="font-weight: 800; font-size: 13px; color: #065f46; margin-bottom: 4px;">Question ${idx + 1} Marking Scheme & Solution:</div>
+        <div style="font-size: 13px; color: #15803d; line-height: 1.5;">${q.explanation || 'See textbook solution.'}</div>
+      </div>
+    `).join('');
+
+    const win = window.open('', '_blank');
+    win.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Cambridge Primary Exam - ${selectedSubjectName}</title>
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+          body { font-family: 'Inter', sans-serif; color: #0f172a; margin: 0; padding: 28px; background: #fff; }
+          .header { text-align: center; border-bottom: 3px solid #0f172a; padding-bottom: 16px; margin-bottom: 24px; }
+          .title { font-size: 22px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: #0f172a; margin: 0 0 6px 0; }
+          .meta { font-size: 13px; font-weight: 600; color: #475569; display: flex; justify-content: center; gap: 20px; }
+          .student-box { display: flex; justify-content: space-between; margin-top: 16px; font-size: 13px; font-weight: 700; border: 1px solid #cbd5e1; padding: 10px 16px; border-radius: 8px; background: #f8fafc; }
+          @media print {
+            body { padding: 0; }
+            .no-print { display: none !important; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="no-print" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; background: #0f172a; color: #fff; padding: 12px 20px; border-radius: 10px;">
+          <span style="font-weight: 700; font-size: 14px;">📄 Cambridge Exam Worksheet - Ready to Save as PDF</span>
+          <button onclick="window.print()" style="background: #10b981; color: #fff; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 13px;">Save as PDF / Print</button>
+        </div>
+
+        <div class="header">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 6px;">
+            <img src="${window.location.origin}/mentara-new.png" alt="Mentara Labs Logo" style="height: 36px; width: 36px; object-fit: contain;" />
+            <span style="font-size: 24px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;">MENTARA LABS</span>
+          </div>
+          <div style="font-size: 13px; font-weight: 700; color: #0284c7; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 14px;">CAMBRIDGE PRIMARY ASSESSMENT STUDIO</div>
+          <div class="meta">
+            <span><strong>Stage:</strong> ${stage}</span>
+            <span><strong>Subject:</strong> ${selectedSubjectName}</span>
+            <span><strong>Strand:</strong> ${selectedTopicName}</span>
+          </div>
+          <div class="student-box">
+            <span>Student Name: __________________________</span>
+            <span>Date: ____________</span>
+            <span>Total Marks: [ ${totalMarks} ]</span>
+          </div>
+        </div>
+
+        <div>
+          ${questionsHtml}
+        </div>
+
+        <div style="page-break-before: always; margin-top: 30px;">
+          <h2 style="font-size: 16px; font-weight: 800; border-bottom: 2px solid #10b981; padding-bottom: 6px; color: #065f46; margin-bottom: 16px;">Teacher Marking Scheme & Answer Key</h2>
+          ${solutionsHtml}
+        </div>
+      </body>
+      </html>
+    `);
+    win.document.close();
+    setTimeout(() => {
+      win.print();
+    }, 500);
   };
 
   // Save selected questions as Structure Question Images to Question Bank
@@ -255,13 +367,13 @@ export default function QuestionGeneratorPage() {
   };
 
   return (
-    <PageWrapper title="AI Question Generator Studio">
+    <PageWrapper title="Cambridge Primary Assessment Studio">
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: 1400, margin: '0 auto', paddingBottom: '3rem' }}>
         
         {/* ── HEADER BANNER ── */}
         <div style={{
           position: 'relative',
-          background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, rgba(0, 212, 255, 0.08) 50%, rgba(15, 23, 42, 0.6) 100%)',
+          background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(0, 212, 255, 0.1) 50%, rgba(15, 23, 42, 0.8) 100%)',
           border: '1px solid rgba(255, 255, 255, 0.08)',
           borderRadius: 24,
           padding: '2rem',
@@ -274,66 +386,41 @@ export default function QuestionGeneratorPage() {
         }}>
           <div style={{ position: 'relative', zIndex: 1, maxWidth: 800 }}>
             <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+              display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
               background: 'rgba(0, 212, 255, 0.1)', border: '1px solid rgba(0, 212, 255, 0.25)',
-              padding: '0.3rem 0.85rem', borderRadius: 50, fontSize: '0.7rem', fontWeight: 700,
+              padding: '0.35rem 0.85rem', borderRadius: 50, fontSize: '0.72rem', fontWeight: 700,
               color: 'var(--cyan)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '0.75rem'
             }}>
-              <Cpu size={13} /> RAG + Multi-Model Question Engine
+              <img src="/mentara-new.png" alt="Mentara Labs Logo" style={{ width: 18, height: 18, objectFit: 'contain' }} />
+              <span>Mentara Labs • Cambridge Primary Curriculum Generator</span>
             </div>
             <h1 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '2rem', fontWeight: 800, color: '#fff', marginBottom: '0.5rem', lineHeight: 1.2 }}>
-              AI Question Generator
+              Cambridge Primary Assessment Studio
             </h1>
             <p style={{ fontSize: '0.85rem', color: 'rgba(245, 240, 238, 0.65)', lineHeight: 1.6 }}>
-              Upload source textbooks & syllabus documents directly to Cloudinary (<code style={{ color: 'var(--cyan)' }}>source_RAG</code>), then instantly generate high-contrast, syllabus-aligned Cambridge Primary exam questions with HTML/KaTeX rendering & SVG diagrams.
+              Select your Stage, Subject, Curriculum Strand & Sub-strand to instantly generate high-contrast, authentic Cambridge Primary exam questions with student fill-in answer lines, vector diagrams, and marking schemes.
             </p>
-          </div>
-
-          {/* Quick tab toggle */}
-          <div style={{ display: 'flex', gap: '0.5rem', background: 'rgba(0,0,0,0.3)', padding: '0.4rem', borderRadius: 16, border: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
-            <button
-              onClick={() => setActiveTab('generator')}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.65rem 1.1rem', borderRadius: 12,
-                fontSize: '0.8rem', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all 0.2s',
-                background: activeTab === 'generator' ? 'linear-gradient(135deg, #7C3AED, #00D4FF)' : 'transparent',
-                color: activeTab === 'generator' ? '#fff' : 'rgba(255,255,255,0.6)'
-              }}
-            >
-              <Sparkles size={15} /> Generator Studio
-            </button>
-            <button
-              onClick={() => setActiveTab('documents')}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.65rem 1.1rem', borderRadius: 12,
-                fontSize: '0.8rem', fontWeight: 700, border: 'none', cursor: 'pointer', transition: 'all 0.2s',
-                background: activeTab === 'documents' ? 'linear-gradient(135deg, #7C3AED, #00D4FF)' : 'transparent',
-                color: activeTab === 'documents' ? '#fff' : 'rgba(255,255,255,0.6)'
-              }}
-            >
-              <Database size={15} /> Source RAG Docs ({ragDocuments.length})
-            </button>
           </div>
         </div>
 
-        {/* ── TAB 1: GENERATOR STUDIO ── */}
-        {activeTab === 'generator' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: '1.5rem', alignItems: 'start' }}>
-            
-            {/* LEFT CONTROLS PANEL */}
-            <div style={{
-              background: 'rgba(15, 22, 41, 0.75)', border: '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: 20, padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.2rem',
-              backdropFilter: 'blur(16px)'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                <Sliders size={16} color="var(--cyan)" />
-                <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '0.95rem', fontWeight: 700, color: '#fff' }}>
-                  Generation Parameters
-                </span>
-              </div>
+        {/* ── GENERATOR STUDIO ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: '1.5rem', alignItems: 'start' }}>
+          
+          {/* LEFT CONTROLS PANEL */}
+          <div style={{
+            background: 'rgba(15, 22, 41, 0.75)', border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: 20, padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.2rem',
+            backdropFilter: 'blur(16px)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <Sliders size={16} color="var(--cyan)" />
+              <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '0.95rem', fontWeight: 700, color: '#fff' }}>
+                Curriculum Parameters
+              </span>
+            </div>
 
-              {/* AI Engine Model */}
+            {/* AI Engine Model (Hidden in Student & Teacher simplified mode) */}
+            {!hideAdvancedOptions && (
               <div>
                 <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--cyan)', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                   <Sparkles size={13} /> Gemini AI Model Engine
@@ -352,57 +439,73 @@ export default function QuestionGeneratorPage() {
                   <option value="gemini-flash-latest">Gemini Flash Latest</option>
                 </select>
               </div>
+            )}
 
-              {/* Stage / Curriculum */}
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
-                  Curriculum Stage
-                </label>
-                <select
-                  value={stage}
-                  onChange={(e) => setStage(e.target.value)}
-                  style={{
-                    width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: 12, padding: '0.65rem 0.85rem', color: '#fff', fontSize: '0.82rem', outline: 'none'
-                  }}
-                >
-                  <option value="Stage 1">Stage 1 (Primary 1)</option>
-                  <option value="Stage 2">Stage 2 (Primary 2)</option>
-                  <option value="Stage 3">Stage 3 (Primary 3)</option>
-                  <option value="Stage 4">Stage 4 (Primary 4)</option>
-                  <option value="Stage 5">Stage 5 (Primary 5)</option>
-                  <option value="Stage 6">Stage 6 (Primary 6)</option>
-                </select>
-              </div>
+            {/* Stage / Curriculum */}
+            <div>
+              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
+                Curriculum Stage
+              </label>
+              <select
+                value={stage}
+                onChange={(e) => setStage(e.target.value)}
+                style={{
+                  width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: 12, padding: '0.65rem 0.85rem', color: '#fff', fontSize: '0.82rem', outline: 'none'
+                }}
+              >
+                <option value="Stage 1">Stage 1 (Primary 1)</option>
+                <option value="Stage 2">Stage 2 (Primary 2)</option>
+                <option value="Stage 3">Stage 3 (Primary 3)</option>
+                <option value="Stage 4">Stage 4 (Primary 4)</option>
+                <option value="Stage 5">Stage 5 (Primary 5)</option>
+                <option value="Stage 6">Stage 6 (Primary 6)</option>
+              </select>
+            </div>
 
-              {/* Subject */}
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
-                  Subject
-                </label>
-                <select
-                  value={selectedSubjectId}
-                  onChange={(e) => {
-                    setSelectedSubjectId(e.target.value);
-                    const subObj = filteredSubjects.find(s => s.id === e.target.value);
-                    if (subObj) setSelectedSubjectName(subObj.name);
-                  }}
-                  style={{
-                    width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: 12, padding: '0.65rem 0.85rem', color: '#fff', fontSize: '0.82rem', outline: 'none'
-                  }}
-                >
-                  {filteredSubjects.map(s => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
-                  ))}
-                </select>
-              </div>
+            {/* Subject */}
+            <div>
+              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
+                Subject
+              </label>
+              <select
+                value={selectedSubjectName}
+                onChange={(e) => {
+                  const name = e.target.value;
+                  setSelectedSubjectName(name);
+                  const subObj = filteredSubjects.find(s => s.name.toLowerCase() === name.toLowerCase());
+                  if (subObj) setSelectedSubjectId(subObj.id);
+                  // Update default topic based on subject
+                  if (name.toLowerCase().includes('sci')) {
+                    setSelectedTopicName('States of Matter');
+                  } else if (name.toLowerCase().includes('eng')) {
+                    setSelectedTopicName('Grammar & Vocabulary');
+                  } else {
+                    setSelectedTopicName('Counting & Sequences');
+                  }
+                }}
+                style={{
+                  width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: 12, padding: '0.65rem 0.85rem', color: '#fff', fontSize: '0.82rem', outline: 'none'
+                }}
+              >
+                <option value="Mathematics">Mathematics</option>
+                <option value="Science">Science</option>
+                <option value="English">English</option>
+                {filteredSubjects.map(s => (
+                  !['mathematics', 'science', 'english'].includes(s.name.toLowerCase()) && (
+                    <option key={s.id} value={s.name}>{s.name}</option>
+                  )
+                ))}
+              </select>
+            </div>
 
-              {/* Topic */}
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
-                  Topic / Subtopic
-                </label>
+            {/* Topic / Strand */}
+            <div>
+              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
+                Curriculum Strand / Topic Name
+              </label>
+              {topics && topics.length > 0 && (
                 <select
                   value={selectedTopicId}
                   onChange={(e) => {
@@ -412,31 +515,60 @@ export default function QuestionGeneratorPage() {
                   }}
                   style={{
                     width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: 12, padding: '0.65rem 0.85rem', color: '#fff', fontSize: '0.82rem', outline: 'none'
+                    borderRadius: 12, padding: '0.65rem 0.85rem', color: '#fff', fontSize: '0.82rem', outline: 'none', marginBottom: '0.5rem'
                   }}
                 >
                   {topics.map(t => (
                     <option key={t.id} value={t.id}>{t.name}</option>
                   ))}
-                  <option value="">+ Custom Topic</option>
+                  <option value="">Custom Topic Input Below</option>
                 </select>
-              </div>
+              )}
+              <input
+                type="text"
+                value={selectedTopicName}
+                onChange={(e) => setSelectedTopicName(e.target.value)}
+                placeholder="e.g. Counting & Sequences, States of Matter, Light & Shadows..."
+                style={{
+                  width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: 12, padding: '0.65rem 0.85rem', color: '#fff', fontSize: '0.82rem', outline: 'none'
+                }}
+              />
+            </div>
 
-              {/* Question Count & Type */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-                <div>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
-                    Count ({questionCount})
-                  </label>
-                  <input
-                    type="range"
-                    min="1"
-                    max="15"
-                    value={questionCount}
-                    onChange={(e) => setQuestionCount(e.target.value)}
-                    style={{ width: '100%', accentColor: 'var(--cyan)' }}
-                  />
-                </div>
+            {/* Sub-strand / Subtopic */}
+            <div>
+              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
+                Sub-strand / Focus Skill (Optional)
+              </label>
+              <input
+                type="text"
+                value={additionalInstructions}
+                onChange={(e) => setAdditionalInstructions(e.target.value)}
+                placeholder="e.g. Carroll Diagrams, Equivalent Fractions..."
+                style={{
+                  width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: 12, padding: '0.65rem 0.85rem', color: '#fff', fontSize: '0.82rem', outline: 'none'
+                }}
+              />
+            </div>
+
+            {/* Question Count & Format */}
+            <div style={{ display: 'grid', gridTemplateColumns: hideAdvancedOptions ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
+                  Count ({questionCount})
+                </label>
+                <input
+                  type="range"
+                  min="1"
+                  max="15"
+                  value={questionCount}
+                  onChange={(e) => setQuestionCount(e.target.value)}
+                  style={{ width: '100%', accentColor: 'var(--cyan)' }}
+                />
+              </div>
+              {!hideAdvancedOptions && (
                 <div>
                   <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
                     Format
@@ -449,75 +581,39 @@ export default function QuestionGeneratorPage() {
                       borderRadius: 12, padding: '0.65rem 0.5rem', color: '#fff', fontSize: '0.8rem', outline: 'none'
                     }}
                   >
+                    <option value="fill_in_lines">Authentic Fill-in Lines (Paper Structure)</option>
                     <option value="mcq">MCQ (Options)</option>
                     <option value="short_answer">Short Answer</option>
-                    <option value="true_false">True / False</option>
                     <option value="mixed">Mixed</option>
                   </select>
                 </div>
-              </div>
+              )}
+            </div>
 
-              {/* Difficulty */}
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
-                  Difficulty Level
-                </label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.4rem' }}>
-                  {['easy', 'medium', 'hard', 'mixed'].map(d => (
-                    <button
-                      key={d}
-                      type="button"
-                      onClick={() => setDifficulty(d)}
-                      style={{
-                        padding: '0.4rem 0.2rem', borderRadius: 8, fontSize: '0.72rem', fontWeight: 700,
-                        textTransform: 'capitalize', border: '1px solid', cursor: 'pointer', transition: 'all 0.15s',
-                        background: difficulty === d ? 'rgba(0, 212, 255, 0.15)' : 'rgba(0,0,0,0.3)',
-                        borderColor: difficulty === d ? 'var(--cyan)' : 'rgba(255,255,255,0.08)',
-                        color: difficulty === d ? 'var(--cyan)' : 'rgba(255,255,255,0.6)'
-                      }}
-                    >
-                      {d}
-                    </button>
-                  ))}
-                </div>
+            {/* Difficulty */}
+            <div>
+              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
+                Difficulty Level
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.4rem' }}>
+                {['easy', 'medium', 'hard', 'mixed'].map(d => (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => setDifficulty(d)}
+                    style={{
+                      padding: '0.4rem 0.2rem', borderRadius: 8, fontSize: '0.72rem', fontWeight: 700,
+                      textTransform: 'capitalize', border: '1px solid', cursor: 'pointer', transition: 'all 0.15s',
+                      background: difficulty === d ? 'rgba(0, 212, 255, 0.15)' : 'rgba(0,0,0,0.3)',
+                      borderColor: difficulty === d ? 'var(--cyan)' : 'rgba(255,255,255,0.08)',
+                      color: difficulty === d ? 'var(--cyan)' : 'rgba(255,255,255,0.6)'
+                    }}
+                  >
+                    {d}
+                  </button>
+                ))}
               </div>
-
-              {/* RAG Context Document */}
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
-                  Source RAG Document (Optional)
-                </label>
-                <select
-                  value={selectedDocumentId}
-                  onChange={(e) => setSelectedDocumentId(e.target.value)}
-                  style={{
-                    width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: 12, padding: '0.65rem 0.85rem', color: '#fff', fontSize: '0.82rem', outline: 'none'
-                  }}
-                >
-                  <option value="">None (Use General Cambridge Curriculum)</option>
-                  {ragDocuments.map(doc => (
-                    <option key={doc.id} value={doc.id}>📄 {doc.filename}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Additional Teacher Prompt */}
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
-                  Custom Teacher Instructions
-                </label>
-                <textarea
-                  rows="3"
-                  value={additionalInstructions}
-                  onChange={(e) => setAdditionalInstructions(e.target.value)}
-                  placeholder="e.g. Include step-by-step ratio calculations and angle diagrams..."
-                  style={{
-                    width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: 12, padding: '0.65rem', color: '#fff', fontSize: '0.8rem', outline: 'none', resize: 'vertical'
-                  }}
-                />
-              </div>
+            </div>
 
               {/* GENERATE ACTION BUTTON */}
               <button
@@ -546,12 +642,12 @@ export default function QuestionGeneratorPage() {
             {/* RIGHT PREVIEW & SELECTION PANEL */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               
-              {/* TOP BAR ACTION */}
+              {/* TOP BAR ACTION & NOTEBOOKLM CAROUSEL TOGGLE */}
               {generatedQuestions.length > 0 && (
                 <div style={{
                   background: 'rgba(15, 22, 41, 0.85)', border: '1px solid rgba(255, 255, 255, 0.08)',
                   borderRadius: 18, padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  backdropFilter: 'blur(16px)'
+                  backdropFilter: 'blur(16px)', flexWrap: 'wrap', gap: '1rem'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <button
@@ -570,22 +666,67 @@ export default function QuestionGeneratorPage() {
                     </span>
                   </div>
 
-                  <button
-                    onClick={handleSaveSelected}
-                    disabled={isSaving || !selectedQuestionIndexes.length}
-                    style={{
-                      background: 'linear-gradient(135deg, #10B981, #059669)', border: 'none',
-                      padding: '0.6rem 1.2rem', borderRadius: 12, color: '#fff', fontSize: '0.82rem', fontWeight: 700,
-                      cursor: isSaving ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
-                      boxShadow: '0 4px 14px rgba(16,185,129,0.3)', opacity: selectedQuestionIndexes.length ? 1 : 0.5
-                    }}
-                  >
-                    <Save size={15} /> Save to Question Bank
-                  </button>
+                  {/* VIEW MODE TOGGLE BUTTONS (NotebookLM Carousel vs Full List) */}
+                  <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.4)', padding: '0.25rem', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <button
+                      type="button"
+                      onClick={() => setViewMode('carousel')}
+                      style={{
+                        padding: '0.4rem 0.85rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700,
+                        border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+                        background: viewMode === 'carousel' ? 'var(--cyan)' : 'transparent',
+                        color: viewMode === 'carousel' ? '#000' : 'rgba(255,255,255,0.7)'
+                      }}
+                    >
+                      🎴 Carousel View (1-by-1)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setViewMode('list')}
+                      style={{
+                        padding: '0.4rem 0.85rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700,
+                        border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+                        background: viewMode === 'list' ? 'var(--cyan)' : 'transparent',
+                        color: viewMode === 'list' ? '#000' : 'rgba(255,255,255,0.7)'
+                      }}
+                    >
+                      📜 List All
+                    </button>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                    <button
+                      onClick={handleDownloadPdf}
+                      disabled={!selectedQuestionIndexes.length}
+                      style={{
+                        background: 'linear-gradient(135deg, #3B82F6, #1D4ED8)', border: 'none',
+                        padding: '0.6rem 1.2rem', borderRadius: 12, color: '#fff', fontSize: '0.82rem', fontWeight: 700,
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
+                        boxShadow: '0 4px 14px rgba(59,130,246,0.3)', opacity: selectedQuestionIndexes.length ? 1 : 0.5
+                      }}
+                    >
+                      <Download size={15} /> Download PDF
+                    </button>
+
+                    {!hideAdvancedOptions && (
+                      <button
+                        onClick={handleSaveSelected}
+                        disabled={isSaving || !selectedQuestionIndexes.length}
+                        style={{
+                          background: 'linear-gradient(135deg, #10B981, #059669)', border: 'none',
+                          padding: '0.6rem 1.2rem', borderRadius: 12, color: '#fff', fontSize: '0.82rem', fontWeight: 700,
+                          cursor: isSaving ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
+                          boxShadow: '0 4px 14px rgba(16,185,129,0.3)', opacity: selectedQuestionIndexes.length ? 1 : 0.5
+                        }}
+                      >
+                        <Save size={15} /> Save to Question Bank
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
 
-              {/* QUESTIONS LIST */}
+              {/* QUESTIONS DISPLAY AREA */}
               {generatedQuestions.length === 0 ? (
                 <div style={{
                   background: 'rgba(15, 22, 41, 0.5)', border: '1px border-dashed rgba(255, 255, 255, 0.1)',
@@ -594,24 +735,91 @@ export default function QuestionGeneratorPage() {
                   <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(0,212,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Sparkles size={24} color="var(--cyan)" />
                   </div>
-                  <div>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fff', marginBottom: '0.35rem' }}>No Questions Generated Yet</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fff', margin: 0 }}>No Questions Generated Yet</h3>
                     <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.5)', maxWidth: 460, margin: '0 auto' }}>
                       Configure your Stage, Subject, Topic, and RAG document context on the left, then click <strong>"Generate Questions"</strong> to generate live questions!
                     </p>
                   </div>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', maxWidth: 960, margin: '0 auto', width: '100%' }}>
-                  {generatedQuestions.map((q, idx) => {
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: 960, margin: '0 auto', width: '100%' }}>
+                  
+                  {/* NOTEBOOKLM CAROUSEL NAVIGATION CONTROLS */}
+                  {viewMode === 'carousel' && (
+                    <div style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      background: 'rgba(15, 22, 41, 0.75)', border: '1px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: 16, padding: '0.85rem 1.5rem', backdropFilter: 'blur(12px)'
+                    }}>
+                      <button
+                        type="button"
+                        onClick={() => setCurrentCardIndex(prev => Math.max(0, prev - 1))}
+                        disabled={currentCardIndex === 0}
+                        style={{
+                          background: currentCardIndex === 0 ? 'rgba(255,255,255,0.04)' : 'rgba(0, 212, 255, 0.15)',
+                          border: '1px solid',
+                          borderColor: currentCardIndex === 0 ? 'rgba(255,255,255,0.08)' : 'var(--cyan)',
+                          color: currentCardIndex === 0 ? 'rgba(255,255,255,0.3)' : 'var(--cyan)',
+                          padding: '0.5rem 1.1rem', borderRadius: 10, fontSize: '0.82rem', fontWeight: 700,
+                          cursor: currentCardIndex === 0 ? 'not-allowed' : 'pointer', transition: 'all 0.15s'
+                        }}
+                      >
+                        ◄ Previous Question
+                      </button>
+
+                      {/* PAGINATION DOTS */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                        {generatedQuestions.map((_, dotIdx) => (
+                          <button
+                            key={dotIdx}
+                            type="button"
+                            onClick={() => setCurrentCardIndex(dotIdx)}
+                            title={`Jump to Question ${dotIdx + 1}`}
+                            style={{
+                              width: currentCardIndex === dotIdx ? 24 : 10,
+                              height: 10,
+                              borderRadius: 10,
+                              border: 'none',
+                              background: currentCardIndex === dotIdx ? 'var(--cyan)' : 'rgba(255,255,255,0.2)',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s'
+                            }}
+                          />
+                        ))}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setCurrentCardIndex(prev => Math.min(generatedQuestions.length - 1, prev + 1))}
+                        disabled={currentCardIndex === generatedQuestions.length - 1}
+                        style={{
+                          background: currentCardIndex === generatedQuestions.length - 1 ? 'rgba(255,255,255,0.04)' : 'rgba(0, 212, 255, 0.15)',
+                          border: '1px solid',
+                          borderColor: currentCardIndex === generatedQuestions.length - 1 ? 'rgba(255,255,255,0.08)' : 'var(--cyan)',
+                          color: currentCardIndex === generatedQuestions.length - 1 ? 'rgba(255,255,255,0.3)' : 'var(--cyan)',
+                          padding: '0.5rem 1.1rem', borderRadius: 10, fontSize: '0.82rem', fontWeight: 700,
+                          cursor: currentCardIndex === generatedQuestions.length - 1 ? 'not-allowed' : 'pointer', transition: 'all 0.15s'
+                        }}
+                      >
+                        Next Question ►
+                      </button>
+                    </div>
+                  )}
+
+                  {/* CAROUSEL MODE vs LIST MODE CARDS */}
+                  {(viewMode === 'carousel' ? [generatedQuestions[currentCardIndex]] : generatedQuestions).map((q, rawIdx) => {
+                    const idx = viewMode === 'carousel' ? currentCardIndex : rawIdx;
+                    if (!q) return null;
                     const isSelected = selectedQuestionIndexes.includes(idx);
+
                     return (
                       <motion.div
                         key={idx}
                         id={`cambridge-card-${idx}`}
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.05 }}
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.2 }}
                         style={{
                           background: '#FAF7F2',
                           color: '#1C1917',
@@ -655,36 +863,50 @@ export default function QuestionGeneratorPage() {
                           {q.main_instruction || q.question_text || q.title}
                         </div>
 
-                        {/* SUBPARTS LIST (a), (b), (c) WITH RIGHT ALIGNED MARKS [2] */}
+                        {/* SUBPARTS LIST (a), (b), (c) WITH AUTHENTIC SOURCE FILL-IN LINES AND MARKS [1] */}
                         {Array.isArray(q.sub_parts) && q.sub_parts.length > 0 && (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', margin: '0.25rem 0' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', margin: '0.5rem 0' }}>
                             {q.sub_parts.map((sp, spIdx) => (
-                              <div key={spIdx} style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '1rem', fontSize: '1rem' }}>
-                                <div style={{ display: 'flex', gap: '0.6rem', color: '#1C1917' }}>
-                                  <span style={{ fontWeight: 700 }}>{sp.label}</span>
-                                  <span>{sp.text}</span>
+                              <div key={spIdx} style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '1rem', fontSize: '1.02rem' }}>
+                                  <div style={{ display: 'flex', gap: '0.6rem', color: '#1C1917' }}>
+                                    <span style={{ fontWeight: 700 }}>{sp.label}</span>
+                                    <span>{sp.text}</span>
+                                  </div>
+                                  <span style={{ fontWeight: 600, color: '#57534E', flexShrink: 0, fontFamily: 'sans-serif' }}>
+                                    [{sp.marks ?? 1}]
+                                  </span>
                                 </div>
-                                <span style={{ fontWeight: 600, color: '#57534E', flexShrink: 0, fontFamily: 'sans-serif' }}>
-                                  [{sp.marks ?? 2}]
-                                </span>
+                                {/* AUTHENTIC CAMBRIDGE WORKSHEET ANSWER FILL-IN LINE */}
+                                <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', marginTop: '0.2rem' }}>
+                                  <div style={{ width: '45%', borderBottom: '2px dotted #78716C', minHeight: '24px', position: 'relative' }}>
+                                    <span style={{ position: 'absolute', right: 0, bottom: -18, fontSize: '0.7rem', color: '#A8A29E', fontFamily: 'monospace' }}>
+                                      _______________________
+                                    </span>
+                                  </div>
+                                </div>
                               </div>
                             ))}
                           </div>
                         )}
 
-                        {/* MULTI-MODEL AI GENERATED TEXTBOOK ILLUSTRATION (16:9 LANDSCAPE WIDESCREEN) */}
+                        {/* CLOUDINARY SOURCE DOCUMENT ORIGINAL FIGURE */}
                         {(q.image_url || q.ai_generated_image_url) && (
-                          <div style={{ margin: '1rem 0', display: 'flex', justifyContent: 'center', background: '#FFFFFF', padding: '0.5rem', borderRadius: 16, border: '1px solid #E5DFD3', boxShadow: '0 6px 20px rgba(0,0,0,0.06)' }}>
+                          <div style={{ margin: '1rem 0', display: 'flex', flexDirection: 'column', alignItems: 'center', background: '#FFFFFF', padding: '0.75rem', borderRadius: 16, border: '1px solid #E5DFD3', boxShadow: '0 6px 20px rgba(0,0,0,0.06)' }}>
+                            <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#4F46E5', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.06em', background: '#EEF2FF', padding: '0.2rem 0.6rem', borderRadius: 20 }}>
+                              📷 Original Source Document Figure (Cloudinary: source_RAG)
+                            </div>
                             <img
                               src={q.image_url || q.ai_generated_image_url}
-                              alt="Multi-Model AI Generated Textbook Figure"
+                              alt="Original Source Document Figure"
                               onError={(e) => {
-                                e.currentTarget.style.display = 'none';
+                                console.warn('Cloudinary image preview fallback to SVG diagram');
+                                e.target.parentElement.style.display = 'none';
                               }}
                               style={{
                                 width: '100%',
-                                maxWidth: 820,
-                                maxHeight: 340,
+                                maxWidth: 840,
+                                maxHeight: 380,
                                 objectFit: 'contain',
                                 borderRadius: 12
                               }}
@@ -692,7 +914,7 @@ export default function QuestionGeneratorPage() {
                           </div>
                         )}
 
-                        {/* DIAGRAM / GRAPH BOX (LANDSCAPE WIDESCREEN) */}
+                        {/* DIAGRAM / GRAPH BOX (CARROLL DIAGRAM VECTOR BACKUP) */}
                         {q.svg_diagram && (
                           <div style={{ margin: '0.85rem 0', display: 'flex', justifyContent: 'center' }}>
                             <div
@@ -743,209 +965,7 @@ export default function QuestionGeneratorPage() {
               )}
             </div>
           </div>
-        )}
-
-        {/* ── TAB 2: SOURCE RAG DOCUMENTS ── */}
-        {activeTab === 'documents' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            
-            {/* UPLOAD BOX */}
-            <form
-              onSubmit={handleUploadDocument}
-              style={{
-                background: 'rgba(15, 22, 41, 0.75)', border: '2px dashed rgba(0, 212, 255, 0.25)',
-                borderRadius: 24, padding: '2.5rem 2rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem',
-                backdropFilter: 'blur(16px)'
-              }}
-            >
-              <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(0, 212, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Upload size={28} color="var(--cyan)" />
-              </div>
-
-              <div>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff', marginBottom: '0.35rem' }}>
-                  Upload Source Document to Cloudinary (<code style={{ color: 'var(--cyan)' }}>source_RAG</code>)
-                </h3>
-                <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.5)', maxWidth: 520, margin: '0 auto' }}>
-                  Assign Stage, Subject, and Topic metadata, then upload PDF or Word files to Cloudinary. Extracted content will be bound to this exact topic for RAG Question Generation.
-                </p>
-              </div>
-
-              {/* Stage, Subject, Topic Selectors */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.85rem', width: '100%', maxWidth: 680, textAlign: 'left', margin: '0.5rem 0' }}>
-                <div>
-                  <label style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--cyan)', textTransform: 'uppercase', marginBottom: '0.3rem', display: 'block' }}>
-                    Stage / Grade
-                  </label>
-                  <select
-                    value={stage}
-                    onChange={(e) => setStage(e.target.value)}
-                    style={{
-                      width: '100%', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(0,212,255,0.3)',
-                      borderRadius: 10, padding: '0.55rem 0.75rem', color: '#fff', fontSize: '0.8rem', outline: 'none'
-                    }}
-                  >
-                    <option value="Stage 1">Stage 1 (Primary 1)</option>
-                    <option value="Stage 2">Stage 2 (Primary 2)</option>
-                    <option value="Stage 3">Stage 3 (Primary 3)</option>
-                    <option value="Stage 4">Stage 4 (Primary 4)</option>
-                    <option value="Stage 5">Stage 5 (Primary 5)</option>
-                    <option value="Stage 6">Stage 6 (Primary 6)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--cyan)', textTransform: 'uppercase', marginBottom: '0.3rem', display: 'block' }}>
-                    Subject
-                  </label>
-                  <select
-                    value={selectedSubjectId}
-                    onChange={(e) => {
-                      setSelectedSubjectId(e.target.value);
-                      const subObj = filteredSubjects.find(s => s.id === e.target.value);
-                      if (subObj) setSelectedSubjectName(subObj.name);
-                    }}
-                    style={{
-                      width: '100%', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(0,212,255,0.3)',
-                      borderRadius: 10, padding: '0.55rem 0.75rem', color: '#fff', fontSize: '0.8rem', outline: 'none'
-                    }}
-                  >
-                    {filteredSubjects.map(s => (
-                      <option key={s.id} value={s.id}>{s.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--cyan)', textTransform: 'uppercase', marginBottom: '0.3rem', display: 'block' }}>
-                    Topic
-                  </label>
-                  <select
-                    value={selectedTopicId}
-                    onChange={(e) => {
-                      setSelectedTopicId(e.target.value);
-                      const topObj = topics.find(t => t.id === e.target.value);
-                      if (topObj) setSelectedTopicName(topObj.name);
-                    }}
-                    style={{
-                      width: '100%', background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(0,212,255,0.3)',
-                      borderRadius: 10, padding: '0.55rem 0.75rem', color: '#fff', fontSize: '0.8rem', outline: 'none'
-                    }}
-                  >
-                    {topics.map(t => (
-                      <option key={t.id} value={t.id}>{t.name}</option>
-                    ))}
-                    <option value="">+ General / All Topics</option>
-                  </select>
-                </div>
-              </div>
-
-              <input
-                type="file"
-                accept=".pdf,.docx,.doc,.txt,image/*"
-                onChange={(e) => setUploadFile(e.target.files[0])}
-                style={{ display: 'none' }}
-                id="rag-file-input"
-              />
-
-              <label
-                htmlFor="rag-file-input"
-                style={{
-                  padding: '0.65rem 1.25rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)',
-                  borderRadius: 12, color: '#fff', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem'
-                }}
-              >
-                <FileText size={16} /> {uploadFile ? uploadFile.name : 'Choose PDF / Document File'}
-              </label>
-
-              <button
-                type="submit"
-                disabled={isUploading || !uploadFile}
-                style={{
-                  padding: '0.75rem 2rem', borderRadius: 14, border: 'none',
-                  background: 'linear-gradient(135deg, #7C3AED 0%, #00D4FF 100%)',
-                  color: '#fff', fontFamily: 'Space Grotesk, sans-serif', fontSize: '0.85rem', fontWeight: 800,
-                  cursor: isUploading || !uploadFile ? 'not-allowed' : 'pointer', opacity: uploadFile ? 1 : 0.5,
-                  boxShadow: '0 4px 16px rgba(124, 58, 237, 0.3)', transition: 'all 0.2s'
-                }}
-              >
-                {isUploading ? 'Uploading to Cloudinary...' : 'Upload Source RAG File'}
-              </button>
-            </form>
-
-            {/* DOCUMENTS TABLE */}
-            <div style={{
-              background: 'rgba(15, 22, 41, 0.75)', border: '1px solid rgba(255, 255, 255, 0.08)',
-              borderRadius: 24, padding: '1.5rem', backdropFilter: 'blur(16px)'
-            }}>
-              <h3 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#fff', marginBottom: '1rem' }}>
-                Uploaded Source RAG Documents ({ragDocuments.length})
-              </h3>
-
-              {ragDocuments.length === 0 ? (
-                <EmptyState icon={Database} title="No Source Documents" description="Upload a textbook PDF or worksheet above to populate your source RAG library." />
-              ) : (
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', color: 'rgba(255,255,255,0.85)' }}>
-                    <thead>
-                      <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', textAlign: 'left', color: 'rgba(255,255,255,0.45)', fontWeight: 700 }}>
-                        <th style={{ padding: '0.75rem' }}>Document Name</th>
-                        <th style={{ padding: '0.75rem' }}>Cloudinary Path</th>
-                        <th style={{ padding: '0.75rem' }}>Type</th>
-                        <th style={{ padding: '0.75rem' }}>Size</th>
-                        <th style={{ padding: '0.75rem' }}>Uploaded</th>
-                        <th style={{ padding: '0.75rem', textAlign: 'right' }}>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {ragDocuments.map(doc => (
-                        <tr key={doc.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                          <td style={{ padding: '0.85rem 0.75rem', fontWeight: 700, color: '#fff' }}>
-                            📄 {doc.filename}
-                          </td>
-                          <td style={{ padding: '0.85rem 0.75rem', color: 'var(--cyan)', fontFamily: 'monospace', fontSize: '0.75rem' }}>
-                            source_RAG/{doc.filename}
-                          </td>
-                          <td style={{ padding: '0.85rem 0.75rem', color: 'rgba(255,255,255,0.6)' }}>
-                            {doc.file_type || 'PDF/Doc'}
-                          </td>
-                          <td style={{ padding: '0.85rem 0.75rem', color: 'rgba(255,255,255,0.6)' }}>
-                            {doc.file_size ? `${(doc.file_size / 1024 / 1024).toFixed(2)} MB` : '—'}
-                          </td>
-                          <td style={{ padding: '0.85rem 0.75rem', color: 'rgba(255,255,255,0.5)' }}>
-                            {new Date(doc.created_at).toLocaleDateString()}
-                          </td>
-                          <td style={{ padding: '0.85rem 0.75rem', textAlign: 'right' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                              <a
-                                href={doc.file_url}
-                                target="_blank"
-                                rel="noreferrer"
-                                style={{ color: 'var(--cyan)', padding: '0.35rem', borderRadius: 8, background: 'rgba(0,212,255,0.1)' }}
-                                title="View Cloudinary File"
-                              >
-                                <ExternalLink size={14} />
-                              </a>
-                              <button
-                                onClick={() => handleDeleteDocument(doc.id)}
-                                style={{ color: '#F87171', padding: '0.35rem', borderRadius: 8, background: 'rgba(239,68,68,0.1)', border: 'none', cursor: 'pointer' }}
-                                title="Delete Document"
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-      </div>
+        </div>
     </PageWrapper>
   );
 }

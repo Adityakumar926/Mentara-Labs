@@ -120,6 +120,7 @@ export default function App() {
             <Route path="/courses/:curriculumId/subjects/:subjectId"         element={<TopicsPage />} />
             <Route path="/courses/:curriculumId/subjects/:subjectId/topics/:topicId" element={<SubjectPage />} />
             <Route path="/questions"                                         element={<StudentQuestionsPage />} />
+            <Route path="/question-generator"                                element={<QuestionGeneratorPage isSimpleMode={true} />} />
             <Route path="/exams"                                             element={<ExamsStudentPage />} />
             <Route path="/explore"                                           element={<ExplorePage />} />
             <Route path="/profile"                                           element={<ProfilePage />} />
@@ -130,10 +131,11 @@ export default function App() {
         {/* ── Student Dashboard & Learning ────────────────────────────────── */}
         <Route element={<ProtectedRoute role="student" />}>
           <Route element={<StudentUserLayout />}>
-            <Route path="/student/dashboard" element={<StudentDashboardPage />} />
-            <Route path="/student/profile"   element={<ProfilePage />} />
-            <Route path="/student/premium"   element={<PremiumPage />} />
-            <Route path="/student/certificates" element={<StudentCertificatesPage />} />
+            <Route path="/student/dashboard"          element={<StudentDashboardPage />} />
+            <Route path="/student/question-generator" element={<QuestionGeneratorPage isSimpleMode={true} />} />
+            <Route path="/student/profile"            element={<ProfilePage />} />
+            <Route path="/student/premium"            element={<PremiumPage />} />
+            <Route path="/student/certificates"       element={<StudentCertificatesPage />} />
           </Route>
         </Route>
 

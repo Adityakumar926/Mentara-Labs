@@ -7,11 +7,12 @@ import NotificationBell from '@/components/shared/NotificationBell';
 import VoiceTutor from '@/components/shared/VoiceTutor';
 
 const NAV = [
-  { to: '/courses',   icon: BookOpen,   label: 'Courses'   },
-  { to: '/explore',   icon: Compass,    label: 'Explore'   },
-  { to: '/exams',     icon: FileText,   label: 'Exams'     },
-  { to: '/questions', icon: HelpCircle, label: 'Questions' },
-  { to: '/profile',   icon: User,       label: 'Profile'   },
+  { to: '/courses',            icon: BookOpen,   label: 'Courses'   },
+  { to: '/explore',            icon: Compass,    label: 'Explore'   },
+  { to: '/question-generator', icon: Sparkles,   label: 'Generator' },
+  { to: '/exams',              icon: FileText,   label: 'Exams'     },
+  { to: '/questions',          icon: HelpCircle, label: 'Questions' },
+  { to: '/profile',            icon: User,       label: 'Profile'   },
 ];
 
 const CSS = `

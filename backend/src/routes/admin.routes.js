@@ -21,8 +21,11 @@ const certificatesCtrl = require('../controllers/certificates.controller');
 // All admin routes require auth
 router.use(protect);
 
-// Allow both admin and teacher for GET (read-only) operations, but only admin for modifying operations (POST, PUT, DELETE, PATCH).
+// Allow admin, teacher, and student for Question Generator and Subject read operations.
 const authorizeReadOrWrite = (req, res, next) => {
+  if (req.path.includes('/question-generator') || req.path.includes('/subjects') || req.path.includes('/hierarchy')) {
+    return authorize('admin', 'teacher', 'student')(req, res, next);
+  }
   if (req.method === 'GET') {
     return authorize('admin', 'teacher')(req, res, next);
   } else {

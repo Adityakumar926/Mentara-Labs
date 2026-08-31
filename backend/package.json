@@ -26,6 +26,7 @@
     "morgan": "^1.11.0",
     "multer": "^2.2.0",
     "nodemon": "^3.0.1",
+    "pdf-parse": "^2.4.5",
     "pg": "^8.21.0",
     "razorpay": "^2.9.8",
     "socket.io": "^4.8.3",
