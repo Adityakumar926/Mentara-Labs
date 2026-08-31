@@ -25,6 +25,7 @@ import AdminDashboard   from '@/features/admin/dashboard/DashboardPage';
 import CurriculumPage   from '@/features/admin/curriculum/CurriculumPage';
 import CurriculumDetail from '@/features/admin/curriculum/CurriculumDetail';
 import QuestionsPage    from '@/features/admin/questions/QuestionsPage';
+import QuestionGeneratorPage from '@/features/admin/question_generator/QuestionGeneratorPage';
 import ExamsAdminPage   from '@/features/admin/exams/ExamsPage';
 import ExamDetail       from '@/features/admin/exams/ExamDetail';
 import StudentsPage     from '@/features/admin/students/StudentsPage';
@@ -90,8 +91,9 @@ export default function App() {
             <Route path="/admin/curriculum"     element={<CurriculumPage />} />
             <Route path="/admin/curriculum/:id" element={<CurriculumDetail />} />
             <Route path="/admin/materials"      element={<MaterialsPage />} />
-            <Route path="/admin/questions"      element={<QuestionsPage />} />
-            <Route path="/admin/exams"          element={<ExamsAdminPage />} />
+            <Route path="/admin/questions"          element={<QuestionsPage />} />
+            <Route path="/admin/question-generator" element={<QuestionGeneratorPage />} />
+            <Route path="/admin/exams"              element={<ExamsAdminPage />} />
             <Route path="/admin/exams/:id"      element={<ExamDetail />} />
             <Route path="/admin/students"       element={<StudentsPage />} />
             <Route path="/admin/settings"       element={<SettingsPage />} />

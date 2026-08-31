@@ -66,15 +66,17 @@ exports.login = async (req, res) => {
     if (!email || !password)
       return res.status(400).json({ success: false, message: 'email and password are required' });
 
+    const cleanEmail = String(email || '').toLowerCase().trim();
     const { rows } = await db.query(
-      `SELECT * FROM users WHERE email = $1`,
-      [email.toLowerCase().trim()]
+      `SELECT * FROM users WHERE LOWER(TRIM(email)) = LOWER(TRIM($1))`,
+      [cleanEmail]
     );
 
     const found = rows[0];
-    // Run compare even if user not found to prevent timing attacks
     const dummyHash = '$2a$12$invalidhashfortimingprotection000000000000000000000';
-    const isValid   = await bcrypt.compare(password, found?.password_hash ?? dummyHash);
+    const isValid   = await bcrypt.compare(String(password || '').trim(), found?.password_hash ?? dummyHash);
+
+    console.log(`[Auth Login] Attempt for email: "${cleanEmail}" | Found: ${Boolean(found)} | Password Valid: ${isValid}`);
 
     if (!found || !isValid)
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
@@ -90,6 +92,7 @@ exports.login = async (req, res) => {
 
     res.json({ success: true, accessToken, refreshToken, user });
   } catch (err) {
+    console.error('[Auth Login Error]', err);
     res.status(500).json({ success: false, message: err.message });
   }
 };

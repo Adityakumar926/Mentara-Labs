@@ -905,85 +905,105 @@ export default function QuestionsPage() {
                     </div>
 
                     {/* Question Content Row */}
-                    <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'flex-start', width: '100%', flexWrap: 'wrap' }}>
-                      <div style={{ flex: 1, minWidth: '280px' }}>
-                        <p className="qp-q-text" style={{ fontSize: '0.88rem', fontWeight: 600, color: q.question_text ? '#fafafa' : 'rgba(250,250,250,0.4)', marginBottom: '0.75rem', lineHeight: '1.4', fontStyle: q.question_text ? 'normal' : 'italic' }}>
-                          {q.question_text || '(No text prompt)'}
-                        </p>
-                        
-                        {/* Options Display */}
-                        {(() => {
-                          const opts = getOptionsArray(q.options);
-                          if (opts.length === 0) return null;
-                          return (
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '0.5rem', marginTop: '0.65rem' }}>
-                              {opts.map((opt, oIdx) => {
-                                if (!opt) return null;
-                                const optKey = String(opt.key || opt.id || String.fromCharCode(65 + oIdx)).toUpperCase();
-                                const isCorrect = String(q.correct_answer).toUpperCase() === optKey;
+                    {(() => {
+                      if (q.image_url) {
+                        return (
+                          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0.25rem 0' }}>
+                            <img
+                              src={q.image_url}
+                              alt="Cambridge Question"
+                              onClick={() => setActiveImage(q.image_url)}
+                              style={{
+                                maxWidth: '100%',
+                                width: '700px',
+                                height: 'auto',
+                                borderRadius: '12px',
+                                border: '1px solid rgba(255,255,255,0.12)',
+                                boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+                                cursor: 'zoom-in'
+                              }}
+                            />
+                          </div>
+                        );
+                      }
+
+                      const isCambridgePaper = Array.isArray(q.tags) && (q.tags.includes('cambridge_paper') || q.tags.includes('ai_generated')) || (q.question_text && (q.question_text.includes('[') || q.question_text.includes('Marks]')));
+                      
+                      if (isCambridgePaper) {
+                        return (
+                          <div style={{ width: '100%' }}>
+                            <div
+                              style={{
+                                width: '100%',
+                                background: '#FAF7F2',
+                                border: '1px solid #E5DFD3',
+                                borderRadius: 14,
+                                padding: '1.25rem 1.5rem',
+                                color: '#1C1917',
+                                fontFamily: "'Inter', sans-serif",
+                                boxShadow: '0 4px 14px rgba(0,0,0,0.06)'
+                              }}
+                            >
+                              {/* Header bar */}
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #E5DFD3', paddingBottom: '0.4rem', marginBottom: '0.75rem' }}>
+                                <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#78716C', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                  {q.class_name || 'Stage 1'} • {q.subject_name || 'English'} {q.topic_name ? `• ${q.topic_name}` : ''}
+                                </div>
+                                <span style={{ background: '#F5F5F4', border: '1px solid #D6D3D1', color: '#44403C', fontSize: '0.68rem', fontWeight: 800, padding: '0.15rem 0.55rem', borderRadius: 6 }}>
+                                  CAMBRIDGE EXAM PAPER FORMAT
+                                </span>
+                              </div>
+
+                              {/* Question Text */}
+                              <div style={{ fontSize: '0.88rem', fontWeight: 600, color: '#1C1917', lineHeight: '1.5', whiteSpace: 'pre-wrap', marginBottom: '0.85rem' }}>
+                                {q.question_text || ''}
+                              </div>
+
+                              {/* Options */}
+                              {(() => {
+                                const opts = getOptionsArray(q.options);
+                                if (!opts || opts.length === 0) return null;
                                 return (
-                                  <div 
-                                    key={oIdx} 
-                                    style={{ 
-                                      fontSize: '0.76rem', 
-                                      padding: '0.5rem 0.75rem', 
-                                      borderRadius: '10px', 
-                                      border: isCorrect ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(255,255,255,0.05)',
-                                      background: isCorrect ? 'rgba(16,185,129,0.06)' : 'rgba(255,255,255,0.01)',
-                                      color: isCorrect ? '#34D399' : 'rgba(250,250,250,0.6)',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      gap: '0.5rem'
-                                    }}
-                                  >
-                                    <strong style={{ color: isCorrect ? '#34D399' : 'rgba(250,250,250,0.3)' }}>
-                                      {opt.key || String.fromCharCode(65 + oIdx)}.
-                                    </strong>
-                                    <span>{opt.text || opt.value || (typeof opt === 'string' ? opt : '')}</span>
-                                    {isCorrect && (
-                                      <span style={{ marginLeft: 'auto', background: 'rgba(16,185,129,0.2)', color: '#34D399', fontSize: '0.55rem', padding: '0.1rem 0.3rem', borderRadius: '4px', textTransform: 'uppercase', fontWeight: 700 }}>
-                                        Correct
-                                      </span>
-                                    )}
+                                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '0.45rem', margin: '0.75rem 0' }}>
+                                    {opts.map((opt, oIdx) => {
+                                      const str = typeof opt === 'string' ? opt : (opt.text || opt.value || '');
+                                      const optKey = String(opt.key || String.fromCharCode(65 + oIdx)).toUpperCase();
+                                      const isCorrect = q.correct_answer && (String(q.correct_answer).toUpperCase() === optKey || String(q.correct_answer).toLowerCase().trim() === str.toLowerCase().trim());
+                                      return (
+                                        <div
+                                          key={oIdx}
+                                          style={{
+                                            fontSize: '0.78rem',
+                                            padding: '0.5rem 0.75rem',
+                                            borderRadius: 8,
+                                            background: isCorrect ? '#ECFDF5' : '#FFFFFF',
+                                            border: isCorrect ? '1.5px solid #10B981' : '1px solid #E7E5E4',
+                                            color: isCorrect ? '#065F46' : '#292524',
+                                            fontWeight: isCorrect ? 700 : 500
+                                          }}
+                                        >
+                                          {str}
+                                        </div>
+                                      );
+                                    })}
                                   </div>
                                 );
-                              })}
-                            </div>
-                          );
-                        })()}
-                        
-                        {/* Explanation */}
-                        {q.explanation && (
-                          <div style={{ marginTop: '0.75rem', padding: '0.65rem 0.85rem', borderRadius: '10px', background: 'rgba(99,102,241,0.04)', border: '1px solid rgba(99,102,241,0.12)', fontSize: '0.75rem', color: 'rgba(250,250,250,0.5)', lineHeight: '1.4' }}>
-                            <strong style={{ color: '#818cf8', fontSize: '0.68rem', textTransform: 'uppercase', display: 'block', marginBottom: '0.2rem' }}>Explanation</strong>
-                            {q.explanation}
-                          </div>
-                        )}
-                      </div>
+                              })()}
 
-                      {/* Question Image (Right side if exists) */}
-                      {q.image_url && (
-                        <div 
-                          onClick={() => setActiveImage(q.image_url)}
-                          style={{ flexShrink: 0, maxWidth: '140px', cursor: 'zoom-in', transition: 'transform 0.2s' }}
-                          className="hover:scale-105"
-                        >
-                          <img 
-                            src={q.image_url} 
-                            alt="Question" 
-                            style={{ 
-                              width: '100%', 
-                              maxHeight: '120px', 
-                              objectFit: 'contain', 
-                              borderRadius: '10px', 
-                              border: '1px solid rgba(255,255,255,0.06)', 
-                              background: 'rgba(0,0,0,0.2)',
-                              padding: '0.25rem'
-                            }} 
-                          />
-                        </div>
-                      )}
-                    </div>
+                              {/* Explanation */}
+                              {q.explanation && (
+                                <div style={{ marginTop: '0.85rem', padding: '0.65rem 0.85rem', background: '#F5F5F4', borderRadius: 8, border: '1px solid #E7E5E4', fontSize: '0.75rem', color: '#44403C' }}>
+                                  <strong style={{ color: '#0284C7', textTransform: 'uppercase', letterSpacing: '0.04em', fontSize: '0.68rem', display: 'block', marginBottom: '0.2rem' }}>
+                                    Marking Scheme & Solution:
+                                  </strong>
+                                  {q.explanation}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      }
+                    })()}
                   </motion.div>
                 ))}
               </AnimatePresence>

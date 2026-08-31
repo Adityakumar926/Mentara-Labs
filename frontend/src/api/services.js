@@ -89,6 +89,13 @@ export const adminApi = {
     });
   },
 
+  // Question Generator (RAG + AI)
+  uploadRagDocument: (formData) => api.post('/admin/question-generator/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' }, timeout: 120000 }),
+  getRagDocuments:   ()         => api.get('/admin/question-generator/documents'),
+  deleteRagDocument: (id)       => api.delete(`/admin/question-generator/documents/${id}`),
+  generateQuestions: (data)     => api.post('/admin/question-generator/generate', data, { timeout: 120000 }),
+  saveBulkQuestions: (data)     => api.post('/admin/question-generator/save-bulk', data, { timeout: 120000 }),
+
   // Exams
   getExams:           (params)   => api.get('/admin/exams', { params }),
   getExam:            (id)       => api.get(`/admin/exams/${id}`),

@@ -8,14 +8,15 @@ import {
 import useAuthStore from '@/store/authStore';
 
 const NAV = [
-  { to: '/admin',            icon: LayoutDashboard, label: 'Dashboard',    exact: true },
-  { to: '/admin/curriculum', icon: BookOpen,        label: 'Curriculum'   },
-  { to: '/admin/materials',  icon: FolderOpen,      label: 'Materials Explorer' },
-  { to: '/admin/questions',  icon: HelpCircle,      label: 'Question Bank'},
-  { to: '/admin/exams',      icon: FileText,        label: 'Exams'        },
-  { to: '/admin/certificates', icon: Award,          label: 'Certificates' },
-  { to: '/admin/students',   icon: Users,           label: 'Users'        },
-  { to: '/admin/settings',   icon: Settings,        label: 'Settings'     },
+  { to: '/admin',                    icon: LayoutDashboard, label: 'Dashboard',    exact: true },
+  { to: '/admin/curriculum',         icon: BookOpen,        label: 'Curriculum'   },
+  { to: '/admin/materials',          icon: FolderOpen,      label: 'Materials Explorer' },
+  { to: '/admin/questions',          icon: HelpCircle,      label: 'Question Bank'},
+  { to: '/admin/question-generator', icon: Sparkles,        label: 'Question Generator' },
+  { to: '/admin/exams',              icon: FileText,        label: 'Exams'        },
+  { to: '/admin/certificates',       icon: Award,          label: 'Certificates' },
+  { to: '/admin/students',           icon: Users,           label: 'Users'        },
+  { to: '/admin/settings',           icon: Settings,        label: 'Settings'     },
 ];
 
 const CSS = `

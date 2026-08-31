@@ -12,6 +12,7 @@ const currCtrl  = require('../controllers/admin/curriculum.controller');
 const classCtrl = require('../controllers/admin/class.controller');
 const topicCtrl = require('../controllers/admin/topic.controller');
 const qCtrl     = require('../controllers/admin/question.controller');
+const qGenCtrl  = require('../controllers/admin/questionGenerator.controller');
 const examCtrl  = require('../controllers/admin/exam.controller');
 const animCtrl  = require('../controllers/admin/animation.controller');
 const hierarchyCtrl = require('../controllers/admin/hierarchy.controller');
@@ -144,6 +145,18 @@ router.put('/questions/:id',           qCtrl.update);
 router.delete('/questions/:id',        qCtrl.delete);
 router.patch('/questions/:id/star',    qCtrl.toggleStar);
 router.patch('/questions/:id/premium', qCtrl.togglePremium);
+
+// ─── QUESTION GENERATOR (RAG + AI) ───────────────────────────────────────────
+router.post(
+  '/question-generator/upload',
+  upload('note').single('file'),
+  handleUploadError,
+  qGenCtrl.uploadDocument
+);
+router.get('/question-generator/documents',        qGenCtrl.getDocuments);
+router.delete('/question-generator/documents/:id', qGenCtrl.deleteDocument);
+router.post('/question-generator/generate',        qGenCtrl.generateQuestions);
+router.post('/question-generator/save-bulk',       qGenCtrl.saveBulkQuestions);
 
 // ─── EXAMS ────────────────────────────────────────────────────────────────────
 router.get('/exams',     examCtrl.getAll);
