@@ -1,26 +1,78 @@
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValueEvent } from "framer-motion";
 import {
-  PenTool, Compass, Layers, BarChart3,
-  ChevronRight, Sparkles, Monitor, Cpu, CheckCircle2
+  Atom, Bot, GraduationCap, PenTool, Compass, Layers,
+  Sparkles, CheckCircle2
 } from "lucide-react";
 
 const FEATURES = [
   {
     id: 1,
     number: "01",
-    tag: "INTERACTIVE BOARD",
-    title: "Interactive Board",
-    description: "Write, draw, and explain live with drawing and laser pens.",
-    image: "/assets/laptop_1.webp",
-    accent: "from-cyan-500 to-blue-500",
+    tag: "CAMBRIDGE PRIMARY",
+    title: "Cambridge Primary",
+    description: "Empower young minds with interactive lessons, 3D science labs, and drawing worksheets built for Cambridge Primary Stage 1 to 6.",
+    image: "/cam1.webp",
+    accent: "from-cyan-500 to-teal-500",
     glowColor: "rgba(6, 182, 212, 0.35)",
     badgeBg: "bg-cyan-500/10 text-cyan-400 border-cyan-500/30",
-    icon: PenTool
+    icon: Atom,
+    highlights: [
+      "Interactive lessons & 3D science simulations",
+      "Aligned with Cambridge Primary Stage 1 to 6"
+    ]
   },
   {
     id: 2,
     number: "02",
+    tag: "STUDENT DASHBOARD",
+    title: "Student Dashboard",
+    description: "Track study streaks, complete drawable activities, monitor checkpoint progress, and learn alongside GOGO AI Tutor 24/7.",
+    image: "/dashboard.webp",
+    accent: "from-purple-500 to-indigo-500",
+    glowColor: "rgba(168, 85, 247, 0.35)",
+    badgeBg: "bg-purple-500/10 text-purple-400 border-purple-500/30",
+    icon: Bot,
+    highlights: [
+      "Study streaks & drawable checkpoint progress",
+      "Built-in GOGO AI Tutor assistance 24/7"
+    ]
+  },
+  {
+    id: 3,
+    number: "03",
+    tag: "CURRICULUM EXCELLENCE",
+    title: "Curriculum Excellence",
+    description: "Take a look inside the modern teacher learning suite built specifically for Cambridge Primary Stage 1 to 6.",
+    image: "/feature.webp",
+    accent: "from-emerald-500 to-teal-500",
+    glowColor: "rgba(16, 185, 129, 0.35)",
+    badgeBg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+    icon: GraduationCap,
+    highlights: [
+      "Designed specifically for Cambridge curriculums",
+      "Real-time desktop & tablet responsiveness"
+    ]
+  },
+  {
+    id: 4,
+    number: "04",
+    tag: "INTERACTIVE BOARD",
+    title: "Interactive Board",
+    description: "Write, draw, and explain live with drawing and laser pens.",
+    image: "/assets/laptop_1.webp",
+    accent: "from-sky-500 to-cyan-500",
+    glowColor: "rgba(14, 165, 233, 0.35)",
+    badgeBg: "bg-sky-500/10 text-sky-400 border-sky-500/30",
+    icon: PenTool,
+    highlights: [
+      "Smooth multi-stroke canvas drawings",
+      "Live laser pointer & annotation pens"
+    ]
+  },
+  {
+    id: 5,
+    number: "05",
     tag: "GEOMETRY TOOLS",
     title: "Geometry Tools",
     description: "Draw angles and measure lengths with virtual rulers and protractors.",
@@ -28,11 +80,15 @@ const FEATURES = [
     accent: "from-amber-500 to-orange-500",
     glowColor: "rgba(245, 158, 11, 0.35)",
     badgeBg: "bg-amber-500/10 text-amber-400 border-amber-500/30",
-    icon: Compass
+    icon: Compass,
+    highlights: [
+      "Virtual rotating protractor & ruler measurements",
+      "Dynamic shape creation & grid snapping"
+    ]
   },
   {
-    id: 3,
-    number: "03",
+    id: 6,
+    number: "06",
     tag: "DIFFICULTY LEVELS",
     title: "Difficulty Levels",
     description: "Questions aligned with Foundation, Developing, and Secure stages.",
@@ -40,19 +96,11 @@ const FEATURES = [
     accent: "from-rose-500 to-red-500",
     glowColor: "rgba(244, 63, 94, 0.35)",
     badgeBg: "bg-rose-500/10 text-rose-400 border-rose-500/30",
-    icon: Layers
-  },
-  {
-    id: 4,
-    number: "04",
-    tag: "LEARNING ANALYTICS",
-    title: "Learning Analytics",
-    description: "Granular reporting mapping masteries and velocity.",
-    image: "/assets/laptop_6.webp",
-    accent: "from-indigo-500 to-violet-500",
-    glowColor: "rgba(99, 102, 241, 0.35)",
-    badgeBg: "bg-indigo-500/10 text-indigo-400 border-indigo-500/30",
-    icon: BarChart3
+    icon: Layers,
+    highlights: [
+      "Foundation, Developing, and Secure stages",
+      "Adaptive difficulty progression"
+    ]
   }
 ];
 
@@ -137,7 +185,7 @@ export default function LaptopScrollShowcase() {
       <section
         ref={containerRef}
         id="features-showcase"
-        className="relative h-[400vh] bg-zinc-950 text-zinc-100 font-sans selection:bg-cyan-500/30"
+        className="relative h-[550vh] bg-zinc-950 text-zinc-100 font-sans selection:bg-cyan-500/30"
       >
         {/* Background Grid */}
         <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
@@ -316,20 +364,21 @@ export default function LaptopScrollShowcase() {
 
                     {/* FEATURE HIGHLIGHT BULLETS */}
                     <div className="pt-2 flex flex-col gap-2 text-xs sm:text-sm text-zinc-300 font-medium">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-cyan-400 shrink-0" />
-                        <span>Real-time desktop & tablet responsiveness</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
-                        <span>Aligned with Cambridge Primary Framework</span>
-                      </div>
+                      {(activeFeature.highlights || [
+                        "Real-time desktop & tablet responsiveness",
+                        "Aligned with Cambridge Primary Framework"
+                      ]).map((hl, hIdx) => (
+                        <div key={hIdx} className="flex items-center gap-2">
+                          <CheckCircle2 className={`h-4 w-4 shrink-0 ${hIdx === 0 ? "text-cyan-400" : "text-emerald-400"}`} />
+                          <span>{hl}</span>
+                        </div>
+                      ))}
                     </div>
                   </motion.div>
                 </AnimatePresence>
 
                 {/* QUICK SELECTOR PILL BUTTONS */}
-                <div className="mt-8 pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div className="mt-8 pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                   {FEATURES.map((f, i) => {
                     const isActive = i === activeIndex;
                     const FIcon = f.icon;

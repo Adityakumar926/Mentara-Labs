@@ -442,20 +442,22 @@ exports.submitExam = async (req, res) => {
         }
         const certificateId = `${prefix}${String(nextNum).padStart(6, '0')}`;
 
-        // Get student name
+        // Get user role & name — only issue certificates to students, not teachers or admins
         const { rows: studentCheck } = await client.query(
-          `SELECT full_name FROM users WHERE id = $1`,
+          `SELECT role, full_name FROM users WHERE id = $1`,
           [studentId]
         );
-        const studentName = studentCheck[0]?.full_name || 'Student';
-        const examName = examCheck[0].title || 'Exam';
+        if (studentCheck[0]?.role === 'student') {
+          const studentName = studentCheck[0]?.full_name || 'Student';
+          const examName = examCheck[0].title || 'Exam';
 
-        await client.query(
-          `INSERT INTO public.certificates (certificate_id, student_id, exam_id, student_name, exam_name, issue_date)
-           VALUES ($1, $2, $3, $4, $5, NOW())
-           ON CONFLICT (student_id, exam_id) DO NOTHING`,
-          [certificateId, studentId, exam_id, studentName, examName]
-        );
+          await client.query(
+            `INSERT INTO public.certificates (certificate_id, student_id, exam_id, student_name, exam_name, issue_date)
+             VALUES ($1, $2, $3, $4, $5, NOW())
+             ON CONFLICT (student_id, exam_id) DO NOTHING`,
+            [certificateId, studentId, exam_id, studentName, examName]
+          );
+        }
       }
     }
 

@@ -358,6 +358,10 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
           <h2 style="font-size: 16px; font-weight: 800; border-bottom: 2px solid #10b981; padding-bottom: 6px; color: #065f46; margin-bottom: 16px;">Teacher Marking Scheme & Answer Key</h2>
           ${solutionsHtml}
         </div>
+
+        <div style="margin-top: 24px; text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 8px;">
+          ⚠️ AI-assisted generation — Mentera AI may make mistakes. Double-check all generated questions and marking schemes.
+        </div>
       </body>
       </html>
     `);
@@ -519,11 +523,11 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
               </div>
             )}
 
-            {/* Stage / Curriculum (Hidden for students as their registered stage is locked automatically) */}
+            {/* Grade Selection (Hidden for students as their registered stage is locked automatically) */}
             {!isStudent && (
               <div>
                 <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
-                  Curriculum Stage
+                  Select Grade
                 </label>
                 <select
                   value={stage}
@@ -533,12 +537,11 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                     borderRadius: 12, padding: '0.65rem 0.85rem', color: '#fff', fontSize: '0.82rem', outline: 'none'
                   }}
                 >
-                  <option value="Stage 1">Stage 1 (Primary 1)</option>
-                  <option value="Stage 2">Stage 2 (Primary 2)</option>
-                  <option value="Stage 3">Stage 3 (Primary 3)</option>
-                  <option value="Stage 4">Stage 4 (Primary 4)</option>
-                  <option value="Stage 5">Stage 5 (Primary 5)</option>
-                  <option value="Stage 6">Stage 6 (Primary 6)</option>
+                  <option value="Stage 2">Grade 1 (Stage 2)</option>
+                  <option value="Stage 3">Grade 2 (Stage 3)</option>
+                  <option value="Stage 4">Grade 3 (Stage 4)</option>
+                  <option value="Stage 5">Grade 4 (Stage 5)</option>
+                  <option value="Stage 6">Grade 5 (Stage 6)</option>
                 </select>
               </div>
             )}
@@ -709,6 +712,24 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                   </>
                 )}
               </button>
+
+              {/* AI Disclaimer in sidebar corner */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                marginTop: '0.35rem',
+                padding: '0.45rem 0.65rem',
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.06)',
+                borderRadius: 10,
+                fontSize: '0.72rem',
+                color: 'rgba(255, 255, 255, 0.55)',
+                lineHeight: 1.35
+              }}>
+                <AlertCircle size={13} style={{ color: '#F59E0B', flexShrink: 0 }} />
+                <span>AI may make mistakes. Double-check all generated questions and marking schemes.</span>
+              </div>
             </div>
 
             {/* RIGHT PREVIEW & SELECTION PANEL */}
@@ -1037,6 +1058,24 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
               )}
             </div>
           </div>
+
+          {/* Subtle Bottom AI Disclaimer Line */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.45rem',
+            marginTop: '0.5rem',
+            paddingTop: '0.85rem',
+            borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+            fontSize: '0.74rem',
+            color: 'rgba(255, 255, 255, 0.45)',
+            textAlign: 'center'
+          }}>
+            <Sparkles size={12} style={{ color: 'var(--cyan)', opacity: 0.8, flexShrink: 0 }} />
+            <span>Mentera AI may make mistakes. Double-check all generated questions, diagrams, and marking schemes.</span>
+          </div>
+
         </div>
     </PageWrapper>
   );
