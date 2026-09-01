@@ -178,7 +178,7 @@ export default function LoginPage() {
           background-color: #020617;
           background-image: 
             linear-gradient(135deg, rgba(2, 6, 23, 0.72) 0%, rgba(2, 6, 23, 0.58) 50%, rgba(2, 6, 23, 0.8) 100%),
-            url('/cambridge-bg.jpg');
+            url('/cambridge-bg.webp');
           background-size: cover;
           background-position: center right;
           background-repeat: no-repeat;
