@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Users, Star } from 'lucide-react';
 import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
 
@@ -15,8 +16,8 @@ const Field = ({ label, error, children }) => (
 
 const inputBase = (hasError) => ({
   width: '100%',
-  background: 'rgba(255,255,255,0.02)',
-  border: `1px solid ${hasError ? 'rgba(248,113,113,0.5)' : 'rgba(255,255,255,0.08)'}`,
+  background: 'rgba(15, 23, 42, 0.65)',
+  border: `1px solid ${hasError ? 'rgba(248,113,113,0.5)' : 'rgba(59, 130, 246, 0.15)'}`,
   borderRadius: '12px',
   padding: '0.8rem 1.1rem',
   color: '#ffffff',
@@ -27,11 +28,38 @@ const inputBase = (hasError) => ({
   transition: 'border-color 0.2s, box-shadow 0.2s',
 });
 
-const QUOTES = [
-  { text: 'My son\'s math score went from 54% to 87% in three weeks.', author: 'Arjun M.', role: 'Primary Parent' },
-  { text: 'Teaching primary classes is so much fun now. Roster management takes seconds.', author: 'Priya S.', role: 'Primary Teacher' },
-  { text: 'I finally understand fractions and shadows — the animations are incredible!', author: 'Ritika J.', role: 'Primary Student' },
-];
+const InteractiveHeadline = () => {
+  const line1Words = ["Every", "exam", "starts"];
+  const line2Words = [
+    { text: "with", highlight: false },
+    { text: "showing", highlight: true },
+    { text: "up.", highlight: true }
+  ];
+
+  const renderWord = (word, isHighlight = false, wordKey = "") => (
+    <span key={wordKey} className={`hl-word ${isHighlight ? "hl-word-gradient" : ""}`}>
+      {word.split("").map((char, charIdx) => (
+        <span
+          key={charIdx}
+          className={`hl-char ${isHighlight ? "hl-char-gradient" : ""}`}
+        >
+          {char}
+        </span>
+      ))}
+    </span>
+  );
+
+  return (
+    <h2 className="panel-headline" aria-label="Every exam starts with showing up.">
+      <span className="hl-line">
+        {line1Words.map((w, i) => renderWord(w, false, `l1-${i}`))}
+      </span>
+      <span className="hl-line">
+        {line2Words.map((item, i) => renderWord(item.text, item.highlight, `l2-${i}`))}
+      </span>
+    </h2>
+  );
+};
 
 export default function LoginPage() {
   const { login, loginWithGoogle, loading } = useAuthStore();
@@ -40,8 +68,6 @@ export default function LoginPage() {
   const [form, setForm]       = useState({ email: '', password: '' });
   const [show, setShow]       = useState(false);
   const [errors, setErrors]   = useState({});
-  const [quoteIdx, setQuoteIdx]     = useState(0);
-  const [quoteVisible, setQuoteVisible] = useState(true);
   const [savedAccount, setSavedAccount] = useState(null);
 
   useEffect(() => {
@@ -72,7 +98,6 @@ export default function LoginPage() {
   const handleGoogleCallback = async (response) => {
     try {
       const user = await loginWithGoogle(response.credential);
-      saveAccountToCache(user);
       toast.success(`Welcome back, ${user.full_name.split(' ')[0]}!`);
       navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
     } catch (err) {
@@ -91,7 +116,6 @@ export default function LoginPage() {
           document.getElementById('google-btn-container'),
           { theme: 'filled_black', size: 'large', width: '380', shape: 'pill', text: 'continue_with' }
         );
-        window.google.accounts.id.prompt();
       }
     };
 
@@ -106,14 +130,6 @@ export default function LoginPage() {
     } else {
       initGoogle();
     }
-  }, []);
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      setQuoteVisible(false);
-      setTimeout(() => { setQuoteIdx((i) => (i + 1) % QUOTES.length); setQuoteVisible(true); }, 400);
-    }, 4000);
-    return () => clearInterval(id);
   }, []);
 
   const validate = () => {
@@ -137,8 +153,6 @@ export default function LoginPage() {
     }
   };
 
-  const q = QUOTES[quoteIdx];
-
   return (
     <>
       <style>{`
@@ -149,7 +163,7 @@ export default function LoginPage() {
           overflow: hidden;
           display: grid;
           grid-template-columns: 1fr 1fr;
-          background: #030712;
+          background: #020617;
           font-family: 'Inter', sans-serif;
         }
         .auth-panel {
@@ -161,44 +175,26 @@ export default function LoginPage() {
           height: 100vh;
           box-sizing: border-box;
           overflow: hidden;
-          background: #030712;
-          border-right: 1px solid rgba(255, 255, 255, 0.05);
+          background-color: #020617;
+          background-image: 
+            linear-gradient(135deg, rgba(2, 6, 23, 0.72) 0%, rgba(2, 6, 23, 0.58) 50%, rgba(2, 6, 23, 0.8) 100%),
+            url('/cambridge-bg.jpg');
+          background-size: cover;
+          background-position: center right;
+          background-repeat: no-repeat;
+          border-right: 1px solid rgba(59, 130, 246, 0.15);
         }
         .auth-panel-grid {
           position: absolute;
           inset: 0;
           z-index: 1;
-          background-size: 30px 30px;
+          background-size: 32px 32px;
           background-image: 
-            linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            linear-gradient(to right, rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
           mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
           opacity: 0.4;
           pointer-events: none;
-        }
-        .auth-panel::before {
-          content: '';
-          position: absolute;
-          width: 500px;
-          height: 500px;
-          top: -100px;
-          left: -100px;
-          background: radial-gradient(circle, rgba(34, 211, 238, 0.12) 0%, transparent 65%);
-          pointer-events: none;
-          animation: sdrift 14s ease-in-out infinite alternate;
-          z-index: 0;
-        }
-        .auth-panel::after {
-          content: '';
-          position: absolute;
-          width: 350px;
-          height: 350px;
-          bottom: -60px;
-          right: -60px;
-          background: radial-gradient(circle, rgba(52, 211, 153, 0.08) 0%, transparent 65%);
-          pointer-events: none;
-          animation: sdrift 18s ease-in-out infinite alternate-reverse;
-          z-index: 0;
         }
         @keyframes sdrift {
           from { transform: translate(0, 0); }
@@ -217,7 +213,7 @@ export default function LoginPage() {
           font-size: 1.65rem;
           font-weight: 800;
           letter-spacing: -0.02em;
-          background: linear-gradient(90deg, #22d3ee, #34d399, #a855f7, #22d3ee);
+          background: linear-gradient(90deg, #60a5fa, #38bdf8, #818cf8, #60a5fa);
           background-size: 300% 100%;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
@@ -232,13 +228,13 @@ export default function LoginPage() {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          background: rgba(34, 211, 238, 0.08);
-          border: 1px solid rgba(34, 211, 238, 0.2);
+          background: rgba(37, 99, 235, 0.1);
+          border: 1px solid rgba(59, 130, 246, 0.28);
           border-radius: 50px;
           padding: 5px 14px;
           font-size: 0.72rem;
           font-weight: 600;
-          color: #22d3ee;
+          color: #60a5fa;
           letter-spacing: 0.08em;
           text-transform: uppercase;
           margin-bottom: 1.5rem;
@@ -247,125 +243,135 @@ export default function LoginPage() {
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: #34d399;
-          box-shadow: 0 0 6px #34d399;
+          background: #38bdf8;
+          box-shadow: 0 0 8px #38bdf8;
           animation: pdot 2s ease infinite;
         }
         @keyframes pdot {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.3; }
         }
+        @keyframes textGlowShimmer {
+          0% {
+            background-position: 0% 50%;
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.3));
+          }
+          50% {
+            background-position: 100% 50%;
+            filter: drop-shadow(0 0 22px rgba(56, 189, 248, 0.65));
+          }
+          100% {
+            background-position: 0% 50%;
+            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.3));
+          }
+        }
         .panel-headline {
           font-family: 'Outfit', sans-serif;
           font-size: 2.5rem;
           font-weight: 900;
-          line-height: 1.05;
+          line-height: 1.15;
           letter-spacing: -0.03em;
           color: #ffffff;
           margin-bottom: 1.25rem;
+          user-select: none;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+          text-rendering: optimizeLegibility;
         }
-        .panel-headline span {
-          background: linear-gradient(to right, #22d3ee, #34d399);
+        .hl-line {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 0.32em;
+        }
+        .hl-word {
+          display: inline-flex;
+          align-items: center;
+          white-space: nowrap;
+        }
+        .hl-char {
+          display: inline-block;
+          cursor: pointer;
+          transform: translate3d(0, 0, 0);
+          transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.4), color 0.2s ease, text-shadow 0.2s ease;
+          will-change: transform;
+          -webkit-font-smoothing: antialiased;
+          backface-visibility: hidden;
+          text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+        }
+        .hl-char:hover {
+          transform: translate3d(0, -8px, 0);
+          color: #60a5fa;
+          text-shadow: 0 4px 16px rgba(56, 189, 248, 0.6), 0 1px 0 #1e3a8a, 0 2px 0 #1d4ed8;
+          z-index: 5;
+          position: relative;
+        }
+        .hl-char-gradient {
+          background: linear-gradient(135deg, #60a5fa 0%, #38bdf8 50%, #93c5fd 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
+          transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.4), filter 0.2s ease;
+        }
+        .hl-char-gradient:hover {
+          transform: translate3d(0, -10px, 0);
+          filter: drop-shadow(0 4px 16px rgba(56, 189, 248, 0.9));
+          z-index: 5;
+          position: relative;
         }
         .panel-sub {
-          color: #9ca3af;
+          color: #94a3b8;
           font-size: 0.95rem;
           line-height: 1.65;
           max-width: 360px;
         }
         .panel-stats {
           display: flex;
-          gap: 2.5rem;
-          margin-top: 3rem;
-          border-top: 1px solid rgba(255, 255, 255, 0.05);
+          align-items: center;
+          gap: 1.5rem;
+          margin-top: 2.75rem;
+          border-top: 1px solid rgba(59, 130, 246, 0.12);
           padding-top: 2rem;
         }
-        .ps-num {
-          font-family: 'Outfit', sans-serif;
-          font-size: 1.75rem;
-          font-weight: 700;
-          color: #ffffff;
-        }
-        .ps-label {
-          font-size: 0.75rem;
-          color: #6b7280;
-          margin-top: 2px;
-          font-weight: 500;
-        }
-        .quote-card {
-          position: relative;
-          z-index: 2;
-          padding: 0.5rem 0;
-          transition: opacity 0.4s ease;
-        }
-        .quote-card.q-hidden {
-          opacity: 0;
-        }
-        .quote-card.q-visible {
-          opacity: 1;
-        }
-        .quote-mark {
-          font-size: 2.25rem;
-          line-height: 1;
-          color: rgba(34, 211, 238, 0.4);
-          font-family: Georgia, serif;
-          margin-bottom: 0.25rem;
-        }
-        .quote-text {
-          font-size: 0.925rem;
-          color: #e5e7eb;
-          line-height: 1.65;
-          font-style: italic;
-          margin-bottom: 1.25rem;
-        }
-        .quote-author {
+        .ps-item {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 10px;
         }
-        .quote-avatar {
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          background: linear-gradient(135deg, #22d3ee, #34d399);
+        .ps-icon-box {
+          width: 42px;
+          height: 42px;
+          border-radius: 14px;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-family: 'Outfit', sans-serif;
-          font-size: 0.9rem;
-          font-weight: 700;
-          color: #09090b;
           flex-shrink: 0;
         }
-        .quote-name {
+        .ps-icon-cyan {
+          background: rgba(14, 165, 233, 0.08);
+          border: 1px solid rgba(56, 189, 248, 0.25);
+          box-shadow: 0 0 18px rgba(56, 189, 248, 0.12);
+          color: #38bdf8;
+        }
+        .ps-icon-purple {
+          background: rgba(99, 102, 241, 0.08);
+          border: 1px solid rgba(129, 140, 248, 0.25);
+          box-shadow: 0 0 18px rgba(99, 102, 241, 0.12);
+          color: #a5b4fc;
+        }
+        .ps-num {
           font-family: 'Outfit', sans-serif;
-          font-size: 0.875rem;
-          font-weight: 600;
+          font-size: 1.35rem;
+          font-weight: 800;
           color: #ffffff;
+          line-height: 1.1;
         }
-        .quote-role {
-          font-size: 0.75rem;
-          color: #6b7280;
+        .ps-label {
+          font-size: 0.72rem;
+          color: #94a3b8;
+          margin-top: 2px;
           font-weight: 500;
-        }
-        .quote-dots {
-          display: flex;
-          gap: 6px;
-          margin-top: 1rem;
-        }
-        .qdot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.1);
-          transition: background 0.3s, transform 0.3s;
-        }
-        .qdot.active {
-          background: #22d3ee;
-          transform: scale(1.3);
+          white-space: nowrap;
         }
         .auth-form-side {
           display: flex;
@@ -376,7 +382,7 @@ export default function LoginPage() {
           height: 100vh;
           box-sizing: border-box;
           overflow-y: auto;
-          background: #030712;
+          background: radial-gradient(circle at 88% 85%, rgba(30, 58, 138, 0.14) 0%, transparent 60%), #020617;
         }
         .auth-form-box {
           width: 100%;
@@ -389,7 +395,7 @@ export default function LoginPage() {
           font-weight: 700;
           letter-spacing: 0.15em;
           text-transform: uppercase;
-          color: #22d3ee;
+          color: #38bdf8;
           margin-bottom: 0.75rem;
         }
         .form-title {
@@ -402,29 +408,29 @@ export default function LoginPage() {
         }
         .form-sub {
           font-size: 0.95rem;
-          color: #6b7280;
+          color: #94a3b8;
           margin-bottom: 2.25rem;
           font-weight: 500;
         }
         .auth-divider {
           height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+          background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.15), transparent);
           margin: 2rem 0;
         }
         .auth-input:focus {
-          border-color: rgba(34, 211, 238, 0.5) !important;
-          box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.1) !important;
+          border-color: rgba(56, 189, 248, 0.6) !important;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18), 0 0 20px rgba(59, 130, 246, 0.12) !important;
         }
         .auth-input::placeholder {
-          color: rgba(255, 255, 255, 0.15);
+          color: rgba(255, 255, 255, 0.25);
         }
         .auth-btn {
           width: 100%;
           padding: 0.9rem 1.5rem;
-          background: linear-gradient(135deg, #22d3ee, #34d399);
+          background: linear-gradient(135deg, #2563eb, #0284c7);
           border: none;
           border-radius: 12px;
-          color: #09090b;
+          color: #ffffff;
           font-family: 'Outfit', sans-serif;
           font-size: 0.95rem;
           font-weight: 600;
@@ -433,14 +439,14 @@ export default function LoginPage() {
           align-items: center;
           justify-content: center;
           gap: 8px;
-          box-shadow: 0 0 35px rgba(34, 211, 238, 0.25);
+          box-shadow: 0 0 32px rgba(37, 99, 235, 0.35), 0 4px 14px rgba(2, 132, 199, 0.25);
           transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
           letter-spacing: 0.01em;
           margin-top: 0.5rem;
         }
         .auth-btn:hover:not(:disabled) {
           transform: translateY(-1px);
-          box-shadow: 0 0 45px rgba(34, 211, 238, 0.45);
+          box-shadow: 0 0 45px rgba(37, 99, 235, 0.55), 0 6px 20px rgba(2, 132, 199, 0.35);
         }
         .auth-btn:active:not(:disabled) {
           transform: translateY(0);
@@ -452,8 +458,8 @@ export default function LoginPage() {
         .auth-btn-spinner {
           width: 16px;
           height: 16px;
-          border: 2px solid rgba(9, 9, 11, 0.3);
-          border-top-color: #09090b;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-top-color: #ffffff;
           border-radius: 50%;
           animation: spin 0.7s linear infinite;
         }
@@ -461,18 +467,18 @@ export default function LoginPage() {
         .auth-footer-link {
           text-align: center;
           font-size: 0.875rem;
-          color: #6b7280;
+          color: #94a3b8;
           margin-top: 1.5rem;
           font-weight: 500;
         }
         .auth-footer-link a {
-          color: #22d3ee;
+          color: #38bdf8;
           font-weight: 600;
           text-decoration: none;
           transition: color 0.2s;
         }
         .auth-footer-link a:hover {
-          color: #34d399;
+          color: #60a5fa;
         }
         .pw-wrap {
           position: relative;
@@ -485,14 +491,14 @@ export default function LoginPage() {
           background: none;
           border: none;
           cursor: pointer;
-          color: rgba(255, 255, 255, 0.3);
+          color: rgba(255, 255, 255, 0.4);
           padding: 4px;
           display: flex;
           align-items: center;
           transition: color 0.2s;
         }
         .pw-toggle:hover {
-          color: rgba(255, 255, 255, 0.7);
+          color: rgba(255, 255, 255, 0.8);
         }
         .md-hidden { display: none; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
         /* ── RGB rotating border on Google button ── */
@@ -598,27 +604,49 @@ export default function LoginPage() {
 
           <div className="panel-mid">
             <div className="panel-tag"><span className="panel-tag-dot" />Intelligent Learning</div>
-            <h2 className="panel-headline">Every exam starts<br />with <span>showing up.</span></h2>
+            <InteractiveHeadline />
             <p className="panel-sub">Structured courses, adaptive mock exams, and a streak system built to make consistency your competitive edge.</p>
             <div className="panel-stats">
-              <div><div className="ps-num">500+</div><div className="ps-label">Active Learners</div></div>
-              <div><div className="ps-num">1K+</div><div className="ps-label">Questions</div></div>
-              <div><div className="ps-num">98%</div><div className="ps-label">Satisfaction</div></div>
+              <div className="ps-item">
+                <div className="ps-icon-box ps-icon-cyan">
+                  <Users className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="ps-num">100+</div>
+                  <div className="ps-label">Active Learners</div>
+                </div>
+              </div>
+
+              <div className="ps-item">
+                <div className="ps-icon-box ps-icon-purple">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+                    <circle cx="9" cy="12" r="1" fill="currentColor" />
+                    <circle cx="15" cy="12" r="1" fill="currentColor" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="ps-num">1K+</div>
+                  <div className="ps-label">Questions</div>
+                </div>
+              </div>
+
+              <div className="ps-item">
+                <div className="ps-icon-box ps-icon-cyan">
+                  <Star className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="ps-num">98%</div>
+                  <div className="ps-label">Satisfaction</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div>
-            <div className={`quote-card ${quoteVisible ? 'q-visible' : 'q-hidden'}`}>
-              <div className="quote-mark">"</div>
-              <p className="quote-text">{q.text}</p>
-              <div className="quote-author">
-                <div className="quote-avatar">{q.author[0]}</div>
-                <div><div className="quote-name">{q.author}</div><div className="quote-role">{q.role}</div></div>
-              </div>
-            </div>
-            <div className="quote-dots">
-              {QUOTES.map((_, i) => <div key={i} className={`qdot ${i === quoteIdx ? 'active' : ''}`} />)}
-            </div>
+          <div style={{ position: 'relative', zIndex: 2 }}>
+            <span style={{ fontSize: '0.75rem', fontFamily: 'Space Grotesk, monospace', color: '#6b7280', letterSpacing: '0.04em' }}>
+              © 2026 Mentara Labs · Cambridge Primary Practice
+            </span>
           </div>
         </aside>
 
@@ -640,45 +668,69 @@ export default function LoginPage() {
                 marginBottom: '1.5rem',
                 padding: '0.85rem 1rem',
                 borderRadius: '16px',
-                background: 'rgba(34, 211, 238, 0.06)',
-                border: '1px solid rgba(34, 211, 238, 0.25)',
+                background: 'rgba(37, 99, 235, 0.08)',
+                border: '1px solid rgba(59, 130, 246, 0.28)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                boxShadow: '0 0 20px rgba(34, 211, 238, 0.1)'
+                boxShadow: '0 0 20px rgba(37, 99, 235, 0.12)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <div style={{
                     width: '38px', height: '38px', borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #22d3ee, #34d399)',
+                    background: 'linear-gradient(135deg, #2563eb, #38bdf8)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.9rem', color: '#09090b'
+                    fontFamily: 'Outfit, sans-serif', fontWeight: 700, fontSize: '0.9rem', color: '#ffffff'
                   }}>
                     {savedAccount.name ? savedAccount.name[0].toUpperCase() : (savedAccount.email ? savedAccount.email[0].toUpperCase() : 'U')}
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.68rem', fontFamily: 'Space Grotesk, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#22d3ee', fontWeight: 700 }}>Saved Account</div>
+                    <div style={{ fontSize: '0.68rem', fontFamily: 'Space Grotesk, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#38bdf8', fontWeight: 700 }}>Saved Account</div>
                     <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#ffffff', lineHeight: 1.2 }}>{savedAccount.name || savedAccount.email}</div>
-                    <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)' }}>{savedAccount.email}</div>
+                    <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)' }}>{savedAccount.email}</div>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setForm((prev) => ({ ...prev, email: savedAccount.email }))}
-                  style={{
-                    padding: '0.4rem 0.85rem',
-                    borderRadius: '50px',
-                    background: 'rgba(34, 211, 238, 0.15)',
-                    border: '1px solid rgba(34, 211, 238, 0.35)',
-                    color: '#22d3ee',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  Continue →
-                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setForm((prev) => ({ ...prev, email: savedAccount.email }))}
+                    style={{
+                      padding: '0.4rem 0.85rem',
+                      borderRadius: '50px',
+                      background: 'rgba(37, 99, 235, 0.2)',
+                      border: '1px solid rgba(56, 189, 248, 0.4)',
+                      color: '#38bdf8',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    Continue →
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      localStorage.removeItem('mentara_saved_account');
+                      setSavedAccount(null);
+                    }}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'rgba(255, 255, 255, 0.35)',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      borderRadius: '6px',
+                      transition: 'color 0.2s'
+                    }}
+                    title="Dismiss saved account"
+                    aria-label="Dismiss saved account"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
               </div>
             )}
 

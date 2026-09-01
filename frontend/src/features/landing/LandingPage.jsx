@@ -287,7 +287,7 @@ function Hero() {
           {/* Stats Row */}
           <div className="mt-7 grid grid-cols-3 gap-6 max-w-md border-t border-white/10 pt-4">
             {[
-              { stat: "500+", label: "Active learners" },
+              { stat: "100+", label: "Active learners" },
               { stat: "98%", label: "Syllabus Pass Rate" },
               { stat: "240+", label: "Interactive Labs" },
             ].map((s) => (
@@ -1249,18 +1249,15 @@ function SubjectsGrid() {
     <section id="subjects" data-testid="subjects-section" className="relative py-12 lg:py-16 bg-zinc-950 border-t border-white/5">
       <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
+        <div className="mb-10">
           <div className="max-w-xl">
             <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400 font-bold px-3.5 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/10 inline-block mb-3 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
               · SUBJECTS
             </span>
             <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-white">
-              Syllabus-Aligned <span className="bg-gradient-to-r from-cyan-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">Subjects</span>
+              Syllabus Aligned <span className="bg-gradient-to-r from-cyan-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">Subjects</span>
             </h2>
           </div>
-          <p className="text-zinc-400 text-sm sm:text-base max-w-md font-medium leading-relaxed">
-            Interactive 3D labs, drawing worksheets and auto-graded mock checkpoint papers tailored to Cambridge Primary Stage 1 to 6.
-          </p>
         </div>
 
         {/* 4-Column Clean High-Contrast Glass Subject Cards Grid */}
@@ -1308,21 +1305,21 @@ function SubjectsGrid() {
 function Testimonials() {
   const TESTIMONIAL_DATA = [
     {
-      quote: "Fractions used to be such a struggle for my son every single evening. Seeing them visually on Mentara changed everything for him. He actually enjoys practicing now and got great marks in his checkpoints!",
+      quote: "Fractions were always difficult for my son. The visual practice on Mentara has helped him understand them better.",
       name: "Aanya Sharma",
-      role: "Parent of Stage 5 Student",
+      role: "Parent",
       img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=250&q=80",
     },
     {
-      quote: "The mock exams are so close to the actual paper format. My daughter walked into her Checkpoint exam feeling totally calm and ready to go.",
+      quote: "The mock exams are pretty close to the real format. My daughter felt more prepared going into her Checkpoint.",
       name: "Marcus Hale",
-      role: "Parent of Stage 6 Student",
+      role: "Parent",
       img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=250&q=80",
     },
     {
-      quote: "The 3D science labs are so cool because I can move things around to see how shadows change. It makes studying way easier than reading a boring textbook!",
+      quote: "The 3D science labs make some topics easier to understand. I like being able to move things around and see what happens.",
       name: "Liang Wei",
-      role: "Stage 5 Cambridge Learner",
+      role: "Stage 5 Student",
       img: "https://images.pexels.com/photos/8085257/pexels-photo-8085257.jpeg?auto=compress&cs=tinysrgb&w=250",
     },
   ];
@@ -1803,41 +1800,67 @@ function Footer() {
 }
 
 function CookieBanner({ onOpenPolicy }) {
-  const [accepted, setAccepted] = useState(true);
-
-  useEffect(() => {
-    const consent = localStorage.getItem("mentara_cookie_consent");
-    if (!consent) {
-      setAccepted(false);
+  const [accepted, setAccepted] = useState(() => {
+    try {
+      const localConsent = localStorage.getItem("mentara_cookie_consent");
+      const cookieConsent = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("mentara_cookie_consent="));
+      if (localConsent || cookieConsent) {
+        if (!localConsent && cookieConsent) {
+          localStorage.setItem("mentara_cookie_consent", "true");
+        }
+        if (localConsent && !cookieConsent) {
+          document.cookie = "mentara_cookie_consent=true; path=/; max-age=31536000; SameSite=Lax";
+        }
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
     }
-  }, []);
+  });
 
-  const handleAccept = () => {
-    localStorage.setItem("mentara_cookie_consent", "true");
+  const saveConsent = (status = "true") => {
+    try {
+      localStorage.setItem("mentara_cookie_consent", status);
+      document.cookie = `mentara_cookie_consent=${status}; path=/; max-age=31536000; SameSite=Lax`;
+    } catch (e) {
+      console.error("Failed to save cookie consent", e);
+    }
     setAccepted(true);
   };
 
   if (accepted) return null;
 
   return (
-    <div className="fixed bottom-5 right-5 left-5 md:left-auto md:max-w-md z-[90] bg-zinc-950/95 border border-cyan-500/30 backdrop-blur-2xl p-4 sm:p-5 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.8)]">
+    <div className="fixed bottom-5 right-5 left-5 md:left-auto md:max-w-md z-[90] bg-zinc-950/95 border border-cyan-500/30 backdrop-blur-2xl p-4 sm:p-5 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] animate-in fade-in slide-in-from-bottom-4 duration-300">
       <div className="flex items-start gap-3">
         <span className="text-2xl shrink-0">🍪</span>
-        <div className="space-y-2">
-          <h4 className="font-display font-bold text-sm text-white">We Value Your Privacy</h4>
+        <div className="space-y-2 flex-1">
+          <div className="flex items-center justify-between">
+            <h4 className="font-display font-bold text-sm text-white">We Value Your Privacy</h4>
+            <button
+              onClick={() => saveConsent("dismissed")}
+              className="text-zinc-500 hover:text-zinc-300 p-1 -mr-1 -mt-1 rounded transition-colors cursor-pointer"
+              aria-label="Dismiss cookie notice"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
           <p className="text-xs text-zinc-400 leading-relaxed font-medium">
             Mentara Labs uses essential cookies to preserve your login session, progress, and preferences across Cambridge Primary modules.
           </p>
           <div className="flex items-center gap-3 pt-1">
             <button
-              onClick={handleAccept}
-              className="px-4 py-1.5 rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 font-bold text-xs hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] transition-all"
+              onClick={() => saveConsent("true")}
+              className="px-4 py-1.5 rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 font-bold text-xs hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] transition-all cursor-pointer"
             >
               Accept Cookies
             </button>
             <button
               onClick={onOpenPolicy}
-              className="text-xs text-zinc-400 hover:text-white font-semibold underline underline-offset-2 transition-colors"
+              className="text-xs text-zinc-400 hover:text-white font-semibold underline underline-offset-2 transition-colors cursor-pointer"
             >
               Cookie Policy
             </button>

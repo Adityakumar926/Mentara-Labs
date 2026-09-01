@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValueEvent } from "framer-motion";
 import {
-  PenTool, FileText, Box, Compass, Layers, BarChart3,
+  PenTool, Compass, Layers, BarChart3,
   ChevronRight, Sparkles, Monitor, Cpu, CheckCircle2
 } from "lucide-react";
 
@@ -21,30 +21,6 @@ const FEATURES = [
   {
     id: 2,
     number: "02",
-    tag: "DIGITAL WORKSHEETS",
-    title: "Digital Worksheets",
-    description: "Interactive drawable worksheets to practice concepts.",
-    image: "/assets/laptop_2.webp",
-    accent: "from-emerald-500 to-teal-500",
-    glowColor: "rgba(16, 185, 129, 0.35)",
-    badgeBg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
-    icon: FileText
-  },
-  {
-    id: 3,
-    number: "03",
-    tag: "SIMULATIONS",
-    title: "Simulations",
-    description: "Live 3D environments making lessons effective.",
-    image: "/assets/laptop_3.webp",
-    accent: "from-purple-500 to-pink-500",
-    glowColor: "rgba(168, 85, 247, 0.35)",
-    badgeBg: "bg-purple-500/10 text-purple-400 border-purple-500/30",
-    icon: Box
-  },
-  {
-    id: 4,
-    number: "04",
     tag: "GEOMETRY TOOLS",
     title: "Geometry Tools",
     description: "Draw angles and measure lengths with virtual rulers and protractors.",
@@ -55,8 +31,8 @@ const FEATURES = [
     icon: Compass
   },
   {
-    id: 5,
-    number: "05",
+    id: 3,
+    number: "03",
     tag: "DIFFICULTY LEVELS",
     title: "Difficulty Levels",
     description: "Questions aligned with Foundation, Developing, and Secure stages.",
@@ -67,8 +43,8 @@ const FEATURES = [
     icon: Layers
   },
   {
-    id: 6,
-    number: "06",
+    id: 4,
+    number: "04",
     tag: "LEARNING ANALYTICS",
     title: "Learning Analytics",
     description: "Granular reporting mapping masteries and velocity.",
@@ -84,7 +60,7 @@ export default function LaptopScrollShowcase() {
   const containerRef = useRef(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // Eagerly preload all 6 feature images into browser cache on mount for zero-lag instant switching
+  // Eagerly preload all feature images into browser cache on mount for zero-lag instant switching
   React.useEffect(() => {
     FEATURES.forEach((feat) => {
       const img = new Image();
@@ -97,45 +73,20 @@ export default function LaptopScrollShowcase() {
     offset: ["start start", "end end"]
   });
 
-  // Small natural sideways movement of the whole laptop
-  const rawRotateY = useTransform(
+  // Smooth subtle horizontal drift on scroll (stays 100% straight and upright)
+  const rawLaptopX = useTransform(
     scrollYProgress,
-    [0, 0.2, 0.4, 0.6, 0.8, 1],
-    [-3, 2, -2, 2, -1, 0]
+    [0, 0.33, 0.66, 1],
+    [-16, 16, -12, 0]
   );
-
-  const rotateY = useSpring(rawRotateY, {
-    stiffness: 80,
-    damping: 22,
-  });
-
-  // =====================================================
-  // LAPTOP LID CLOSING ANIMATION (Closing fully at the end)
-  // =====================================================
-  // 0°  = completely open & clear view (Feature 01)
-  // 8°  = almost open (Feature 02)
-  // 16° = screen clearly visible (Feature 03)
-  // 25° = slightly closed (Feature 04)
-  // 38° = noticeably closed (Feature 05)
-  // 55° = starting smooth closing motion (Feature 06)
-  // 88° = FULLY CLOSED FLAT (Section Exit)
-  const rawLidAngle = useTransform(
-    scrollYProgress,
-    [0, 0.2, 0.4, 0.6, 0.8, 0.92, 1],
-    [0, 8, 16, 25, 38, 55, 88]
-  );
-
-  const lidAngle = useSpring(rawLidAngle, {
-    stiffness: 70,
+  const laptopX = useSpring(rawLaptopX, {
+    stiffness: 65,
     damping: 20,
   });
 
   // Dynamic glare shift across glass screen
   const rawGlareX = useTransform(scrollYProgress, [0, 1], [-30, 30]);
   const glareX = useSpring(rawGlareX, { stiffness: 50, damping: 25 });
-
-  // Dynamic shadow under lid as it closes fully
-  const lidShadowOpacity = useTransform(lidAngle, [0, 40, 88], [0.1, 0.3, 0.65]);
 
   // Dynamic scroll index tracking
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
@@ -186,7 +137,7 @@ export default function LaptopScrollShowcase() {
       <section
         ref={containerRef}
         id="features-showcase"
-        className="relative h-[600vh] bg-zinc-950 text-zinc-100 font-sans selection:bg-cyan-500/30"
+        className="relative h-[400vh] bg-zinc-950 text-zinc-100 font-sans selection:bg-cyan-500/30"
       >
         {/* Background Grid */}
         <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
@@ -208,122 +159,102 @@ export default function LaptopScrollShowcase() {
             {/* MAIN DUAL-COLUMN LAYOUT */}
             <div className="max-w-[1440px] mx-auto px-6 lg:px-12 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
 
-              {/* LEFT COLUMN: REALISTIC 3D LAPTOP MOCKUP WITH REAL HINGE ROTATION (7 COLS) */}
-              <div className="lg:col-span-7 flex flex-col items-center justify-center relative perspective-[1400px]">
+              {/* LEFT COLUMN: REALISTIC FRONT-FACING LAPTOP (7 COLS) */}
+              <div className="lg:col-span-7 flex flex-col items-center justify-center relative">
                 <motion.div
-                  style={{
-                    rotateY,
-                    transformStyle: "preserve-3d",
-                    transformPerspective: 1400,
-                  }}
-                  className="w-full max-w-[760px] relative"
+                  style={{ x: laptopX }}
+                  className="w-full max-w-[740px] relative select-none"
                 >
-                  {/* ===================================================== */}
-                  {/* MOVING LAPTOP SCREEN / LID (ROTATING FROM BOTTOM HINGE) */}
-                  {/* ===================================================== */}
-                  <motion.div
-                    className="relative w-full aspect-[16/10]"
-                    style={{
-                      rotateX: lidAngle,
-                      transformOrigin: "50% 100%",
-                      transformStyle: "preserve-3d",
-                      zIndex: 20,
-                    }}
-                  >
-                    {/* DISPLAY SCREEN FRAME */}
-                    <div className="relative w-full h-full bg-zinc-900 rounded-[22px] p-3 shadow-[0_25px_70px_rgba(0,0,0,0.85)] border border-zinc-700/60 overflow-hidden ring-1 ring-white/10">
-                      
-                      {/* WEBCAM & BEZEL HEADER */}
-                      <div className="absolute top-1.5 inset-x-0 h-3 flex items-center justify-center gap-1.5 z-30 pointer-events-none">
-                        <div className="w-1.5 h-1.5 rounded-full bg-zinc-800 ring-1 ring-zinc-700" />
-                        <div className="w-1 h-1 rounded-full bg-emerald-500/80 animate-pulse" />
-                      </div>
-
-                      {/* MOCK BROWSER HEADER BAR INSIDE DISPLAY */}
-                      <div className="h-7 w-full bg-zinc-950/90 backdrop-blur-md border-b border-white/10 px-3.5 flex items-center justify-between z-20 relative text-[11px] font-mono text-zinc-400">
-                        <div className="flex items-center gap-1.5">
-                          <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block" />
-                          <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block" />
-                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block" />
-                        </div>
-                        <div className="flex items-center gap-2 bg-zinc-900/90 px-3 py-0.5 rounded-full border border-white/5 text-[10.5px] text-zinc-300 font-medium">
-                          <span className="text-cyan-400 font-bold">https://</span>
-                          <span>mentara.app/feature/{activeFeature.id}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-zinc-500">
-                          <Sparkles className="h-3 w-3 text-cyan-400" />
-                          <span className="hidden sm:inline text-[10px] uppercase font-bold text-zinc-400">PLATFORM</span>
-                        </div>
-                      </div>
-
-                      {/* SCREEN CONTENT VIEWPORT WITH ANIMATE PRESENCE */}
-                      <div className="relative w-full h-[calc(100%-28px)] bg-zinc-950 overflow-hidden">
-                        {/* DYNAMIC SPECULAR GLASS REFLECTION */}
-                        <motion.div
-                          style={{ x: glareX }}
-                          className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.04] to-white/[0.09] pointer-events-none z-20"
-                        />
-
-                        {/* PRE-RENDERED STACKED IMAGES LAYER FOR INSTANT ZERO-LAG SWITCHING */}
-                        {FEATURES.map((feat, index) => {
-                          const isActive = index === activeIndex;
-                          return (
-                            <motion.div
-                              key={feat.id}
-                              initial={false}
-                              animate={{
-                                opacity: isActive ? 1 : 0,
-                                scale: isActive ? 1 : 1.03,
-                                filter: isActive ? "blur(0px)" : "blur(4px)",
-                              }}
-                              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                              className="absolute inset-0 w-full h-full flex items-center justify-center bg-zinc-950 pointer-events-none"
-                              style={{ zIndex: isActive ? 10 : 1 }}
-                            >
-                              <img
-                                src={feat.image}
-                                alt={feat.title}
-                                className="w-full h-full object-cover object-top select-none"
-                                loading="eager"
-                                onError={(e) => {
-                                  e.target.style.display = "none";
-                                  if (e.target.nextSibling) {
-                                    e.target.nextSibling.style.display = "flex";
-                                  }
-                                }}
-                              />
-                              
-                              {/* Fallback Display Card */}
-                              <div className="hidden absolute inset-0 flex-col items-center justify-center p-8 text-center bg-gradient-to-b from-zinc-900 to-zinc-950">
-                                <div className={`p-4 rounded-2xl bg-gradient-to-r ${feat.accent} mb-4 shadow-xl`}>
-                                  <IconComponent className="h-10 w-10 text-white" />
-                                </div>
-                                <h4 className="text-xl font-bold text-white mb-2">{feat.title}</h4>
-                                <p className="text-sm text-zinc-400 max-w-md">{feat.description}</p>
-                              </div>
-                            </motion.div>
-                          );
-                        })}
+                  {/* LAPTOP SCREEN / LID (100% STRAIGHT & FRONT-FACING) */}
+                  <div className="relative w-full aspect-[16/10] bg-zinc-900 rounded-t-[18px] sm:rounded-t-[22px] p-2.5 sm:p-3 shadow-[0_20px_60px_rgba(0,0,0,0.9)] border border-zinc-700/80 border-b-0 overflow-hidden ring-1 ring-white/10 z-20">
+                    
+                    {/* REALISTIC WEBCAM & BEZEL NOTCH */}
+                    <div className="absolute top-0 inset-x-0 flex justify-center z-30 pointer-events-none">
+                      <div className="bg-zinc-950 px-3.5 py-1 rounded-b-lg border-b border-x border-zinc-800/80 flex items-center gap-1.5 shadow-sm">
+                        <div className="w-1.5 h-1.5 rounded-full bg-zinc-800 ring-1 ring-zinc-700/60" />
+                        <div className="w-1 h-1 rounded-full bg-emerald-500/90 animate-pulse" />
                       </div>
                     </div>
 
-                    {/* DYNAMIC LID DROP SHADOW AS IT CLOSES */}
-                    <motion.div
-                      className="absolute left-[3%] right-[3%] bottom-0 h-8 bg-black/50 blur-xl pointer-events-none"
-                      style={{ opacity: lidShadowOpacity }}
-                    />
-                  </motion.div>
+                    {/* MOCK BROWSER HEADER BAR INSIDE DISPLAY */}
+                    <div className="h-7 w-full bg-zinc-950/95 backdrop-blur-md border-b border-white/10 px-3 flex items-center justify-between z-20 relative text-[11px] font-mono text-zinc-400 rounded-t-lg">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block" />
+                      </div>
+                      <div className="flex items-center gap-2 bg-zinc-900/90 px-3 py-0.5 rounded-full border border-white/5 text-[10.5px] text-zinc-300 font-medium">
+                        <span className="text-cyan-400 font-bold">https://</span>
+                        <span>mentara.app/feature/{activeFeature.id}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-zinc-500">
+                        <Sparkles className="h-3 w-3 text-cyan-400" />
+                        <span className="hidden sm:inline text-[10px] uppercase font-bold text-zinc-400">PLATFORM</span>
+                      </div>
+                    </div>
 
-                  {/* ===================================================== */}
-                  {/* FIXED LAPTOP BASE DECK (STAYS FLAT WHILE LID ROTATES) */}
-                  {/* ===================================================== */}
-                  <div className="w-full h-2 bg-gradient-to-b from-zinc-800 to-zinc-900 mx-auto rounded-b-sm shadow-inner" />
+                    {/* SCREEN CONTENT VIEWPORT */}
+                    <div className="relative w-full h-[calc(100%-28px)] bg-zinc-950 overflow-hidden rounded-b-sm">
+                      {/* DYNAMIC SPECULAR GLASS REFLECTION */}
+                      <motion.div
+                        style={{ x: glareX }}
+                        className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-white/[0.07] pointer-events-none z-20"
+                      />
 
-                  <div className="relative w-[106%] -ml-[3%] h-4 sm:h-5 bg-gradient-to-b from-zinc-700 via-zinc-800 to-zinc-900 rounded-b-[18px] border-t border-zinc-600/50 shadow-[0_20px_40px_rgba(0,0,0,0.9)] flex items-center justify-center">
-                    <div className="w-24 h-1 bg-zinc-950/80 rounded-full border-t border-white/10" />
+                      {/* PRE-RENDERED STACKED IMAGES LAYER FOR INSTANT ZERO-LAG SWITCHING */}
+                      {FEATURES.map((feat, index) => {
+                        const isActive = index === activeIndex;
+                        return (
+                          <motion.div
+                            key={feat.id}
+                            initial={false}
+                            animate={{
+                              opacity: isActive ? 1 : 0,
+                              scale: isActive ? 1 : 1.02,
+                              filter: isActive ? "blur(0px)" : "blur(4px)",
+                            }}
+                            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                            className="absolute inset-0 w-full h-full flex items-center justify-center bg-zinc-950 pointer-events-none"
+                            style={{ zIndex: isActive ? 10 : 1 }}
+                          >
+                            <img
+                              src={feat.image}
+                              alt={feat.title}
+                              className="w-full h-full object-cover object-top select-none"
+                              loading="eager"
+                              onError={(e) => {
+                                e.target.style.display = "none";
+                                if (e.target.nextSibling) {
+                                  e.target.nextSibling.style.display = "flex";
+                                }
+                              }}
+                            />
+                            
+                            {/* Fallback Display Card */}
+                            <div className="hidden absolute inset-0 flex-col items-center justify-center p-8 text-center bg-gradient-to-b from-zinc-900 to-zinc-950">
+                              <div className={`p-4 rounded-2xl bg-gradient-to-r ${feat.accent} mb-4 shadow-xl`}>
+                                <IconComponent className="h-10 w-10 text-white" />
+                              </div>
+                              <h4 className="text-xl font-bold text-white mb-2">{feat.title}</h4>
+                              <p className="text-sm text-zinc-400 max-w-md">{feat.description}</p>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
                   </div>
 
-                  <div className="w-[90%] mx-auto h-4 bg-cyan-500/20 blur-xl rounded-full -mt-2 opacity-60" />
+                  {/* HINGE BAR */}
+                  <div className="w-[99%] mx-auto h-1.5 bg-gradient-to-r from-zinc-900 via-zinc-700 to-zinc-900 border-t border-zinc-800" />
+
+                  {/* REALISTIC LAPTOP BOTTOM BASE CHASSIS */}
+                  <div className="relative w-[105%] -ml-[2.5%] h-3.5 sm:h-4.5 bg-gradient-to-b from-zinc-700 via-zinc-800 to-zinc-900 rounded-b-[14px] sm:rounded-b-[18px] border-t border-zinc-500/40 shadow-[0_15px_35px_rgba(0,0,0,0.9)] flex items-start justify-center">
+                    {/* THUMB NOTCH OPENING CUTOUT */}
+                    <div className="w-16 sm:w-20 h-1 sm:h-1.5 bg-zinc-950/90 rounded-b-md border-b border-x border-zinc-600/30" />
+                  </div>
+
+                  {/* UNDERGLOW REFLECTION */}
+                  <div className="w-[92%] mx-auto h-3 bg-cyan-500/20 blur-lg rounded-full -mt-1 opacity-70 pointer-events-none" />
                 </motion.div>
               </div>
 
@@ -398,7 +329,7 @@ export default function LaptopScrollShowcase() {
                 </AnimatePresence>
 
                 {/* QUICK SELECTOR PILL BUTTONS */}
-                <div className="mt-8 pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <div className="mt-8 pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {FEATURES.map((f, i) => {
                     const isActive = i === activeIndex;
                     const FIcon = f.icon;

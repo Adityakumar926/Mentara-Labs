@@ -6,7 +6,7 @@ const CSS = `
 
   .auth-root {
     height: 100vh;
-    background: #030712;
+    background: #020617;
     position: relative;
     overflow: hidden;
     font-family: 'Inter', sans-serif;
@@ -16,38 +16,38 @@ const CSS = `
   /* Ambient blobs */
   .auth-blob {
     position: absolute; border-radius: 50%;
-    filter: blur(80px); pointer-events: none;
+    filter: blur(90px); pointer-events: none;
   }
   .auth-blob-1 {
-    width: 500px; height: 500px;
-    background: radial-gradient(circle, rgba(34, 211, 238, 0.12) 0%, transparent 70%);
+    width: 550px; height: 550px;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.22) 0%, rgba(29, 78, 216, 0.05) 50%, transparent 70%);
     top: -160px; left: -120px;
     animation: auth-drift1 13s ease-in-out infinite alternate;
   }
   .auth-blob-2 {
-    width: 420px; height: 420px;
-    background: radial-gradient(circle, rgba(52, 211, 153, 0.08) 0%, transparent 70%);
+    width: 480px; height: 480px;
+    background: radial-gradient(circle, rgba(14, 165, 233, 0.18) 0%, rgba(2, 132, 199, 0.04) 50%, transparent 70%);
     bottom: -120px; right: -100px;
     animation: auth-drift2 16s ease-in-out infinite alternate;
   }
   .auth-blob-3 {
-    width: 280px; height: 280px;
-    background: radial-gradient(circle, rgba(196,181,253,0.06) 0%, transparent 70%);
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
     top: 50%; left: 50%; transform: translate(-50%, -50%);
     animation: auth-pulse 9s ease-in-out infinite;
   }
   @keyframes auth-drift1 { from{transform:translate(0,0)} to{transform:translate(40px,30px)} }
   @keyframes auth-drift2 { from{transform:translate(0,0)} to{transform:translate(-35px,-25px)} }
-  @keyframes auth-pulse  { 0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(1)} 50%{opacity:1;transform:translate(-50%,-50%) scale(1.25)} }
+  @keyframes auth-pulse  { 0%,100%{opacity:.6;transform:translate(-50%,-50%) scale(1)} 50%{opacity:1;transform:translate(-50%,-50%) scale(1.25)} }
 
   /* Grid texture overlay */
   .auth-grid {
     position: absolute; inset: 0; pointer-events: none;
     background-image:
-      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      linear-gradient(rgba(59, 130, 246, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.035) 1px, transparent 1px);
     background-size: 48px 48px;
-    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(0,0,0,0.6) 0%, transparent 100%);
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(0,0,0,0.8) 0%, transparent 100%);
   }
 
   /* Card wrapper */

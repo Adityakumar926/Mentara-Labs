@@ -64,7 +64,9 @@ const useAuthStore = create((set, get) => ({
 
   logout: async () => {
     try { await authApi.logout(); } catch { /* ignore */ }
-    localStorage.clear();
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
     useNotificationStore.getState().teardownSocket();
     set({ user: null, error: null });
   },

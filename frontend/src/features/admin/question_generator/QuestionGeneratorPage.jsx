@@ -12,15 +12,66 @@ import { useApi, useMutation } from '@/hooks/useApi';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
 import html2canvas from 'html2canvas';
+import useAuthStore from '@/store/authStore';
+
+function getStudentStage(user) {
+  if (!user) return 'Stage 2';
+  const raw = user.stage || user.stage_name || user.class_name || user.grade || '';
+  if (!raw) return 'Stage 2';
+  const match = String(raw).match(/Stage\s*(\d)/i) || String(raw).match(/Primary\s*(\d)/i) || String(raw).match(/(\d)/);
+  if (match) return `Stage ${match[1]}`;
+  return 'Stage 2';
+}
+
+const DEFAULT_STRANDS_BY_SUBJECT = {
+  mathematics: [
+    'Counting & Sequences',
+    'Number & Calculation',
+    'Fractions, Decimals & Percentages',
+    'Geometry & Shapes',
+    'Measurement (Length, Mass, Capacity)',
+    'Time & Money',
+    'Statistics & Data Handling'
+  ],
+  science: [
+    'States of Matter',
+    'Biology & Living Things',
+    'Plants & Ecosystems',
+    'Light & Shadows',
+    'Forces, Magnets & Motion',
+    'Earth & Space'
+  ],
+  english: [
+    'Reading & Comprehension',
+    'Grammar & Sentence Structure',
+    'Vocabulary & Spelling',
+    'Punctuation',
+    'Creative Writing & Phonics'
+  ]
+};
 
 export default function QuestionGeneratorPage({ isSimpleMode = false }) {
   const location = useLocation();
-  const hideAdvancedOptions = isSimpleMode || (location.pathname && (location.pathname.includes('/student/') || location.pathname === '/question-generator'));
+  const user = useAuthStore(state => state.user);
+  const isStudent = user?.role === 'student' || (location.pathname && location.pathname.includes('/student/'));
+  const hideAdvancedOptions = isSimpleMode || isStudent || (location.pathname && location.pathname === '/question-generator');
 
   const [activeTab, setActiveTab] = useState('generator'); // 'generator', 'documents'
   
-  // Controls state
-  const [stage, setStage] = useState('Stage 2');
+  // Controls state - initialize stage with registered student stage if student
+  const [stage, setStage] = useState(() => {
+    if (user?.role === 'student' || (location.pathname && location.pathname.includes('/student/'))) {
+      return getStudentStage(user);
+    }
+    return 'Stage 2';
+  });
+
+  // Sync student stage whenever user object updates
+  useEffect(() => {
+    if (isStudent && user) {
+      setStage(getStudentStage(user));
+    }
+  }, [isStudent, user]);
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
   const [selectedSubjectName, setSelectedSubjectName] = useState('Mathematics');
   const [selectedTopicId, setSelectedTopicId] = useState('');
@@ -106,14 +157,20 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
   }, [filteredSubjects, selectedSubjectId]);
 
   useEffect(() => {
-    if (topics.length > 0) {
+    if (topics && topics.length > 0) {
       setSelectedTopicId(topics[0].id);
       setSelectedTopicName(topics[0].name);
     } else {
+      const subKey = (selectedSubjectName || '').toLowerCase().trim();
+      const defaultStrands = subKey.includes('math')
+        ? DEFAULT_STRANDS_BY_SUBJECT.mathematics
+        : subKey.includes('sci')
+        ? DEFAULT_STRANDS_BY_SUBJECT.science
+        : DEFAULT_STRANDS_BY_SUBJECT.english;
       setSelectedTopicId('');
-      setSelectedTopicName('General Topic');
+      setSelectedTopicName(defaultStrands[0]);
     }
-  }, [topics]);
+  }, [topics, selectedSubjectName]);
 
   // Handle RAG Document Upload to Cloudinary (folder: source_RAG)
   const handleUploadDocument = async (e) => {
@@ -161,15 +218,15 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
       const res = await adminApi.generateQuestions({
         stage,
         subject: selectedSubjectName,
-        strand: selectedTopicName,
-        substrand: additionalInstructions || 'General Practice',
-        topic: selectedTopicName,
-        subtopic: additionalInstructions,
-        count: parseInt(questionCount, 10),
+        strand: selectedTopicName || 'General Topic',
+        substrand: 'General Practice',
+        topic: selectedTopicName || 'General Topic',
+        subtopic: '',
+        count: Math.min(Math.max(parseInt(questionCount, 10) || 5, 1), 5),
         difficulty,
         format: questionType,
         question_type: questionType,
-        additional_instructions: additionalInstructions,
+        additional_instructions: '',
         ai_model: aiModel
       });
 
@@ -368,53 +425,74 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
 
   return (
     <PageWrapper title="Cambridge Primary Assessment Studio">
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: 1400, margin: '0 auto', paddingBottom: '3rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: 1440, margin: '0 auto', paddingBottom: '1.5rem' }}>
         
-        {/* ── HEADER BANNER ── */}
+        {/* ── PAGE HEADER BANNER (MATCHING EXAMS PAGE DESIGN) ── */}
         <div style={{
           position: 'relative',
-          background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(0, 212, 255, 0.1) 50%, rgba(15, 23, 42, 0.8) 100%)',
+          background: 'linear-gradient(135deg, rgba(0,212,255,0.07) 0%, rgba(124,58,237,0.1) 60%, rgba(10,14,26,0.5) 100%)',
           border: '1px solid rgba(255, 255, 255, 0.08)',
           borderRadius: 24,
-          padding: '2rem',
-          backdropFilter: 'blur(16px)',
+          padding: '1.4rem 2rem',
           overflow: 'hidden',
+          backdropFilter: 'blur(16px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           gap: '1.5rem'
         }}>
-          <div style={{ position: 'relative', zIndex: 1, maxWidth: 800 }}>
+          {/* Ambient Header Blobs */}
+          <div style={{
+            position: 'absolute', width: 240, height: 240, borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(0,212,255,0.15) 0%, transparent 70%)',
+            top: -60, left: -40, filter: 'blur(60px)', pointerEvents: 'none'
+          }} />
+          <div style={{
+            position: 'absolute', width: 200, height: 200, borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%)',
+            bottom: -50, right: 120, filter: 'blur(60px)', pointerEvents: 'none'
+          }} />
+
+          <div style={{ position: 'relative', zIndex: 1, flex: 1 }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-              background: 'rgba(0, 212, 255, 0.1)', border: '1px solid rgba(0, 212, 255, 0.25)',
-              padding: '0.35rem 0.85rem', borderRadius: 50, fontSize: '0.72rem', fontWeight: 700,
-              color: 'var(--cyan)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '0.75rem'
+              background: 'rgba(34, 211, 238, 0.08)', border: '1px solid rgba(34, 211, 238, 0.25)',
+              padding: '0.3rem 0.85rem', borderRadius: 50,
+              fontSize: '0.68rem', fontWeight: 700, color: 'var(--cyan)',
+              letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.6rem'
             }}>
-              <img src="/mentara-new.png" alt="Mentara Labs Logo" style={{ width: 18, height: 18, objectFit: 'contain' }} />
-              <span>Mentara Labs • Cambridge Primary Curriculum Generator</span>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--cyan)', boxShadow: '0 0 6px var(--cyan)' }} />
+              Assessments
             </div>
-            <h1 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '2rem', fontWeight: 800, color: '#fff', marginBottom: '0.5rem', lineHeight: 1.2 }}>
-              Cambridge Primary Assessment Studio
+            <h1 style={{
+              fontFamily: "'Outfit', sans-serif",
+              fontSize: '2rem',
+              fontWeight: 900,
+              letterSpacing: '-0.03em',
+              color: '#ffffff',
+              margin: '0 0 0.35rem 0',
+              lineHeight: 1.15
+            }}>
+              Assessment Studio
             </h1>
-            <p style={{ fontSize: '0.85rem', color: 'rgba(245, 240, 238, 0.65)', lineHeight: 1.6 }}>
-              Select your Stage, Subject, Curriculum Strand & Sub-strand to instantly generate high-contrast, authentic Cambridge Primary exam questions with student fill-in answer lines, vector diagrams, and marking schemes.
+            <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
+              Generate authentic Cambridge Primary checkpoint questions
             </p>
           </div>
         </div>
 
         {/* ── GENERATOR STUDIO ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: '1.5rem', alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: '1.25rem', alignItems: 'start' }}>
           
           {/* LEFT CONTROLS PANEL */}
           <div style={{
             background: 'rgba(15, 22, 41, 0.75)', border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: 20, padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.2rem',
-            backdropFilter: 'blur(16px)'
+            borderRadius: 16, padding: '1.15rem', display: 'flex', flexDirection: 'column', gap: '0.85rem',
+            backdropFilter: 'blur(16px)', position: 'sticky', top: '1rem'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingBottom: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-              <Sliders size={16} color="var(--cyan)" />
-              <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '0.95rem', fontWeight: 700, color: '#fff' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingBottom: '0.6rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <Sliders size={15} color="var(--cyan)" />
+              <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '0.9rem', fontWeight: 700, color: '#fff' }}>
                 Curriculum Parameters
               </span>
             </div>
@@ -441,27 +519,29 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
               </div>
             )}
 
-            {/* Stage / Curriculum */}
-            <div>
-              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
-                Curriculum Stage
-              </label>
-              <select
-                value={stage}
-                onChange={(e) => setStage(e.target.value)}
-                style={{
-                  width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 12, padding: '0.65rem 0.85rem', color: '#fff', fontSize: '0.82rem', outline: 'none'
-                }}
-              >
-                <option value="Stage 1">Stage 1 (Primary 1)</option>
-                <option value="Stage 2">Stage 2 (Primary 2)</option>
-                <option value="Stage 3">Stage 3 (Primary 3)</option>
-                <option value="Stage 4">Stage 4 (Primary 4)</option>
-                <option value="Stage 5">Stage 5 (Primary 5)</option>
-                <option value="Stage 6">Stage 6 (Primary 6)</option>
-              </select>
-            </div>
+            {/* Stage / Curriculum (Hidden for students as their registered stage is locked automatically) */}
+            {!isStudent && (
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
+                  Curriculum Stage
+                </label>
+                <select
+                  value={stage}
+                  onChange={(e) => setStage(e.target.value)}
+                  style={{
+                    width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: 12, padding: '0.65rem 0.85rem', color: '#fff', fontSize: '0.82rem', outline: 'none'
+                  }}
+                >
+                  <option value="Stage 1">Stage 1 (Primary 1)</option>
+                  <option value="Stage 2">Stage 2 (Primary 2)</option>
+                  <option value="Stage 3">Stage 3 (Primary 3)</option>
+                  <option value="Stage 4">Stage 4 (Primary 4)</option>
+                  <option value="Stage 5">Stage 5 (Primary 5)</option>
+                  <option value="Stage 6">Stage 6 (Primary 6)</option>
+                </select>
+              </div>
+            )}
 
             {/* Subject */}
             <div>
@@ -505,66 +585,58 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
               <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
                 Curriculum Strand / Topic Name
               </label>
-              {topics && topics.length > 0 && (
-                <select
-                  value={selectedTopicId}
-                  onChange={(e) => {
-                    setSelectedTopicId(e.target.value);
-                    const topObj = topics.find(t => t.id === e.target.value);
-                    if (topObj) setSelectedTopicName(topObj.name);
-                  }}
-                  style={{
-                    width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: 12, padding: '0.65rem 0.85rem', color: '#fff', fontSize: '0.82rem', outline: 'none', marginBottom: '0.5rem'
-                  }}
-                >
-                  {topics.map(t => (
+              <select
+                value={selectedTopicId || selectedTopicName}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const topObj = topics.find(t => t.id === val || t.name === val);
+                  if (topObj) {
+                    setSelectedTopicId(topObj.id);
+                    setSelectedTopicName(topObj.name);
+                  } else {
+                    setSelectedTopicId('');
+                    setSelectedTopicName(val);
+                  }
+                }}
+                style={{
+                  width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: 12, padding: '0.65rem 0.85rem', color: '#fff', fontSize: '0.82rem', outline: 'none'
+                }}
+              >
+                {topics && topics.length > 0 ? (
+                  topics.map(t => (
                     <option key={t.id} value={t.id}>{t.name}</option>
-                  ))}
-                  <option value="">Custom Topic Input Below</option>
-                </select>
-              )}
-              <input
-                type="text"
-                value={selectedTopicName}
-                onChange={(e) => setSelectedTopicName(e.target.value)}
-                placeholder="e.g. Counting & Sequences, States of Matter, Light & Shadows..."
-                style={{
-                  width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 12, padding: '0.65rem 0.85rem', color: '#fff', fontSize: '0.82rem', outline: 'none'
-                }}
-              />
-            </div>
-
-            {/* Sub-strand / Subtopic */}
-            <div>
-              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
-                Sub-strand / Focus Skill (Optional)
-              </label>
-              <input
-                type="text"
-                value={additionalInstructions}
-                onChange={(e) => setAdditionalInstructions(e.target.value)}
-                placeholder="e.g. Carroll Diagrams, Equivalent Fractions..."
-                style={{
-                  width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 12, padding: '0.65rem 0.85rem', color: '#fff', fontSize: '0.82rem', outline: 'none'
-                }}
-              />
+                  ))
+                ) : (
+                  (selectedSubjectName.toLowerCase().includes('math')
+                    ? DEFAULT_STRANDS_BY_SUBJECT.mathematics
+                    : selectedSubjectName.toLowerCase().includes('sci')
+                    ? DEFAULT_STRANDS_BY_SUBJECT.science
+                    : DEFAULT_STRANDS_BY_SUBJECT.english
+                  ).map(strand => (
+                    <option key={strand} value={strand}>{strand}</option>
+                  ))
+                )}
+              </select>
             </div>
 
             {/* Question Count & Format */}
             <div style={{ display: 'grid', gridTemplateColumns: hideAdvancedOptions ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
-                  Count ({questionCount})
-                </label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>
+                    Count
+                  </label>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--cyan)' }}>
+                    {questionCount} / 5 max
+                  </span>
+                </div>
                 <input
                   type="range"
                   min="1"
-                  max="15"
+                  max="5"
                   value={questionCount}
-                  onChange={(e) => setQuestionCount(e.target.value)}
+                  onChange={(e) => setQuestionCount(Number(e.target.value))}
                   style={{ width: '100%', accentColor: 'var(--cyan)' }}
                 />
               </div>
