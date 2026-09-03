@@ -337,7 +337,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
             <img src="${window.location.origin}/mentara-new.png" alt="Mentara Labs Logo" style="height: 36px; width: 36px; object-fit: contain;" />
             <span style="font-size: 24px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;">MENTARA LABS</span>
           </div>
-          <div style="font-size: 13px; font-weight: 700; color: #0284c7; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 14px;">CAMBRIDGE PRIMARY ASSESSMENT STUDIO</div>
+          <div style="font-size: 13px; font-weight: 700; color: #0284c7; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 14px;">CAMBRIDGE PRIMARY ASSESSMENT</div>
           <div class="meta">
             <span><strong>Stage:</strong> ${stage}</span>
             <span><strong>Subject:</strong> ${selectedSubjectName}</span>
