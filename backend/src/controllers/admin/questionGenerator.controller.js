@@ -753,18 +753,44 @@ STRICT CAMBRIDGE PRIMARY EXAM SPECIFICATIONS:
  */
 exports.saveBulkQuestions = async (req, res) => {
   try {
-    const { subject_id, topic_id, questions } = req.body;
+    const { subject_id, topic_id, questions, destination = 'shared' } = req.body;
 
     if (!subject_id || !Array.isArray(questions) || !questions.length) {
       return res.status(400).json({ success: false, message: 'subject_id and non-empty questions array are required' });
     }
 
+    const { buildCloudinaryPath } = require('../../utils/cloudinaryPathBuilder');
+    const folder = await buildCloudinaryPath({
+      topicId: topic_id,
+      subjectId: subject_id,
+      contentType: 'questions/images',
+      destination
+    });
+
+    // Upload any base64 captured images to Cloudinary in parallel batches
+    const processedQuestions = await Promise.all(
+      questions.map(async (q) => {
+        let imageUrl = q.image_url || null;
+        if (imageUrl && typeof imageUrl === 'string' && imageUrl.startsWith('data:image/')) {
+          try {
+            const base64Data = imageUrl.replace(/^data:image\/\w+;base64,/, '');
+            const buffer = Buffer.from(base64Data, 'base64');
+            const uploadRes = await cloudinaryService.uploadImage(buffer, folder);
+            imageUrl = uploadRes.url;
+          } catch (uErr) {
+            console.warn('[saveBulkQuestions] Cloudinary upload fallback warning:', uErr.message);
+          }
+        }
+        return { ...q, image_url: imageUrl };
+      })
+    );
+
     const valueTuples = [];
     const values = [];
     let paramIdx = 1;
 
-    for (let idx = 0; idx < questions.length; idx++) {
-      const q = questions[idx];
+    for (let idx = 0; idx < processedQuestions.length; idx++) {
+      const q = processedQuestions[idx];
       let formattedText = q.main_instruction || q.question_text || q.title || 'Cambridge Exam Question';
       if (Array.isArray(q.sub_parts) && q.sub_parts.length > 0) {
         const subPartsStr = q.sub_parts.map(sp => `${sp.label} ${sp.text} [${sp.marks ?? 1}]`).join('\n');
@@ -774,7 +800,7 @@ exports.saveBulkQuestions = async (req, res) => {
       let imageUrl = q.image_url || null;
 
       valueTuples.push(
-        `($${paramIdx}, $${paramIdx+1}, $${paramIdx+2}, $${paramIdx+3}, $${paramIdx+4}, $${paramIdx+5}, $${paramIdx+6}, $${paramIdx+7}, $${paramIdx+8}, $${paramIdx+9}, $${paramIdx+10}, $${paramIdx+11}, NOW() + ($${paramIdx+12} || ' milliseconds')::interval)`
+        `($${paramIdx}, $${paramIdx+1}, $${paramIdx+2}, $${paramIdx+3}, $${paramIdx+4}, $${paramIdx+5}, $${paramIdx+6}, $${paramIdx+7}, $${paramIdx+8}, $${paramIdx+9}, $${paramIdx+10}, $${paramIdx+11}, $${paramIdx+12}, NOW() + ($${paramIdx+13} || ' milliseconds')::interval)`
       );
       values.push(
         subject_id,
@@ -789,15 +815,16 @@ exports.saveBulkQuestions = async (req, res) => {
         false,
         imageUrl,
         req.user.id,
+        destination,
         idx * 10
       );
-      paramIdx += 13;
+      paramIdx += 14;
     }
 
     const { rows } = await db.query(
       `INSERT INTO public.questions
        (subject_id, topic_id, question_type, question_text, options, correct_answer,
-        explanation, difficulty, tags, is_premium, image_url, created_by, created_at)
+        explanation, difficulty, tags, is_premium, image_url, created_by, destination, created_at)
        VALUES ${valueTuples.join(', ')} RETURNING *`,
       values
     );

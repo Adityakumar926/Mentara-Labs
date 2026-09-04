@@ -378,6 +378,70 @@ function findTopicPath(topics, targetId, currentPath = []) {
   return null;
 }
 
+function getTopicsListForSubject(hierarchy, subjectId) {
+  if (!hierarchy || !subjectId) return [];
+  for (const curr of hierarchy) {
+    if (!curr?.classes) continue;
+    for (const cls of curr.classes) {
+      if (!cls?.subjects) continue;
+      for (const subj of cls.subjects) {
+        if (String(subj.id) === String(subjectId)) {
+          const flatTopics = [];
+          const traverse = (topics, prefix = '') => {
+            if (!Array.isArray(topics)) return;
+            for (const t of topics) {
+              const label = prefix ? `${prefix} > ${t.name}` : t.name;
+              flatTopics.push({ id: t.id, name: label, rawName: t.name });
+              if (t.children && t.children.length > 0) {
+                traverse(t.children, label);
+              }
+            }
+          };
+          traverse(subj.topics || []);
+          return flatTopics;
+        }
+      }
+    }
+  }
+  return [];
+}
+
+const BULK_IMAGE_EXT_REGEX = /\.(jpe?g|png|webp|gif|svg|avif|jfif|bmp|tiff)$/i;
+
+// Recursively traverse FileSystemEntry (folders and files) from drag-and-drop
+async function traverseFileTree(item, path = '') {
+  return new Promise((resolve) => {
+    if (!item) return resolve([]);
+    if (item.isFile) {
+      item.file((file) => {
+        file.webkitRelativePathOverride = path ? `${path}/${file.name}` : file.name;
+        resolve([file]);
+      }, () => resolve([]));
+    } else if (item.isDirectory) {
+      const dirReader = item.createReader();
+      const entries = [];
+      const readEntries = () => {
+        dirReader.readEntries(async (result) => {
+          if (!result || !result.length) {
+            const nestedFiles = [];
+            for (const entry of entries) {
+              const files = await traverseFileTree(entry, path ? `${path}/${item.name}` : item.name);
+              nestedFiles.push(...files);
+            }
+            resolve(nestedFiles);
+          } else {
+            entries.push(...result);
+            readEntries();
+          }
+        }, () => resolve([]));
+      };
+      readEntries();
+    } else {
+      resolve([]);
+    }
+  });
+}
+
 export default function QuestionsPage() {
   const [selectedNode, setSelectedNode] = useState(null);
   const [filters, setFilters]   = useState({ search: '', type: '', is_premium: '' });
@@ -411,23 +475,35 @@ export default function QuestionsPage() {
   };
 
   const handleBulkFileSelect = (fileList) => {
-    const validFiles = Array.from(fileList).filter(f => f.type && f.type.startsWith('image/'));
+    if (!fileList || !fileList.length) return;
+    const validFiles = Array.from(fileList).filter(f => {
+      if (!f) return false;
+      const hasMime = f.type && f.type.startsWith('image/');
+      const hasExt  = BULK_IMAGE_EXT_REGEX.test(f.name || '');
+      return hasMime || hasExt;
+    });
+
+    if (!validFiles.length) {
+      toast.error('No valid image files found. Please select PNG, JPG, WebP, GIF, or SVG images.');
+      return;
+    }
     
     // Sort input files naturally by folder path / file name (e.g. 01_q.png, 02_q.png, 10_q.png)
     validFiles.sort((a, b) => {
-      const pathA = a.webkitRelativePath || a.name || '';
-      const pathB = b.webkitRelativePath || b.name || '';
+      const pathA = a.webkitRelativePathOverride || a.webkitRelativePath || a.name || '';
+      const pathB = b.webkitRelativePathOverride || b.webkitRelativePath || b.name || '';
       return pathA.localeCompare(pathB, undefined, { numeric: true, sensitivity: 'base' });
     });
 
     const newItems = validFiles.map(file => {
-      const detectedDiff = detectDifficulty(file.name, file.webkitRelativePath);
+      const relPath = file.webkitRelativePathOverride || file.webkitRelativePath || file.name;
+      const detectedDiff = detectDifficulty(file.name, relPath);
       const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
       return {
         id: Math.random().toString(36).substring(2, 9),
         file,
         originalName: file.name,
-        relativePath: file.webkitRelativePath || file.name,
+        relativePath: relPath,
         previewUrl: URL.createObjectURL(file),
         difficulty: detectedDiff || bulkConfig.defaultDifficulty,
         questionText: bulkConfig.useFilenameAsText ? cleanName : '',
@@ -445,6 +521,34 @@ export default function QuestionsPage() {
     });
   };
 
+  const handleBulkDrop = async (e) => {
+    e.preventDefault();
+    const items = e.dataTransfer.items;
+    if (items && items.length > 0) {
+      const filePromises = [];
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (typeof item.webkitGetAsEntry === 'function') {
+          const entry = item.webkitGetAsEntry();
+          if (entry) {
+            filePromises.push(traverseFileTree(entry));
+          }
+        }
+      }
+      if (filePromises.length > 0) {
+        const results = await Promise.all(filePromises);
+        const flattened = results.flat();
+        if (flattened.length > 0) {
+          handleBulkFileSelect(flattened);
+          return;
+        }
+      }
+    }
+    if (e.dataTransfer.files?.length) {
+      handleBulkFileSelect(e.dataTransfer.files);
+    }
+  };
+
   const removeBulkFile = (id) => {
     setBulkFiles(prev => prev.filter(item => item.id !== id));
   };
@@ -455,11 +559,24 @@ export default function QuestionsPage() {
   };
 
   const openBulkModal = () => {
+    let subId = '';
+    let topId = '';
+    if (selectedNode) {
+      if (selectedNode.type === 'subject') {
+        subId = selectedNode.id;
+      } else if (selectedNode.type === 'topic') {
+        subId = selectedNode.pathIds?.subject_id || '';
+        topId = selectedNode.id;
+      } else if (selectedNode.pathIds?.subject_id) {
+        subId = selectedNode.pathIds.subject_id;
+      }
+    }
+
     const initConfig = {
       curriculum_id: selectedNode?.pathIds?.curriculum_id ?? '',
       class_id: selectedNode?.pathIds?.class_id ?? '',
-      subject_id: selectedNode?.pathIds?.subject_id ?? '',
-      topic_id: selectedNode?.pathIds?.topic_id ?? '',
+      subject_id: subId,
+      topic_id: topId,
       question_type: 'photo',
       destination: 'shared',
       is_premium: false,
@@ -569,6 +686,10 @@ export default function QuestionsPage() {
   const { data: curriculums } = useApi(adminApi.getCurriculums);
   const { data: allSubjects  } = useApi(adminApi.getSubjects);
   const { data: hierarchy } = useApi(adminApi.getHierarchy);
+
+  const bulkTopicsList = useMemo(() => {
+    return getTopicsListForSubject(hierarchy, bulkConfig.subject_id);
+  }, [hierarchy, bulkConfig.subject_id]);
 
   const subjectNode = useMemo(() => {
     if (!form.subject_id || !Array.isArray(hierarchy)) return null;
@@ -1241,15 +1362,31 @@ export default function QuestionsPage() {
                     Target Location
                   </div>
                   <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--cream)', marginTop: '0.1rem' }}>
-                    {selectedNode?.pathNames ? selectedNode.pathNames.join(' > ') : 'All Questions (Please select target subject below)'}
+                    {(() => {
+                      if (bulkConfig.subject_id) {
+                        const s = (allSubjects || []).find(x => String(x.id) === String(bulkConfig.subject_id));
+                        const t = bulkTopicsList.find(x => String(x.id) === String(bulkConfig.topic_id));
+                        const parts = [];
+                        if (s?.curriculum_name) parts.push(s.curriculum_name);
+                        if (s?.class_name) parts.push(s.class_name);
+                        if (s?.name) parts.push(s.name);
+                        if (t?.name) parts.push(t.name);
+                        return parts.length ? parts.join(' > ') : (selectedNode?.pathNames ? selectedNode.pathNames.join(' > ') : 'Selected Subject');
+                      }
+                      return selectedNode?.pathNames ? selectedNode.pathNames.join(' > ') : 'All Questions (Please select target subject below)';
+                    })()}
                   </div>
                 </div>
               </div>
-              {selectedNode?.type === 'topic' && (
+              {bulkConfig.topic_id ? (
                 <span style={{ fontSize: '0.68rem', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '50px', background: 'rgba(16,185,129,0.15)', color: '#34D399', border: '1px solid rgba(16,185,129,0.3)' }}>
-                  Topic Locked
+                  Topic Selected
                 </span>
-              )}
+              ) : bulkConfig.subject_id ? (
+                <span style={{ fontSize: '0.68rem', fontWeight: 800, padding: '0.2rem 0.6rem', borderRadius: '50px', background: 'rgba(0,212,255,0.15)', color: 'var(--cyan)', border: '1px solid rgba(0,212,255,0.3)' }}>
+                  Subject Selected
+                </span>
+              ) : null}
             </div>
 
             {/* Target Subject & Topic Selection (if not fully locked by sidebar) */}
@@ -1268,27 +1405,22 @@ export default function QuestionsPage() {
               </Select>
 
               {/* Subject topic selector */}
-              {(() => {
-                const selectedSubj = (allSubjects || []).find(s => String(s.id) === String(bulkConfig.subject_id));
-                const topicsList = selectedSubj?.topics || [];
-                return (
-                  <Select
-                    label="Target Topic (Optional)"
-                    value={bulkConfig.topic_id}
-                    onChange={(e) => setBulkConfig(p => ({ ...p, topic_id: e.target.value }))}
-                  >
-                    <option value="">All / Top-level (No topic)</option>
-                    {topicsList.map(t => (
-                      <option key={t.id} value={t.id}>{t.name}</option>
-                    ))}
-                  </Select>
-                );
-              })()}
+              <Select
+                label="Target Topic (Optional)"
+                value={bulkConfig.topic_id}
+                onChange={(e) => setBulkConfig(p => ({ ...p, topic_id: e.target.value }))}
+                disabled={!bulkConfig.subject_id}
+              >
+                <option value="">All / Top-level (No topic)</option>
+                {bulkTopicsList.map(t => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </Select>
             </div>
 
             {/* Dropzone for Files / Folder */}
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', justify: 'between', marginBottom: '0.4rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
                 <span className="qp-section-label" style={{ margin: 0 }}>Select Image Files or Folder</span>
                 {bulkFiles.length > 0 && (
                   <span style={{ fontSize: '0.75rem', color: 'var(--cyan)', fontWeight: 600, marginLeft: 'auto' }}>
@@ -1313,12 +1445,7 @@ export default function QuestionsPage() {
                   transition: 'all 0.2s'
                 }}
                 onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  if (e.dataTransfer.files?.length) {
-                    handleBulkFileSelect(e.dataTransfer.files);
-                  }
-                }}
+                onDrop={handleBulkDrop}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textAlign: 'left' }}>
                   <UploadCloud size={bulkFiles.length > 0 ? 24 : 36} style={{ color: 'var(--lavender)', flexShrink: 0 }} />

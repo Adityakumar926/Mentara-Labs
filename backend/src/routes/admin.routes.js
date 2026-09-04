@@ -140,7 +140,7 @@ router.post(
 );
 router.post(
   '/questions/bulk-upload',
-  upload('image').array('images', 50),
+  upload('image').array('images', 500),
   handleUploadError,
   qCtrl.bulkUploadImages
 );
