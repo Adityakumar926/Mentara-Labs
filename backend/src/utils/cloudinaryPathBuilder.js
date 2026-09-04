@@ -2,14 +2,19 @@ const db = require('../config/db');
 
 /**
  * Sanitizes folder names for Cloudinary path compatibility while keeping natural human readability.
- * Replaces slashes, colons, or invalid filesystem chars.
+ * Replaces illegal Cloudinary characters (&, ?, #, %, <, >, :, *, |, ", ', `, !, @, +, =, $, etc.)
+ * Translates '&' to 'and' and removes quotes/apostrophes for clean, URL-safe folder names.
  */
 function sanitizePathSegment(segment) {
   if (!segment) return 'General';
   return segment
     .trim()
-    .replace(/[\/\?\<\>\\:\*\|"']/g, '-')
-    .replace(/\s+/g, ' ');
+    .replace(/&/g, 'and')
+    .replace(/['"’`]/g, '')
+    .replace(/[\/\?\<\>\\:\*\|#%@!+=$\^~]/g, '-')
+    .replace(/\s+/g, ' ')
+    .replace(/-+/g, '-')
+    .trim() || 'General';
 }
 
 /**

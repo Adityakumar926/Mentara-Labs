@@ -310,7 +310,13 @@ exports.bulkUploadImages = async (req, res) => {
 
     const successfulUploads = uploadResults.filter(r => r && r.success);
     if (!successfulUploads.length) {
-      return res.status(500).json({ success: false, message: 'All image uploads failed' });
+      const firstError = uploadResults.find(r => r && !r.success)?.error;
+      console.error('[bulkUploadImages] All image uploads failed. First error:', firstError);
+      return res.status(500).json({
+        success: false,
+        message: firstError ? `Image upload failed: ${firstError}` : 'All image uploads failed',
+        errors: uploadResults.map(r => ({ name: r.originalName, error: r.error }))
+      });
     }
 
     // Create DB records for successful uploads in a single multi-row query while preserving exact 1-to-1 sequence

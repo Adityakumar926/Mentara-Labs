@@ -2,16 +2,60 @@ const cloudinary = require('../config/cloudinary');
 const streamifier = require('streamifier');
 
 /**
+ * Sanitizes Cloudinary folder paths to ensure all segments comply with Cloudinary rules:
+ * - Replaces '&' with 'and'
+ * - Removes single/double quotes, backticks
+ * - Replaces disallowed symbols (#, ?, %, <, >, :, *, |, !, @, +, =, $, etc.) with '-'
+ * - Collapses consecutive dashes/spaces
+ */
+const sanitizeCloudinaryFolder = (folder) => {
+  if (!folder) return 'Mentera Content';
+  return folder
+    .split('/')
+    .map((seg) =>
+      seg
+        .replace(/&/g, 'and')
+        .replace(/['"’`]/g, '')
+        .replace(/[^a-zA-Z0-9 _-]/g, '-')
+        .replace(/\s+/g, ' ')
+        .replace(/-+/g, '-')
+        .trim()
+    )
+    .filter(Boolean)
+    .join('/') || 'Mentera Content';
+};
+
+exports.sanitizeCloudinaryFolder = sanitizeCloudinaryFolder;
+
+/**
  * Sanitizes Cloudinary public_id by removing file extensions (.png, .pdf, .jpg)
- * and replacing invalid special characters (&, #, ?, %, spaces) with clean underscores.
+ * and replacing invalid special characters (&, #, ?, %, spaces) with clean characters.
  */
 const sanitizePublicId = (publicId) => {
   if (!publicId) return undefined;
   const parts = publicId.split('/');
   const filename = parts.pop();
-  const folder = parts.join('/');
+  const folder = parts
+    .map((seg) =>
+      seg
+        .replace(/&/g, 'and')
+        .replace(/['"’`]/g, '')
+        .replace(/[^a-zA-Z0-9 _-]/g, '-')
+        .replace(/\s+/g, ' ')
+        .replace(/-+/g, '-')
+        .trim()
+    )
+    .filter(Boolean)
+    .join('/');
+
   const nameWithoutExt = filename.replace(/\.[^/.]+$/, '');
-  const cleanName = nameWithoutExt.replace(/[^a-zA-Z0-9_-]/g, '_').replace(/_+/g, '_');
+  const cleanName = nameWithoutExt
+    .replace(/&/g, 'and')
+    .replace(/['"’`]/g, '')
+    .replace(/[^a-zA-Z0-9_-]/g, '_')
+    .replace(/_+/g, '_')
+    .trim();
+
   return folder ? `${folder}/${cleanName}` : cleanName;
 };
 
@@ -20,13 +64,14 @@ exports.sanitizePublicId = sanitizePublicId;
 /**
  * Uploads an image buffer to Cloudinary.
  * @param {Buffer} buffer     - File buffer from multer memoryStorage
- * @param {string} folder     - Cloudinary folder, e.g. 'avatars', 'thumbnails', 'question-images'
+ * @param {string} folder     - Cloudinary folder, e.g. 'avatars', 'thumbnails', 'questions/images'
  * @param {object} [options]  - Extra Cloudinary upload options (transformation, tags, etc.)
  * @returns {Promise<{url: string, publicId: string}>}
  */
 exports.uploadImage = async (buffer, folder, options = {}, retries = 3) => {
   let attempt = 0;
   const sanitizedOptions = { ...options };
+  const cleanFolder = sanitizeCloudinaryFolder(folder);
   if (sanitizedOptions.public_id) {
     sanitizedOptions.public_id = sanitizePublicId(sanitizedOptions.public_id);
   }
@@ -36,7 +81,7 @@ exports.uploadImage = async (buffer, folder, options = {}, retries = 3) => {
       return await new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
-            folder,
+            folder: cleanFolder,
             resource_type: 'image',
             timeout: 60000,
             ...sanitizedOptions,
@@ -66,6 +111,7 @@ exports.uploadImage = async (buffer, folder, options = {}, retries = 3) => {
 exports.uploadVideo = async (buffer, folder, options = {}, retries = 3) => {
   let attempt = 0;
   const sanitizedOptions = { ...options };
+  const cleanFolder = sanitizeCloudinaryFolder(folder);
   if (sanitizedOptions.public_id) {
     sanitizedOptions.public_id = sanitizePublicId(sanitizedOptions.public_id);
   }
@@ -75,7 +121,7 @@ exports.uploadVideo = async (buffer, folder, options = {}, retries = 3) => {
       return await new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
-            folder,
+            folder: cleanFolder,
             resource_type: 'video',
             timeout: 180000,
             ...sanitizedOptions,
@@ -96,6 +142,42 @@ exports.uploadVideo = async (buffer, folder, options = {}, retries = 3) => {
 };
 
 /**
+ * Uploads a document/raw buffer (e.g. PDF) to Cloudinary.
+ */
+exports.uploadDocument = async (buffer, folder, options = {}, retries = 3) => {
+  let attempt = 0;
+  const sanitizedOptions = { ...options };
+  const cleanFolder = sanitizeCloudinaryFolder(folder);
+  if (sanitizedOptions.public_id) {
+    sanitizedOptions.public_id = sanitizePublicId(sanitizedOptions.public_id);
+  }
+
+  while (attempt < retries) {
+    try {
+      return await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          {
+            folder: cleanFolder,
+            resource_type: 'raw',
+            timeout: 60000,
+            ...sanitizedOptions,
+          },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve({ url: result.secure_url, publicId: result.public_id });
+          }
+        );
+        streamifier.createReadStream(buffer).pipe(uploadStream);
+      });
+    } catch (err) {
+      attempt++;
+      if (attempt >= retries) throw err;
+      await new Promise((r) => setTimeout(r, attempt * 500));
+    }
+  }
+};
+
+/**
  * Deletes an image or video from Cloudinary by its public_id.
  * Store the publicId returned from uploadImage if you need to delete later.
  */
@@ -110,6 +192,7 @@ exports.deleteImage = async (publicId, options = {}) => {
 exports.uploadAudio = async (buffer, folder, options = {}, retries = 3) => {
   let attempt = 0;
   const sanitizedOptions = { ...options };
+  const cleanFolder = sanitizeCloudinaryFolder(folder);
   if (sanitizedOptions.public_id) {
     sanitizedOptions.public_id = sanitizePublicId(sanitizedOptions.public_id);
   }
@@ -119,7 +202,7 @@ exports.uploadAudio = async (buffer, folder, options = {}, retries = 3) => {
       return await new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
-            folder,
+            folder: cleanFolder,
             resource_type: 'video', // Cloudinary uses video resource_type for audio formats
             timeout: 180000,
             ...sanitizedOptions,
