@@ -14,6 +14,8 @@ import ProtectedRoute from '@/components/shared/ProtectedRoute';
 
 // Landing
 import LandingPage from '@/features/landing/LandingPage';
+import PrivacyPolicyPage from '@/features/landing/PrivacyPolicyPage';
+import TermsOfServicePage from '@/features/landing/TermsOfServicePage';
 import PaymentSuccess from '@/features/payment/PaymentSuccess';
 
 // Auth pages
@@ -52,6 +54,11 @@ import ExamTakePage         from '@/features/teacher/exams/ExamTakePage';
 import ResultPage           from '@/features/teacher/exams/ResultPage';
 import ExplorePage          from '@/features/teacher/courses/Explore';
 import StudentQuestionsPage from '@/features/teacher/questions/QuestionsPage';
+import ClassroomsPage       from '@/features/teacher/classrooms/ClassroomsPage';
+import ClassroomDetail      from '@/features/teacher/classrooms/ClassroomDetail';
+import StudentClassroomsPage from '@/features/student/classrooms/StudentClassroomsPage';
+import StudentClassroomView from '@/features/student/classrooms/StudentClassroomView';
+import ClassroomJoinPage    from '@/features/student/classrooms/ClassroomJoinPage';
 
 export default function App() {
   const fetchMe = useAuthStore((s) => s.fetchMe);
@@ -76,7 +83,9 @@ export default function App() {
       <Routes>
 
         {/* ── Landing ───────────────────────────────────────────────────── */}
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/"        element={<LandingPage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms"   element={<TermsOfServicePage />} />
 
         {/* ── Auth ──────────────────────────────────────────────────────── */}
         <Route element={<AuthLayout />}>
@@ -119,6 +128,8 @@ export default function App() {
             <Route path="/courses/:curriculumId/subjects"                    element={<SubjectsListPage />} />
             <Route path="/courses/:curriculumId/subjects/:subjectId"         element={<TopicsPage />} />
             <Route path="/courses/:curriculumId/subjects/:subjectId/topics/:topicId" element={<SubjectPage />} />
+            <Route path="/classrooms"                                         element={<ClassroomsPage />} />
+            <Route path="/classrooms/:id"                                     element={<ClassroomDetail />} />
             <Route path="/questions"                                         element={<StudentQuestionsPage />} />
             <Route path="/question-generator"                                element={<QuestionGeneratorPage isSimpleMode={true} />} />
             <Route path="/exams"                                             element={<ExamsStudentPage />} />
@@ -132,12 +143,17 @@ export default function App() {
         <Route element={<ProtectedRoute role="student" />}>
           <Route element={<StudentUserLayout />}>
             <Route path="/student/dashboard"          element={<StudentDashboardPage />} />
+            <Route path="/student/classrooms"         element={<StudentClassroomsPage />} />
+            <Route path="/student/classrooms/:id"     element={<StudentClassroomView />} />
             <Route path="/student/question-generator" element={<QuestionGeneratorPage isSimpleMode={true} />} />
             <Route path="/student/profile"            element={<ProfilePage />} />
             <Route path="/student/premium"            element={<PremiumPage />} />
             <Route path="/student/certificates"       element={<StudentCertificatesPage />} />
           </Route>
         </Route>
+
+        {/* ── Unified Classroom Join Landing Page ── */}
+        <Route path="/classroom/join/:inviteCode" element={<ClassroomJoinPage />} />
 
         {/* ── Shared Student/Teacher/Admin Exam Attempt & Results (Layout-Free) ── */}
         <Route element={<ProtectedRoute role={['student', 'teacher', 'admin']} />}>

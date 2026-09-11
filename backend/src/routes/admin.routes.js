@@ -269,8 +269,11 @@ router.patch('/students/:id/premium', async (req, res) => {
 });
 
 const settingsCtrl = require('../controllers/admin/settings.controller');
+const classroomCtrl = require('../controllers/classroom.controller');
 router.get('/settings', settingsCtrl.getSettings);
 router.put('/settings', settingsCtrl.updateSetting);
+router.get('/classroom-settings', classroomCtrl.getAdminClassroomSettings);
+router.put('/classroom-settings', classroomCtrl.updateAdminClassroomSettings);
 
 // ─── CERTIFICATES ─────────────────────────────────────────────────────────────
 router.get('/certificates', certificatesCtrl.getAdminCertificates);

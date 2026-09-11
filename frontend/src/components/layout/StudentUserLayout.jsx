@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BookOpen, User, LogOut, ChevronRight, Sparkles, Sun, Moon, Award } from 'lucide-react';
+import { BookOpen, User, LogOut, ChevronRight, Sparkles, Sun, Moon, Award, Users } from 'lucide-react';
 import useAuthStore from '@/store/authStore';
 import NotificationBell from '@/components/shared/NotificationBell';
 import VoiceTutor from '@/components/shared/VoiceTutor';
 
 const NAV = [
   { to: '/student/dashboard',          icon: BookOpen, label: 'Dashboard' },
+  { to: '/student/classrooms',         icon: Users,    label: 'Classrooms'},
   { to: '/student/question-generator', icon: Sparkles, label: 'Generator' },
   { to: '/student/certificates',       icon: Award,    label: 'Certificates' },
   { to: '/student/profile',            icon: User,     label: 'Profile'   },

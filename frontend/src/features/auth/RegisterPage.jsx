@@ -62,7 +62,11 @@ export default function RegisterPage() {
     try {
       const user = await loginWithGoogle(response.credential, selectedRole);
       toast.success(`Account resolved! Welcome, ${user.full_name.split(' ')[0]}!`);
-      navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
+      if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
+        navigate('/onboarding');
+      } else {
+        navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
+      }
     } catch (err) {
       toast.error(err.message);
     }
@@ -70,15 +74,20 @@ export default function RegisterPage() {
 
   useEffect(() => {
     const initGoogle = () => {
-      if (window.google?.accounts?.id) {
+      if (window.google?.accounts?.id && import.meta.env.VITE_GOOGLE_CLIENT_ID) {
         window.google.accounts.id.initialize({
           client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
           callback: handleGoogleCallback,
+          use_fedcm_for_prompt: false,
+          auto_select: false,
         });
-        window.google.accounts.id.renderButton(
-          document.getElementById('google-btn-container'),
-          { theme: 'filled_black', size: 'large', width: '380', shape: 'pill', text: 'signup_with' }
-        );
+        const container = document.getElementById('google-btn-container');
+        if (container) {
+          window.google.accounts.id.renderButton(
+            container,
+            { theme: 'filled_black', size: 'large', width: '380', shape: 'pill', text: 'signup_with' }
+          );
+        }
       }
     };
 

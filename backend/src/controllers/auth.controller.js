@@ -201,11 +201,13 @@ exports.googleLogin = async (req, res) => {
     }
 
     let payload;
+    const clientId = process.env.GOOGLE_CLIENT_ID;
     try {
-      if (process.env.GOOGLE_CLIENT_ID) {
-        const ticket = await googleClient.verifyIdToken({
+      if (clientId) {
+        const client = new OAuth2Client(clientId);
+        const ticket = await client.verifyIdToken({
           idToken: credential,
-          audience: process.env.GOOGLE_CLIENT_ID,
+          audience: clientId,
         });
         payload = ticket.getPayload();
       } else {
@@ -215,7 +217,7 @@ exports.googleLogin = async (req, res) => {
       console.warn('[googleLogin verifyIdToken warning, attempting JWT decode fallback]:', err.message);
       payload = jwt.decode(credential);
       if (!payload || !payload.email) {
-        throw err;
+        return res.status(401).json({ success: false, message: 'Invalid Google token: ' + err.message });
       }
     }
 
@@ -264,6 +266,6 @@ exports.googleLogin = async (req, res) => {
     res.json({ success: true, accessToken, refreshToken, user: cleanUser });
   } catch (err) {
     console.error('[googleLogin Error]', err);
-    res.status(401).json({ success: false, message: 'Google authentication failed: ' + err.message });
+    res.status(500).json({ success: false, message: 'Google authentication failed: ' + err.message });
   }
 };

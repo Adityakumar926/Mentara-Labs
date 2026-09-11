@@ -1,0 +1,247 @@
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { 
+  BookOpen, FileText, ArrowRight, Clock, Award, ShieldCheck, 
+  Calendar, CheckCircle2, AlertCircle, HelpCircle
+} from 'lucide-react';
+import { PageWrapper, Button } from '@/components/ui';
+import { classroomApi } from '@/api/services';
+import toast from 'react-hot-toast';
+
+export default function StudentClassroomView() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [classroom, setClassroom] = useState(null);
+  const [activeTab, setActiveTab] = useState('exams'); // 'exams', 'materials', 'assignments', 'announcements'
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [exams, setExams] = useState([]);
+  const [materials, setMaterials] = useState([]);
+  const [assignments, setAssignments] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
+
+  useEffect(() => {
+    fetchClassroomData();
+  }, [id]);
+
+  const fetchClassroomData = async () => {
+    try {
+      setIsLoading(true);
+      const detailRes = await classroomApi.getStudentClassroomDetail(id);
+      setClassroom(detailRes.data?.data || null);
+
+      // Fetch isolated contents in parallel
+      const [examsRes, materialsRes, assignRes, announceRes] = await Promise.all([
+        classroomApi.getStudentClassroomExams(id),
+        classroomApi.getStudentClassroomMaterials(id),
+        classroomApi.getStudentClassroomAssignments(id),
+        classroomApi.getStudentClassroomAnnouncements(id)
+      ]);
+
+      setExams(examsRes.data?.data || []);
+      setMaterials(materialsRes.data?.data || []);
+      setAssignments(assignRes.data?.data || []);
+      setAnnouncements(announceRes.data?.data || []);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Access denied: You are not an active member of this classroom');
+      navigate('/student/classrooms');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading || !classroom) {
+    return (
+      <PageWrapper title="Classroom Workspace">
+        <div style={{ textAlign: 'center', padding: '4rem 0', color: 'rgba(255,255,255,0.5)' }}>
+          Loading Isolated Classroom Content...
+        </div>
+      </PageWrapper>
+    );
+  }
+
+  return (
+    <PageWrapper title={classroom.name}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingBottom: '4rem' }}>
+        
+        {/* ── CLASSROOM HEADER BANNER ── */}
+        <div style={{
+          position: 'relative',
+          background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(6, 182, 212, 0.12) 50%, rgba(8, 12, 22, 0.9) 100%)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          borderRadius: 24,
+          padding: '2rem',
+          backdropFilter: 'blur(16px)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '1rem'
+        }}>
+          <div>
+            <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#A78BFA', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              TEACHER: {classroom.teacher_name}
+            </span>
+            <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', margin: '0.4rem 0 0.4rem 0' }}>
+              {classroom.name}
+            </h1>
+            <p style={{ fontSize: '0.88rem', color: 'rgba(255, 255, 255, 0.65)', margin: 0 }}>
+              {classroom.description || 'Welcome to your classroom batch workspace.'}
+            </p>
+          </div>
+
+          <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid #10B981', color: '#10B981', padding: '0.4rem 1rem', borderRadius: 50, fontSize: '0.78rem', fontWeight: 800 }}>
+            Verified Batch Member ✓
+          </div>
+        </div>
+
+        {/* ── TAB NAV ── */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '0.4rem',
+          background: 'rgba(14, 20, 36, 0.7)', border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: 16, padding: '0.35rem'
+        }}>
+          {[
+            { id: 'exams', label: `Assigned Exams (${exams.length})` },
+            { id: 'materials', label: `Study Materials (${materials.length})` },
+            { id: 'assignments', label: `Assignments (${assignments.length})` },
+            { id: 'announcements', label: `Announcements (${announcements.length})` }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              style={{
+                padding: '0.65rem 1.25rem', borderRadius: 12, border: 'none', fontSize: '0.85rem', fontWeight: 700,
+                cursor: 'pointer', transition: 'all 0.15s',
+                background: activeTab === tab.id ? 'linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%)' : 'transparent',
+                color: activeTab === tab.id ? '#fff' : 'rgba(255,255,255,0.6)'
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* ── TAB 1: EXAMS ── */}
+        {activeTab === 'exams' && (
+          <div>
+            {exams.length === 0 ? (
+              <div style={{ background: 'rgba(14, 20, 36, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
+                No exams assigned to this classroom yet. Check back soon!
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem' }}>
+                {exams.map(e => (
+                  <div key={e.id} style={{ background: 'rgba(14, 20, 36, 0.75)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '1.25rem' }}>
+                    <div>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#06B6D4', textTransform: 'uppercase' }}>{e.exam_type || 'Exam'}</span>
+                      <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', margin: '0.3rem 0 0.5rem 0' }}>{e.title}</h3>
+                      <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)', margin: 0 }}>Duration: {e.duration_minutes || 30} mins</p>
+                    </div>
+                    <button
+                      onClick={() => navigate(`/teacher/exams/${e.id}/take`)}
+                      style={{
+                        background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none',
+                        padding: '0.7rem', borderRadius: 12, color: '#fff', fontWeight: 800,
+                        fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem'
+                      }}
+                    >
+                      Start Assessment <ArrowRight size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── TAB 2: MATERIALS ── */}
+        {activeTab === 'materials' && (
+          <div>
+            {materials.length === 0 ? (
+              <div style={{ background: 'rgba(14, 20, 36, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
+                No study materials assigned to this classroom yet.
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem' }}>
+                {materials.map(m => (
+                  <div key={m.id} style={{ background: 'rgba(14, 20, 36, 0.75)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '1.25rem' }}>
+                    <div>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#10B981', textTransform: 'uppercase' }}>{m.content_type || 'Material'}</span>
+                      <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', margin: '0.3rem 0 0.5rem 0' }}>{m.title}</h3>
+                    </div>
+                    {m.file_url && (
+                      <a
+                        href={m.file_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)',
+                          padding: '0.65rem', borderRadius: 12, color: '#10B981', fontWeight: 700,
+                          fontSize: '0.82rem', textAlign: 'center', textDecoration: 'none'
+                        }}
+                      >
+                        Open Material ↗
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── TAB 3: ASSIGNMENTS ── */}
+        {activeTab === 'assignments' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {assignments.length === 0 ? (
+              <div style={{ background: 'rgba(14, 20, 36, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
+                No assignments posted for this batch yet.
+              </div>
+            ) : (
+              assignments.map(as => (
+                <div key={as.id} style={{ background: 'rgba(14, 20, 36, 0.75)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '1.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', margin: '0 0 0.4rem 0' }}>{as.title}</h3>
+                      <p style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.7)', margin: 0, lineHeight: 1.5 }}>{as.description}</p>
+                    </div>
+                    {as.due_date && (
+                      <span style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid #F59E0B', color: '#F59E0B', padding: '0.25rem 0.65rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700 }}>
+                        Due: {new Date(as.due_date).toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* ── TAB 4: ANNOUNCEMENTS ── */}
+        {activeTab === 'announcements' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {announcements.length === 0 ? (
+              <div style={{ background: 'rgba(14, 20, 36, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
+                No announcements broadcasted yet.
+              </div>
+            ) : (
+              announcements.map(a => (
+                <div key={a.id} style={{ background: 'rgba(14, 20, 36, 0.75)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '1.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', marginBottom: '0.4rem' }}>
+                    <span>Author: {a.author_name}</span>
+                    <span>{new Date(a.created_at).toLocaleString()}</span>
+                  </div>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff', margin: '0 0 0.35rem 0' }}>{a.title}</h3>
+                  <p style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.8)', margin: 0, lineHeight: 1.5 }}>{a.content}</p>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+      </div>
+    </PageWrapper>
+  );
+}

@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageWrapper, Button, Input } from '@/components/ui';
-import { adminApi } from '@/api/services';
+import { adminApi, classroomApi } from '@/api/services';
 import toast from 'react-hot-toast';
 
 /* ─── CSS ─── */
@@ -182,14 +182,19 @@ export default function SettingsPage() {
   const [studentPrice, setStudentPrice] = useState('39');
   const [studentDiscount, setStudentDiscount] = useState('40');
 
+  // Classroom seat limits
+  const [freeClassroomSeats, setFreeClassroomSeats] = useState('10');
+  const [maxClassroomSeats, setMaxClassroomSeats] = useState('50');
+
   const [stats, setStats] = useState({ totalTeachers: 0, premiumTeachers: 0, totalStudents: 0, premiumStudents: 0 });
 
   useEffect(() => {
     Promise.all([
       adminApi.getSettings(),
-      adminApi.getStudents()
+      adminApi.getStudents(),
+      classroomApi.getClassroomSettings()
     ])
-      .then(([settingsRes, usersRes]) => {
+      .then(([settingsRes, usersRes, classroomSettingsRes]) => {
         if (settingsRes.data.success) {
           const d = settingsRes.data.data;
           setTeacherPrice(d.premium_price || '65');
@@ -210,6 +215,11 @@ export default function SettingsPage() {
             totalStudents: students.length,
             premiumStudents: students.filter(u => u.is_premium).length,
           });
+        }
+        if (classroomSettingsRes.data?.success) {
+          const cs = classroomSettingsRes.data.data;
+          setFreeClassroomSeats(String(cs.free_classroom_seat_limit || 10));
+          setMaxClassroomSeats(String(cs.max_classroom_seat_limit || 50));
         }
       })
       .catch(() => toast.error('Failed to load configuration settings.'))
@@ -238,6 +248,8 @@ export default function SettingsPage() {
     if (!validatePct(teacherDiscount, 'Teacher discount')) return;
     if (!validateNum(studentPrice, 'Student price')) return;
     if (!validatePct(studentDiscount, 'Student discount')) return;
+    if (!validateNum(freeClassroomSeats, 'Free classroom seats')) return;
+    if (!validateNum(maxClassroomSeats, 'Max classroom seats')) return;
 
     setSaving(true);
     try {
@@ -249,8 +261,12 @@ export default function SettingsPage() {
         adminApi.updateSetting({ key: 'premium_discount',        value: String(teacherDiscount) }),
         adminApi.updateSetting({ key: 'student_premium_price',   value: String(studentPrice) }),
         adminApi.updateSetting({ key: 'student_premium_discount',value: String(studentDiscount) }),
+        classroomApi.updateClassroomSettings({
+          free_classroom_seat_limit: freeClassroomSeats,
+          max_classroom_seat_limit: maxClassroomSeats
+        })
       ]);
-      toast.success('System settings saved successfully!');
+      toast.success('System and Classroom settings saved successfully!');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to update settings.');
     } finally {
@@ -476,6 +492,50 @@ export default function SettingsPage() {
 
           {/* RIGHT COLUMN: SECURITY & INTEGRATION STATUS */}
           <div className="space-y-6">
+
+            <motion.div
+              className="set-card"
+              initial={{ opacity: 0, x: 15 }}
+              animate={{ opacity: 1, x: 0 }}
+            >
+              <div className="set-card-head">
+                <div className="set-card-title flex items-center gap-2">
+                  <Users size={18} className="text-cyan-400" />
+                  Classroom Seat Limits
+                </div>
+                <div className="set-badge set-badge-cyan">Virtual Batches</div>
+              </div>
+
+              <div className="space-y-4 mt-3">
+                <div>
+                  <label className="text-xs font-semibold text-slate-300 mb-1.5 block">
+                    Free Classroom Seat Limit
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    className="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white font-bold text-sm outline-none focus:border-cyan-400"
+                    value={freeClassroomSeats}
+                    onChange={(e) => setFreeClassroomSeats(e.target.value)}
+                  />
+                  <span className="text-[11px] text-slate-400 mt-1 block">Default seat allowance for Free teachers (e.g. 10)</span>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-slate-300 mb-1.5 block">
+                    Maximum Classroom Seat Limit
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    className="w-full bg-slate-900/60 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white font-bold text-sm outline-none focus:border-cyan-400"
+                    value={maxClassroomSeats}
+                    onChange={(e) => setMaxClassroomSeats(e.target.value)}
+                  />
+                  <span className="text-[11px] text-slate-400 mt-1 block">Upper seat allowance for Premium teachers (e.g. 50)</span>
+                </div>
+              </div>
+            </motion.div>
 
             <motion.div
               className="set-card"

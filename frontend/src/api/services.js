@@ -212,3 +212,41 @@ export const studentApi = {
 export const aiApi = {
   voiceTutor: (message, history, examContext) => api.post('/ai/voice-tutor', { message, history, examContext }),
 };
+
+// ── CLASSROOMS ────────────────────────────────────────────────────────────────
+export const classroomApi = {
+  // Public join landing info
+  getJoinInfo: (code) => api.get(`/classrooms/join-info/${code}`),
+  joinClassroom: (code, token) => api.post(`/classrooms/join/${code}${token ? `?token=${token}` : ''}`),
+
+  // Teacher Classroom Management
+  createClassroom: (data) => api.post('/classrooms', data),
+  getClassrooms: () => api.get('/classrooms'),
+  getClassroom: (id) => api.get(`/classrooms/${id}`),
+  updateClassroom: (id, data) => api.put(`/classrooms/${id}`, data),
+  archiveClassroom: (id) => api.post(`/classrooms/${id}/archive`),
+
+  // Invitations & Members
+  sendInvitation: (id, email) => api.post(`/classrooms/${id}/invitations`, { email }),
+  removeStudent: (id, studentId) => api.delete(`/classrooms/${id}/students/${studentId}`),
+
+  // Content Assignments (Teacher)
+  assignExams: (id, data) => api.post(`/classrooms/${id}/exams`, data),
+  unassignExam: (id, examId) => api.delete(`/classrooms/${id}/exams/${examId}`),
+  assignMaterials: (id, data) => api.post(`/classrooms/${id}/materials`, data),
+  unassignMaterial: (id, materialId) => api.delete(`/classrooms/${id}/materials/${materialId}`),
+  createAssignment: (id, data) => api.post(`/classrooms/${id}/assignments`, data),
+  createAnnouncement: (id, data) => api.post(`/classrooms/${id}/announcements`, data),
+
+  // Isolated Student Endpoints
+  getStudentClassrooms: () => api.get('/classrooms/student/list'),
+  getStudentClassroomDetail: (id) => api.get(`/classrooms/student/${id}`),
+  getStudentClassroomExams: (id) => api.get(`/classrooms/student/${id}/exams`),
+  getStudentClassroomMaterials: (id) => api.get(`/classrooms/student/${id}/materials`),
+  getStudentClassroomAssignments: (id) => api.get(`/classrooms/student/${id}/assignments`),
+  getStudentClassroomAnnouncements: (id) => api.get(`/classrooms/student/${id}/announcements`),
+
+  // Admin Settings
+  getClassroomSettings: () => api.get('/admin/classroom-settings'),
+  updateClassroomSettings: (data) => api.put('/admin/classroom-settings', data),
+};

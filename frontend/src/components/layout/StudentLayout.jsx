@@ -1,13 +1,14 @@
 import { useEffect, useState, useRef } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BookOpen, FileText, User, LogOut, Compass, HelpCircle, ChevronRight, Sparkles, Sun, Moon, PenTool, Eraser, RotateCcw, Maximize2, Minimize2, Square, Triangle, Circle, Minus, Ruler, Download, Undo, Redo, Trash2, Grid, Zap } from 'lucide-react';
+import { BookOpen, FileText, User, LogOut, Compass, HelpCircle, ChevronRight, Sparkles, Sun, Moon, PenTool, Eraser, RotateCcw, Maximize2, Minimize2, Square, Triangle, Circle, Minus, Ruler, Download, Undo, Redo, Trash2, Grid, Zap, Users } from 'lucide-react';
 import useAuthStore from '@/store/authStore';
 import NotificationBell from '@/components/shared/NotificationBell';
 import VoiceTutor from '@/components/shared/VoiceTutor';
 
 const NAV = [
   { to: '/courses',            icon: BookOpen,   label: 'Courses'   },
+  { to: '/classrooms',         icon: Users,      label: 'Classrooms'},
   { to: '/explore',            icon: Compass,    label: 'Explore'   },
   { to: '/question-generator', icon: Sparkles,   label: 'Generator' },
   { to: '/exams',              icon: FileText,   label: 'Exams'     },
