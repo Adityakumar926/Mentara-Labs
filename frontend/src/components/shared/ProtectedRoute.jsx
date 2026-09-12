@@ -14,7 +14,8 @@ export default function ProtectedRoute({ role }) {
   }
 
   // Redirect student/teacher to onboarding if not onboarded yet
-  if (['student', 'teacher'].includes(user.role) && !user.onboarded && location.pathname !== '/onboarding') {
+  const isClassroomPath = location.pathname.startsWith('/classroom/join/') || location.pathname.startsWith('/student/classrooms');
+  if (['student', 'teacher'].includes(user.role) && !user.onboarded && location.pathname !== '/onboarding' && !isClassroomPath) {
     return <Navigate to="/onboarding" replace />;
   }
 

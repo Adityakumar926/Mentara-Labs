@@ -4,8 +4,9 @@ const { protect } = require('../middleware/auth.middleware');
 const { authorize } = require('../middleware/role.middleware');
 const classroomCtrl = require('../controllers/classroom.controller');
 
-// ─── PUBLIC JOIN DISCOVERY ──────────────────────────────────────────────────
+// ─── PUBLIC JOIN DISCOVERY & EMAIL VERIFICATION ────────────────────────────
 router.get('/join-info/:inviteCode', classroomCtrl.getJoinInfo);
+router.post('/verify-join-email', classroomCtrl.verifyJoinEmail);
 
 // All subsequent routes require authentication
 router.use(protect);

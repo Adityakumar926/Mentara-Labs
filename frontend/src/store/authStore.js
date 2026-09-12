@@ -105,6 +105,17 @@ const useAuthStore = create((set, get) => ({
 
   clearError: () => set({ error: null }),
 
+  setAuthData: ({ accessToken, refreshToken, user }) => {
+    if (accessToken) localStorage.setItem('accessToken', accessToken);
+    if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+      set({ user });
+      useNotificationStore.getState().initSocket(accessToken);
+      useNotificationStore.getState().fetch();
+    }
+  },
+
   // Helpers
   isAdmin:   () => get().user?.role === 'admin',
   isPremium: () => get().user?.is_premium === true,
