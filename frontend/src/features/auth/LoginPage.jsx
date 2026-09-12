@@ -109,37 +109,37 @@ export default function LoginPage() {
     }
   };
 
-  useEffect(() => {
-    const initGoogle = () => {
-      if (window.google?.accounts?.id && import.meta.env.VITE_GOOGLE_CLIENT_ID) {
-        window.google.accounts.id.initialize({
-          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-          callback: handleGoogleCallback,
-          use_fedcm_for_prompt: false,
-          auto_select: false,
-        });
-        const container = document.getElementById('google-btn-container');
-        if (container) {
-          window.google.accounts.id.renderButton(
-            container,
-            { theme: 'filled_black', size: 'large', width: '380', shape: 'pill', text: 'continue_with' }
-          );
-        }
-      }
-    };
-
-    if (!document.getElementById('google-gsi-client')) {
-      const script = document.createElement('script');
-      script.id = 'google-gsi-client';
-      script.src = 'https://accounts.google.com/gsi/client';
-      script.async = true;
-      script.defer = true;
-      script.onload = initGoogle;
-      document.body.appendChild(script);
-    } else {
-      initGoogle();
+  const triggerGoogleLogin = () => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      toast.error('Google Client ID is missing');
+      return;
     }
-  }, []);
+    const redirectUri = window.location.origin + '/login';
+    const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent('openid email profile')}&prompt=select_account`;
+    window.location.href = googleAuthUrl;
+  };
+
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash && hash.includes('access_token=')) {
+      const params = new URLSearchParams(hash.replace('#', '?'));
+      const accessToken = params.get('access_token');
+      if (accessToken) {
+        window.history.replaceState(null, '', window.location.pathname);
+        loginWithGoogle({ access_token: accessToken })
+          .then((user) => {
+            toast.success(`Welcome back, ${user.full_name.split(' ')[0]}!`);
+            if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
+              navigate('/onboarding');
+            } else {
+              navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
+            }
+          })
+          .catch((err) => toast.error(err.message));
+      }
+    }
+  }, [loginWithGoogle, navigate]);
 
   const validate = () => {
     const e = {};
@@ -784,7 +784,7 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <div className="google-btn-wrapper">
+            <div className="google-btn-wrapper" onClick={triggerGoogleLogin} style={{ cursor: 'pointer' }}>
               <div className="custom-google-btn">
                 <svg width="20" height="20" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -793,9 +793,6 @@ export default function LoginPage() {
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
                 </svg>
                 <span>Continue with Google</span>
-              </div>
-              <div className="real-google-btn-overlay">
-                <div id="google-btn-container" style={{ width: '100%', height: '100%' }} />
               </div>
             </div>
 
