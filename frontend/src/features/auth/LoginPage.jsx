@@ -572,7 +572,7 @@ export default function LoginPage() {
         .real-google-btn-overlay {
           position: absolute;
           inset: 0;
-          opacity: 0.01;
+          opacity: 1;
           z-index: 10;
           cursor: pointer;
           display: flex;
