@@ -72,37 +72,64 @@ export default function RegisterPage() {
     }
   };
 
+  useEffect(() => {
+    if (!document.getElementById('google-gsi-client')) {
+      const script = document.createElement('script');
+      script.id = 'google-gsi-client';
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+    }
+  }, []);
+
   const triggerGoogleLogin = () => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     if (!clientId) {
       toast.error('Google Client ID is missing');
       return;
     }
-    const redirectUri = window.location.origin + '/register';
-    const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent('openid email profile')}&prompt=select_account`;
-    window.location.href = googleAuthUrl;
-  };
 
-  useEffect(() => {
-    const hash = window.location.hash;
-    if (hash && hash.includes('access_token=')) {
-      const params = new URLSearchParams(hash.replace('#', '?'));
-      const accessToken = params.get('access_token');
-      if (accessToken) {
-        window.history.replaceState(null, '', window.location.pathname);
-        loginWithGoogle({ access_token: accessToken }, selectedRole)
-          .then((user) => {
-            toast.success(`Account resolved! Welcome, ${user.full_name.split(' ')[0]}!`);
-            if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
-              navigate('/onboarding');
-            } else {
-              navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
+    const startOAuthPopup = () => {
+      if (window.google?.accounts?.oauth2) {
+        const client = window.google.accounts.oauth2.initTokenClient({
+          client_id: clientId,
+          scope: 'openid email profile',
+          callback: async (tokenResponse) => {
+            if (tokenResponse?.access_token) {
+              try {
+                const user = await loginWithGoogle({ access_token: tokenResponse.access_token }, selectedRole);
+                toast.success(`Account resolved! Welcome, ${user.full_name.split(' ')[0]}!`);
+                if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
+                  navigate('/onboarding');
+                } else {
+                  navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
+                }
+              } catch (err) {
+                toast.error(err.message || 'Google authentication failed');
+              }
             }
-          })
-          .catch((err) => toast.error(err.message));
+          },
+        });
+        client.requestAccessToken();
+      } else {
+        toast.error('Google Auth SDK is loading, please try again in a moment');
       }
+    };
+
+    if (!window.google?.accounts?.oauth2) {
+      if (!document.getElementById('google-gsi-client')) {
+        const script = document.createElement('script');
+        script.id = 'google-gsi-client';
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.onload = startOAuthPopup;
+        document.body.appendChild(script);
+      }
+    } else {
+      startOAuthPopup();
     }
-  }, [loginWithGoogle, navigate, selectedRole]);
+  };
 
   return (
     <>
