@@ -96,6 +96,9 @@ export default function RegisterPage() {
           client_id: clientId,
           scope: 'openid email profile',
           callback: async (tokenResponse) => {
+            if (tokenResponse?.error) {
+              return toast.error(tokenResponse.error_description || 'Google sign-up cancelled');
+            }
             if (tokenResponse?.access_token) {
               try {
                 const user = await loginWithGoogle({ access_token: tokenResponse.access_token }, selectedRole);
@@ -113,12 +116,17 @@ export default function RegisterPage() {
         });
         client.requestAccessToken();
       } else {
-        toast.error('Google Auth SDK is loading, please try again in a moment');
+        toast.error('Google Auth SDK is loading, please try clicking again');
       }
     };
 
-    if (!window.google?.accounts?.oauth2) {
-      if (!document.getElementById('google-gsi-client')) {
+    if (window.google?.accounts?.oauth2) {
+      startOAuthPopup();
+    } else {
+      const existingScript = document.getElementById('google-gsi-client');
+      if (existingScript) {
+        existingScript.onload = startOAuthPopup;
+      } else {
         const script = document.createElement('script');
         script.id = 'google-gsi-client';
         script.src = 'https://accounts.google.com/gsi/client';
@@ -126,8 +134,6 @@ export default function RegisterPage() {
         script.onload = startOAuthPopup;
         document.body.appendChild(script);
       }
-    } else {
-      startOAuthPopup();
     }
   };
 

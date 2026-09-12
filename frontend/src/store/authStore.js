@@ -44,10 +44,11 @@ const useAuthStore = create((set, get) => ({
     }
   },
 
-  loginWithGoogle: async (credential, role = 'student') => {
+  loginWithGoogle: async (payload, role = 'student') => {
     set({ loading: true, error: null });
     try {
-      const { data } = await authApi.googleLogin({ credential, role });
+      const body = typeof payload === 'object' ? { ...payload, role } : { credential: payload, role };
+      const { data } = await authApi.googleLogin(body);
       localStorage.setItem('accessToken',  data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
       localStorage.setItem('user', JSON.stringify(data.user));

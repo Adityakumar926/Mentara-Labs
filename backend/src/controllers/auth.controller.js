@@ -195,29 +195,39 @@ exports.onboard = async (req, res) => {
 // Google OAuth Sign-In / Sign-Up
 exports.googleLogin = async (req, res) => {
   try {
-    const { credential } = req.body;
-    if (!credential) {
-      return res.status(400).json({ success: false, message: 'Google credential is required' });
+    const { credential, access_token } = req.body;
+    if (!credential && !access_token) {
+      return res.status(400).json({ success: false, message: 'Google credential or access token is required' });
     }
 
     let payload;
-    const clientId = process.env.GOOGLE_CLIENT_ID;
-    try {
-      if (clientId) {
-        const client = new OAuth2Client(clientId);
-        const ticket = await client.verifyIdToken({
-          idToken: credential,
-          audience: clientId,
-        });
-        payload = ticket.getPayload();
-      } else {
-        payload = jwt.decode(credential);
+
+    if (access_token) {
+      // Fetch user profile from Google UserInfo API using access_token
+      const googleRes = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${access_token}`);
+      if (!googleRes.ok) {
+        return res.status(401).json({ success: false, message: 'Failed to fetch user profile from Google' });
       }
-    } catch (err) {
-      console.warn('[googleLogin verifyIdToken warning, attempting JWT decode fallback]:', err.message);
-      payload = jwt.decode(credential);
-      if (!payload || !payload.email) {
-        return res.status(401).json({ success: false, message: 'Invalid Google token: ' + err.message });
+      payload = await googleRes.json();
+    } else if (credential) {
+      const clientId = process.env.GOOGLE_CLIENT_ID;
+      try {
+        if (clientId) {
+          const client = new OAuth2Client(clientId);
+          const ticket = await client.verifyIdToken({
+            idToken: credential,
+            audience: clientId,
+          });
+          payload = ticket.getPayload();
+        } else {
+          payload = jwt.decode(credential);
+        }
+      } catch (err) {
+        console.warn('[googleLogin verifyIdToken warning, attempting JWT decode fallback]:', err.message);
+        payload = jwt.decode(credential);
+        if (!payload || !payload.email) {
+          return res.status(401).json({ success: false, message: 'Invalid Google token: ' + err.message });
+        }
       }
     }
 
