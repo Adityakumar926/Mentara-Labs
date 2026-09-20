@@ -762,7 +762,7 @@ export default function StudentDashboardPage() {
   };
 
   const handleOpenAnimation = async (content) => {
-    if (!content?.animation_id) {
+    if (!content?.animation_id && !content?.file_url && !content?.url) {
       toast.error('Simulation ID is missing.');
       return;
     }
@@ -784,19 +784,38 @@ export default function StudentDashboardPage() {
     }
 
     try {
-      const animRes = await studentApi.getAnimation(content.animation_id);
-      const animData = animRes.data?.data || animRes.data || animRes;
-      const targetUrl = animData?.sim_url || animData?.preview_url || animData?.animation_url || animData?.url;
+      let animData = null;
+      if (content.animation_id) {
+        const animRes = await studentApi.getAnimation(content.animation_id);
+        animData = animRes.data?.data ?? animRes.data ?? animRes;
+      }
 
-      if (targetUrl) {
-        if (animWindow) {
-          animWindow.location.href = targetUrl;
-        } else {
-          window.open(targetUrl, '_blank');
-        }
+      if (animData?.html_content && animWindow) {
+        animWindow.document.open();
+        animWindow.document.write(animData.html_content);
+        animWindow.document.close();
+        toast.success('Simulation ready!');
       } else {
-        if (animWindow) animWindow.close();
-        toast.error('Simulation URL not available.');
+        const targetUrl = animData?.sim_url || animData?.preview_url || animData?.animation_url || animData?.url || animData?.file_url || content?.file_url || content?.url;
+        if (targetUrl) {
+          if (animWindow) {
+            animWindow.location.href = targetUrl;
+          } else {
+            window.open(targetUrl, '_blank');
+          }
+          toast.success('Simulation ready!');
+        } else {
+          if (animWindow) animWindow.close();
+          toast.error('Simulation content not available.');
+        }
+      }
+
+      if (content?.id) {
+        try {
+          await studentApi.trackResource({ contentId: content.id, completed: true });
+        } catch (e) {
+          /* ignore */
+        }
       }
     } catch (e) {
       if (animWindow) animWindow.close();
