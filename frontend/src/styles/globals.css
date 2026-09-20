@@ -93,6 +93,16 @@
   ::-webkit-scrollbar-thumb { @apply bg-surface-border rounded-full; }
   ::-webkit-scrollbar-thumb:hover { @apply bg-indigo-400; }
 
+  select option {
+    background-color: #0F172A !important;
+    color: #F8FAFC !important;
+    padding: 10px 14px;
+  }
+  .light select option {
+    background-color: #FFFFFF !important;
+    color: #0F172A !important;
+  }
+
   ::selection { @apply bg-indigo text-white; }
   :focus-visible { @apply outline-none ring-2 ring-indigo ring-offset-2 ring-offset-navy rounded; }
 }

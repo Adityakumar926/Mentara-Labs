@@ -429,57 +429,109 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
 
   return (
     <PageWrapper title="Cambridge Primary Assessment Studio">
+      <style>{`
+        .qg-select {
+          width: 100%;
+          background-color: #1E293B !important;
+          border: 1px solid #334155 !important;
+          border-radius: 10px !important;
+          padding: 0.65rem 0.85rem !important;
+          color: #F8FAFC !important;
+          font-size: 0.84rem !important;
+          font-weight: 600 !important;
+          outline: none !important;
+          cursor: pointer !important;
+          transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+          appearance: auto;
+        }
+        .qg-select:hover {
+          border-color: #475569 !important;
+        }
+        .qg-select:focus {
+          border-color: #2563EB !important;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25) !important;
+        }
+        .qg-select option {
+          background-color: #0F172A !important;
+          color: #F8FAFC !important;
+          padding: 10px 14px !important;
+          font-size: 0.88rem !important;
+        }
+        .qg-select option:hover,
+        .qg-select option:focus,
+        .qg-select option:checked {
+          background-color: #1E293B !important;
+          color: #38BDF8 !important;
+        }
+        .qg-btn-generate {
+          width: 100%;
+          padding: 0.85rem 1.25rem;
+          border-radius: 12px;
+          border: none;
+          background: #2563EB;
+          color: #FFFFFF;
+          font-family: 'Inter', sans-serif;
+          font-size: 0.92rem;
+          font-weight: 700;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+          transition: all 0.2s ease;
+          margin-top: 0.5rem;
+        }
+        .qg-btn-generate:hover {
+          background: #1D4ED8;
+          box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+          transform: translateY(-1px);
+        }
+        .qg-btn-generate:disabled {
+          background: #475569;
+          cursor: not-allowed;
+          box-shadow: none;
+          transform: none;
+        }
+      `}</style>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: 1440, margin: '0 auto', paddingBottom: '1.5rem' }}>
         
-        {/* ── PAGE HEADER BANNER (MATCHING EXAMS PAGE DESIGN) ── */}
+        {/* ── PAGE HEADER BANNER ── */}
         <div style={{
           position: 'relative',
-          background: 'linear-gradient(135deg, rgba(0,212,255,0.07) 0%, rgba(124,58,237,0.1) 60%, rgba(10,14,26,0.5) 100%)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          borderRadius: 24,
+          background: '#0F172A',
+          border: '1px solid #1E293B',
+          borderRadius: 20,
           padding: '1.4rem 2rem',
-          overflow: 'hidden',
-          backdropFilter: 'blur(16px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '1.5rem'
+          gap: '1.5rem',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25)'
         }}>
-          {/* Ambient Header Blobs */}
-          <div style={{
-            position: 'absolute', width: 240, height: 240, borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(0,212,255,0.15) 0%, transparent 70%)',
-            top: -60, left: -40, filter: 'blur(60px)', pointerEvents: 'none'
-          }} />
-          <div style={{
-            position: 'absolute', width: 200, height: 200, borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%)',
-            bottom: -50, right: 120, filter: 'blur(60px)', pointerEvents: 'none'
-          }} />
-
           <div style={{ position: 'relative', zIndex: 1, flex: 1 }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-              background: 'rgba(34, 211, 238, 0.08)', border: '1px solid rgba(34, 211, 238, 0.25)',
+              background: '#1E293B', border: '1px solid #334155',
               padding: '0.3rem 0.85rem', borderRadius: 50,
-              fontSize: '0.68rem', fontWeight: 700, color: 'var(--cyan)',
-              letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.6rem'
+              fontSize: '0.72rem', fontWeight: 700, color: '#38BDF8',
+              letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '0.6rem'
             }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--cyan)', boxShadow: '0 0 6px var(--cyan)' }} />
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#38BDF8' }} />
               Assessments
             </div>
             <h1 style={{
-              fontFamily: "'Outfit', sans-serif",
-              fontSize: '2rem',
-              fontWeight: 900,
-              letterSpacing: '-0.03em',
+              fontFamily: "'Inter', sans-serif",
+              fontSize: '1.85rem',
+              fontWeight: 800,
+              letterSpacing: '-0.02em',
               color: '#ffffff',
               margin: '0 0 0.35rem 0',
               lineHeight: 1.15
             }}>
               Assessment Studio
             </h1>
-            <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: 0, lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.85rem', color: '#94A3B8', margin: 0, lineHeight: 1.5 }}>
               Generate authentic Cambridge Primary checkpoint questions
             </p>
           </div>
@@ -490,65 +542,59 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
           
           {/* LEFT CONTROLS PANEL */}
           <div style={{
-            background: 'rgba(15, 22, 41, 0.75)', border: '1px solid rgba(255, 255, 255, 0.08)',
-            borderRadius: 16, padding: '1.15rem', display: 'flex', flexDirection: 'column', gap: '0.85rem',
-            backdropFilter: 'blur(16px)', position: 'sticky', top: '1rem'
+            background: '#0F172A', border: '1px solid #1E293B',
+            borderRadius: 16, padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem',
+            position: 'sticky', top: '1rem', boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingBottom: '0.6rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-              <Sliders size={15} color="var(--cyan)" />
-              <span style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '0.9rem', fontWeight: 700, color: '#fff' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingBottom: '0.65rem', borderBottom: '1px solid #1E293B' }}>
+              <Sliders size={16} color="#38BDF8" />
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.92rem', fontWeight: 700, color: '#F8FAFC' }}>
                 Curriculum Parameters
               </span>
             </div>
 
-            {/* AI Engine Model (Hidden in Student & Teacher simplified mode) */}
+            {/* AI Engine Model */}
             {!hideAdvancedOptions && (
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--cyan)', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#38BDF8', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                   <Sparkles size={13} /> Gemini AI Model Engine
                 </label>
                 <select
                   value={aiModel}
                   onChange={(e) => setAiModel(e.target.value)}
-                  style={{
-                    width: '100%', background: 'rgba(0,212,255,0.06)', border: '1px solid rgba(0,212,255,0.3)',
-                    borderRadius: 12, padding: '0.65rem 0.85rem', color: '#fff', fontSize: '0.82rem', outline: 'none', fontWeight: 600
-                  }}
+                  className="qg-select"
                 >
-                  <option value="gemini-3.6-flash">Gemini 3.6 Flash (Recommended Active Fast)</option>
-                  <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro (Recommended High Reasoning)</option>
-                  <option value="gemini-3.5-flash">Gemini 3.5 Flash</option>
-                  <option value="gemini-flash-latest">Gemini Flash Latest</option>
+                  <option value="gemini-3.6-flash" style={{ background: '#0F172A', color: '#F8FAFC' }}>Gemini 3.6 Flash (Recommended Active Fast)</option>
+                  <option value="gemini-3.1-pro-preview" style={{ background: '#0F172A', color: '#F8FAFC' }}>Gemini 3.1 Pro (Recommended High Reasoning)</option>
+                  <option value="gemini-3.5-flash" style={{ background: '#0F172A', color: '#F8FAFC' }}>Gemini 3.5 Flash</option>
+                  <option value="gemini-flash-latest" style={{ background: '#0F172A', color: '#F8FAFC' }}>Gemini Flash Latest</option>
                 </select>
               </div>
             )}
 
-            {/* Grade Selection (Hidden for students as their registered stage is locked automatically) */}
+            {/* Grade Selection */}
             {!isStudent && (
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
+                <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
                   Select Grade
                 </label>
                 <select
                   value={stage}
                   onChange={(e) => setStage(e.target.value)}
-                  style={{
-                    width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: 12, padding: '0.65rem 0.85rem', color: '#fff', fontSize: '0.82rem', outline: 'none'
-                  }}
+                  className="qg-select"
                 >
-                  <option value="Stage 2">Grade 1 (Stage 2)</option>
-                  <option value="Stage 3">Grade 2 (Stage 3)</option>
-                  <option value="Stage 4">Grade 3 (Stage 4)</option>
-                  <option value="Stage 5">Grade 4 (Stage 5)</option>
-                  <option value="Stage 6">Grade 5 (Stage 6)</option>
+                  <option value="Stage 2" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 1 (Stage 2)</option>
+                  <option value="Stage 3" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 2 (Stage 3)</option>
+                  <option value="Stage 4" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 3 (Stage 4)</option>
+                  <option value="Stage 5" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 4 (Stage 5)</option>
+                  <option value="Stage 6" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 5 (Stage 6)</option>
                 </select>
               </div>
             )}
 
             {/* Subject */}
             <div>
-              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
+              <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
                 Subject
               </label>
               <select
@@ -558,7 +604,6 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                   setSelectedSubjectName(name);
                   const subObj = filteredSubjects.find(s => s.name.toLowerCase() === name.toLowerCase());
                   if (subObj) setSelectedSubjectId(subObj.id);
-                  // Update default topic based on subject
                   if (name.toLowerCase().includes('sci')) {
                     setSelectedTopicName('States of Matter');
                   } else if (name.toLowerCase().includes('eng')) {
@@ -567,17 +612,14 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                     setSelectedTopicName('Counting & Sequences');
                   }
                 }}
-                style={{
-                  width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 12, padding: '0.65rem 0.85rem', color: '#fff', fontSize: '0.82rem', outline: 'none'
-                }}
+                className="qg-select"
               >
-                <option value="Mathematics">Mathematics</option>
-                <option value="Science">Science</option>
-                <option value="English">English</option>
+                <option value="Mathematics" style={{ background: '#0F172A', color: '#F8FAFC' }}>Mathematics</option>
+                <option value="Science" style={{ background: '#0F172A', color: '#F8FAFC' }}>Science</option>
+                <option value="English" style={{ background: '#0F172A', color: '#F8FAFC' }}>English</option>
                 {filteredSubjects.map(s => (
                   !['mathematics', 'science', 'english'].includes(s.name.toLowerCase()) && (
-                    <option key={s.id} value={s.name}>{s.name}</option>
+                    <option key={s.id} value={s.name} style={{ background: '#0F172A', color: '#F8FAFC' }}>{s.name}</option>
                   )
                 ))}
               </select>
@@ -585,7 +627,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
 
             {/* Topic / Strand */}
             <div>
-              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
+              <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
                 Curriculum Strand / Topic Name
               </label>
               <select
@@ -601,14 +643,11 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                     setSelectedTopicName(val);
                   }
                 }}
-                style={{
-                  width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 12, padding: '0.65rem 0.85rem', color: '#fff', fontSize: '0.82rem', outline: 'none'
-                }}
+                className="qg-select"
               >
                 {topics && topics.length > 0 ? (
                   topics.map(t => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
+                    <option key={t.id} value={t.id} style={{ background: '#0F172A', color: '#F8FAFC' }}>{t.name}</option>
                   ))
                 ) : (
                   (selectedSubjectName.toLowerCase().includes('math')
@@ -617,7 +656,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                     ? DEFAULT_STRANDS_BY_SUBJECT.science
                     : DEFAULT_STRANDS_BY_SUBJECT.english
                   ).map(strand => (
-                    <option key={strand} value={strand}>{strand}</option>
+                    <option key={strand} value={strand} style={{ background: '#0F172A', color: '#F8FAFC' }}>{strand}</option>
                   ))
                 )}
               </select>
@@ -627,10 +666,10 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
             <div style={{ display: 'grid', gridTemplateColumns: hideAdvancedOptions ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8' }}>
                     Count
                   </label>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--cyan)' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#38BDF8' }}>
                     {questionCount} / 5 max
                   </span>
                 </div>
@@ -640,26 +679,23 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                   max="5"
                   value={questionCount}
                   onChange={(e) => setQuestionCount(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: 'var(--cyan)' }}
+                  style={{ width: '100%', accentColor: '#2563EB' }}
                 />
               </div>
               {!hideAdvancedOptions && (
                 <div>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
                     Format
                   </label>
                   <select
                     value={questionType}
                     onChange={(e) => setQuestionType(e.target.value)}
-                    style={{
-                      width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: 12, padding: '0.65rem 0.5rem', color: '#fff', fontSize: '0.8rem', outline: 'none'
-                    }}
+                    className="qg-select"
                   >
-                    <option value="fill_in_lines">Authentic Fill-in Lines (Paper Structure)</option>
-                    <option value="mcq">MCQ (Options)</option>
-                    <option value="short_answer">Short Answer</option>
-                    <option value="mixed">Mixed</option>
+                    <option value="fill_in_lines" style={{ background: '#0F172A', color: '#F8FAFC' }}>Authentic Fill-in Lines (Paper Structure)</option>
+                    <option value="mcq" style={{ background: '#0F172A', color: '#F8FAFC' }}>MCQ (Options)</option>
+                    <option value="short_answer" style={{ background: '#0F172A', color: '#F8FAFC' }}>Short Answer</option>
+                    <option value="mixed" style={{ background: '#0F172A', color: '#F8FAFC' }}>Mixed</option>
                   </select>
                 </div>
               )}
@@ -667,7 +703,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
 
             {/* Difficulty */}
             <div>
-              <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '0.35rem', display: 'block' }}>
+              <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
                 Difficulty Level
               </label>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.4rem' }}>
@@ -677,11 +713,11 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                     type="button"
                     onClick={() => setDifficulty(d)}
                     style={{
-                      padding: '0.4rem 0.2rem', borderRadius: 8, fontSize: '0.72rem', fontWeight: 700,
+                      padding: '0.45rem 0.2rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700,
                       textTransform: 'capitalize', border: '1px solid', cursor: 'pointer', transition: 'all 0.15s',
-                      background: difficulty === d ? 'rgba(0, 212, 255, 0.15)' : 'rgba(0,0,0,0.3)',
-                      borderColor: difficulty === d ? 'var(--cyan)' : 'rgba(255,255,255,0.08)',
-                      color: difficulty === d ? 'var(--cyan)' : 'rgba(255,255,255,0.6)'
+                      background: difficulty === d ? '#2563EB' : '#1E293B',
+                      borderColor: difficulty === d ? '#3B82F6' : '#334155',
+                      color: difficulty === d ? '#FFFFFF' : '#94A3B8'
                     }}
                   >
                     {d}
@@ -690,28 +726,22 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
               </div>
             </div>
 
-              {/* GENERATE ACTION BUTTON */}
-              <button
-                onClick={handleGenerate}
-                disabled={isGenerating}
-                style={{
-                  width: '100%', padding: '0.85rem', borderRadius: 14, border: 'none',
-                  background: 'linear-gradient(135deg, #7C3AED 0%, #00D4FF 100%)',
-                  color: '#fff', fontFamily: 'Space Grotesk, sans-serif', fontSize: '0.9rem', fontWeight: 800,
-                  cursor: isGenerating ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
-                  boxShadow: '0 4px 20px rgba(124, 58, 237, 0.35)', transition: 'all 0.2s', marginTop: '0.5rem'
-                }}
-              >
-                {isGenerating ? (
-                  <>
-                    <RefreshCw size={16} className="animate-spin" /> Generating Questions...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles size={16} /> Generate Questions
-                  </>
-                )}
-              </button>
+            {/* GENERATE ACTION BUTTON */}
+            <button
+              onClick={handleGenerate}
+              disabled={isGenerating}
+              className="qg-btn-generate"
+            >
+              {isGenerating ? (
+                <>
+                  <RefreshCw size={16} className="animate-spin" /> Generating Questions...
+                </>
+              ) : (
+                <>
+                  <Sparkles size={16} /> Generate Questions
+                </>
+              )}
+            </button>
 
               {/* AI Disclaimer in sidebar corner */}
               <div style={{
