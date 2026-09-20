@@ -461,6 +461,7 @@ export default function ClassroomDetail() {
                     <tr style={{ background: 'rgba(0,0,0,0.4)', color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', textTransform: 'uppercase' }}>
                       <th style={{ padding: '1rem 1.25rem' }}>Student Name</th>
                       <th style={{ padding: '1rem 1.25rem' }}>Email</th>
+                      <th style={{ padding: '1rem 1.25rem' }}>Think Streak</th>
                       <th style={{ padding: '1rem 1.25rem' }}>Joined Date</th>
                       <th style={{ padding: '1rem 1.25rem', textAlign: 'right' }}>Actions</th>
                     </tr>
@@ -470,6 +471,25 @@ export default function ClassroomDetail() {
                       <tr key={s.membership_id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                         <td style={{ padding: '1rem 1.25rem', color: '#fff', fontWeight: 700 }}>{s.full_name || 'Student'}</td>
                         <td style={{ padding: '1rem 1.25rem', color: 'rgba(255,255,255,0.7)' }}>{s.email}</td>
+                        <td style={{ padding: '1rem 1.25rem' }}>
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.35rem',
+                            background: s.current_streak > 0 ? 'rgba(245, 158, 11, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                            border: s.current_streak > 0 ? '1px solid rgba(245, 158, 11, 0.35)' : '1px solid rgba(255, 255, 255, 0.1)',
+                            color: s.current_streak > 0 ? '#F59E0B' : 'rgba(255,255,255,0.5)',
+                            padding: '0.25rem 0.65rem',
+                            borderRadius: '50px',
+                            fontWeight: 800,
+                            fontSize: '0.78rem'
+                          }}>
+                            🔥 {s.current_streak || 0}d Streak
+                            <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)', marginLeft: '0.2rem' }}>
+                              (Best: {s.longest_streak || 0}d)
+                            </span>
+                          </span>
+                        </td>
                         <td style={{ padding: '1rem 1.25rem', color: 'rgba(255,255,255,0.5)' }}>{new Date(s.joined_at).toLocaleDateString()}</td>
                         <td style={{ padding: '1rem 1.25rem', textAlign: 'right' }}>
                           <button

@@ -1,5 +1,106 @@
 const db = require('../../config/db');
 
+// ─── HELPER: COMPUTE STREAK DYNAMICALLY FROM ACTIVITY LOGS ──────────────────
+
+async function computeStudentStreak(studentId, runner = db) {
+  const { rows } = await runner.query(
+    `SELECT DISTINCT activity_date::text AS date
+     FROM activity_logs
+     WHERE student_id = $1
+     ORDER BY date ASC`,
+    [studentId]
+  );
+
+  if (!rows || rows.length === 0) {
+    await runner.query(
+      `INSERT INTO streaks (student_id, current_streak, longest_streak, last_activity_date, updated_at)
+       VALUES ($1, 0, 0, NULL, NOW())
+       ON CONFLICT (student_id) DO UPDATE SET
+         current_streak = 0,
+         updated_at = NOW()`,
+      [studentId]
+    );
+    return {
+      current_streak: 0,
+      longest_streak: 0,
+      total_active_days: 0,
+      last_activity_date: null
+    };
+  }
+
+  const dates = rows.map(r => r.date);
+  const total_active_days = dates.length;
+  const last_activity_date = dates[dates.length - 1];
+
+  let longest_streak = 0;
+  let tempStreak = 0;
+  let prevTimestamp = null;
+
+  for (const dStr of dates) {
+    const ts = new Date(dStr + 'T00:00:00Z').getTime();
+    if (prevTimestamp === null) {
+      tempStreak = 1;
+    } else {
+      const diffDays = Math.round((ts - prevTimestamp) / 86400000);
+      if (diffDays === 1) {
+        tempStreak++;
+      } else {
+        tempStreak = 1;
+      }
+    }
+    if (tempStreak > longest_streak) {
+      longest_streak = tempStreak;
+    }
+    prevTimestamp = ts;
+  }
+
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+  const yesterdayDate = new Date(now.getTime() - 86400000);
+  const yesterdayStr = yesterdayDate.toISOString().split('T')[0];
+
+  let current_streak = 0;
+  if (last_activity_date === todayStr || last_activity_date === yesterdayStr) {
+    let curr = 1;
+    let lastTs = new Date(dates[dates.length - 1] + 'T00:00:00Z').getTime();
+    for (let i = dates.length - 2; i >= 0; i--) {
+      const ts = new Date(dates[i] + 'T00:00:00Z').getTime();
+      const diffDays = Math.round((lastTs - ts) / 86400000);
+      if (diffDays === 1) {
+        curr++;
+        lastTs = ts;
+      } else {
+        break;
+      }
+    }
+    current_streak = curr;
+  } else {
+    current_streak = 0;
+  }
+
+  const finalLongest = Math.max(longest_streak, current_streak);
+
+  await runner.query(
+    `INSERT INTO streaks (student_id, current_streak, longest_streak, last_activity_date, updated_at)
+     VALUES ($1, $2, $3, $4, NOW())
+     ON CONFLICT (student_id) DO UPDATE SET
+       current_streak = EXCLUDED.current_streak,
+       longest_streak = GREATEST(streaks.longest_streak, EXCLUDED.longest_streak),
+       last_activity_date = EXCLUDED.last_activity_date,
+       updated_at = NOW()`,
+    [studentId, current_streak, finalLongest, last_activity_date]
+  );
+
+  return {
+    current_streak,
+    longest_streak: finalLongest,
+    total_active_days,
+    last_activity_date
+  };
+}
+
+exports.computeStudentStreak = computeStudentStreak;
+
 // ─── ACTIVITY LOGGING ─────────────────────────────────────────────────────────
 
 exports.logActivity = async (req, res) => {
@@ -22,45 +123,15 @@ exports.logActivity = async (req, res) => {
       [studentId, today, activity_type, content_id]
     );
 
-    // Compute new streak
-    const { rows: streakRows } = await client.query(
-      `SELECT current_streak, longest_streak, last_activity_date
-       FROM streaks WHERE student_id = $1`,
-      [studentId]
-    );
-
-    const streak = streakRows[0];
-    const lastDate = streak?.last_activity_date
-      ? streak.last_activity_date.toISOString().split('T')[0]
-      : null;
-
-    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-
-    let newStreak;
-    if (!streak || !lastDate)              newStreak = 1;
-    else if (lastDate === today)           newStreak = streak.current_streak;     // Already counted today
-    else if (lastDate === yesterday)       newStreak = streak.current_streak + 1; // Consecutive day
-    else                                   newStreak = 1;                          // Streak broken
-
-    const newLongest = Math.max(newStreak, streak?.longest_streak ?? 0);
-
-    await client.query(
-      `INSERT INTO streaks (student_id, current_streak, longest_streak, last_activity_date, updated_at)
-       VALUES ($1, $2, $3, $4, NOW())
-       ON CONFLICT (student_id) DO UPDATE SET
-         current_streak      = EXCLUDED.current_streak,
-         longest_streak      = EXCLUDED.longest_streak,
-         last_activity_date  = EXCLUDED.last_activity_date,
-         updated_at          = NOW()`,
-      [studentId, newStreak, newLongest, today]
-    );
+    const streakData = await computeStudentStreak(studentId, client);
 
     await client.query('COMMIT');
     res.json({
       success: true,
       data: {
-        current_streak: newStreak,
-        longest_streak: newLongest,
+        current_streak: streakData.current_streak,
+        longest_streak: streakData.longest_streak,
+        total_active_days: streakData.total_active_days,
         activity_date: today
       }
     });
@@ -86,6 +157,9 @@ exports.getCalendar = async (req, res) => {
     if (isNaN(y) || isNaN(m) || m < 1 || m > 12)
       return res.status(400).json({ success: false, message: 'Invalid year or month' });
 
+    // Ensure up-to-date streak metrics in DB
+    const streakData = await computeStudentStreak(req.user.id);
+
     // Daily activity for the requested month
     const { rows: activity } = await db.query(
       `SELECT
@@ -101,28 +175,18 @@ exports.getCalendar = async (req, res) => {
       [req.user.id, y, m]
     );
 
-    // Streak info
-    const { rows: streakRows } = await db.query(
-      `SELECT current_streak, longest_streak, last_activity_date
-       FROM streaks WHERE student_id = $1`,
-      [req.user.id]
-    );
-
-    // Total activity days all-time
-    const { rows: totalRows } = await db.query(
-      `SELECT COUNT(DISTINCT activity_date) AS total_days
-       FROM activity_logs WHERE student_id = $1`,
-      [req.user.id]
-    );
-
     res.json({
       success: true,
       data: {
         year: y,
         month: m,
         calendar: activity,
-        streak: streakRows[0] ?? { current_streak: 0, longest_streak: 0, last_activity_date: null },
-        total_active_days: parseInt(totalRows[0].total_days)
+        streak: {
+          current_streak: streakData.current_streak,
+          longest_streak: streakData.longest_streak,
+          last_activity_date: streakData.last_activity_date
+        },
+        total_active_days: streakData.total_active_days
       }
     });
   } catch (err) {
@@ -135,6 +199,8 @@ exports.getCalendar = async (req, res) => {
 exports.getYearlyHeatmap = async (req, res) => {
   try {
     const year = parseInt(req.query.year ?? new Date().getFullYear());
+    await computeStudentStreak(req.user.id);
+
     const { rows } = await db.query(
       `SELECT
          activity_date::text AS date,

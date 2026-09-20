@@ -1,10 +1,12 @@
 const db     = require('../../config/db');
 const bcrypt = require('bcryptjs');
+const { computeStudentStreak } = require('./streak.controller');
 
 // ─── PROFILE ──────────────────────────────────────────────────────────────────
 
 exports.getProfile = async (req, res) => {
   try {
+    await computeStudentStreak(req.user.id);
     const { rows } = await db.query(
       `SELECT
          u.id, u.email, u.full_name, u.role,

@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../config/db');
+const { computeStudentStreak } = require('./student/streak.controller');
 
 const signAccessToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -169,14 +170,34 @@ exports.getClassroomById = async (req, res) => {
     const effectiveLimit = await getEffectiveSeatLimit(classroom.teacher_id);
     const seats = await getUsedSeats(id);
 
-    // Fetch members
+    // Fetch members with streak metrics
     const membersRes = await db.query(
-      `SELECT cm.id AS membership_id, cm.joined_at, cm.status, u.id AS student_id, u.full_name, u.email
+      `SELECT cm.id AS membership_id, cm.joined_at, cm.status,
+              u.id AS student_id, u.full_name, u.email,
+              COALESCE(s.current_streak, 0) AS current_streak,
+              COALESCE(s.longest_streak, 0) AS longest_streak,
+              s.last_activity_date,
+              (SELECT COUNT(DISTINCT activity_date) FROM activity_logs WHERE student_id = u.id) AS total_active_days
        FROM classroom_members cm
        JOIN users u ON cm.student_id = u.id
+       LEFT JOIN streaks s ON s.student_id = u.id
        WHERE cm.classroom_id = $1 AND cm.status = 'active'
        ORDER BY cm.joined_at DESC`,
       [id]
+    );
+
+    // Dynamic self-healing recalculation for active students
+    const studentsWithFreshStreaks = await Promise.all(
+      membersRes.rows.map(async (st) => {
+        const streakData = await computeStudentStreak(st.student_id);
+        return {
+          ...st,
+          current_streak: streakData.current_streak,
+          longest_streak: streakData.longest_streak,
+          total_active_days: streakData.total_active_days,
+          last_activity_date: streakData.last_activity_date
+        };
+      })
     );
 
     // Fetch invitations
@@ -228,7 +249,7 @@ exports.getClassroomById = async (req, res) => {
       success: true,
       data: {
         ...classroom,
-        students: membersRes.rows,
+        students: studentsWithFreshStreaks,
         pending_invitations: invitesRes.rows,
         assigned_exams: examsRes.rows,
         assigned_materials: materialsRes.rows,

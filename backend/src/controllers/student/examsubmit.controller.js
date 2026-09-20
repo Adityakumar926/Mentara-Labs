@@ -1,4 +1,5 @@
 const db = require('../../config/db');
+const { computeStudentStreak } = require('./streak.controller');
 
 // ─── START EXAM ───────────────────────────────────────────────────────────────
 // Creates an in-progress attempt; prevents duplicate active sessions
@@ -468,6 +469,8 @@ exports.submitExam = async (req, res) => {
        ON CONFLICT DO NOTHING`,
       [studentId, exam_id]
     );
+
+    await computeStudentStreak(studentId, client);
 
     await client.query('COMMIT');
 
