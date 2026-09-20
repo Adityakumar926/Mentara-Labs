@@ -15,6 +15,8 @@ import { useApi, useMutation } from '@/hooks/useApi';
 import { adminApi } from '@/api/services';
 import useAuthStore from '@/store/authStore';
 import clsx from 'clsx';
+import JSZip from 'jszip';
+import toast from 'react-hot-toast';
 
 /* ─── CSS ─── */
 const CSS = `
@@ -654,6 +656,241 @@ ${js}
 </html>`;
 };
 
+function SimulationFolderDropzone({ onParsed }) {
+  const [parsing, setParsing] = useState(false);
+  const [filesSummary, setFilesSummary] = useState(null);
+  const [dragActive, setDragActive] = useState(false);
+  const folderInputRef = useRef(null);
+  const fileInputRef = useRef(null);
+
+  const processFileList = async (fileList) => {
+    const files = Array.from(fileList || []);
+    if (files.length === 0) return;
+    setParsing(true);
+    setFilesSummary(null);
+
+    let htmlStr = '';
+    let cssStr = '';
+    let jsStr = '';
+    let jsonStr = '';
+    let parsedFiles = [];
+
+    try {
+      const zipFile = files.find(f => f.name.toLowerCase().endsWith('.zip'));
+
+      if (zipFile) {
+        const zip = await JSZip.loadAsync(zipFile);
+        const entries = Object.keys(zip.files).filter(k => !zip.files[k].dir);
+
+        for (const filename of entries) {
+          const lowerName = filename.toLowerCase();
+          const fileObj = zip.files[filename];
+
+          if (lowerName.endsWith('.html') || lowerName.endsWith('.htm')) {
+            const text = await fileObj.async('string');
+            parsedFiles.push({ name: filename, type: 'HTML', size: text.length });
+            if (!htmlStr || lowerName.includes('index.html')) {
+              htmlStr = text;
+            }
+          } else if (lowerName.endsWith('.css')) {
+            const text = await fileObj.async('string');
+            parsedFiles.push({ name: filename, type: 'CSS', size: text.length });
+            cssStr += '\n' + text;
+          } else if (lowerName.endsWith('.js')) {
+            const text = await fileObj.async('string');
+            parsedFiles.push({ name: filename, type: 'JS', size: text.length });
+            jsStr += '\n' + text;
+          } else if (lowerName.endsWith('.json')) {
+            const text = await fileObj.async('string');
+            parsedFiles.push({ name: filename, type: 'JSON', size: text.length });
+            if (!jsonStr || lowerName.includes('data.json') || lowerName.includes('config.json')) {
+              jsonStr = text;
+            }
+          }
+        }
+      } else {
+        for (const file of files) {
+          const lowerName = file.name.toLowerCase();
+          const text = await file.text();
+
+          if (lowerName.endsWith('.html') || lowerName.endsWith('.htm')) {
+            parsedFiles.push({ name: file.name, type: 'HTML', size: file.size });
+            if (!htmlStr || lowerName.includes('index.html')) {
+              htmlStr = text;
+            }
+          } else if (lowerName.endsWith('.css')) {
+            parsedFiles.push({ name: file.name, type: 'CSS', size: file.size });
+            cssStr += '\n' + text;
+          } else if (lowerName.endsWith('.js')) {
+            parsedFiles.push({ name: file.name, type: 'JS', size: file.size });
+            jsStr += '\n' + text;
+          } else if (lowerName.endsWith('.json')) {
+            parsedFiles.push({ name: file.name, type: 'JSON', size: file.size });
+            if (!jsonStr || lowerName.includes('data.json') || lowerName.includes('config.json')) {
+              jsonStr = text;
+            }
+          }
+        }
+      }
+
+      let finalHtml = htmlStr;
+      let finalCss = cssStr;
+      let finalJs = jsStr;
+      let finalJson = jsonStr;
+
+      if (htmlStr) {
+        const extracted = parseHtmlContent(htmlStr);
+        if (extracted.html) finalHtml = extracted.html;
+        if (extracted.css) finalCss = (cssStr + '\n' + extracted.css).trim();
+        if (extracted.js) finalJs = (jsStr + '\n' + extracted.js).trim();
+        if (extracted.json && !finalJson) finalJson = extracted.json;
+      }
+
+      onParsed({
+        html_part: finalHtml.trim(),
+        css_part: finalCss.trim(),
+        js_part: finalJs.trim(),
+        json_part: finalJson.trim()
+      });
+
+      setFilesSummary({
+        fileCount: parsedFiles.length,
+        files: parsedFiles
+      });
+      toast.success(`Simulation bundle uploaded! Processed ${parsedFiles.length} file(s).`);
+    } catch (err) {
+      toast.error('Error reading simulation bundle: ' + err.message);
+    } finally {
+      setParsing(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFileList(e.dataTransfer.files);
+    }
+  };
+
+  return (
+    <div style={{ marginBottom: '1.25rem' }}>
+      <input
+        ref={folderInputRef}
+        type="file"
+        webkitdirectory="true"
+        directory="true"
+        multiple
+        style={{ display: 'none' }}
+        onChange={(e) => processFileList(e.target.files)}
+      />
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept=".zip,.html,.htm,.css,.js,.json"
+        style={{ display: 'none' }}
+        onChange={(e) => processFileList(e.target.files)}
+      />
+
+      <div
+        onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
+        onDragLeave={() => setDragActive(false)}
+        onDrop={handleDrop}
+        style={{
+          border: `2px dashed ${dragActive ? 'var(--cyan)' : 'rgba(124, 58, 237, 0.35)'}`,
+          borderRadius: '16px',
+          background: dragActive ? 'rgba(0, 212, 255, 0.08)' : 'rgba(15, 23, 42, 0.65)',
+          padding: '1.4rem 1.25rem',
+          textAlign: 'center',
+          transition: 'all 0.2s ease',
+          boxShadow: dragActive ? '0 0 24px rgba(0, 212, 255, 0.15)' : 'none'
+        }}
+      >
+        {parsing ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.6rem', padding: '0.5rem 0' }}>
+            <Loader2 size={26} className="animate-spin" style={{ color: 'var(--cyan)' }} />
+            <span style={{ fontSize: '0.88rem', fontWeight: 600, color: '#e2e8f0' }}>Extracting & compiling simulation files...</span>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{
+              width: '48px', height: '48px', borderRadius: '14px',
+              background: 'rgba(124, 58, 237, 0.15)', border: '1px solid rgba(124, 58, 237, 0.35)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--lavender)',
+              boxShadow: '0 0 20px rgba(124, 58, 237, 0.15)'
+            }}>
+              <UploadCloud size={24} />
+            </div>
+            
+            <div>
+              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.01em' }}>
+                Upload Simulation Folder or ZIP Bundle
+              </div>
+              <div style={{ fontSize: '0.76rem', color: '#94a3b8', marginTop: '4px', maxWidth: '420px', margin: '4px auto 0' }}>
+                Drop a simulation folder, .zip file, or HTML/CSS/JS/JSON files. They will be auto-parsed into working simulation code.
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.25rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <button
+                type="button"
+                onClick={() => folderInputRef.current?.click()}
+                style={{
+                  padding: '0.55rem 1.1rem', borderRadius: '10px',
+                  background: 'rgba(0, 212, 255, 0.12)', border: '1px solid rgba(0, 212, 255, 0.35)',
+                  color: 'var(--cyan)', fontSize: '0.8rem', fontWeight: 700,
+                  display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <FolderPlus size={15} /> Upload Folder
+              </button>
+
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                style={{
+                  padding: '0.55rem 1.1rem', borderRadius: '10px',
+                  background: 'rgba(124, 58, 237, 0.18)', border: '1px solid rgba(124, 58, 237, 0.35)',
+                  color: 'var(--lavender)', fontSize: '0.8rem', fontWeight: 700,
+                  display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <FilePlus size={15} /> Upload ZIP / Files
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {filesSummary && (
+        <div style={{
+          marginTop: '0.75rem', padding: '0.75rem 1rem', borderRadius: '12px',
+          background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <CheckCircle2 size={18} color="#10b981" />
+            <div>
+              <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#10b981' }}>
+                Auto-extracted {filesSummary.fileCount} file(s) ({filesSummary.files.map(f => f.type).join(', ')})
+              </div>
+              <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '1px' }}>
+                Extracted HTML, CSS, JS, and JSON are populated below.
+              </div>
+            </div>
+          </div>
+          <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--cyan)', background: 'rgba(0, 212, 255, 0.1)', padding: '0.2rem 0.6rem', borderRadius: '6px' }}>
+            ✓ Ready to preview/save
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const ANIM_PLACEHOLDER = `<!DOCTYPE html>
 <html>
 <head>
@@ -1268,6 +1505,18 @@ export default function CurriculumDetail() {
 
              {contentForm.content_type === 'animation' && (
               <div className="cd-anim-editor-wrap">
+                <SimulationFolderDropzone
+                  onParsed={({ html_part, css_part, js_part, json_part }) => {
+                    setContentForm(prev => ({
+                      ...prev,
+                      html_part: html_part !== undefined ? html_part : prev.html_part,
+                      css_part: css_part !== undefined ? css_part : prev.css_part,
+                      js_part: js_part !== undefined ? js_part : prev.js_part,
+                      json_part: json_part !== undefined ? json_part : prev.json_part
+                    }));
+                  }}
+                />
+
                 <div className="cd-anim-editor-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <div style={{ display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.03)', padding: '2px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
                     {['html', 'css', 'js', 'json', 'output'].map((tab) => (
