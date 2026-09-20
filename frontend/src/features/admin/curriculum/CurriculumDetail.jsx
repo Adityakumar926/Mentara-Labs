@@ -1472,7 +1472,7 @@ export default function CurriculumDetail() {
         open={!!contentModal}
         onClose={() => { setContentModal(null); setEditingContent(null); setContentForm(BLANK_CONTENT); setSaveError(''); }}
         title={editingContent ? 'Edit Content' : 'Add Content'}
-        size="md"
+        size="xl"
         preventOutsideClickClose={true}
       >
         <style>{CSS}</style>
