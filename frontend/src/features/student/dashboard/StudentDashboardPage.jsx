@@ -534,12 +534,6 @@ export default function StudentDashboardPage() {
   const profile = profileRes?.data ?? profileRes;
   const stageName = profile?.class_name || user?.class_name;
 
-  const { data: calendarRes } = useApi(studentApi.getCalendar);
-  const calStreak = calendarRes?.data?.streak;
-  const streakCurrent = calStreak?.current_streak ?? profile?.current_streak ?? 0;
-  const streakLongest = calStreak?.longest_streak ?? profile?.longest_streak ?? 0;
-  const totalActiveDays = calendarRes?.data?.total_active_days ?? profile?.total_active_days ?? 0;
-
   const curriculumId = user?.curriculum_id;
 
   const { data: subjectsRes, loading: loadingSubjects } = useApi(
@@ -1114,36 +1108,8 @@ export default function StudentDashboardPage() {
             </p>
           </div>
 
-          {/* Think Streak Widget Card */}
-          <div className="sd-quest-card" style={{ zIndex: 5 }}>
-            <div className="sd-quest-header">
-              <span style={{ fontSize: '1.2rem' }}>🔥</span>
-              <span>Think Streak</span>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem', margin: '0.6rem 0' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.82rem', color: 'var(--muted)', fontWeight: 700 }}>Current Streak</span>
-                <span style={{ fontSize: '1.1rem', fontWeight: 900, color: '#F59E0B' }}>{streakCurrent}d 🔥</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.82rem', color: 'var(--muted)', fontWeight: 700 }}>Best Streak</span>
-                <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#10B981' }}>{streakLongest}d 🏆</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.82rem', color: 'var(--muted)', fontWeight: 700 }}>Active Days</span>
-                <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#38BDF8' }}>{totalActiveDays} Days ⚡</span>
-              </div>
-            </div>
-            <div className="sd-quest-bar">
-              <div className="sd-quest-fill" style={{ width: `${Math.min(100, Math.max(15, (streakCurrent / Math.max(streakLongest, 1)) * 100))}%` }} />
-            </div>
-            <div className="sd-quest-footer" style={{ color: 'var(--muted)', marginTop: '0.4rem' }}>
-              <span>{streakCurrent > 0 ? 'Keep it going today! 🚀' : 'Log an activity to start! 🔥'}</span>
-            </div>
-          </div>
-
           {/* Animated Mascot Lottie Graphic */}
-          <div style={{ width: '200px', height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <div style={{ width: '220px', height: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <SafeLottie
               src="/header_card_animation.json"
               style={{ width: '100%', height: '100%' }}
