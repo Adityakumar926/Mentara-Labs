@@ -17,72 +17,72 @@ function getSubjectTheme(subjectName) {
   if (name.includes('english')) {
     return {
       icon: BookOpen,
-      accent: '#8B5CF6',
-      badgeBg: 'rgba(139, 92, 246, 0.15)',
-      badgeBorder: 'rgba(139, 92, 246, 0.35)',
-      badgeColor: '#C4B5FD',
-      iconBg: 'linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(124, 58, 237, 0.4) 100%)',
-      cardBorder: 'rgba(139, 92, 246, 0.22)'
+      accent: '#6366F1',
+      badgeBg: '#1E293B',
+      badgeBorder: '#334155',
+      badgeColor: '#CBD5E1',
+      iconBg: '#1E293B',
+      cardBorder: '#334155'
     };
   }
   if (name.includes('math')) {
     return {
       icon: Binary,
-      accent: '#00D4FF',
-      badgeBg: 'rgba(0, 212, 255, 0.12)',
-      badgeBorder: 'rgba(0, 212, 255, 0.3)',
-      badgeColor: '#00D4FF',
-      iconBg: 'linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(14, 165, 233, 0.35) 100%)',
-      cardBorder: 'rgba(0, 212, 255, 0.22)'
+      accent: '#2563EB',
+      badgeBg: '#1E293B',
+      badgeBorder: '#334155',
+      badgeColor: '#CBD5E1',
+      iconBg: '#1E293B',
+      cardBorder: '#334155'
     };
   }
   if (name.includes('science')) {
     return {
       icon: Atom,
-      accent: '#10B981',
-      badgeBg: 'rgba(16, 185, 129, 0.12)',
-      badgeBorder: 'rgba(16, 185, 129, 0.3)',
-      badgeColor: '#6EE7B7',
-      iconBg: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.35) 100%)',
-      cardBorder: 'rgba(16, 185, 129, 0.22)'
+      accent: '#059669',
+      badgeBg: '#1E293B',
+      badgeBorder: '#334155',
+      badgeColor: '#CBD5E1',
+      iconBg: '#1E293B',
+      cardBorder: '#334155'
     };
   }
   if (name.includes('global') || name.includes('perspective')) {
     return {
       icon: Globe,
-      accent: '#F59E0B',
-      badgeBg: 'rgba(245, 158, 11, 0.12)',
-      badgeBorder: 'rgba(245, 158, 11, 0.3)',
-      badgeColor: '#FCD34D',
-      iconBg: 'linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.35) 100%)',
-      cardBorder: 'rgba(245, 158, 11, 0.22)'
+      accent: '#D97706',
+      badgeBg: '#1E293B',
+      badgeBorder: '#334155',
+      badgeColor: '#CBD5E1',
+      iconBg: '#1E293B',
+      cardBorder: '#334155'
     };
   }
   return {
     icon: GraduationCap,
-    accent: '#EC4899',
-    badgeBg: 'rgba(236, 72, 153, 0.12)',
-    badgeBorder: 'rgba(236, 72, 153, 0.3)',
-    badgeColor: '#F472B6',
-    iconBg: 'linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(219, 39, 119, 0.35) 100%)',
-    cardBorder: 'rgba(236, 72, 153, 0.22)'
+    accent: '#4F46E5',
+    badgeBg: '#1E293B',
+    badgeBorder: '#334155',
+    badgeColor: '#CBD5E1',
+    iconBg: '#1E293B',
+    cardBorder: '#334155'
   };
 }
 
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
   .cp-root {
-    --navy:       var(--local-navy, #0A0E1A);
-    --navy2:      var(--local-navy2, #0F1629);
-    --violet:     #7C3AED;
-    --violet-l:   var(--local-violet-l, #9D6FEF);
-    --cyan:       var(--local-cyan, #00D4FF);
-    --cream:      var(--local-cream, #F5F0E8);
-    --lavender:   var(--local-lavender, #C4B5FD);
-    --muted:      var(--local-muted, rgba(245,240,232,0.45));
-    --card-bg:    rgba(255, 255, 255, 0.02);
-    --card-bdr:   rgba(255, 255, 255, 0.08);
+    --navy:       #0F172A;
+    --navy2:      #1E293B;
+    --violet:     #2563EB;
+    --violet-l:   #60A5FA;
+    --cyan:       #38BDF8;
+    --cream:      #F8FAFC;
+    --lavender:   #CBD5E1;
+    --muted:      #94A3B8;
+    --card-bg:    #1E293B;
+    --card-bdr:   #334155;
     font-family: 'Inter', sans-serif;
     color: var(--cream);
   }
@@ -91,68 +91,38 @@ const CSS = `
   /* ── HEADER ── */
   .cp-header {
     position: relative;
-    background: linear-gradient(135deg, rgba(0,212,255,0.06) 0%, rgba(124,58,237,0.12) 60%, #0A0E1A 100%);
-    border: 1px solid var(--card-bdr);
-    border-radius: 24px;
-    padding: 2.25rem;
+    background: #1E293B;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 2rem;
     overflow: hidden;
     margin-bottom: 1.75rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1.5rem;
-    transform: translateZ(0);
   }
   .cp-header-image {
-    width: 170px;
-    height: 120px;
+    width: 160px;
+    height: 110px;
     object-fit: contain;
     flex-shrink: 0;
-    position: relative;
-    z-index: 1;
   }
   @media (max-width: 767px) {
     .cp-header-image { display: none; }
   }
-  .cp-header-blob-1 {
-    position: absolute; width: 250px; height: 250px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(0,212,255,0.12) 0%, transparent 70%);
-    top: -60px; left: -40px; pointer-events: none;
-  }
-  .cp-header-blob-2 {
-    position: absolute; width: 220px; height: 220px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%);
-    bottom: -50px; right: -20px; pointer-events: none;
-  }
-  .cp-eyebrow {
-    display: inline-flex; align-items: center; gap: 0.5rem;
-    background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2);
-    padding: 0.35rem 0.95rem; border-radius: 50px;
-    font-size: 0.7rem; font-weight: 700; color: var(--cyan);
-    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.65rem;
-  }
-  .eyebrow-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--cyan); box-shadow: 0 0 8px var(--cyan);
-    animation: cp-blink 2s ease infinite;
-  }
-  @keyframes cp-blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
   
   .cp-title {
-    font-family: 'Outfit', sans-serif;
-    font-size: clamp(1.8rem, 3.5vw, 2.5rem);
-    font-weight: 900;
-    letter-spacing: -0.03em;
-    line-height: 1.1;
-    background: linear-gradient(135deg, #FFFFFF 0%, var(--lavender) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 800;
+    color: #F8FAFC;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
     margin-bottom: 0.4rem;
   }
-  .cp-subtitle { font-size: 0.88rem; color: var(--muted); font-weight: 500; }
+  .cp-subtitle { font-size: 0.88rem; color: #94A3B8; font-weight: 500; }
 
-  /* ── TOOLBAR (SEARCH + CUSTOM GLASS DROPDOWN) ── */
+  /* ── TOOLBAR (SEARCH + DROPDOWN) ── */
   .cp-toolbar {
     display: flex;
     align-items: center;
@@ -174,39 +144,36 @@ const CSS = `
     gap: 0.75rem;
     width: 100%;
     padding: 0.75rem 1.25rem;
-    background: #0F1629;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 16px;
-    color: #ffffff;
-    font-family: 'Space Grotesk', sans-serif;
+    background: #1E293B;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    color: #F8FAFC;
     font-size: 0.88rem;
     font-weight: 700;
     cursor: pointer;
-    transition: border-color 0.2s ease, background 0.2s ease;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    transform: translateZ(0);
+    transition: background 0.15s ease, border-color 0.15s ease;
   }
   .cp-dropdown-btn:hover, .cp-dropdown-btn.open {
-    border-color: rgba(0, 212, 255, 0.5);
-    background: rgba(0, 212, 255, 0.08);
-    color: var(--cyan);
+    border-color: #475569;
+    background: #334155;
+    color: #FFFFFF;
   }
 
   .cp-dropdown-menu {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 6px);
     left: 0;
     width: 100%;
     min-width: 280px;
-    background: #0F1629;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 18px;
-    padding: 0.5rem;
+    background: #1E293B;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 0.4rem;
     z-index: 50;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 3px;
     max-height: 320px;
     overflow-y: auto;
   }
@@ -214,32 +181,31 @@ const CSS = `
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.7rem 0.95rem;
-    border-radius: 12px;
-    font-family: 'Inter', sans-serif;
+    padding: 0.65rem 0.85rem;
+    border-radius: 8px;
     font-size: 0.85rem;
     font-weight: 600;
-    color: var(--cream);
+    color: #E2E8F0;
     cursor: pointer;
     transition: background 0.15s ease;
   }
   .cp-dropdown-item:hover {
-    background: rgba(0, 212, 255, 0.12);
-    color: var(--cyan);
+    background: #334155;
+    color: #FFFFFF;
   }
   .cp-dropdown-item.active {
-    background: rgba(0, 212, 255, 0.18);
-    color: var(--cyan);
+    background: #2563EB;
+    color: #FFFFFF;
     font-weight: 700;
-    border: 1px solid rgba(0, 212, 255, 0.3);
   }
   .cp-item-badge {
     font-size: 0.72rem;
     font-weight: 700;
-    color: var(--lavender);
-    background: rgba(124, 58, 237, 0.2);
+    color: #94A3B8;
+    background: #0F172A;
+    border: 1px solid #334155;
     padding: 0.15rem 0.55rem;
-    border-radius: 50px;
+    border-radius: 6px;
   }
 
   .cp-search-wrap {
@@ -251,43 +217,38 @@ const CSS = `
   .cp-search-input {
     width: 100%;
     padding: 0.75rem 1.1rem 0.75rem 2.6rem;
-    border-radius: 16px;
-    border: 1px solid var(--card-bdr);
-    background: #0F1629;
-    color: #ffffff;
-    font-size: 0.88rem;
+    border-radius: 10px;
+    border: 1px solid #334155;
+    background: #1E293B;
+    color: #F8FAFC;
+    font-size: 0.85rem;
     outline: none;
     transition: border-color 0.2s ease;
   }
   .cp-search-input:focus {
-    border-color: rgba(0, 212, 255, 0.5);
-    box-shadow: 0 0 15px rgba(0, 212, 255, 0.15);
+    border-color: #2563EB;
   }
   .cp-search-icon {
     position: absolute;
     left: 0.95rem;
     top: 50%;
     transform: translateY(-50%);
-    color: var(--muted);
+    color: #94A3B8;
     pointer-events: none;
   }
 
   /* ── STAGE SECTION (Stage 1 to N) ── */
   .cp-stage-card {
-    background: #0F1629;
-    border: 1px solid var(--card-bdr);
-    border-radius: 24px;
+    background: #1E293B;
+    border: 1px solid #334155;
+    border-radius: 12px;
     overflow: hidden;
-    margin-bottom: 2rem;
-    transform: translateZ(0);
-    contain: content;
-    content-visibility: auto;
-    contain-intrinsic-size: 1px 350px;
+    margin-bottom: 1.75rem;
   }
   .cp-stage-header {
-    padding: 1.5rem 1.75rem;
-    background: linear-gradient(90deg, rgba(124, 58, 237, 0.15) 0%, rgba(0, 212, 255, 0.06) 100%);
-    border-bottom: 1px solid var(--card-bdr);
+    padding: 1.25rem 1.5rem;
+    background: #0F172A;
+    border-bottom: 1px solid #334155;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -295,48 +256,46 @@ const CSS = `
     flex-wrap: wrap;
   }
   .cp-stage-name {
-    font-family: 'Outfit', sans-serif;
-    font-size: 1.6rem;
-    font-weight: 900;
-    color: #ffffff;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #F8FAFC;
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
   }
   .cp-stage-badge {
-    padding: 0.25rem 0.8rem;
-    border-radius: 50px;
-    background: rgba(124, 58, 237, 0.25);
-    border: 1px solid rgba(124, 58, 237, 0.4);
-    font-size: 0.72rem;
-    color: var(--lavender);
-    font-weight: 800;
+    padding: 0.2rem 0.65rem;
+    border-radius: 6px;
+    background: #334155;
+    border: 1px solid #475569;
+    font-size: 0.7rem;
+    color: #E2E8F0;
+    font-weight: 700;
     letter-spacing: 0.05em;
     text-transform: uppercase;
   }
 
   /* ── SUBJECT GRID INSIDE STAGE ── */
   .cp-subjects-container {
-    padding: 1.5rem;
+    padding: 1.25rem;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1.25rem;
   }
 
   .cp-subject-card {
-    background: rgba(255, 255, 255, 0.025);
-    border: 1px solid var(--card-bdr);
-    border-radius: 20px;
+    background: #0F172A;
+    border: 1px solid #334155;
+    border-radius: 12px;
     padding: 1.25rem;
-    transition: all 0.25s ease;
+    transition: background 0.2s ease, border-color 0.2s ease;
     display: flex;
     flex-direction: column;
   }
   .cp-subject-card:hover {
-    border-color: rgba(0, 212, 255, 0.35);
-    background: rgba(0, 212, 255, 0.04);
-    box-shadow: 0 10px 30px -10px rgba(0, 212, 255, 0.18);
+    border-color: #475569;
+    background: #1E293B;
   }
 
   .cp-subj-top {
@@ -347,10 +306,9 @@ const CSS = `
     margin-bottom: 0.75rem;
   }
   .cp-subj-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     font-weight: 800;
-    color: #ffffff;
+    color: #F8FAFC;
     letter-spacing: -0.01em;
   }
 
@@ -360,7 +318,7 @@ const CSS = `
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid #334155;
     padding-top: 0.75rem;
   }
   .cp-topic-item {
@@ -368,23 +326,22 @@ const CSS = `
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
-    padding: 0.6rem 0.85rem;
-    border-radius: 12px;
-    background: rgba(15, 22, 41, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 0.55rem 0.85rem;
+    border-radius: 8px;
+    background: #1E293B;
+    border: 1px solid #334155;
     text-decoration: none;
     color: inherit;
-    transition: all 0.2s ease;
+    transition: background 0.15s ease, border-color 0.15s ease;
   }
   .cp-topic-item:hover {
-    background: rgba(124, 58, 237, 0.18);
-    border-color: rgba(124, 58, 237, 0.35);
-    transform: translateX(3px);
+    background: #334155;
+    border-color: #475569;
   }
   .cp-topic-name {
     font-size: 0.82rem;
     font-weight: 600;
-    color: var(--cream);
+    color: #F8FAFC;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -394,13 +351,15 @@ const CSS = `
     align-items: center;
     gap: 0.5rem;
     font-size: 0.7rem;
-    color: var(--muted);
+    color: #94A3B8;
   }
   .cp-meta-chip {
     padding: 0.15rem 0.45rem;
     border-radius: 6px;
-    background: rgba(255, 255, 255, 0.06);
+    background: #0F172A;
+    border: 1px solid #334155;
     font-weight: 600;
+    color: #94A3B8;
   }
 
   .cp-expand-btn {
@@ -411,18 +370,18 @@ const CSS = `
     width: 100%;
     margin-top: 0.75rem;
     padding: 0.5rem;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: var(--cyan);
+    border-radius: 8px;
+    background: #1E293B;
+    border: 1px solid #334155;
+    color: #38BDF8;
     font-size: 0.75rem;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background 0.15s ease;
   }
   .cp-expand-btn:hover {
-    background: rgba(0, 212, 255, 0.1);
-    border-color: rgba(0, 212, 255, 0.3);
+    background: #334155;
+    color: #FFFFFF;
   }
 `;
 
@@ -436,8 +395,8 @@ function StrandItem({ topic, idx }) {
       <div 
         className="cp-topic-item"
         style={{
-          background: isOpen ? 'rgba(124, 58, 237, 0.16)' : 'rgba(124, 58, 237, 0.08)',
-          borderColor: isOpen ? 'rgba(0, 212, 255, 0.4)' : 'rgba(124, 58, 237, 0.22)',
+          background: isOpen ? '#334155' : '#1E293B',
+          borderColor: isOpen ? '#475569' : '#334155',
           cursor: 'pointer',
           padding: '0.55rem 0.85rem'
         }}
@@ -451,28 +410,28 @@ function StrandItem({ topic, idx }) {
           style={{ textDecoration: 'none', color: 'inherit', flex: 1, minWidth: 0 }}
           onClick={(e) => e.stopPropagation()}
         >
-          <span style={{ color: 'var(--cyan)', fontSize: '0.72rem', fontWeight: 900 }}>#{String(idx + 1).padStart(2, '0')}</span>
-          <span style={{ fontWeight: 800, color: '#FFF' }}>{topic.name}</span>
+          <span style={{ color: '#38BDF8', fontSize: '0.75rem', fontWeight: 800 }}>#{String(idx + 1).padStart(2, '0')}</span>
+          <span style={{ fontWeight: 700, color: '#F8FAFC' }}>{topic.name}</span>
         </Link>
 
         <div className="cp-topic-meta" style={{ gap: '0.45rem', flexShrink: 0 }}>
           {hasSubtopics ? (
-            <span className="cp-meta-chip" style={{ background: 'rgba(0, 212, 255, 0.12)', color: 'var(--cyan)', border: '1px solid rgba(0, 212, 255, 0.25)', fontSize: '0.66rem', fontWeight: 800 }}>
+            <span className="cp-meta-chip">
               {subtopics.length} subtopics
             </span>
           ) : (
-            topic.resource_count > 0 && <span className="cp-meta-chip" style={{ fontSize: '0.66rem' }}>{topic.resource_count} items</span>
+            topic.resource_count > 0 && <span className="cp-meta-chip">{topic.resource_count} items</span>
           )}
           
           {hasSubtopics ? (
             <button 
               type="button" 
-              style={{ background: 'none', border: 'none', color: 'var(--cyan)', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}
+              style={{ background: 'none', border: 'none', color: '#38BDF8', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}
             >
               {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
           ) : (
-            <Link to={`/topics/${topic.id}`} style={{ color: 'var(--violet-l)', display: 'flex', alignItems: 'center' }}>
+            <Link to={`/topics/${topic.id}`} style={{ color: '#94A3B8', display: 'flex', alignItems: 'center' }}>
               <ChevronRight size={13} />
             </Link>
           )}
@@ -492,7 +451,7 @@ function StrandItem({ topic, idx }) {
               display: 'flex',
               flexDirection: 'column',
               gap: '0.25rem',
-              borderLeft: '2px dashed rgba(0, 212, 255, 0.35)',
+              borderLeft: '2px solid #334155',
               marginLeft: '0.75rem',
               marginBottom: '0.35rem',
               overflow: 'hidden'
@@ -503,17 +462,17 @@ function StrandItem({ topic, idx }) {
                 key={sub.id}
                 to={`/topics/${sub.id}`}
                 className="cp-topic-item"
-                style={{ padding: '0.42rem 0.65rem', background: 'rgba(15, 22, 41, 0.6)', borderColor: 'rgba(255, 255, 255, 0.05)' }}
+                style={{ padding: '0.42rem 0.65rem', background: '#0F172A', borderColor: '#334155' }}
               >
                 <div className="cp-topic-name" style={{ fontSize: '0.78rem' }}>
-                  <span style={{ color: 'var(--cyan)', fontSize: '0.65rem', fontWeight: 800 }}>#{String(idx + 1).padStart(2, '0')}.{sIdx + 1}</span>
-                  <span style={{ color: 'rgba(245, 240, 232, 0.9)', fontWeight: 600 }}>{sub.name}</span>
+                  <span style={{ color: '#38BDF8', fontSize: '0.65rem', fontWeight: 800 }}>#{String(idx + 1).padStart(2, '0')}.{sIdx + 1}</span>
+                  <span style={{ color: '#E2E8F0', fontWeight: 600 }}>{sub.name}</span>
                 </div>
                 <div className="cp-topic-meta">
                   {sub.resource_count > 0 && (
                     <span className="cp-meta-chip" style={{ fontSize: '0.62rem' }}>{sub.resource_count} items</span>
                   )}
-                  <ChevronRight size={11} color="var(--muted)" />
+                  <ChevronRight size={11} color="#94A3B8" />
                 </div>
               </Link>
             ))}
@@ -614,7 +573,6 @@ export default function CoursesPage() {
     setExpandedSubjects((prev) => ({ ...prev, [subjectId]: !prev[subjectId] }));
   };
 
-  // Filter stages (Stage 1 to N), subjects, and topics based on search & dropdown selection
   const filteredStages = useMemo(() => {
     const q = search.trim().toLowerCase();
 
@@ -645,10 +603,10 @@ export default function CoursesPage() {
       <style>{CSS}</style>
       <div className="cp-root">
 
-        {/* Toolbar with Modern Custom Glass Dropdown */}
+        {/* Toolbar with Professional Slate Dropdown & Search */}
         <div className="cp-toolbar">
 
-          {/* CUSTOM GLASS DROPDOWN */}
+          {/* CUSTOM DROPDOWN */}
           <div className="cp-dropdown-wrap" ref={dropdownRef}>
             <button
               type="button"
@@ -656,7 +614,7 @@ export default function CoursesPage() {
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Layers size={16} color="var(--cyan)" />
+                <Layers size={16} color="#38BDF8" />
                 <span>
                   {selectedStage === 'ALL'
                     ? `All Zones & Stages (${stagesList.length})`
@@ -669,8 +627,8 @@ export default function CoursesPage() {
                 size={16}
                 style={{
                   transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                  transition: 'transform 0.25s ease',
-                  color: 'var(--cyan)'
+                  transition: 'transform 0.2s ease',
+                  color: '#94A3B8'
                 }}
               />
             </button>
@@ -679,10 +637,10 @@ export default function CoursesPage() {
               {dropdownOpen && (
                 <motion.div
                   className="cp-dropdown-menu"
-                  initial={{ opacity: 0, y: -8, scale: 0.96 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8, scale: 0.96 }}
-                  transition={{ duration: 0.18 }}
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.15 }}
                 >
                   <div
                     className={`cp-dropdown-item ${selectedStage === 'ALL' ? 'active' : ''}`}
@@ -692,7 +650,7 @@ export default function CoursesPage() {
                     <span className="cp-item-badge">{stagesList.length} Total</span>
                   </div>
 
-                  <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '4px 0' }} />
+                  <div style={{ height: '1px', background: '#334155', margin: '3px 0' }} />
 
                   {stagesList.map((stg) => {
                     const isTeacher = stg.name.toLowerCase().includes('teacher') || stg.name.toLowerCase().includes('zone');
@@ -701,11 +659,11 @@ export default function CoursesPage() {
                         key={stg.id}
                         className={`cp-dropdown-item ${selectedStage.toLowerCase() === stg.name.toLowerCase() ? 'active' : ''}`}
                         onClick={() => { setSelectedStage(stg.name); setDropdownOpen(false); }}
-                        style={isTeacher ? { background: 'rgba(124, 58, 237, 0.15)', borderLeft: '3px solid #C4B5FD' } : {}}
+                        style={isTeacher ? { background: '#334155', borderLeft: '3px solid #38BDF8' } : {}}
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          {selectedStage.toLowerCase() === stg.name.toLowerCase() && <Check size={14} color="var(--cyan)" />}
-                          <span style={{ fontWeight: isTeacher ? 800 : 600, color: isTeacher ? '#FDE68A' : 'inherit' }}>
+                          {selectedStage.toLowerCase() === stg.name.toLowerCase() && <Check size={14} color="#FFFFFF" />}
+                          <span style={{ fontWeight: isTeacher ? 700 : 600 }}>
                             {stg.name}
                           </span>
                         </div>
@@ -735,7 +693,7 @@ export default function CoursesPage() {
         {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {Array(3).fill(0).map((_, i) => (
-              <div key={i} style={{ height: 220, borderRadius: 24, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }} />
+              <div key={i} style={{ height: 200, borderRadius: 12, background: '#1E293B', border: '1px solid #334155' }} />
             ))}
           </div>
         ) : filteredStages.length === 0 ? (
@@ -753,46 +711,45 @@ export default function CoursesPage() {
               <motion.div
                 key={stage.id}
                 className="cp-stage-card"
-                initial={{ opacity: 0, y: 15 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35 }}
+                transition={{ duration: 0.25 }}
                 style={isTeacherZone ? {
-                  background: 'linear-gradient(135deg, rgba(15, 22, 41, 0.95) 0%, rgba(124, 58, 237, 0.15) 50%, rgba(10, 14, 26, 0.85) 100%)',
-                  border: '2px solid rgba(124, 58, 237, 0.35)',
-                  borderRadius: '28px',
-                  padding: '2.25rem 2.5rem',
-                  marginBottom: '2.5rem',
-                  boxShadow: '0 20px 50px rgba(0, 0, 0, 0.4), 0 0 30px rgba(124, 58, 237, 0.2)'
+                  background: '#1E293B',
+                  border: '1px solid #334155',
+                  borderRadius: '12px',
+                  padding: '1.75rem 2rem',
+                  marginBottom: '2rem',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
                 } : {}}
               >
                 {isTeacherZone ? (
-                  /* ── LUXURIOUS TEACHER'S ZONE HERO BANNER ── */
+                  /* ── PROFESSIONAL TEACHER'S ZONE HERO BANNER ── */
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', flex: 1, minWidth: 0 }}>
                       <div style={{
-                        width: '60px', height: '60px', borderRadius: '18px',
-                        background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(0, 212, 255, 0.2) 100%)',
-                        border: '1.5px solid rgba(139, 92, 246, 0.5)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                        boxShadow: '0 8px 24px rgba(124, 58, 237, 0.3)'
+                        width: '52px', height: '52px', borderRadius: '10px',
+                        background: '#0F172A',
+                        border: '1px solid #334155',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
                       }}>
-                        <GraduationCap size={30} color="#C4B5FD" />
+                        <GraduationCap size={26} color="#38BDF8" />
                       </div>
 
                       <div style={{ minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.35rem', flexWrap: 'wrap' }}>
-                          <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.75rem', fontWeight: 900, color: '#FFF', margin: 0, letterSpacing: '-0.02em' }}>
+                          <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#F8FAFC', margin: 0, letterSpacing: '-0.01em' }}>
                             Teacher's Zone
                           </h2>
                           <span style={{
-                            padding: '0.25rem 0.8rem', borderRadius: '50px',
-                            background: 'rgba(139, 92, 246, 0.2)', border: '1px solid rgba(139, 92, 246, 0.4)',
-                            color: '#C4B5FD', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em'
+                            padding: '0.2rem 0.65rem', borderRadius: '6px',
+                            background: '#0F172A', border: '1px solid #334155',
+                            color: '#94A3B8', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase'
                           }}>
                             CAMBRIDGE PRIMARY
                           </span>
                         </div>
-                        <p style={{ fontSize: '0.85rem', color: 'rgba(245, 240, 232, 0.8)', lineHeight: 1.6, margin: 0, fontWeight: 500, maxWidth: '820px' }}>
+                        <p style={{ fontSize: '0.85rem', color: '#94A3B8', lineHeight: 1.6, margin: 0, fontWeight: 500, maxWidth: '820px' }}>
                           Discover practical teaching methodologies and reference guidance designed for Cambridge Primary educators. Access active learning, assessment strategies, differentiation, and ready-to-use classroom materials.
                         </p>
                       </div>
@@ -800,10 +757,10 @@ export default function CoursesPage() {
 
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '0.85rem', flexShrink: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                        <span style={{ fontSize: '0.75rem', color: '#00D4FF', fontWeight: 800, background: 'rgba(0,212,255,0.12)', border: '1px solid rgba(0,212,255,0.3)', padding: '0.35rem 0.9rem', borderRadius: 50 }}>
+                        <span style={{ fontSize: '0.75rem', color: '#38BDF8', fontWeight: 700, background: '#0F172A', border: '1px solid #334155', padding: '0.35rem 0.85rem', borderRadius: '6px' }}>
                           {(stage.subjects || []).length || 8} Teaching Approaches
                         </span>
-                        <span style={{ fontSize: '0.75rem', color: '#C4B5FD', fontWeight: 800, background: 'rgba(139,92,246,0.18)', border: '1px solid rgba(139,92,246,0.35)', padding: '0.35rem 0.9rem', borderRadius: 50 }}>
+                        <span style={{ fontSize: '0.75rem', color: '#CBD5E1', fontWeight: 700, background: '#0F172A', border: '1px solid #334155', padding: '0.35rem 0.85rem', borderRadius: '6px' }}>
                           {totalTopics || 8} Guidance Docs
                         </span>
                       </div>
@@ -812,20 +769,22 @@ export default function CoursesPage() {
                         type="button"
                         onClick={() => setActiveTeacherZoneModal(stage)}
                         style={{
-                          padding: '0.75rem 1.6rem',
-                          borderRadius: '14px',
-                          background: 'linear-gradient(135deg, #7C3AED 0%, #3B82F6 100%)',
+                          padding: '0.7rem 1.4rem',
+                          borderRadius: '8px',
+                          background: '#2563EB',
                           border: 'none',
-                          color: '#FFF',
-                          fontWeight: 800,
+                          color: '#FFFFFF',
+                          fontWeight: 700,
                           fontSize: '0.88rem',
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
                           gap: '0.55rem',
-                          boxShadow: '0 6px 20px rgba(124, 58, 237, 0.35)',
-                          transition: 'transform 0.15s ease'
+                          boxShadow: 'none',
+                          transition: 'background 0.15s ease'
                         }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = '#1D4ED8'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = '#2563EB'}
                       >
                         <Eye size={17} color="#FFF" />
                         <span>Explore Teaching Approaches</span>
@@ -842,13 +801,13 @@ export default function CoursesPage() {
                           <span>{stage.name}</span>
                           <span className="cp-stage-badge">{stage.curriculum_name || 'CAMBRIDGE PRIMARY'}</span>
                         </div>
-                        {stage.description && <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.2rem' }}>{stage.description}</p>}
+                        {stage.description && <p style={{ fontSize: '0.8rem', color: '#94A3B8', marginTop: '0.2rem' }}>{stage.description}</p>}
                       </div>
                       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--cyan)', fontWeight: 800, background: 'rgba(0,212,255,0.1)', padding: '0.35rem 0.85rem', borderRadius: 50 }}>
+                        <span style={{ fontSize: '0.75rem', color: '#38BDF8', fontWeight: 700, background: '#1E293B', border: '1px solid #334155', padding: '0.35rem 0.75rem', borderRadius: '6px' }}>
                           {(stage.subjects || []).length} Subjects
                         </span>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--lavender)', fontWeight: 800, background: 'rgba(124,58,237,0.15)', padding: '0.35rem 0.85rem', borderRadius: 50 }}>
+                        <span style={{ fontSize: '0.75rem', color: '#CBD5E1', fontWeight: 700, background: '#1E293B', border: '1px solid #334155', padding: '0.35rem 0.75rem', borderRadius: '6px' }}>
                           {totalTopics} Topics
                         </span>
                       </div>
@@ -867,31 +826,31 @@ export default function CoursesPage() {
                           key={subject.id} 
                           className="cp-subject-card"
                           style={{
-                            background: '#0F1629',
-                            border: `1px solid ${theme.cardBorder}`,
-                            borderRadius: '20px',
+                            background: '#0F172A',
+                            border: '1px solid #334155',
+                            borderRadius: '12px',
                             padding: '1.25rem',
                             display: 'flex',
                             flexDirection: 'column',
-                            boxShadow: '0 8px 24px rgba(0,0,0,0.25)'
+                            boxShadow: 'none'
                           }}
                         >
                           <div className="cp-subj-top">
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: 0 }}>
                               <div style={{
-                                width: '42px', height: '42px', borderRadius: '13px',
-                                background: theme.iconBg,
-                                border: `1px solid ${theme.badgeBorder}`,
+                                width: '40px', height: '40px', borderRadius: '10px',
+                                background: '#1E293B',
+                                border: '1px solid #334155',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
                               }}>
-                                <SubjectIcon size={21} color={theme.accent} />
+                                <SubjectIcon size={20} color={theme.accent} />
                               </div>
 
                               <div style={{ minWidth: 0, flex: 1 }}>
                                 <div className="cp-subj-title">{subject.name}</div>
                                 {subject.description && (
                                   <p style={{
-                                    fontSize: '0.74rem', color: 'var(--muted)', marginTop: '2px',
+                                    fontSize: '0.74rem', color: '#94A3B8', marginTop: '2px',
                                     display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: 1.4
                                   }}>
                                     {subject.description}
@@ -901,9 +860,9 @@ export default function CoursesPage() {
                             </div>
 
                             <span style={{
-                              fontSize: '0.7rem', fontWeight: 800, color: theme.badgeColor,
-                              background: theme.badgeBg, border: `1px solid ${theme.badgeBorder}`,
-                              padding: '0.22rem 0.7rem', borderRadius: 50, flexShrink: 0
+                              fontSize: '0.72rem', fontWeight: 700, color: '#94A3B8',
+                              background: '#1E293B', border: '1px solid #334155',
+                              padding: '0.2rem 0.65rem', borderRadius: '6px', flexShrink: 0
                             }}>
                               {subject.topic_count || (subject.topics || []).length || 0} chapters
                             </span>
@@ -912,7 +871,7 @@ export default function CoursesPage() {
                       {/* Topics / Documents List inside Subject */}
                       <div className="cp-topics-list">
                         {(subject.topics || []).length === 0 ? (
-                          <div style={{ fontSize: '0.75rem', color: 'var(--muted)', fontStyle: 'italic', padding: '0.4rem 0' }}>
+                          <div style={{ fontSize: '0.75rem', color: '#94A3B8', fontStyle: 'italic', padding: '0.4rem 0' }}>
                             No topics added yet for this subject.
                           </div>
                         ) : (
@@ -950,8 +909,8 @@ export default function CoursesPage() {
                           marginTop: 'auto',
                           paddingTop: '0.85rem',
                           fontSize: '0.8rem',
-                          fontWeight: 800,
-                          color: theme.accent,
+                          fontWeight: 700,
+                          color: '#38BDF8',
                           textDecoration: 'none',
                           display: 'flex',
                           alignItems: 'center',
@@ -959,7 +918,7 @@ export default function CoursesPage() {
                         }}
                       >
                         <span>Explore Subject Chapters</span>
-                        <ArrowRight size={14} color={theme.accent} />
+                        <ArrowRight size={14} color="#38BDF8" />
                       </Link>
                     </div>
                   );
@@ -971,6 +930,7 @@ export default function CoursesPage() {
             );
           })
         )}
+
         {/* Modal: Subject Content Explorer */}
         <Modal
           open={!!activeSubjectModal}
@@ -981,30 +941,30 @@ export default function CoursesPage() {
           {activeSubjectModal && (
             <div style={{ padding: '0.5rem 0' }}>
               {/* Header Banner */}
-              <div style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.25) 0%, rgba(0,212,255,0.12) 100%)', border: '1px solid rgba(124,58,237,0.4)', borderRadius: '20px', padding: '1.5rem', marginBottom: '1.5rem' }}>
+              <div style={{ background: '#1E293B', border: '1px solid #334155', borderRadius: '12px', padding: '1.25rem', marginBottom: '1.25rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                  <span style={{ fontSize: '1.6rem' }}>{getSubjectIcon(activeSubjectModal.name)}</span>
-                  <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.5rem', fontWeight: 900, color: '#FFF', margin: 0 }}>
+                  <span style={{ fontSize: '1.5rem' }}>{getSubjectIcon(activeSubjectModal.name)}</span>
+                  <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#F8FAFC', margin: 0 }}>
                     {activeSubjectModal.name}
                   </h2>
-                  <span style={{ padding: '0.25rem 0.85rem', borderRadius: 50, background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.35)', color: '#00D4FF', fontSize: '0.72rem', fontWeight: 900, textTransform: 'uppercase' }}>
+                  <span style={{ padding: '0.2rem 0.65rem', borderRadius: '6px', background: '#0F172A', border: '1px solid #334155', color: '#94A3B8', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase' }}>
                     Cambridge Primary
                   </span>
                 </div>
-                <p style={{ fontSize: '0.88rem', color: 'rgba(245,240,232,0.82)', lineHeight: 1.6, margin: 0, fontWeight: 500 }}>
+                <p style={{ fontSize: '0.85rem', color: '#94A3B8', lineHeight: 1.5, margin: 0, fontWeight: 500 }}>
                   {activeSubjectModal.description || 'Explore teaching guidance, classroom strategies, and ready-to-use ideas for this approach.'}
                 </p>
               </div>
 
               {/* Chapters & Topics List */}
-              <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#FFF', marginBottom: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <BookOpen size={16} color="#00D4FF" />
+              <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#F8FAFC', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <BookOpen size={16} color="#38BDF8" />
                 <span>Chapters & Learning Documents ({(activeSubjectModal.topics || []).length})</span>
               </h3>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.25rem' }}>
                 {(activeSubjectModal.topics || []).length === 0 ? (
-                  <div style={{ padding: '2rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', color: 'rgba(245,240,232,0.5)', fontStyle: 'italic' }}>
+                  <div style={{ padding: '1.5rem', textAlign: 'center', background: '#1E293B', borderRadius: '10px', color: '#94A3B8', fontStyle: 'italic' }}>
                     No chapters found for this subject yet.
                   </div>
                 ) : (
@@ -1017,35 +977,33 @@ export default function CoursesPage() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        padding: '1rem 1.25rem',
-                        borderRadius: '14px',
-                        background: 'rgba(255,255,255,0.03)',
-                        border: '1px solid rgba(255,255,255,0.08)',
-                        color: '#FFF',
+                        padding: '0.85rem 1.1rem',
+                        borderRadius: '10px',
+                        background: '#1E293B',
+                        border: '1px solid #334155',
+                        color: '#F8FAFC',
                         textDecoration: 'none',
-                        transition: 'all 0.2s ease'
+                        transition: 'background 0.15s ease'
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(124,58,237,0.18)';
-                        e.currentTarget.style.borderColor = 'rgba(0,212,255,0.35)';
+                        e.currentTarget.style.background = '#334155';
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
-                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+                        e.currentTarget.style.background = '#1E293B';
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-                        <span style={{ color: '#00D4FF', fontWeight: 900, fontSize: '0.82rem' }}>#{String(idx + 1).padStart(2, '0')}</span>
+                        <span style={{ color: '#38BDF8', fontWeight: 800, fontSize: '0.82rem' }}>#{String(idx + 1).padStart(2, '0')}</span>
                         <div>
-                          <div style={{ fontWeight: 700, fontSize: '0.92rem' }}>{topic.name}</div>
+                          <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{topic.name}</div>
                           {topic.resource_count > 0 && (
-                            <div style={{ fontSize: '0.75rem', color: 'rgba(245,240,232,0.5)', marginTop: '2px' }}>
+                            <div style={{ fontSize: '0.75rem', color: '#94A3B8', marginTop: '2px' }}>
                               📁 {topic.resource_count} items available
                             </div>
                           )}
                         </div>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#C4B5FD', fontWeight: 700, fontSize: '0.8rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#94A3B8', fontWeight: 700, fontSize: '0.8rem' }}>
                         <span>Open Chapter</span>
                         <ChevronRight size={15} />
                       </div>
@@ -1060,17 +1018,16 @@ export default function CoursesPage() {
                   to={`/subjects/${activeSubjectModal.id}`}
                   onClick={() => setActiveSubjectModal(null)}
                   style={{
-                    padding: '0.65rem 1.4rem',
-                    borderRadius: '12px',
-                    background: 'linear-gradient(135deg, #7C3AED 0%, #00D4FF 100%)',
+                    padding: '0.65rem 1.3rem',
+                    borderRadius: '8px',
+                    background: '#2563EB',
                     color: '#FFF',
-                    fontWeight: 800,
+                    fontWeight: 700,
                     fontSize: '0.85rem',
                     textDecoration: 'none',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '0.5rem',
-                    boxShadow: '0 4px 15px rgba(124,58,237,0.3)'
+                    gap: '0.5rem'
                   }}
                 >
                   <span>Explore Full Subject Page</span>
@@ -1092,32 +1049,32 @@ export default function CoursesPage() {
             <div style={{ padding: '0.25rem 0' }}>
               {/* Header Banner */}
               <div style={{
-                background: 'linear-gradient(135deg, rgba(124,58,237,0.2) 0%, rgba(0,212,255,0.1) 100%)',
-                border: '1px solid rgba(124,58,237,0.35)',
-                borderRadius: '20px',
-                padding: '1.4rem 1.6rem',
-                marginBottom: '1.5rem'
+                background: '#1E293B',
+                border: '1px solid #334155',
+                borderRadius: '12px',
+                padding: '1.25rem',
+                marginBottom: '1.25rem'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.5rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div style={{ width: '38px', height: '38px', borderRadius: '12px', background: 'rgba(0,212,255,0.15)', border: '1px solid rgba(0,212,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <BookOpen size={20} color="#00D4FF" />
+                    <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#0F172A', border: '1px solid #334155', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <BookOpen size={18} color="#38BDF8" />
                     </div>
-                    <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.45rem', fontWeight: 900, color: '#FFF', margin: 0, letterSpacing: '-0.02em' }}>
+                    <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#F8FAFC', margin: 0 }}>
                       Teacher's Zone Approaches
                     </h2>
                   </div>
-                  <span style={{ padding: '0.3rem 0.9rem', borderRadius: 50, background: 'rgba(124,58,237,0.25)', border: '1px solid rgba(124,58,237,0.5)', color: '#C4B5FD', fontSize: '0.72rem', fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  <span style={{ padding: '0.2rem 0.65rem', borderRadius: '6px', background: '#0F172A', border: '1px solid #334155', color: '#94A3B8', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase' }}>
                     CAMBRIDGE PRIMARY
                   </span>
                 </div>
-                <p style={{ fontSize: '0.86rem', color: 'rgba(245,240,232,0.8)', lineHeight: 1.6, margin: 0, fontWeight: 500 }}>
+                <p style={{ fontSize: '0.85rem', color: '#94A3B8', lineHeight: 1.5, margin: 0, fontWeight: 500 }}>
                   Discover practical teaching methodologies and reference guidance designed for Cambridge Primary educators. Click any approach card to open and view its official document.
                 </p>
               </div>
 
               {/* Grid of all 8 Teaching Approach Subjects */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.1rem' }}>
                 {(activeTeacherZoneModal.subjects || []).map((subject) => {
                   const iconEmoji = getSubjectIcon(subject.name);
                   const topicsList = subject.topics || [];
@@ -1127,43 +1084,41 @@ export default function CoursesPage() {
                     <div
                       key={subject.id}
                       style={{
-                        background: 'linear-gradient(135deg, rgba(15, 22, 41, 0.85) 0%, rgba(26, 35, 62, 0.65) 100%)',
-                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                        borderRadius: '20px',
-                        padding: '1.5rem',
+                        background: '#1E293B',
+                        border: '1px solid #334155',
+                        borderRadius: '12px',
+                        padding: '1.25rem',
                         display: 'flex',
                         flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        transition: 'all 0.25s ease',
-                        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.25)'
+                        justifyContent: 'space-between'
                       }}
                     >
                       <div>
                         {/* Top Meta Row */}
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem' }}>
-                          <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'rgba(124, 58, 237, 0.18)', border: '1px solid rgba(124, 58, 237, 0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.35rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                          <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#0F172A', border: '1px solid #334155', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }}>
                             {iconEmoji}
                           </div>
                           <span style={realDocCount > 0 ? {
-                            fontSize: '0.7rem', fontWeight: 800, color: '#00D4FF', background: 'rgba(0, 212, 255, 0.1)', border: '1px solid rgba(0, 212, 255, 0.25)', padding: '0.2rem 0.7rem', borderRadius: 50
+                            fontSize: '0.7rem', fontWeight: 700, color: '#38BDF8', background: '#0F172A', border: '1px solid #334155', padding: '0.2rem 0.65rem', borderRadius: '6px'
                           } : {
-                            fontSize: '0.7rem', fontWeight: 700, color: 'rgba(245,240,232,0.4)', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: '0.2rem 0.7rem', borderRadius: 50
+                            fontSize: '0.7rem', fontWeight: 600, color: '#94A3B8', background: '#0F172A', border: '1px solid #334155', padding: '0.2rem 0.65rem', borderRadius: '6px'
                           }}>
                             {realDocCount} {realDocCount === 1 ? 'document' : 'documents'}
                           </span>
                         </div>
 
                         {/* Approach Title */}
-                        <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.18rem', fontWeight: 800, color: '#FFFFFF', marginBottom: '0.5rem', lineHeight: 1.35 }}>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#F8FAFC', marginBottom: '0.4rem', lineHeight: 1.35 }}>
                           {subject.name}
                         </h3>
 
                         {/* Approach Description */}
                         <p style={{
-                          fontSize: '0.84rem',
-                          color: 'rgba(245, 240, 232, 0.75)',
-                          lineHeight: 1.6,
-                          marginBottom: '1.5rem'
+                          fontSize: '0.82rem',
+                          color: '#94A3B8',
+                          lineHeight: 1.5,
+                          marginBottom: '1.25rem'
                         }}>
                           {subject.description || 'Clear guidance, classroom strategies, and ready-to-use ideas.'}
                         </p>
@@ -1180,35 +1135,36 @@ export default function CoursesPage() {
                               onClick={hasDoc ? () => handleViewTopicContent(tp.id, tp.name) : undefined}
                               style={{
                                 width: '100%',
-                                padding: '0.75rem 1rem',
-                                borderRadius: '14px',
-                                background: hasDoc
-                                  ? 'linear-gradient(135deg, rgba(124, 58, 237, 0.4) 0%, rgba(0, 212, 255, 0.25) 100%)'
-                                  : 'rgba(255, 255, 255, 0.03)',
-                                border: hasDoc
-                                  ? '1px solid rgba(0, 212, 255, 0.45)'
-                                  : '1px solid rgba(255, 255, 255, 0.08)',
-                                color: hasDoc ? '#FFF' : 'rgba(245, 240, 232, 0.45)',
-                                fontSize: '0.83rem',
-                                fontWeight: 800,
+                                padding: '0.65rem 0.9rem',
+                                borderRadius: '8px',
+                                background: hasDoc ? '#2563EB' : '#0F172A',
+                                border: hasDoc ? 'none' : '1px solid #334155',
+                                color: hasDoc ? '#FFFFFF' : '#94A3B8',
+                                fontSize: '0.82rem',
+                                fontWeight: 700,
                                 cursor: hasDoc ? 'pointer' : 'default',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
                                 gap: '0.5rem',
-                                transition: 'all 0.2s ease',
-                                boxShadow: hasDoc ? '0 4px 15px rgba(0, 212, 255, 0.15)' : 'none',
-                                marginBottom: topicsList.length > 1 ? '0.5rem' : '0'
+                                transition: 'background 0.15s ease',
+                                marginBottom: topicsList.length > 1 ? '0.4rem' : '0'
+                              }}
+                              onMouseEnter={(e) => {
+                                if (hasDoc) e.currentTarget.style.background = '#1D4ED8';
+                              }}
+                              onMouseLeave={(e) => {
+                                if (hasDoc) e.currentTarget.style.background = '#2563EB';
                               }}
                             >
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', overflow: 'hidden' }}>
-                                <FileText size={16} color={hasDoc ? '#00D4FF' : 'rgba(245,240,232,0.4)'} style={{ flexShrink: 0 }} />
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', overflow: 'hidden' }}>
+                                <FileText size={15} color={hasDoc ? '#FFFFFF' : '#94A3B8'} style={{ flexShrink: 0 }} />
                                 <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                   {hasDoc ? 'View Document' : 'No Document Uploaded'}
                                 </span>
                               </div>
                               {hasDoc && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.15)', padding: '0.2rem 0.55rem', borderRadius: '50px', fontSize: '0.7rem', fontWeight: 900, flexShrink: 0 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.2)', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 800, flexShrink: 0 }}>
                                   <Eye size={12} />
                                   <span>Read</span>
                                 </div>
