@@ -56,11 +56,15 @@ export default function RegisterPage() {
   const { loginWithGoogle, loading } = useAuthStore();
   const navigate = useNavigate();
 
-  const [selectedRole, setSelectedRole] = useState('student');
+  const [selectedRole, setSelectedRole] = useState(null);
 
   const handleGoogleCallback = async (response) => {
+    if (!selectedRole) {
+      toast.error('Please select your role (Student or Teacher) first.');
+      return;
+    }
     try {
-      const user = await loginWithGoogle(response.credential, selectedRole);
+      const user = await loginWithGoogle(response.credential, selectedRole, 'register');
       toast.success(`Account resolved! Welcome, ${user.full_name.split(' ')[0]}!`);
       if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
         navigate('/onboarding');
@@ -84,6 +88,10 @@ export default function RegisterPage() {
   }, []);
 
   const triggerGoogleLogin = () => {
+    if (!selectedRole) {
+      toast.error('Please select your role (Student or Teacher) first to continue.');
+      return;
+    }
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     if (!clientId) {
       toast.error('Google Client ID is missing');
@@ -101,7 +109,7 @@ export default function RegisterPage() {
             }
             if (tokenResponse?.access_token) {
               try {
-                const user = await loginWithGoogle({ access_token: tokenResponse.access_token }, selectedRole);
+                const user = await loginWithGoogle({ access_token: tokenResponse.access_token }, selectedRole, 'register');
                 toast.success(`Account resolved! Welcome, ${user.full_name.split(' ')[0]}!`);
                 if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
                   navigate('/onboarding');
@@ -584,15 +592,15 @@ export default function RegisterPage() {
             <p className="form-sub" style={{ marginBottom: '1.5rem' }}>Select your role to register your account.</p>
 
             {/* Role selector */}
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.75rem' }}>
               <div
                 onClick={() => setSelectedRole('student')}
                 style={{
                   flex: 1,
                   padding: '1.25rem 1rem',
                   borderRadius: '16px',
-                  border: `2px solid ${selectedRole === 'student' ? 'rgba(56,189,248,0.7)' : 'rgba(59,130,246,0.12)'}`,
-                  background: selectedRole === 'student' ? 'rgba(14,165,233,0.1)' : 'rgba(15,23,42,0.4)',
+                  border: `2px solid ${selectedRole === 'student' ? 'rgba(56,189,248,0.85)' : 'rgba(59,130,246,0.12)'}`,
+                  background: selectedRole === 'student' ? 'rgba(14,165,233,0.12)' : 'rgba(15,23,42,0.4)',
                   cursor: 'pointer',
                   display: 'flex',
                   flexDirection: 'column',
@@ -600,19 +608,24 @@ export default function RegisterPage() {
                   gap: '0.5rem',
                   textAlign: 'center',
                   transition: 'all 0.2s ease',
-                  boxShadow: selectedRole === 'student' ? '0 0 24px rgba(14,165,233,0.2)' : 'none'
+                  boxShadow: selectedRole === 'student' ? '0 0 24px rgba(14,165,233,0.25)' : 'none'
                 }}
               >
                 <div style={{
                   width: '40px', height: '40px', borderRadius: '12px',
-                  background: selectedRole === 'student' ? 'rgba(14,165,233,0.18)' : 'rgba(59,130,246,0.06)',
+                  background: selectedRole === 'student' ? 'rgba(14,165,233,0.22)' : 'rgba(59,130,246,0.06)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  border: `1px solid ${selectedRole === 'student' ? 'rgba(56,189,248,0.35)' : 'transparent'}`
+                  border: `1px solid ${selectedRole === 'student' ? 'rgba(56,189,248,0.4)' : 'transparent'}`
                 }}>
                   <BookOpen size={20} style={{ color: selectedRole === 'student' ? '#38bdf8' : 'rgba(255,255,255,0.5)' }} />
                 </div>
                 <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#ffffff' }}>I am a Student</div>
-                <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', lineHeight: 1.25 }}>Access simple primary tools, animations & worksheets</div>
+                <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', lineHeight: 1.25 }}>Access primary tools, animations & worksheets</div>
+                {selectedRole === 'student' && (
+                  <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,0.15)', padding: '0.15rem 0.5rem', borderRadius: '6px', marginTop: '4px' }}>
+                    ✓ Selected
+                  </span>
+                )}
               </div>
 
               <div
@@ -621,8 +634,8 @@ export default function RegisterPage() {
                   flex: 1,
                   padding: '1.25rem 1rem',
                   borderRadius: '16px',
-                  border: `2px solid ${selectedRole === 'teacher' ? 'rgba(129,140,248,0.7)' : 'rgba(59,130,246,0.12)'}`,
-                  background: selectedRole === 'teacher' ? 'rgba(99,102,241,0.1)' : 'rgba(15,23,42,0.4)',
+                  border: `2px solid ${selectedRole === 'teacher' ? 'rgba(129,140,248,0.85)' : 'rgba(59,130,246,0.12)'}`,
+                  background: selectedRole === 'teacher' ? 'rgba(99,102,241,0.12)' : 'rgba(15,23,42,0.4)',
                   cursor: 'pointer',
                   display: 'flex',
                   flexDirection: 'column',
@@ -630,33 +643,54 @@ export default function RegisterPage() {
                   gap: '0.5rem',
                   textAlign: 'center',
                   transition: 'all 0.2s ease',
-                  boxShadow: selectedRole === 'teacher' ? '0 0 24px rgba(99,102,241,0.2)' : 'none'
+                  boxShadow: selectedRole === 'teacher' ? '0 0 24px rgba(99,102,241,0.25)' : 'none'
                 }}
               >
                 <div style={{
                   width: '40px', height: '40px', borderRadius: '12px',
-                  background: selectedRole === 'teacher' ? 'rgba(99,102,241,0.18)' : 'rgba(59,130,246,0.06)',
+                  background: selectedRole === 'teacher' ? 'rgba(99,102,241,0.22)' : 'rgba(59,130,246,0.06)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  border: `1px solid ${selectedRole === 'teacher' ? 'rgba(129,140,248,0.35)' : 'transparent'}`
+                  border: `1px solid ${selectedRole === 'teacher' ? 'rgba(129,140,248,0.4)' : 'transparent'}`
                 }}>
                   <GraduationCap size={20} style={{ color: selectedRole === 'teacher' ? '#a5b4fc' : 'rgba(255,255,255,0.5)' }} />
                 </div>
                 <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#ffffff' }}>I am a Teacher</div>
-                <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', lineHeight: 1.25 }}>Teach with interactive controls, whiteboard & calculators</div>
+                <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', lineHeight: 1.25 }}>Teach with interactive controls, whiteboard & tools</div>
+                {selectedRole === 'teacher' && (
+                  <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#a5b4fc', background: 'rgba(99,102,241,0.15)', padding: '0.15rem 0.5rem', borderRadius: '6px', marginTop: '4px' }}>
+                    ✓ Selected
+                  </span>
+                )}
               </div>
             </div>
 
-            <div className="google-btn-wrapper" onClick={triggerGoogleLogin} style={{ cursor: 'pointer' }}>
-              <div className="custom-google-btn">
-                <svg width="20" height="20" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                </svg>
-                <span>Sign up with Google</span>
+            {selectedRole ? (
+              <div className="google-btn-wrapper" onClick={triggerGoogleLogin} style={{ cursor: 'pointer' }}>
+                <div className="custom-google-btn">
+                  <svg width="20" height="20" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                  </svg>
+                  <span>Continue with Google as {selectedRole === 'student' ? 'Student' : 'Teacher'}</span>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div style={{
+                padding: '0.85rem 1rem',
+                borderRadius: '12px',
+                background: 'rgba(15, 23, 42, 0.5)',
+                border: '1px dashed rgba(59, 130, 246, 0.25)',
+                color: '#94a3b8',
+                textAlign: 'center',
+                fontSize: '0.85rem',
+                fontWeight: 500,
+                marginTop: '0.25rem'
+              }}>
+                Select your role above to continue
+              </div>
+            )}
 
             <div className="auth-divider" style={{ margin: '2rem 0' }} />
             <p className="auth-footer-link" style={{ marginTop: 0 }}>

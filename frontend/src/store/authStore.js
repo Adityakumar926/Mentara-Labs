@@ -44,10 +44,12 @@ const useAuthStore = create((set, get) => ({
     }
   },
 
-  loginWithGoogle: async (payload, role = 'student') => {
+  loginWithGoogle: async (payload, role = null, mode = 'login') => {
     set({ loading: true, error: null });
     try {
-      const body = typeof payload === 'object' ? { ...payload, role } : { credential: payload, role };
+      const body = typeof payload === 'object'
+        ? { ...payload, role, mode }
+        : { credential: payload, role, mode };
       const { data } = await authApi.googleLogin(body);
       localStorage.setItem('accessToken',  data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
@@ -57,9 +59,12 @@ const useAuthStore = create((set, get) => ({
       useNotificationStore.getState().fetch();
       return data.user;
     } catch (err) {
-      const msg = err.response?.data?.message ?? 'Google Sign-In failed';
+      const errorData = err.response?.data;
+      const msg = errorData?.message ?? 'Google Sign-In failed';
       set({ error: msg, loading: false });
-      throw new Error(msg);
+      const customError = new Error(msg);
+      if (errorData?.code) customError.code = errorData.code;
+      throw customError;
     }
   },
 

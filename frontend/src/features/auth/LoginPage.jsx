@@ -97,7 +97,7 @@ export default function LoginPage() {
 
   const handleGoogleCallback = async (response) => {
     try {
-      const user = await loginWithGoogle(response.credential);
+      const user = await loginWithGoogle(response.credential, null, 'login');
       toast.success(`Welcome back, ${user.full_name.split(' ')[0]}!`);
       if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
         navigate('/onboarding');
@@ -105,7 +105,12 @@ export default function LoginPage() {
         navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
       }
     } catch (err) {
-      toast.error(err.message);
+      if (err.code === 'USER_NOT_FOUND' || err.message?.toLowerCase().includes('no account found')) {
+        toast.error('No account found for this Google email. Redirecting to register...');
+        setTimeout(() => navigate('/register'), 1000);
+      } else {
+        toast.error(err.message);
+      }
     }
   };
 
@@ -138,7 +143,7 @@ export default function LoginPage() {
             }
             if (tokenResponse?.access_token) {
               try {
-                const user = await loginWithGoogle({ access_token: tokenResponse.access_token });
+                const user = await loginWithGoogle({ access_token: tokenResponse.access_token }, null, 'login');
                 toast.success(`Welcome back, ${user.full_name.split(' ')[0]}!`);
                 if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
                   navigate('/onboarding');
@@ -146,7 +151,12 @@ export default function LoginPage() {
                   navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
                 }
               } catch (err) {
-                toast.error(err.message || 'Google authentication failed');
+                if (err.code === 'USER_NOT_FOUND' || err.message?.toLowerCase().includes('no account found')) {
+                  toast.error('No account found for this Google email. Redirecting to register...');
+                  setTimeout(() => navigate('/register'), 1000);
+                } else {
+                  toast.error(err.message || 'Google authentication failed');
+                }
               }
             }
           },

@@ -238,8 +238,8 @@ exports.googleLogin = async (req, res) => {
     const email = payload.email.toLowerCase().trim();
     const full_name = payload.name || 'Google User';
 
-    const roleInput = req.body.role || 'student';
-    const role = ['student', 'teacher'].includes(roleInput) ? roleInput : 'student';
+    const mode = req.body.mode || (req.body.role ? 'register' : 'login');
+    const roleInput = req.body.role;
 
     let { rows } = await db.query(
       `SELECT id, email, full_name, role, is_premium,
@@ -251,6 +251,17 @@ exports.googleLogin = async (req, res) => {
     let user = rows[0];
 
     if (!user) {
+      // If logging in without an existing account, refuse auto-registration and prompt role selection on /register
+      if (mode === 'login' || !roleInput) {
+        return res.status(404).json({
+          success: false,
+          code: 'USER_NOT_FOUND',
+          message: 'No account found with this Google email. Please select a role on the registration page.'
+        });
+      }
+
+      const role = ['student', 'teacher'].includes(roleInput) ? roleInput : 'student';
+
       // Register new user with the selected role
       const dummyPassword = Math.random().toString(36).substring(2, 15);
       const hash = await bcrypt.hash(dummyPassword, 12);
