@@ -166,7 +166,8 @@ export default function HierarchySidebar({ onSelectNode, selectedNodeId, selecte
   const renderTopicNode = (topic, subjectPathIds, subjectPathNames, depth = 0) => {
     const nodeId = `topic-${topic.id}`;
     const isExpanded = !!expandedNodes[nodeId];
-    const hasChildren = topic.children && topic.children.length > 0;
+    const childrenList = topic.children || topic.subtopics || [];
+    const hasChildren = childrenList.length > 0;
     
     const pathIds = { ...subjectPathIds, topic_id: topic.id };
     const pathNames = [...subjectPathNames, topic.name];
@@ -193,7 +194,7 @@ export default function HierarchySidebar({ onSelectNode, selectedNodeId, selecte
         
         {hasChildren && isExpanded && (
           <div className="hs-nested">
-            {topic.children.map(child => renderTopicNode(child, subjectPathIds, subjectPathNames, depth + 1))}
+            {childrenList.map(child => renderTopicNode(child, subjectPathIds, subjectPathNames, depth + 1))}
           </div>
         )}
       </div>

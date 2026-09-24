@@ -120,13 +120,14 @@ exports.create = async (req, res) => {
   try {
     const {
       title, description, subject_id, topic_id,
-      duration_minutes, total_marks, passing_marks, is_premium, certificate_enabled
+      duration_minutes, total_marks, passing_marks, is_premium, certificate_enabled, status
     } = req.body;
 
     const sanitizeNum = (val) => (val === '' || val === undefined || val === null) ? null : Number(val);
     const finalDuration = sanitizeNum(duration_minutes);
     const finalTotal = sanitizeNum(total_marks);
     const finalPassing = sanitizeNum(passing_marks);
+    const initialStatus = status || 'live';
 
     if (!title)
       return res.status(400).json({ success: false, message: 'title is required' });
@@ -134,8 +135,8 @@ exports.create = async (req, res) => {
     const { rows } = await db.query(
       `INSERT INTO exams
        (title, description, subject_id, topic_id, batch_id,
-        duration_minutes, total_marks, passing_marks, is_premium, certificate_enabled, created_by)
-       VALUES ($1,$2,$3,$4,NULL,$5,$6,$7,$8,$9,$10) RETURNING *`,
+        duration_minutes, total_marks, passing_marks, is_premium, certificate_enabled, created_by, status)
+       VALUES ($1,$2,$3,$4,NULL,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
       [
         title,
         description        || null,
@@ -146,7 +147,8 @@ exports.create = async (req, res) => {
         finalPassing,
         is_premium ?? false,
         certificate_enabled ?? false,
-        req.user.id
+        req.user.id,
+        initialStatus
       ]
     );
     res.status(201).json({ success: true, data: rows[0] });

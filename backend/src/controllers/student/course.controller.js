@@ -164,7 +164,12 @@ exports.getSubjectTopics = async (req, res) => {
       `SELECT t.*,
               up.completed AS is_completed,
               (SELECT COUNT(*)::int FROM content c WHERE c.topic_id = t.id AND c.destination IN ('shared', $3)) AS resource_count,
-              (SELECT COUNT(*)::int FROM exams e WHERE e.topic_id = t.id AND e.status IN ('live', 'scheduled', 'ended')
+              (SELECT COUNT(*)::int FROM exams e WHERE (
+                 e.topic_id = t.id
+                 OR e.topic_id IN (SELECT id FROM topics WHERE parent_topic_id = t.id)
+                 OR e.topic_id IN (SELECT id FROM topics WHERE LOWER(name) = LOWER(t.name))
+                 OR (e.topic_id IS NULL AND e.subject_id = t.subject_id)
+               ) AND e.status IN ('live', 'scheduled', 'ended', 'draft')
                  AND (e.batch_id IS NULL OR EXISTS (
                    SELECT 1 FROM batch_students bs
                    WHERE bs.batch_id = e.batch_id AND bs.student_id = $1
@@ -236,8 +241,14 @@ exports.getTopicContent = async (req, res) => {
          es.id AS submission_id
        FROM exams e
        LEFT JOIN exam_submissions es ON es.exam_id = e.id AND es.student_id = $2
-       WHERE (e.topic_id = $1 OR e.topic_id IN (SELECT id FROM topics WHERE parent_topic_id = $1) OR e.topic_id = (SELECT parent_topic_id FROM topics WHERE id = $1))
-         AND e.status IN ('live', 'scheduled', 'ended')
+       WHERE (
+         e.topic_id = $1
+         OR e.topic_id IN (SELECT id FROM topics WHERE parent_topic_id = $1)
+         OR e.topic_id = (SELECT parent_topic_id FROM topics WHERE id = $1)
+         OR e.topic_id IN (SELECT id FROM topics WHERE LOWER(name) = (SELECT LOWER(name) FROM topics WHERE id = $1))
+         OR (e.topic_id IS NULL AND e.subject_id = (SELECT subject_id FROM topics WHERE id = $1))
+       )
+         AND e.status IN ('live', 'scheduled', 'ended', 'draft')
          AND (e.batch_id IS NULL OR EXISTS (
            SELECT 1 FROM batch_students bs
            WHERE bs.batch_id = e.batch_id AND bs.student_id = $2
@@ -545,7 +556,7 @@ exports.getExploreContents = async (req, res) => {
        LEFT JOIN topics t ON t.id = e.topic_id
        LEFT JOIN exam_submissions es ON es.exam_id = e.id AND es.student_id = $2
        WHERE ($3::boolean = true OR s.class_id = $1)
-         AND e.status IN ('live', 'scheduled', 'ended')
+         AND e.status IN ('live', 'scheduled', 'ended', 'draft')
        ORDER BY e.created_at DESC`,
       [req.user.class_id || null, req.user.id, isTeacher]
     );
@@ -591,7 +602,7 @@ exports.getLiveExams = async (req, res) => {
        JOIN classes cl ON cl.id = s.class_id
        LEFT JOIN topics t ON t.id = e.topic_id
        WHERE ($3::boolean = true OR s.class_id = $2)
-         AND e.status = 'live'
+         AND e.status IN ('live', 'draft')
        ORDER BY e.ends_at ASC`,
       [req.user.id, req.user.class_id || null, isTeacher]
     );
@@ -674,8 +685,27 @@ exports.getCurriculumHierarchy = async (req, res) => {
                              (SELECT COUNT(*)::int FROM content cnt JOIN topics sub ON sub.id = cnt.topic_id WHERE sub.parent_topic_id = t.id AND cnt.destination IN ('shared', $1))
                            ),
                            'exam_count', (
-                             (SELECT COUNT(*)::int FROM exams e WHERE e.topic_id = t.id AND e.status IN ('live', 'scheduled', 'ended')) +
-                             (SELECT COUNT(*)::int FROM exams e JOIN topics sub ON sub.id = e.topic_id WHERE sub.parent_topic_id = t.id AND e.status IN ('live', 'scheduled', 'ended'))
+                             (SELECT COUNT(*)::int FROM exams e WHERE (
+                               e.topic_id = t.id 
+                               OR e.topic_id IN (SELECT id FROM topics WHERE parent_topic_id = t.id)
+                               OR e.topic_id IN (SELECT id FROM topics WHERE LOWER(name) = LOWER(t.name))
+                             ) AND e.status IN ('live', 'scheduled', 'ended', 'draft'))
+                           ),
+                           'children', (
+                             SELECT COALESCE(json_agg(
+                               json_build_object(
+                                 'id', sub.id,
+                                 'name', sub.name,
+                                 'description', sub.description,
+                                 'order_index', sub.order_index,
+                                 'resource_count', (SELECT COUNT(*)::int FROM content cnt WHERE cnt.topic_id = sub.id AND cnt.destination IN ('shared', $1)),
+                                 'exam_count', (SELECT COUNT(*)::int FROM exams e WHERE (
+                                   e.topic_id = sub.id 
+                                   OR e.topic_id IN (SELECT id FROM topics WHERE LOWER(name) = LOWER(sub.name))
+                                 ) AND e.status IN ('live', 'scheduled', 'ended', 'draft'))
+                               ) ORDER BY sub.order_index, sub.created_at ASC
+                             ), '[]'::json)
+                             FROM topics sub WHERE sub.parent_topic_id = t.id
                            ),
                            'subtopics', (
                              SELECT COALESCE(json_agg(
@@ -685,7 +715,10 @@ exports.getCurriculumHierarchy = async (req, res) => {
                                  'description', sub.description,
                                  'order_index', sub.order_index,
                                  'resource_count', (SELECT COUNT(*)::int FROM content cnt WHERE cnt.topic_id = sub.id AND cnt.destination IN ('shared', $1)),
-                                 'exam_count', (SELECT COUNT(*)::int FROM exams e WHERE e.topic_id = sub.id AND e.status IN ('live', 'scheduled', 'ended'))
+                                 'exam_count', (SELECT COUNT(*)::int FROM exams e WHERE (
+                                   e.topic_id = sub.id 
+                                   OR e.topic_id IN (SELECT id FROM topics WHERE LOWER(name) = LOWER(sub.name))
+                                 ) AND e.status IN ('live', 'scheduled', 'ended', 'draft'))
                                ) ORDER BY sub.order_index, sub.created_at ASC
                              ), '[]'::json)
                              FROM topics sub WHERE sub.parent_topic_id = t.id
