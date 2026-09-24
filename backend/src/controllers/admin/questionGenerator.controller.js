@@ -2,7 +2,7 @@ const db = require('../../config/db');
 const cloudinaryService = require('../../services/cloudinary.service');
 const pdfParse = require('pdf-parse');
 
-// Ensure source_rag_documents table exists
+// Ensure source_rag_documents and question_bank tables exist
 async function initTable() {
   try {
     await db.query(`
@@ -28,6 +28,24 @@ async function initTable() {
     `);
   } catch (err) {
     console.error('Error initializing source_rag_documents table:', err.message);
+  }
+
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS public.question_bank (
+        id UUID NOT NULL DEFAULT gen_random_uuid(),
+        subject TEXT,
+        topic TEXT,
+        difficulty TEXT,
+        question_text TEXT,
+        image_url TEXT,
+        mark_scheme TEXT,
+        CONSTRAINT question_bank_pkey PRIMARY KEY (id)
+      );
+    `);
+    console.log('[initTable] question_bank table ready');
+  } catch (err) {
+    console.error('Error initializing question_bank table:', err.message);
   }
 }
 initTable();
@@ -635,6 +653,8 @@ function ensureValidSvgDiagram(q, index = 0) {
 
 /**
  * GENERATE CAMBRIDGE PRIMARY ASSESSMENT QUESTIONS BY CURRICULUM HIERARCHY
+ * Uses 3-tier DB matching: exact topic → keyword ILIKE → subject-only fallback.
+ * Then falls back to CSV if DB yields nothing.
  */
 exports.generateQuestions = async (req, res) => {
   try {
@@ -645,62 +665,175 @@ exports.generateQuestions = async (req, res) => {
       difficulty = 'mixed',
     } = req.body;
 
-    const fs = require('fs');
-    const path = require('path');
-    const csv = require('csv-parser');
-    const results = [];
+    const limit = Math.min(Number(count) || 5, 10);
 
-    const csvPath = path.join(__dirname, '../../../../dataset/math_questions.csv');
-    
-    if (!fs.existsSync(csvPath)) {
-      throw new Error('Dataset not found');
-    }
+    // ── 1. Try DB first ──────────────────────────────────────────────────────
+    try {
+      let rows = [];
+      const isMixed = difficulty === 'mixed';
 
-    fs.createReadStream(csvPath)
-      .pipe(csv())
-      .on('data', (data) => results.push(data))
-      .on('end', () => {
-        // Filter based on subject, topic, difficulty
-        let filtered = results.filter(q => 
-          q.subject.toLowerCase() === subject.toLowerCase() &&
-          q.topic.toLowerCase() === topic.toLowerCase()
+      // Tier 1: exact topic match
+      // params: $1=subject, $2=topic, $3=limit, [$4=difficulty if not mixed]
+      {
+        const diffSql  = isMixed ? '' : ` AND LOWER(difficulty) = LOWER($4)`;
+        const params   = isMixed
+          ? [subject, topic, limit]
+          : [subject, topic, limit, difficulty];
+        const { rows: r } = await db.query(
+          `SELECT * FROM public.question_bank
+           WHERE LOWER(subject)    = LOWER($1)
+             AND LOWER(topic)      = LOWER($2)
+             AND LOWER(difficulty) != 'mixed'${diffSql}
+           ORDER BY RANDOM() LIMIT $3`,
+          params
         );
+        rows = r;
+        if (rows.length > 0) console.log(`[generateQuestions] Tier-1 (exact) match: ${rows.length} rows`);
+      }
 
-        if (difficulty !== 'mixed') {
-          filtered = filtered.filter(q => q.difficulty.toLowerCase() === difficulty.toLowerCase());
-        }
+      // Tier 2: keyword ILIKE match
+      // params: $1=subject, $2=%keyword%, $3=topic, $4=limit, [$5=difficulty if not mixed]
+      if (rows.length === 0) {
+        const topicKeyword = topic.split(/[\s&,]/)[0].trim();
+        const diffSql  = isMixed ? '' : ` AND LOWER(difficulty) = LOWER($5)`;
+        const params   = isMixed
+          ? [subject, `%${topicKeyword}%`, topic, limit]
+          : [subject, `%${topicKeyword}%`, topic, limit, difficulty];
+        const { rows: r } = await db.query(
+          `SELECT * FROM public.question_bank
+           WHERE LOWER(subject) = LOWER($1)
+             AND (LOWER(topic) ILIKE $2 OR LOWER($3) ILIKE '%' || LOWER(topic) || '%')
+             AND LOWER(difficulty) != 'mixed'${diffSql}
+           ORDER BY RANDOM() LIMIT $4`,
+          params
+        );
+        rows = r;
+        if (rows.length > 0) console.log(`[generateQuestions] Tier-2 (keyword "${topicKeyword}") match: ${rows.length} rows`);
+      }
 
-        // Shuffle
-        filtered = filtered.sort(() => 0.5 - Math.random());
-        
-        // Take count
-        filtered = filtered.slice(0, Math.min(count, 10));
+      // Tier 3: subject-only — ignore topic
+      // params: $1=subject, $2=limit, [$3=difficulty if not mixed]
+      if (rows.length === 0) {
+        const diffSql  = isMixed ? '' : ` AND LOWER(difficulty) = LOWER($3)`;
+        const params   = isMixed
+          ? [subject, limit]
+          : [subject, limit, difficulty];
+        const { rows: r } = await db.query(
+          `SELECT * FROM public.question_bank
+           WHERE LOWER(subject)    = LOWER($1)
+             AND LOWER(difficulty) != 'mixed'${diffSql}
+           ORDER BY RANDOM() LIMIT $2`,
+          params
+        );
+        rows = r;
+        if (rows.length > 0) console.log(`[generateQuestions] Tier-3 (subject-only) match: ${rows.length} rows`);
+      }
 
-        // Map to expected format
-        const formattedQuestions = filtered.map((q, idx) => ({
+
+      if (rows.length > 0) {
+        const formattedQuestions = rows.map((q, idx) => ({
           question_number: idx + 1,
           title: `Question ${idx + 1}`,
           main_instruction: q.question_text,
           sub_parts: [],
           total_marks: 3,
           explanation: q.mark_scheme,
-          difficulty: q.difficulty.toLowerCase(),
+          difficulty: (q.difficulty || 'medium').toLowerCase(),
           image_url: q.image_url || null,
-          svg_diagram: '' // Ensure no fallback SVG is generated
+          svg_diagram: '',
         }));
 
-        res.json({
+        return res.json({
           success: true,
           count: formattedQuestions.length,
-          data: formattedQuestions
+          data: formattedQuestions,
+          source: 'database',
         });
-      });
+      }
 
+      console.log('[generateQuestions] No DB rows matched at any tier — falling back to CSV');
+    } catch (dbErr) {
+      console.warn('[generateQuestions] DB query failed, falling back to CSV:', dbErr.message);
+    }
+
+    // ── 2. CSV fallback ──────────────────────────────────────────────────────
+    const fs   = require('fs');
+    const path = require('path');
+    const csv  = require('csv-parser');
+
+    const csvPath = path.join(__dirname, '../../../../dataset/math_questions.csv');
+
+    if (!fs.existsSync(csvPath)) {
+      return res.status(404).json({ success: false, message: 'Dataset not found' });
+    }
+
+    const results = [];
+    await new Promise((resolve, reject) => {
+      fs.createReadStream(csvPath)
+        .pipe(csv())
+        .on('data', (data) => results.push(data))
+        .on('end', resolve)
+        .on('error', reject);
+    });
+
+    // CSV tier 1: subject + topic exact
+    let filtered = results.filter(
+      (q) =>
+        q.subject.toLowerCase() === subject.toLowerCase() &&
+        q.topic.toLowerCase()   === topic.toLowerCase()
+    );
+
+    // CSV tier 2: subject + keyword match
+    if (filtered.length === 0) {
+      const topicKeyword = topic.split(/[\s&,]/)[0].trim().toLowerCase();
+      filtered = results.filter(
+        (q) =>
+          q.subject.toLowerCase() === subject.toLowerCase() &&
+          (q.topic.toLowerCase().includes(topicKeyword) ||
+           topic.toLowerCase().includes(q.topic.toLowerCase()))
+      );
+    }
+
+    // CSV tier 3: subject only
+    if (filtered.length === 0) {
+      filtered = results.filter((q) => q.subject.toLowerCase() === subject.toLowerCase());
+    }
+
+    if (difficulty !== 'mixed') {
+      const diffFiltered = filtered.filter(
+        (q) => q.difficulty.toLowerCase() === difficulty.toLowerCase()
+      );
+      if (diffFiltered.length > 0) filtered = diffFiltered;
+    }
+
+    filtered = filtered.sort(() => 0.5 - Math.random()).slice(0, limit);
+
+    const formattedQuestions = filtered.map((q, idx) => ({
+      question_number: idx + 1,
+      title: `Question ${idx + 1}`,
+      main_instruction: q.question_text,
+      sub_parts: [],
+      total_marks: 3,
+      explanation: q.mark_scheme,
+      difficulty: (q.difficulty || 'medium').toLowerCase(),
+      image_url: q.image_url || null,
+      svg_diagram: '',
+    }));
+
+    console.log(`[generateQuestions] Served ${formattedQuestions.length} questions from CSV fallback`);
+    return res.json({
+      success: true,
+      count: formattedQuestions.length,
+      data: formattedQuestions,
+      source: 'csv_fallback',
+    });
   } catch (err) {
     console.error('[Generate Questions Error]', err);
     res.status(500).json({ success: false, message: 'Failed to generate questions from dataset.' });
   }
 };
+
+
 
 /**
  * BULK SAVE GENERATED QUESTIONS TO QUESTION BANK
