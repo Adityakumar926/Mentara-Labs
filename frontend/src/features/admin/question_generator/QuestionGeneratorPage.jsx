@@ -94,6 +94,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
   const [isSaving, setIsSaving] = useState(false);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [viewMode, setViewMode] = useState('carousel'); // 'carousel' or 'list'
+  const [showAnswers, setShowAnswers] = useState(false);
 
   // Fetch subjects & curriculum tree from API
   const { data: subjectsRes } = useApi(adminApi.getSubjects);
@@ -815,6 +816,18 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                     >
                       📜 List All
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowAnswers(!showAnswers)}
+                      style={{
+                        padding: '0.4rem 0.85rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700,
+                        border: 'none', cursor: 'pointer', transition: 'all 0.2s', marginLeft: '0.5rem',
+                        background: showAnswers ? '#10B981' : 'transparent',
+                        color: showAnswers ? '#fff' : 'rgba(255,255,255,0.7)'
+                      }}
+                    >
+                      {showAnswers ? 'Hide Mark Scheme' : 'Show Mark Scheme'}
+                    </button>
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
@@ -1075,7 +1088,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                         )}
 
                         {/* MARKING SCHEME FOOTER */}
-                        {q.explanation && (
+                        {showAnswers && q.explanation && (
                           <div style={{ padding: '0.75rem 1rem', background: '#EBF3FA', borderLeft: '4px solid #0284C7', borderRadius: '0 8px 8px 0', fontSize: '0.78rem', fontFamily: 'Inter, sans-serif', color: '#0369A1', lineHeight: 1.5 }}>
                             <strong>Marking Scheme & Solution: </strong>
                             {q.explanation}
