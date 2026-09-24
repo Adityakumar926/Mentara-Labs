@@ -1,0 +1,41 @@
+subject,topic,difficulty,question_text,image_url,mark_scheme
+Mathematics,Numbers,Easy,What is 345 + 278?,,"623. Add the ones (5+8=13, write 3 carry 1), then the tens (4+7+1=12, write 2 carry 1), then the hundreds (3+2+1=6)."
+Mathematics,Numbers,Easy,"Write the number 4,506 in words.",,"Four thousand five hundred and six. The digits read 4 thousands, 5 hundreds, 0 tens and 6 ones."
+Mathematics,Numbers,Easy,Which is greater: 0.7 or 0.65?,,"0.7. Write 0.7 as 0.70; since 70 hundredths is greater than 65 hundredths, 0.7 > 0.65."
+Mathematics,Numbers,Easy,"Round 3,846 to the nearest hundred.",,"3,800. The tens digit is 4, which is less than 5, so the hundreds digit stays the same."
+Mathematics,Numbers,Easy,"What is the place value of the digit 7 in the number 5,742?",,"700 (7 hundreds). Reading from the right, the places are ones, tens, hundreds, thousands, and the 7 is in the hundreds place."
+Mathematics,Numbers,Easy,List all the factors of 12.,,"1, 2, 3, 4, 6, 12. Factors are the whole numbers that divide 12 exactly; they come in pairs: 1x12, 2x6, 3x4."
+Mathematics,Numbers,Easy,Look at the number line. What number does the arrow point to?,https://res.cloudinary.com/u6maukag/image/upload/v1790259479/ChatGPT_Image_Sep_24_2026_07_46_30_PM.png,"-4. The arrow is 4 units to the left of zero, so the number is negative 4."
+Mathematics,Numbers,Easy,"Which of these numbers is a prime number: 9, 15, 17, 21?",,"17. 9 = 3x3, 15 = 3x5 and 21 = 3x7 all have extra factors. 17 has only two factors, 1 and 17."
+Mathematics,Numbers,Easy,"A circle is split into 4 equal parts and 3 of them are shaded, as shown. Write the shaded fraction as a decimal.",https://res.cloudinary.com/u6maukag/image/upload/v1790259644/ChatGPT_Image_Sep_24_2026_07_50_14_PM.png,0.75. The shaded fraction is 3/4. Divide 3 by 4 to get 0.75.
+Mathematics,Numbers,Easy,What is 15 x 6?,,"90. 10x6=60 and 5x6=30, and 60+30=90."
+Mathematics,Numbers,Medium,Find the lowest common multiple (LCM) of 6 and 8.,,"24. Multiples of 6: 6, 12, 18, 24. Multiples of 8: 8, 16, 24. The smallest common multiple is 24."
+Mathematics,Numbers,Medium,Find the highest common factor (HCF) of 36 and 48.,,"12. Factors of 36: 1, 2, 3, 4, 6, 9, 12, 18, 36. Factors of 48: 1, 2, 3, 4, 6, 8, 12, 16, 24, 48. The largest common factor is 12."
+Mathematics,Numbers,Medium,Calculate -7 + 12 - 9.,,"-4. -7 + 12 = 5, then 5 - 9 = -4."
+Mathematics,Numbers,Medium,Write 0.375 as a fraction in its simplest form.,,3/8. 0.375 = 375/1000. Divide the top and bottom by 125 to get 3/8.
+Mathematics,Numbers,Medium,Express 84 as a product of its prime factors.,,2^2 x 3 x 7. 84 = 2 x 42 = 2 x 2 x 21 = 2 x 2 x 3 x 7.
+Mathematics,Numbers,Medium,Calculate 2/3 + 3/5. Give your answer as a mixed number.,,1 4/15. Use the common denominator 15: 10/15 + 9/15 = 19/15 = 1 4/15.
+Mathematics,Numbers,Medium,"Write 45,600 in standard form.",,"4.56 x 10^4. Move the decimal point 4 places to the left to get a number between 1 and 10, so the power of 10 is 4."
+Mathematics,Numbers,Medium,The thermometer shows -6 degrees Celsius at noon. By midnight the temperature has fallen by 9 degrees. What is the temperature at midnight?,https://res.cloudinary.com/u6maukag/image/upload/v1790260514/ChatGPT_Image_Sep_24_2026_08_04_59_PM.png,-15 degrees Celsius. Falling by 9 means subtracting: -6 - 9 = -15.
+Mathematics,Numbers,Medium,Find 15% of 240.,,"36. 10% of 240 = 24 and 5% = 12, so 15% = 24 + 12 = 36."
+Mathematics,Numbers,Medium,Evaluate 3^4 / 3^2.,,"9. When dividing powers with the same base, subtract the indices: 3^(4-2) = 3^2 = 9."
+Mathematics,Numbers,Hard,"Simplify sqrt(48) into the form a x sqrt(b), where b is as small as possible.",,4 sqrt(3). sqrt(48) = sqrt(16 x 3) = sqrt(16) x sqrt(3) = 4 sqrt(3).
+Mathematics,Numbers,Hard,Rationalise the denominator of 6 / sqrt(3).,,2 sqrt(3). Multiply top and bottom by sqrt(3): (6 sqrt(3)) / 3 = 2 sqrt(3).
+Mathematics,Numbers,Hard,Write the recurring decimal 0.4545... (where 45 repeats forever) as a fraction in its simplest form.,,"5/11. Let x = 0.4545... Then 100x = 45.4545... Subtract: 99x = 45, so x = 45/99 = 5/11."
+Mathematics,Numbers,Hard,Evaluate 8^(2/3) x 16^(-1/4) without a calculator.,,2. 8^(2/3) = (cube root of 8)^2 = 2^2 = 4. 16^(-1/4) = 1 / (fourth root of 16) = 1/2. So 4 x 1/2 = 2.
+Mathematics,Numbers,Hard,Two numbers have a sum of 20 and a product of 96. Find the two numbers.,,"8 and 12. Let the numbers be x and 20-x, so x(20-x) = 96, which gives x^2 - 20x + 96 = 0. Factorise: (x-8)(x-12) = 0."
+Mathematics,Numbers,Hard,Find the smallest positive integer n such that 72n is a perfect cube.,,"n = 3. 72 = 2^3 x 3^2. A perfect cube needs every prime power to be a multiple of 3, so one more factor of 3 is needed. 72 x 3 = 216 = 6^3."
+Mathematics,Numbers,Hard,How many positive factors does 360 have?,,24. 360 = 2^3 x 3^2 x 5. Add 1 to each index and multiply: (3+1)(2+1)(1+1) = 4 x 3 x 2 = 24.
+Mathematics,Numbers,Hard,"Without using a calculator, decide which is larger: sqrt(2) or 3/2. The number line shows both values marked between 1 and 2.",https://res.cloudinary.com/u6maukag/image/upload/v1790260595/ChatGPT_Image_Sep_24_2026_08_06_22_PM.png,"3/2 is larger. Square both numbers: (sqrt(2))^2 = 2 and (3/2)^2 = 9/4 = 2.25. Since 2.25 > 2 and both numbers are positive, 3/2 > sqrt(2)."
+Mathematics,Numbers,Hard,Expand and simplify (3 + sqrt(5))(3 - sqrt(5)).,,4. Use the difference of two squares: 3^2 - (sqrt(5))^2 = 9 - 5 = 4.
+Mathematics,Numbers,Hard,Find the HCF and LCM of 84 and 90.,,"HCF = 6, LCM = 1260. 84 = 2^2 x 3 x 7 and 90 = 2 x 3^2 x 5. HCF uses the lowest powers of the shared primes: 2 x 3 = 6. LCM uses the highest powers of all primes: 2^2 x 3^2 x 5 x 7 = 1260."
+Mathematics,Numbers,Mixed,What is 1000 - 467?,,"533. Subtract column by column with borrowing, or count up from 467 to 500 (33) and then to 1000 (500): 33 + 500 = 533."
+Mathematics,Numbers,Mixed,"Put these numbers in order from smallest to largest: 0.5, 1/3, 3/8, 0.45.",,"1/3, 3/8, 0.45, 0.5. As decimals: 1/3 = 0.333..., 3/8 = 0.375, 0.45 and 0.5."
+Mathematics,Numbers,Mixed,"What is the smallest positive number that leaves a remainder of 3 when divided by 4, by 5 and by 6?",,"63. The LCM of 4, 5 and 6 is 60. A number that is 3 more than a multiple of all three is 60 + 3 = 63."
+Mathematics,Numbers,Mixed,There are 10 apples in a row and 4 of them are crossed out. What fraction of the apples are NOT crossed out? Give your answer in its simplest form.,https://res.cloudinary.com/u6maukag/image/upload/v1790260692/ChatGPT_Image_Sep_24_2026_08_07_59_PM.png,"3/5. 6 apples remain out of 10, so the fraction is 6/10 = 3/5."
+Mathematics,Numbers,Mixed,Simplify the fraction 18/48.,,3/8. The HCF of 18 and 48 is 6. Dividing top and bottom by 6 gives 3/8.
+Mathematics,Numbers,Mixed,Prove that the sum of any three consecutive integers is always divisible by 3.,,"Let the integers be n, n+1 and n+2. Their sum is 3n + 3 = 3(n + 1), which is 3 times an integer, so it is always divisible by 3."
+Mathematics,Numbers,Mixed,What is the square of 9?,,81. Squaring a number means multiplying it by itself: 9 x 9 = 81.
+Mathematics,Numbers,Mixed,How many integers lie strictly between the two marked points on the number line?,https://res.cloudinary.com/u6maukag/image/upload/v1790260834/ChatGPT_Image_Sep_24_2026_08_10_20_PM.png,"4. The integers strictly between -3 and 2 are -2, -1, 0 and 1."
+Mathematics,Numbers,Mixed,Calculate (2.4 x 10^5) x (3 x 10^-2). Give your answer in standard form.,,7.2 x 10^3. Multiply the numbers: 2.4 x 3 = 7.2. Add the powers of 10: 5 + (-2) = 3.
+Mathematics,Numbers,Mixed,Convert 5/8 to a percentage.,,"62.5%. 5 / 8 = 0.625, and multiplying by 100 gives 62.5%."

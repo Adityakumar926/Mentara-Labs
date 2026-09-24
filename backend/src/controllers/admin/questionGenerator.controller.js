@@ -639,112 +639,66 @@ function ensureValidSvgDiagram(q, index = 0) {
 exports.generateQuestions = async (req, res) => {
   try {
     const {
-      stage = 'Stage 1',
       subject = 'Mathematics',
-      strand = '',
-      substrand = '',
-      topic = '',
-      subtopic = '',
+      topic = 'Numbers',
       count = 5,
       difficulty = 'mixed',
-      format = 'fill_in_lines',
-      ai_model = 'gemini-3.6-flash'
     } = req.body;
 
-    const activeStage = String(stage || 'Stage 1');
-    const activeSubject = String(subject || 'Mathematics');
+    const fs = require('fs');
+    const path = require('path');
+    const csv = require('csv-parser');
+    const results = [];
+
+    const csvPath = path.join(__dirname, '../../../../dataset/math_questions.csv');
     
-    const activeStrand = String(strand || topic || 'General Strand').trim();
-    const activeSubstrand = String(substrand || subtopic || 'General Practice').trim();
-    const questionCount = Math.max(1, Math.min(15, parseInt(count, 10) || 5));
-
-    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-    let questions = [];
-
-    if (apiKey) {
-      const prompt = `You are a Senior Cambridge Primary Assessment Examination Author.
-Generate exactly ${questionCount} authentic Cambridge Primary Exam Questions formatted for:
-- Stage Level: ${activeStage}
-- Subject: ${activeSubject}
-- Curriculum Strand: ${activeStrand}
-- Sub-strand: ${activeSubstrand}
-- Difficulty Level: ${difficulty}
-- Target Question Format: ${format === 'fill_in_lines' ? 'Authentic Worksheet Fill-in Lines (No MCQ options)' : format}
-
-STRICT CAMBRIDGE PRIMARY EXAM SPECIFICATIONS:
-1. CRITICAL: Every question generated MUST be tailored strictly to Subject (${activeSubject}) and Strand (${activeStrand}). Do NOT mix Mathematics strands into Science or English!
-2. CRITICAL: Every question generated MUST be completely unique and distinct from the others (different subtopics, different numbers, different diagrams, different story contexts). NEVER duplicate or repeat any question!
-3. Each question must follow authentic Cambridge Assessment layout with:
-   - "title": "Question X"
-   - "main_instruction": Clear top instruction statement (e.g. "${activeStage} ${activeSubject} — ${activeStrand}: Answer the questions below:")
-   - "sub_parts": Array of 2 to 3 subparts [ { "label": "(a)", "text": "Subpart question...", "marks": 1 }, { "label": "(b)", "text": "Subpart question...", "marks": 1 }, { "label": "(c)", "text": "Subpart question...", "marks": 1 } ]
-   - "total_marks": Sum of subpart marks
-   - "explanation": Complete step-by-step marking scheme & answer key
-   - "svg_diagram": Valid SVG string illustrating the question if applicable
-4. Return ONLY a valid JSON array of objects with schema:
-[
-  {
-    "question_number": 1,
-    "title": "Question 1",
-    "main_instruction": "Instruction string...",
-    "sub_parts": [
-      { "label": "(a)", "text": "Subpart question...", "marks": 1 },
-      { "label": "(b)", "text": "Subpart question...", "marks": 1 }
-    ],
-    "total_marks": 2,
-    "explanation": "Marking scheme...",
-    "difficulty": "medium"
-  }
-]`;
-
-      const modelHierarchy = [
-        ai_model === 'gemini-3.1-pro' ? 'gemini-3.1-pro-preview' : ai_model,
-        'gemini-3.5-flash',
-        'gemini-2.0-flash',
-        'gemini-1.5-flash',
-        'gemini-flash-latest',
-        'gemini-3.6-flash'
-      ].filter((m, idx, self) => m && self.indexOf(m) === idx);
-
-      const aiQuestions = await callGeminiApi(apiKey, modelHierarchy, prompt);
-      if (aiQuestions && aiQuestions.length > 0) {
-        questions = aiQuestions;
-      }
+    if (!fs.existsSync(csvPath)) {
+      throw new Error('Dataset not found');
     }
 
-    if (!questions || !questions.length) {
-      console.log(`[Fast Generator] Using Instant Cambridge Primary Fallback Engine for ${activeSubject} - ${activeStrand}`);
-      questions = generateFallbackQuestions({
-        stage: activeStage,
-        subject: activeSubject,
-        strand: activeStrand,
-        substrand: activeSubstrand,
-        count: questionCount,
-        difficulty
+    fs.createReadStream(csvPath)
+      .pipe(csv())
+      .on('data', (data) => results.push(data))
+      .on('end', () => {
+        // Filter based on subject, topic, difficulty
+        let filtered = results.filter(q => 
+          q.subject.toLowerCase() === subject.toLowerCase() &&
+          q.topic.toLowerCase() === topic.toLowerCase()
+        );
+
+        if (difficulty !== 'mixed') {
+          filtered = filtered.filter(q => q.difficulty.toLowerCase() === difficulty.toLowerCase());
+        }
+
+        // Shuffle
+        filtered = filtered.sort(() => 0.5 - Math.random());
+        
+        // Take count
+        filtered = filtered.slice(0, Math.min(count, 10));
+
+        // Map to expected format
+        const formattedQuestions = filtered.map((q, idx) => ({
+          question_number: idx + 1,
+          title: `Question ${idx + 1}`,
+          main_instruction: q.question_text,
+          sub_parts: [],
+          total_marks: 3,
+          explanation: q.mark_scheme,
+          difficulty: q.difficulty.toLowerCase(),
+          image_url: q.image_url || null,
+          svg_diagram: '' // Ensure no fallback SVG is generated
+        }));
+
+        res.json({
+          success: true,
+          count: formattedQuestions.length,
+          data: formattedQuestions
+        });
       });
-    }
 
-    questions = questions.map((q, idx) => ensureValidSvgDiagram(q, idx));
-
-    res.json({
-      success: true,
-      count: questions.length,
-      data: questions
-    });
   } catch (err) {
     console.error('[Generate Questions Error]', err);
-    let safeQuestions = generateFallbackQuestions({
-      stage: req.body?.stage,
-      subject: req.body?.subject,
-      strand: req.body?.strand || req.body?.topic,
-      count: req.body?.count
-    });
-    safeQuestions = safeQuestions.map((q, idx) => ensureValidSvgDiagram(q, idx));
-    res.json({
-      success: true,
-      count: safeQuestions.length,
-      data: safeQuestions
-    });
+    res.status(500).json({ success: false, message: 'Failed to generate questions from dataset.' });
   }
 };
 
