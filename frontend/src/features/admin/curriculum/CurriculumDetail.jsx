@@ -669,13 +669,12 @@ function SimulationFolderDropzone({ onParsed }) {
     setParsing(true);
     setFilesSummary(null);
 
-    let htmlStr = '';
-    let cssStr = '';
-    let jsStr = '';
-    let jsonStr = '';
     let parsedFiles = [];
 
     try {
+      // Build a map of basename -> content for all files
+      const fileMap = {}; // basename (lowercase) -> text content
+
       const zipFile = files.find(f => f.name.toLowerCase().endsWith('.zip'));
 
       if (zipFile) {
@@ -684,80 +683,95 @@ function SimulationFolderDropzone({ onParsed }) {
 
         for (const filename of entries) {
           const lowerName = filename.toLowerCase();
+          const ext = lowerName.split('.').pop();
+          if (!['html', 'htm', 'css', 'js', 'json'].includes(ext)) continue;
           const fileObj = zip.files[filename];
-
-          if (lowerName.endsWith('.html') || lowerName.endsWith('.htm')) {
-            const text = await fileObj.async('string');
-            parsedFiles.push({ name: filename, type: 'HTML', size: text.length });
-            if (!htmlStr || lowerName.includes('index.html')) {
-              htmlStr = text;
-            }
-          } else if (lowerName.endsWith('.css')) {
-            const text = await fileObj.async('string');
-            parsedFiles.push({ name: filename, type: 'CSS', size: text.length });
-            cssStr += '\n' + text;
-          } else if (lowerName.endsWith('.js')) {
-            const text = await fileObj.async('string');
-            parsedFiles.push({ name: filename, type: 'JS', size: text.length });
-            jsStr += '\n' + text;
-          } else if (lowerName.endsWith('.json')) {
-            const text = await fileObj.async('string');
-            parsedFiles.push({ name: filename, type: 'JSON', size: text.length });
-            if (!jsonStr || lowerName.includes('data.json') || lowerName.includes('config.json')) {
-              jsonStr = text;
-            }
-          }
+          const text = await fileObj.async('string');
+          // Store by both the full path and basename for flexible lookup
+          const basename = filename.split('/').pop().toLowerCase();
+          fileMap[basename] = text;
+          fileMap[filename.toLowerCase()] = text;
+          parsedFiles.push({ name: filename, type: ext.toUpperCase(), size: text.length });
         }
       } else {
         for (const file of files) {
-          const lowerName = file.name.toLowerCase();
+          const ext = file.name.toLowerCase().split('.').pop();
+          if (!['html', 'htm', 'css', 'js', 'json'].includes(ext)) continue;
           const text = await file.text();
-
-          if (lowerName.endsWith('.html') || lowerName.endsWith('.htm')) {
-            parsedFiles.push({ name: file.name, type: 'HTML', size: file.size });
-            if (!htmlStr || lowerName.includes('index.html')) {
-              htmlStr = text;
-            }
-          } else if (lowerName.endsWith('.css')) {
-            parsedFiles.push({ name: file.name, type: 'CSS', size: file.size });
-            cssStr += '\n' + text;
-          } else if (lowerName.endsWith('.js')) {
-            parsedFiles.push({ name: file.name, type: 'JS', size: file.size });
-            jsStr += '\n' + text;
-          } else if (lowerName.endsWith('.json')) {
-            parsedFiles.push({ name: file.name, type: 'JSON', size: file.size });
-            if (!jsonStr || lowerName.includes('data.json') || lowerName.includes('config.json')) {
-              jsonStr = text;
-            }
-          }
+          // webkitRelativePath gives "FolderName/file.ext", use it for disambiguation
+          const relPath = (file.webkitRelativePath || file.name).toLowerCase();
+          const basename = file.name.toLowerCase();
+          fileMap[basename] = text;
+          fileMap[relPath] = text;
+          parsedFiles.push({ name: file.webkitRelativePath || file.name, type: ext.toUpperCase(), size: file.size });
         }
       }
 
-      let finalHtml = htmlStr;
-      let finalCss = cssStr;
-      let finalJs = jsStr;
-      let finalJson = jsonStr;
+      // Find the primary HTML entry (index.html preferred)
+      let htmlEntry = Object.keys(fileMap).find(k => k.endsWith('index.html') || k.endsWith('index.htm'));
+      if (!htmlEntry) htmlEntry = Object.keys(fileMap).find(k => k.endsWith('.html') || k.endsWith('.htm'));
+      let rawHtml = htmlEntry ? fileMap[htmlEntry] : '';
 
-      if (htmlStr) {
-        const extracted = parseHtmlContent(htmlStr);
-        if (extracted.html) finalHtml = extracted.html;
-        if (extracted.css) finalCss = (cssStr + '\n' + extracted.css).trim();
-        if (extracted.js) finalJs = (jsStr + '\n' + extracted.js).trim();
-        if (extracted.json && !finalJson) finalJson = extracted.json;
+      if (!rawHtml) {
+        toast.error('No HTML file found in the uploaded files.');
+        setParsing(false);
+        return;
       }
 
+      // ─── INLINE all external CSS <link href="..."> references ──────────────
+      rawHtml = rawHtml.replace(
+        /<link\b[^>]*\brel=["']stylesheet["'][^>]*\bhref=["']([^"']+)["'][^>]*\/?>/gi,
+        (match, href) => {
+          const key = href.toLowerCase().split('/').pop(); // get basename
+          const css = fileMap[key] || fileMap[href.toLowerCase()];
+          if (css) return `<style>\n${css}\n</style>`;
+          return match; // leave untouched if not found
+        }
+      );
+      // Also handle <link href="..." rel="stylesheet"> order
+      rawHtml = rawHtml.replace(
+        /<link\b[^>]*\bhref=["']([^"']+\.css)["'][^>]*\/?>/gi,
+        (match, href) => {
+          const key = href.toLowerCase().split('/').pop();
+          const css = fileMap[key] || fileMap[href.toLowerCase()];
+          if (css) return `<style>\n${css}\n</style>`;
+          return match;
+        }
+      );
+
+      // ─── INLINE all external <script src="..."> references ─────────────────
+      rawHtml = rawHtml.replace(
+        /<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*><\/script>/gi,
+        (match, src) => {
+          // Skip CDN/external URLs
+          if (/^https?:\/\//.test(src)) return match;
+          const key = src.toLowerCase().split('/').pop();
+          const js = fileMap[key] || fileMap[src.toLowerCase()];
+          if (js) return `<script>\n${js}\n</script>`;
+          return match;
+        }
+      );
+
+      // ─── Produce the final self-contained html_content directly ────────────
+      // We store the full inlined HTML as html_content.
+      // The html_part/css_part/js_part split is kept for the editor preview tabs
+      // but we override html_content on save via compileHtmlContent.
+      const extracted = parseHtmlContent(rawHtml);
+
       onParsed({
-        html_part: finalHtml.trim(),
-        css_part: finalCss.trim(),
-        js_part: finalJs.trim(),
-        json_part: finalJson.trim()
+        // Pass the full inlined HTML as html_part so the editor shows it
+        // and compileHtmlContent wraps it correctly on save.
+        html_part: rawHtml.trim(),       // full self-contained inlined HTML
+        css_part: extracted.css || '',   // parsed CSS for editor tab display
+        js_part: extracted.js || '',     // parsed JS for editor tab display
+        json_part: extracted.json || ''  // parsed JSON for editor tab display
       });
 
       setFilesSummary({
         fileCount: parsedFiles.length,
         files: parsedFiles
       });
-      toast.success(`Simulation bundle uploaded! Processed ${parsedFiles.length} file(s).`);
+      toast.success(`Simulation bundle uploaded! Processed ${parsedFiles.length} file(s). All assets inlined.`);
     } catch (err) {
       toast.error('Error reading simulation bundle: ' + err.message);
     } finally {
@@ -1051,7 +1065,12 @@ export default function CurriculumDetail() {
           await adminApi.updateContent(f.videoContentId, { title: f.title, is_premium: f.is_premium });
         }
       } else if (f.content_type === 'animation') {
-        const compiledHtml = compileHtmlContent(f.html_part, f.css_part, f.js_part, f.json_part);
+        // If html_part is already a full self-contained document (from folder upload),
+        // use it directly. Otherwise compile from parts.
+        const isFullDocument = f.html_part.trim().toLowerCase().startsWith('<!doctype') || f.html_part.trim().toLowerCase().startsWith('<html');
+        const compiledHtml = isFullDocument
+          ? f.html_part.trim()
+          : compileHtmlContent(f.html_part, f.css_part, f.js_part, f.json_part);
         const animBody = {
           title: f.title,
           html_content: compiledHtml,
