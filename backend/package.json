@@ -17,7 +17,6 @@
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.10.0",
     "cors": "^2.8.6",
-    "csv-parser": "^3.2.1",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-rate-limit": "^8.5.2",
@@ -32,5 +31,8 @@
     "razorpay": "^2.9.8",
     "socket.io": "^4.8.3",
     "streamifier": "^0.1.1"
+  },
+  "devDependencies": {
+    "csv-parser": "^3.2.1"
   }
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
@@ -532,7 +532,8 @@ export default function StudentDashboardPage() {
 
   const { data: profileRes } = useApi(studentApi.getProfile);
   const profile = profileRes?.data ?? profileRes;
-  const stageName = profile?.class_name || user?.class_name;
+  const rawStage = profile?.class_name || user?.class_name || user?.stage || profile?.stage;
+  const stageName = typeof rawStage === 'object' && rawStage !== null ? (rawStage.name || rawStage.title || '') : String(rawStage || '');
 
   const curriculumId = user?.curriculum_id;
 
@@ -593,17 +594,26 @@ export default function StudentDashboardPage() {
   const rawSubjects = Array.isArray(subjectsRes?.data) ? subjectsRes.data : (Array.isArray(subjectsRes) ? subjectsRes : []);
   const allowedStudentSubjects = ['english', 'mathematics', 'maths', 'math', 'science', 'global perspectives', 'global'];
 
+  const studentStageLower = (stageName || user?.stage || profile?.stage || '').toString().toLowerCase().trim();
+
   const subjects = [];
   rawSubjects.forEach(s => {
     if (!s || !s.name) return;
     const lowerName = s.name.trim().toLowerCase();
     const isAllowed = allowedStudentSubjects.some(t => lowerName.includes(t));
-    if (isAllowed && s.destination !== 'teacher') {
-      if (!subjects.some(existing => existing.name.trim().toLowerCase() === lowerName)) {
-        subjects.push(s);
+    if (!isAllowed || s.destination === 'teacher') return;
+
+    const existingIdx = subjects.findIndex(existing => existing.name.trim().toLowerCase() === lowerName);
+    if (existingIdx === -1) {
+      subjects.push(s);
+    } else {
+      const cName = (s.class_name || '').toString().toLowerCase().trim();
+      if (studentStageLower && cName && (cName.includes(studentStageLower) || studentStageLower.includes(cName))) {
+        subjects[existingIdx] = s;
       }
     }
   });
+
 
 
 
@@ -720,8 +730,17 @@ export default function StudentDashboardPage() {
   const items = Array.isArray(topicContent?.items) ? topicContent.items : (Array.isArray(topicContent) ? topicContent : []);
   const exams = Array.isArray(topicContent?.exams) ? topicContent.exams : [];
 
-  const safeItems = Array.isArray(items) ? items : [];
-  const safeExams = Array.isArray(exams) ? exams : [];
+  const safeItems = useMemo(() => {
+    if (!Array.isArray(items)) return [];
+    const seen = new Set();
+    return items.filter(c => c && c.id && !seen.has(c.id) && seen.add(c.id));
+  }, [items]);
+
+  const safeExams = useMemo(() => {
+    if (!Array.isArray(exams)) return [];
+    const seen = new Set();
+    return exams.filter(e => e && e.id && !seen.has(e.id) && seen.add(e.id));
+  }, [exams]);
 
   const [selectedNoteTitle, setSelectedNoteTitle] = useState('Cambridge Primary Story Book');
 
@@ -762,7 +781,10 @@ export default function StudentDashboardPage() {
   };
 
   const handleOpenAnimation = async (content) => {
-    if (!content?.animation_id && !content?.file_url && !content?.url) {
+    const animId = content?.animation_id || content?.id;
+    const targetUrl = content?.sim_url || content?.preview_url || content?.animation_url || content?.url || content?.file_url;
+
+    if (!animId && !targetUrl && !content?.html_content) {
       toast.error('Simulation ID is missing.');
       return;
     }
@@ -784,24 +806,28 @@ export default function StudentDashboardPage() {
     }
 
     try {
-      let animData = null;
-      if (content.animation_id) {
-        const animRes = await studentApi.getAnimation(content.animation_id);
-        animData = animRes.data?.data ?? animRes.data ?? animRes;
+      let animData = content?.html_content ? content : null;
+      if (!animData && animId) {
+        try {
+          const animRes = await studentApi.getAnimation(animId);
+          animData = animRes.data?.data ?? animRes.data ?? animRes;
+        } catch (err) {}
       }
 
-      if (animData?.html_content && animWindow) {
+      const htmlContent = animData?.html_content || content?.html_content;
+
+      if (htmlContent && animWindow) {
         animWindow.document.open();
-        animWindow.document.write(animData.html_content);
+        animWindow.document.write(htmlContent);
         animWindow.document.close();
         toast.success('Simulation ready!');
       } else {
-        const targetUrl = animData?.sim_url || animData?.preview_url || animData?.animation_url || animData?.url || animData?.file_url || content?.file_url || content?.url;
-        if (targetUrl) {
+        const finalUrl = animData?.sim_url || animData?.preview_url || animData?.animation_url || animData?.url || animData?.file_url || targetUrl;
+        if (finalUrl) {
           if (animWindow) {
-            animWindow.location.href = targetUrl;
+            animWindow.location.href = finalUrl;
           } else {
-            window.open(targetUrl, '_blank');
+            window.open(finalUrl, '_blank');
           }
           toast.success('Simulation ready!');
         } else {
@@ -813,9 +839,7 @@ export default function StudentDashboardPage() {
       if (content?.id) {
         try {
           await studentApi.trackResource({ contentId: content.id, completed: true });
-        } catch (e) {
-          /* ignore */
-        }
+        } catch (e) {}
       }
     } catch (e) {
       if (animWindow) animWindow.close();
@@ -1065,11 +1089,12 @@ export default function StudentDashboardPage() {
     wsWindow.document.close();
   };
 
-  const firstName = user?.full_name?.split(' ')?.[0] ?? 'Learner';
+  const rawFullName = user?.full_name || profile?.full_name;
+  const firstName = typeof rawFullName === 'string' ? rawFullName.trim().split(' ')[0] : 'Learner';
 
-  const notesAndVideos = items.filter(c => c.content_type === 'note' || c.content_type === 'video');
-  const simulators = items.filter(c => c.content_type === 'animation');
-  const worksheets = items.filter(c => c.content_type === 'worksheet');
+  const notesAndVideos = safeItems.filter(c => c.content_type === 'note' || c.content_type === 'video');
+  const simulators = safeItems.filter(c => c.content_type === 'animation' || c.content_type === 'simulator' || c.content_type === 'simulation' || Boolean(c.animation_id));
+  const worksheets = safeItems.filter(c => c.content_type === 'worksheet');
 
   return (
     <PageWrapper className="p-6">

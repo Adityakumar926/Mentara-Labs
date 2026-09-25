@@ -43,13 +43,14 @@ exports.getCurriculumSubjects = async (req, res) => {
     const isTeacherOrAdmin = req.user.role === 'teacher' || req.user.role === 'admin';
 
     let targetCurriculumId = curriculumId;
-    if (!targetCurriculumId || targetCurriculumId === 'default' || targetCurriculumId === 'null' || targetCurriculumId === 'undefined') {
+    if (!targetCurriculumId || targetCurriculumId === 'default' || targetCurriculumId === 'null' || targetCurriculumId === 'undefined' || targetCurriculumId === 'all') {
       targetCurriculumId = req.user.curriculum_id || null;
     }
 
     const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
     const targetClassId = classId || (!isTeacherOrAdmin ? req.user.class_id : null);
 
+    const params = [destination];
     let queryStr = `
       SELECT
          s.*,
@@ -60,41 +61,43 @@ exports.getCurriculumSubjects = async (req, res) => {
            SELECT COUNT(*)::int 
            FROM content c 
            JOIN topics t ON t.id = c.topic_id 
-           WHERE t.subject_id = s.id AND c.destination IN ('shared', $1)
+           WHERE t.subject_id = s.id AND (c.destination IS NULL OR c.destination IN ('shared', $1))
          ) + (
            SELECT COUNT(*)::int 
            FROM exams e 
            JOIN topics t ON t.id = e.topic_id 
-           WHERE t.subject_id = s.id AND e.status IN ('live', 'scheduled', 'ended')
+           WHERE t.subject_id = s.id AND (e.status IN ('live', 'scheduled', 'ended', 'draft', 'published', 'active') OR e.status IS NULL)
          ) AS content_count,
          (
            SELECT COUNT(*)::int 
            FROM content c 
            JOIN topics t ON t.id = c.topic_id 
-           WHERE t.subject_id = s.id AND c.is_premium = true AND c.destination IN ('shared', $1)
+           WHERE t.subject_id = s.id AND c.is_premium = true AND (c.destination IS NULL OR c.destination IN ('shared', $1))
          ) + (
            SELECT COUNT(*)::int 
            FROM exams e 
            JOIN topics t ON t.id = e.topic_id 
-           WHERE t.subject_id = s.id AND e.is_premium = true AND e.status IN ('live', 'scheduled', 'ended')
+           WHERE t.subject_id = s.id AND e.is_premium = true AND (e.status IN ('live', 'scheduled', 'ended', 'draft', 'published', 'active') OR e.status IS NULL)
          ) AS premium_content_count
        FROM subjects s
        JOIN classes cl ON cl.id = s.class_id
        JOIN curriculums curr ON curr.id = cl.curriculum_id`;
 
-    const params = [destination];
+    const whereConditions = [];
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
     if (targetCurriculumId && uuidRegex.test(targetCurriculumId)) {
-      params.unshift(targetCurriculumId);
-      queryStr += ` WHERE cl.curriculum_id = $1`;
-      if (targetClassId && uuidRegex.test(targetClassId)) {
-        params.push(targetClassId);
-        queryStr += ` AND cl.id = $${params.length}`;
-      }
-    } else if (targetClassId && uuidRegex.test(targetClassId)) {
+      params.push(targetCurriculumId);
+      whereConditions.push(`cl.curriculum_id = $${params.length}`);
+    }
+
+    if (targetClassId && uuidRegex.test(targetClassId)) {
       params.push(targetClassId);
-      queryStr += ` WHERE cl.id = $${params.length}`;
+      whereConditions.push(`cl.id = $${params.length}`);
+    }
+
+    if (whereConditions.length > 0) {
+      queryStr += ` WHERE ` + whereConditions.join(' AND ');
     }
 
     queryStr += ` ORDER BY s.order_index, s.name ASC`;
@@ -113,23 +116,23 @@ exports.getCurriculumSubjects = async (req, res) => {
              SELECT COUNT(*)::int 
              FROM content c 
              JOIN topics t ON t.id = c.topic_id 
-             WHERE t.subject_id = s.id AND c.destination IN ('shared', $1)
+             WHERE t.subject_id = s.id AND (c.destination IS NULL OR c.destination IN ('shared', $1))
            ) + (
              SELECT COUNT(*)::int 
              FROM exams e 
              JOIN topics t ON t.id = e.topic_id 
-             WHERE t.subject_id = s.id AND e.status IN ('live', 'scheduled', 'ended')
+             WHERE t.subject_id = s.id AND (e.status IN ('live', 'scheduled', 'ended', 'draft', 'published', 'active') OR e.status IS NULL)
            ) AS content_count,
            (
              SELECT COUNT(*)::int 
              FROM content c 
              JOIN topics t ON t.id = c.topic_id 
-             WHERE t.subject_id = s.id AND c.is_premium = true AND c.destination IN ('shared', $1)
+             WHERE t.subject_id = s.id AND c.is_premium = true AND (c.destination IS NULL OR c.destination IN ('shared', $1))
            ) + (
              SELECT COUNT(*)::int 
              FROM exams e 
              JOIN topics t ON t.id = e.topic_id 
-             WHERE t.subject_id = s.id AND e.is_premium = true AND e.status IN ('live', 'scheduled', 'ended')
+             WHERE t.subject_id = s.id AND e.is_premium = true AND (e.status IN ('live', 'scheduled', 'ended', 'draft', 'published', 'active') OR e.status IS NULL)
            ) AS premium_content_count
          FROM subjects s
          JOIN classes cl ON cl.id = s.class_id
@@ -141,6 +144,7 @@ exports.getCurriculumSubjects = async (req, res) => {
 
     res.json({ success: true, data: rows });
   } catch (err) {
+    console.error('[getCurriculumSubjects Error]', err);
     res.status(500).json({ success: false, message: err.message });
   }
 };
@@ -214,16 +218,49 @@ exports.getTopicContent = async (req, res) => {
          c.is_premium,
          CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.file_url          END AS file_url,
          CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.mux_playback_id   END AS mux_playback_id,
-         CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.animation_id      END AS animation_id,
+         c.animation_id AS animation_id,
          up.completed AS is_completed,
          up.video_progress
        FROM content c
        LEFT JOIN user_progress up ON up.content_id = c.id AND up.user_id = $3
        WHERE (c.topic_id = $1 OR c.topic_id IN (SELECT id FROM topics WHERE parent_topic_id = $1) OR c.topic_id = (SELECT parent_topic_id FROM topics WHERE id = $1))
-         AND c.destination IN ('shared', $4)
+         AND (c.destination IS NULL OR c.destination IN ('shared', $4))
        ORDER BY c.order_index`,
       [topicId, isPremium, req.user.id, destination]
     );
+
+    // Fetch direct animations from animations table for subject/topic
+    const { rows: animRows } = await db.query(
+      `SELECT
+         a.id,
+         a.title,
+         'animation' AS content_type,
+         999 AS order_index,
+         a.is_premium,
+         NULL AS file_url,
+         NULL AS mux_playback_id,
+         a.id AS animation_id,
+         false AS is_completed,
+         0 AS video_progress
+       FROM animations a
+       WHERE (
+         a.subject_id = (SELECT subject_id FROM topics WHERE id = $1)
+         OR a.subject_id IN (SELECT id FROM subjects WHERE LOWER(name) = (SELECT LOWER(name) FROM subjects WHERE id = (SELECT subject_id FROM topics WHERE id = $1)))
+       )`,
+      [topicId]
+    );
+
+    const mergedItems = [...contentRows];
+    animRows.forEach(anim => {
+      const exists = mergedItems.some(c => 
+        (c.animation_id && c.animation_id === anim.id) || 
+        (c.id === anim.id) ||
+        (c.title?.toLowerCase() === anim.title?.toLowerCase() && c.content_type === 'animation')
+      );
+      if (!exists) {
+        mergedItems.push(anim);
+      }
+    });
 
     const { rows: examRows } = await db.query(
       `SELECT
@@ -240,15 +277,16 @@ exports.getTopicContent = async (req, res) => {
          es.status AS submission_status,
          es.id AS submission_id
        FROM exams e
-       LEFT JOIN exam_submissions es ON es.exam_id = e.id AND es.student_id = $2
+       LEFT JOIN LATERAL (
+         SELECT id, status FROM exam_submissions
+         WHERE exam_id = e.id AND student_id = $2
+         ORDER BY created_at DESC LIMIT 1
+       ) es ON true
        WHERE (
          e.topic_id = $1
          OR e.topic_id IN (SELECT id FROM topics WHERE parent_topic_id = $1)
-         OR e.topic_id = (SELECT parent_topic_id FROM topics WHERE id = $1)
-         OR e.topic_id IN (SELECT id FROM topics WHERE LOWER(name) = (SELECT LOWER(name) FROM topics WHERE id = $1))
-         OR (e.topic_id IS NULL AND e.subject_id = (SELECT subject_id FROM topics WHERE id = $1))
        )
-         AND e.status IN ('live', 'scheduled', 'ended', 'draft')
+         AND (e.status IN ('live', 'scheduled', 'ended', 'draft', 'published', 'active') OR e.status IS NULL)
          AND (e.batch_id IS NULL OR EXISTS (
            SELECT 1 FROM batch_students bs
            WHERE bs.batch_id = e.batch_id AND bs.student_id = $2
@@ -262,7 +300,7 @@ exports.getTopicContent = async (req, res) => {
       data: {
         topic_name: access[0].topic_name,
         subject_name: access[0].subject_name,
-        items: contentRows,
+        items: mergedItems,
         exams: examRows
       }
     });
@@ -319,7 +357,8 @@ exports.getAnimation = async (req, res) => {
   try {
     const { rows } = await db.query(
       `SELECT id, title, description, html_content, is_premium FROM animations
-       WHERE id = $1`,
+       WHERE id = $1
+          OR id = (SELECT animation_id FROM content WHERE id = $1)`,
       [req.params.animationId]
     );
     if (!rows[0])
