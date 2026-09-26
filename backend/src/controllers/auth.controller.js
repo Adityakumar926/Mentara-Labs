@@ -68,7 +68,15 @@ exports.login = async (req, res) => {
 
     const cleanEmail = String(email || '').toLowerCase().trim();
     const { rows } = await db.query(
-      `SELECT * FROM users WHERE LOWER(TRIM(email)) = LOWER(TRIM($1))`,
+      `SELECT u.*,
+              cl.name AS class_name,
+              cl.name AS stage,
+              cl.name AS stage_name,
+              c.name AS curriculum_name
+       FROM users u
+       LEFT JOIN classes cl ON cl.id = u.class_id
+       LEFT JOIN curriculums c ON c.id = u.curriculum_id
+       WHERE LOWER(TRIM(u.email)) = LOWER(TRIM($1))`,
       [cleanEmail]
     );
 
@@ -102,9 +110,16 @@ exports.login = async (req, res) => {
 exports.me = async (req, res) => {
   try {
     const { rows } = await db.query(
-      `SELECT id, email, full_name, role, is_premium,
-              premium_expires_at, avatar_url, curriculum_id, class_id, onboarded, created_at
-       FROM users WHERE id = $1`,
+      `SELECT u.id, u.email, u.full_name, u.role, u.is_premium,
+              u.premium_expires_at, u.avatar_url, u.curriculum_id, u.class_id, u.onboarded, u.created_at,
+              cl.name AS class_name,
+              cl.name AS stage,
+              cl.name AS stage_name,
+              c.name AS curriculum_name
+       FROM users u
+       LEFT JOIN classes cl ON cl.id = u.class_id
+       LEFT JOIN curriculums c ON c.id = u.curriculum_id
+       WHERE u.id = $1`,
       [req.user.id]
     );
     if (!rows[0]) return res.status(404).json({ success: false, message: 'User not found' });
@@ -176,14 +191,28 @@ exports.onboard = async (req, res) => {
     if (!curriculum_id || !class_id)
       return res.status(400).json({ success: false, message: 'curriculum_id and class_id are required' });
 
-    const { rows } = await db.query(
+    await db.query(
       `UPDATE users
        SET curriculum_id = $1,
            class_id = $2,
            onboarded = true,
            updated_at = NOW()
-       WHERE id = $3 RETURNING id, email, full_name, role, is_premium, premium_expires_at, avatar_url, curriculum_id, class_id, onboarded, created_at`,
+       WHERE id = $3`,
       [curriculum_id, class_id, req.user.id]
+    );
+
+    const { rows } = await db.query(
+      `SELECT u.id, u.email, u.full_name, u.role, u.is_premium,
+              u.premium_expires_at, u.avatar_url, u.curriculum_id, u.class_id, u.onboarded, u.created_at,
+              cl.name AS class_name,
+              cl.name AS stage,
+              cl.name AS stage_name,
+              c.name AS curriculum_name
+       FROM users u
+       LEFT JOIN classes cl ON cl.id = u.class_id
+       LEFT JOIN curriculums c ON c.id = u.curriculum_id
+       WHERE u.id = $1`,
+      [req.user.id]
     );
 
     res.json({ success: true, user: rows[0] });
@@ -242,9 +271,15 @@ exports.googleLogin = async (req, res) => {
     const roleInput = req.body.role;
 
     let { rows } = await db.query(
-      `SELECT id, email, full_name, role, is_premium,
-              premium_expires_at, avatar_url, curriculum_id, class_id, onboarded, created_at 
-       FROM users WHERE email = $1`,
+      `SELECT u.*,
+              cl.name AS class_name,
+              cl.name AS stage,
+              cl.name AS stage_name,
+              c.name AS curriculum_name
+       FROM users u
+       LEFT JOIN classes cl ON cl.id = u.class_id
+       LEFT JOIN curriculums c ON c.id = u.curriculum_id
+       WHERE LOWER(TRIM(u.email)) = LOWER(TRIM($1))`,
       [email]
     );
 

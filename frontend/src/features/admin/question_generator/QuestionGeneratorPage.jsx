@@ -15,12 +15,38 @@ import html2canvas from 'html2canvas';
 import useAuthStore from '@/store/authStore';
 
 function getStudentStage(user) {
-  if (!user) return 'Stage 2';
-  const raw = user.stage || user.stage_name || user.class_name || user.grade || '';
-  if (!raw) return 'Stage 2';
-  const match = String(raw).match(/Stage\s*(\d)/i) || String(raw).match(/Primary\s*(\d)/i) || String(raw).match(/(\d)/);
-  if (match) return `Stage ${match[1]}`;
-  return 'Stage 2';
+  if (!user) return 'Stage 5';
+  const raw = user.stage || user.stage_name || user.class_name || user.grade || user.class || '';
+  if (!raw) return 'Stage 5';
+  
+  // 1. Explicit Stage X
+  const stageMatch = String(raw).match(/Stage\s*(\d)/i);
+  if (stageMatch) return `Stage ${stageMatch[1]}`;
+
+  // 2. Primary X
+  const primaryMatch = String(raw).match(/Primary\s*(\d)/i);
+  if (primaryMatch) return `Stage ${primaryMatch[1]}`;
+
+  // 3. Grade X mapping (Cambridge Primary)
+  const gradeMatch = String(raw).match(/Grade\s*(\d)/i);
+  if (gradeMatch) {
+    const gNum = parseInt(gradeMatch[1], 10);
+    if (gNum === 1) return 'Stage 2';
+    if (gNum === 2) return 'Stage 3';
+    if (gNum === 3) return 'Stage 4';
+    if (gNum === 4) return 'Stage 5';
+    if (gNum === 5) return 'Stage 6';
+    if (gNum === 6) return 'Stage 6';
+  }
+
+  // 4. Standalone digit
+  const numMatch = String(raw).match(/(\d)/);
+  if (numMatch) {
+    const n = parseInt(numMatch[1], 10);
+    if (n >= 1 && n <= 6) return `Stage ${n}`;
+  }
+
+  return 'Stage 5';
 }
 
 const DEFAULT_STRANDS_BY_SUBJECT = {
@@ -53,25 +79,33 @@ const DEFAULT_STRANDS_BY_SUBJECT = {
 export default function QuestionGeneratorPage({ isSimpleMode = false }) {
   const location = useLocation();
   const user = useAuthStore(state => state.user);
+  const fetchMe = useAuthStore(state => state.fetchMe);
   const isStudent = user?.role === 'student' || (location.pathname && location.pathname.includes('/student/'));
   const hideAdvancedOptions = isSimpleMode || isStudent || (location.pathname && location.pathname === '/question-generator');
 
   const [activeTab, setActiveTab] = useState('generator'); // 'generator', 'documents'
   
+  // Refresh user data if class_name is missing from old session
+  useEffect(() => {
+    if (fetchMe && (!user?.class_name || !user?.stage)) {
+      fetchMe().catch(() => {});
+    }
+  }, [fetchMe, user?.class_name, user?.stage]);
+
   // Controls state - initialize stage with registered student stage if student
   const [stage, setStage] = useState(() => {
-    if (user?.role === 'student' || (location.pathname && location.pathname.includes('/student/'))) {
-      return getStudentStage(user);
-    }
-    return 'Stage 2';
+    return getStudentStage(user);
   });
 
   // Sync student stage whenever user object updates
   useEffect(() => {
-    if (isStudent && user) {
-      setStage(getStudentStage(user));
+    if (user) {
+      const detectedStage = getStudentStage(user);
+      if (detectedStage) {
+        setStage(detectedStage);
+      }
     }
-  }, [isStudent, user]);
+  }, [user]);
   const [selectedSubjectId, setSelectedSubjectId] = useState('');
   const [selectedSubjectName, setSelectedSubjectName] = useState('Mathematics');
   const [selectedTopicId, setSelectedTopicId] = useState('');
@@ -574,24 +608,23 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
             )}
 
             {/* Grade Selection */}
-            {!isStudent && (
-              <div>
-                <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
-                  Select Grade
-                </label>
-                <select
-                  value={stage}
-                  onChange={(e) => setStage(e.target.value)}
-                  className="qg-select"
-                >
-                  <option value="Stage 2" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 1 (Stage 2)</option>
-                  <option value="Stage 3" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 2 (Stage 3)</option>
-                  <option value="Stage 4" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 3 (Stage 4)</option>
-                  <option value="Stage 5" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 4 (Stage 5)</option>
-                  <option value="Stage 6" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 5 (Stage 6)</option>
-                </select>
-              </div>
-            )}
+            <div>
+              <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
+                Select Grade / Stage
+              </label>
+              <select
+                value={stage}
+                onChange={(e) => setStage(e.target.value)}
+                className="qg-select"
+              >
+                <option value="Stage 1" style={{ background: '#0F172A', color: '#F8FAFC' }}>Stage 1 (Primary 1)</option>
+                <option value="Stage 2" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 1 (Stage 2)</option>
+                <option value="Stage 3" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 2 (Stage 3)</option>
+                <option value="Stage 4" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 3 (Stage 4)</option>
+                <option value="Stage 5" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 4 (Stage 5)</option>
+                <option value="Stage 6" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 5 (Stage 6)</option>
+              </select>
+            </div>
 
             {/* Subject */}
             <div>
