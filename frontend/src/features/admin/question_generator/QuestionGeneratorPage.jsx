@@ -1029,9 +1029,6 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                         {/* CLOUDINARY SOURCE DOCUMENT ORIGINAL FIGURE */}
                         {(q.image_url || q.ai_generated_image_url) && (
                           <div style={{ margin: '1rem 0', display: 'flex', flexDirection: 'column', alignItems: 'center', background: '#FFFFFF', padding: '0.75rem', borderRadius: 16, border: '1px solid #E5DFD3', boxShadow: '0 6px 20px rgba(0,0,0,0.06)' }}>
-                            <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#4F46E5', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.06em', background: '#EEF2FF', padding: '0.2rem 0.6rem', borderRadius: 20 }}>
-                              📷 Original Source Document Figure (Cloudinary: source_RAG)
-                            </div>
                             <img
                               src={q.image_url || q.ai_generated_image_url}
                               alt="Original Source Document Figure"
