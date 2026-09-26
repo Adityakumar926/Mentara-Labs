@@ -444,183 +444,28 @@ async function getAvailableGeminiModels(apiKey) {
 }
 
 /**
- * Precision Visual Engine: Generates hyper-accurate, high-contrast 16:9 landscape vector diagrams
+ * Precision Visual Engine: Preserves authentic image_url or valid SVG diagrams; removes placeholders if no visual is needed.
  */
 function ensureValidSvgDiagram(q, idx = 0) {
-  const mainTxt = (q.main_instruction || q.question_text || q.title || '').trim();
-  const subTxt = Array.isArray(q.sub_parts) ? q.sub_parts.map(sp => `${sp.label} ${sp.text}`).join('. ') : '';
-  const explanationTxt = (q.explanation || '').trim();
-  const fullContent = `${mainTxt} ${subTxt} ${explanationTxt} ${JSON.stringify(q.options || [])}`.toLowerCase();
-
-  let svg = '';
-
-  // 1. CARROLL DIAGRAM SORTING (Worksheet 4A: Bicycle, Horse, Wheelchair, Sheep, Tractor, Cat, Elephant, Crocodile)
-  if (fullContent.includes('carroll') || fullContent.includes('legs') || fullContent.includes('animal') || fullContent.includes('sort')) {
-    svg = `<svg viewBox="0 0 760 210" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;background:#FFF9F2;border:1px solid #E5DFD3;border-radius:16px;padding:12px;">
-      <text x="380" y="24" font-size="14" font-weight="bold" text-anchor="middle" fill="#1C1917">Carroll Diagram Figures (Worksheet 4A)</text>
-      <!-- Has Legs Box -->
-      <g transform="translate(20, 35)">
-        <rect x="0" y="0" width="350" height="155" rx="14" fill="#ECFDF5" stroke="#10B981" stroke-width="2"/>
-        <text x="175" y="24" font-size="13" font-weight="bold" fill="#065F46" text-anchor="middle">HAS LEGS (Animals)</text>
-        <text x="50" y="75" font-size="34" text-anchor="middle">🐴</text>
-        <text x="50" y="102" font-size="11" font-weight="bold" fill="#065F46" text-anchor="middle">Horse</text>
-        <text x="130" y="75" font-size="34" text-anchor="middle">🐑</text>
-        <text x="130" y="102" font-size="11" font-weight="bold" fill="#065F46" text-anchor="middle">Sheep</text>
-        <text x="210" y="75" font-size="34" text-anchor="middle">🐱</text>
-        <text x="210" y="102" font-size="11" font-weight="bold" fill="#065F46" text-anchor="middle">Cat</text>
-        <text x="290" y="75" font-size="34" text-anchor="middle">🐘</text>
-        <text x="290" y="102" font-size="11" font-weight="bold" fill="#065F46" text-anchor="middle">Elephant</text>
-      </g>
-      <!-- No Legs Box -->
-      <g transform="translate(390, 35)">
-        <rect x="0" y="0" width="350" height="155" rx="14" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
-        <text x="175" y="24" font-size="13" font-weight="bold" fill="#78350F" text-anchor="middle">NO LEGS (Vehicles &amp; Crawlers)</text>
-        <text x="50" y="75" font-size="34" text-anchor="middle">🚲</text>
-        <text x="50" y="102" font-size="11" font-weight="bold" fill="#78350F" text-anchor="middle">Bicycle</text>
-        <text x="130" y="75" font-size="34" text-anchor="middle">🚜</text>
-        <text x="130" y="102" font-size="11" font-weight="bold" fill="#78350F" text-anchor="middle">Tractor</text>
-        <text x="210" y="75" font-size="34" text-anchor="middle">🧑‍🦽</text>
-        <text x="210" y="102" font-size="11" font-weight="bold" fill="#78350F" text-anchor="middle">Wheelchair</text>
-        <text x="290" y="75" font-size="34" text-anchor="middle">🐊</text>
-        <text x="290" y="102" font-size="11" font-weight="bold" fill="#78350F" text-anchor="middle">Crocodile</text>
-      </g>
-    </svg>`;
-  }
-  // 2. OPPOSITES (Happy/Sad, Hot/Cold, Big/Small)
-  else if (fullContent.includes('opposite') || fullContent.includes('happy') || fullContent.includes('sad') || fullContent.includes('hot') || fullContent.includes('cold') || (fullContent.includes('antonym'))) {
-    svg = `<svg viewBox="0 0 760 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;background:#FFF9F2;border:1px solid #E5DFD3;border-radius:16px;padding:12px;">
-      <g transform="translate(25, 20)">
-        <rect x="0" y="0" width="220" height="125" rx="14" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
-        <text x="65" y="65" font-size="42" text-anchor="middle">😄</text>
-        <text x="155" y="65" font-size="42" text-anchor="middle">☹️</text>
-        <text x="110" y="105" font-size="13" font-weight="bold" fill="#78350F" text-anchor="middle">(a) Happy  /  Sad</text>
-      </g>
-      <g transform="translate(270, 20)">
-        <rect x="0" y="0" width="220" height="125" rx="14" fill="#FEF2F2" stroke="#EF4444" stroke-width="2"/>
-        <text x="65" y="65" font-size="42" text-anchor="middle">☀️</text>
-        <text x="155" y="65" font-size="42" text-anchor="middle">❄️</text>
-        <text x="110" y="105" font-size="13" font-weight="bold" fill="#991B1B" text-anchor="middle">(b) Hot  /  Cold</text>
-      </g>
-      <g transform="translate(515, 20)">
-        <rect x="0" y="0" width="220" height="125" rx="14" fill="#F3E8FF" stroke="#A855F7" stroke-width="2"/>
-        <text x="65" y="65" font-size="42" text-anchor="middle">🐘</text>
-        <text x="155" y="65" font-size="30" text-anchor="middle">🐁</text>
-        <text x="110" y="105" font-size="13" font-weight="bold" fill="#5B21B6" text-anchor="middle">(c) Big  /  Small</text>
-      </g>
-    </svg>`;
-  }
-  // 2. PHONICS / INITIAL LETTERS (Sun, Apple, Cat)
-  else if (fullContent.includes('sun') || fullContent.includes('apple') || fullContent.includes('cat') || fullContent.includes('initial sound') || fullContent.includes('letter sound')) {
-    svg = `<svg viewBox="0 0 760 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;background:#FFF9F2;border:1px solid #E5DFD3;border-radius:16px;padding:12px;">
-      <g transform="translate(30, 20)">
-        <rect x="0" y="0" width="210" height="125" rx="14" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
-        <text x="105" y="62" font-size="48" text-anchor="middle">☀️</text>
-        <text x="105" y="105" font-size="14" font-weight="bold" fill="#78350F" text-anchor="middle">(a) Sun  [Sound: /s/]</text>
-      </g>
-      <g transform="translate(275, 20)">
-        <rect x="0" y="0" width="210" height="125" rx="14" fill="#FEE2E2" stroke="#EF4444" stroke-width="2"/>
-        <text x="105" y="62" font-size="48" text-anchor="middle">🍎</text>
-        <text x="105" y="105" font-size="14" font-weight="bold" fill="#991B1B" text-anchor="middle">(b) Apple  [Sound: /a/]</text>
-      </g>
-      <g transform="translate(520, 20)">
-        <rect x="0" y="0" width="210" height="125" rx="14" fill="#ECFDF5" stroke="#10B981" stroke-width="2"/>
-        <text x="105" y="62" font-size="48" text-anchor="middle">🐱</text>
-        <text x="105" y="105" font-size="14" font-weight="bold" fill="#065F46" text-anchor="middle">(c) Cat  [Sound: /c/]</text>
-      </g>
-    </svg>`;
-  }
-  // 3. CLASSROOM OBJECTS (Clock, Book, Desk, Pencil)
-  else if (fullContent.includes('clock') || fullContent.includes('book') || fullContent.includes('desk') || fullContent.includes('pencil') || fullContent.includes('classroom')) {
-    svg = `<svg viewBox="0 0 760 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;background:#FFF9F2;border:1px solid #E5DFD3;border-radius:16px;padding:12px;">
-      <g transform="translate(30, 20)">
-        <rect x="0" y="0" width="210" height="125" rx="14" fill="#ECFDF5" stroke="#10B981" stroke-width="2"/>
-        <text x="105" y="62" font-size="44" text-anchor="middle">⏰</text>
-        <text x="105" y="105" font-size="13" font-weight="bold" fill="#065F46" text-anchor="middle">(a) Clock (Show Time)</text>
-      </g>
-      <g transform="translate(275, 20)">
-        <rect x="0" y="0" width="210" height="125" rx="14" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
-        <text x="105" y="62" font-size="44" text-anchor="middle">📚</text>
-        <text x="105" y="105" font-size="13" font-weight="bold" fill="#78350F" text-anchor="middle">(b) Book (Read Stories)</text>
-      </g>
-      <g transform="translate(520, 20)">
-        <rect x="0" y="0" width="210" height="125" rx="14" fill="#E0F2FE" stroke="#0284C7" stroke-width="2"/>
-        <text x="105" y="62" font-size="44" text-anchor="middle">🪑</text>
-        <text x="105" y="105" font-size="13" font-weight="bold" fill="#0369A1" text-anchor="middle">(c) Desk &amp; Chair (Sit &amp; Write)</text>
-      </g>
-    </svg>`;
-  }
-  // 4. ACTION VERBS (Run, Jump, Read, Swim, Sing)
-  else if (fullContent.includes('verb') || fullContent.includes('run') || fullContent.includes('jump') || fullContent.includes('action')) {
-    svg = `<svg viewBox="0 0 760 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;background:#FFF9F2;border:1px solid #E5DFD3;border-radius:16px;padding:12px;">
-      <g transform="translate(30, 20)">
-        <rect x="0" y="0" width="210" height="125" rx="14" fill="#ECFDF5" stroke="#10B981" stroke-width="2"/>
-        <text x="105" y="62" font-size="44" text-anchor="middle">🏃‍♂️</text>
-        <text x="105" y="105" font-size="13" font-weight="bold" fill="#065F46" text-anchor="middle">Figure A: Run 🏃‍♂️</text>
-      </g>
-      <g transform="translate(275, 20)">
-        <rect x="0" y="0" width="210" height="125" rx="14" fill="#FEE2E2" stroke="#EF4444" stroke-width="2"/>
-        <text x="105" y="62" font-size="44" text-anchor="middle">👧🦘</text>
-        <text x="105" y="105" font-size="13" font-weight="bold" fill="#991B1B" text-anchor="middle">Figure B: Jump 👧</text>
-      </g>
-      <g transform="translate(520, 20)">
-        <rect x="0" y="0" width="210" height="125" rx="14" fill="#E0F2FE" stroke="#0284C7" stroke-width="2"/>
-        <text x="105" y="62" font-size="44" text-anchor="middle">📖</text>
-        <text x="105" y="105" font-size="13" font-weight="bold" fill="#0369A1" text-anchor="middle">Figure C: Read 📖</text>
-      </g>
-    </svg>`;
-  }
-  // 5. SHAPES & COLOR ADJECTIVES (Star, Square, Circle, Triangle)
-  else if (fullContent.includes('shape') || fullContent.includes('star') || fullContent.includes('triangle') || fullContent.includes('square') || fullContent.includes('circle')) {
-    svg = `<svg viewBox="0 0 760 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;background:#FFF9F2;border:1px solid #E5DFD3;border-radius:16px;padding:12px;">
-      <g transform="translate(30, 20)">
-        <rect x="0" y="0" width="210" height="125" rx="14" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
-        <text x="105" y="65" font-size="52" text-anchor="middle">⭐</text>
-        <text x="105" y="105" font-size="13" font-weight="bold" fill="#78350F" text-anchor="middle">(a) Big Yellow Star</text>
-      </g>
-      <g transform="translate(275, 20)">
-        <rect x="0" y="0" width="210" height="125" rx="14" fill="#FEE2E2" stroke="#EF4444" stroke-width="2"/>
-        <circle cx="105" cy="50" r="24" fill="#EF4444"/>
-        <text x="105" y="105" font-size="13" font-weight="bold" fill="#991B1B" text-anchor="middle">(b) Small Red Circle</text>
-      </g>
-      <g transform="translate(520, 20)">
-        <rect x="0" y="0" width="210" height="125" rx="14" fill="#E0F2FE" stroke="#0284C7" stroke-width="2"/>
-        <circle cx="75" cy="50" r="26" fill="#0284C7"/>
-        <circle cx="135" cy="50" r="26" fill="#0284C7"/>
-        <text x="105" y="105" font-size="13" font-weight="bold" fill="#0369A1" text-anchor="middle">(c) 2 Blue Circles</text>
-      </g>
-    </svg>`;
-  }
-  // 6. FAMILY MEMBERS (Mother, Father, Baby)
-  else if (fullContent.includes('person a') || fullContent.includes('person b') || fullContent.includes('person c') || fullContent.includes('family') || fullContent.includes('mother') || fullContent.includes('father') || fullContent.includes('baby')) {
-    svg = `<svg viewBox="0 0 760 170" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;background:#FFF9F2;border:1px solid #E5DFD3;border-radius:16px;padding:12px;">
-      <g transform="translate(30, 20)">
-        <rect x="0" y="0" width="210" height="125" rx="14" fill="#FCE7F3" stroke="#EC4899" stroke-width="2"/>
-        <text x="105" y="62" font-size="44" text-anchor="middle">👩</text>
-        <text x="105" y="105" font-size="13" font-weight="bold" fill="#9D174D" text-anchor="middle">Person A: Mother 👩</text>
-      </g>
-      <g transform="translate(275, 20)">
-        <rect x="0" y="0" width="210" height="125" rx="14" fill="#E0F2FE" stroke="#0284C7" stroke-width="2"/>
-        <text x="105" y="62" font-size="44" text-anchor="middle">👨</text>
-        <text x="105" y="105" font-size="13" font-weight="bold" fill="#0369A1" text-anchor="middle">Person B: Father 👨</text>
-      </g>
-      <g transform="translate(520, 20)">
-        <rect x="0" y="0" width="210" height="125" rx="14" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
-        <text x="105" y="62" font-size="44" text-anchor="middle">👶</text>
-        <text x="105" y="105" font-size="13" font-weight="bold" fill="#78350F" text-anchor="middle">Person C: Baby 👶</text>
-      </g>
-    </svg>`;
-  }
-  // GENERAL FALLBACK LANDSCAPE DIAGRAM
-  else {
-    svg = `<svg viewBox="0 0 760 150" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;background:#FFF9F2;border:1px solid #E5DFD3;border-radius:16px;padding:12px;">
-      <rect x="20" y="15" width="720" height="120" rx="14" fill="#F5F0E6" stroke="#D6CEBE" stroke-width="1.5"/>
-      <text x="380" y="70" font-size="38" text-anchor="middle">📑 🎓 💡</text>
-      <text x="380" y="110" font-size="14" font-weight="bold" fill="#44403C" text-anchor="middle">Cambridge Primary Assessment Widescreen Landscape Figure</text>
-    </svg>`;
+  // 1. If question has a valid Cloudinary/dataset image_url, preserve it and clear svg_diagram
+  if (q.image_url && typeof q.image_url === 'string' && q.image_url.trim().length > 0) {
+    q.svg_diagram = null;
+    return q;
   }
 
-  q.svg_diagram = svg;
-  q.image_url = null; // Do not use blurry AI image blocks
+  // 2. If question has a valid SVG diagram from AI generation, verify and sanitize it
+  if (q.svg_diagram && typeof q.svg_diagram === 'string' && q.svg_diagram.includes('<svg')) {
+    if (
+      q.svg_diagram.includes('Cambridge Primary Assessment Widescreen Landscape Figure') ||
+      q.svg_diagram.includes('📑 🎓 💡')
+    ) {
+      q.svg_diagram = null;
+    }
+    return q;
+  }
+
+  // 3. No image and no diagram: ensure svg_diagram is null (no generic placeholder printed)
+  q.svg_diagram = null;
   return q;
 }
 

@@ -329,7 +329,10 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
           <div style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 10px;">
             ${q.main_instruction || ''}
           </div>
-          ${q.svg_diagram ? `<div style="margin: 12px 0; text-align: center;">${q.svg_diagram}</div>` : ''}
+          ${(q.image_url || q.ai_generated_image_url)
+            ? `<div style="margin: 12px 0; text-align: center;"><img src="${q.image_url || q.ai_generated_image_url}" style="max-width: 100%; max-height: 360px; object-fit: contain;" /></div>`
+            : (q.svg_diagram ? `<div style="margin: 12px 0; text-align: center;">${q.svg_diagram}</div>` : '')
+          }
           ${subPartsHtml}
         </div>
       `;
@@ -1059,39 +1062,35 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                           </div>
                         )}
 
-                        {/* CLOUDINARY SOURCE DOCUMENT ORIGINAL FIGURE */}
+                        {/* QUESTION FIGURE (CLOUDINARY / DATASET IMAGE) */}
                         {(q.image_url || q.ai_generated_image_url) && (
-                          <div style={{ margin: '1rem 0', display: 'flex', flexDirection: 'column', alignItems: 'center', background: '#FFFFFF', padding: '0.75rem', borderRadius: 16, border: '1px solid #E5DFD3', boxShadow: '0 6px 20px rgba(0,0,0,0.06)' }}>
+                          <div style={{ margin: '0.85rem 0', display: 'flex', justifyContent: 'center' }}>
                             <img
                               src={q.image_url || q.ai_generated_image_url}
-                              alt="Original Source Document Figure"
+                              alt="Question Figure"
                               onError={(e) => {
-                                console.warn('Cloudinary image preview fallback to SVG diagram');
-                                e.target.parentElement.style.display = 'none';
+                                console.warn('Image preview failed to load');
+                                if (e.target && e.target.parentElement) {
+                                  e.target.parentElement.style.display = 'none';
+                                }
                               }}
                               style={{
                                 width: '100%',
-                                maxWidth: 840,
+                                maxWidth: 780,
                                 maxHeight: 380,
-                                objectFit: 'contain',
-                                borderRadius: 12
+                                objectFit: 'contain'
                               }}
                             />
                           </div>
                         )}
 
-                        {/* DIAGRAM / GRAPH BOX (CARROLL DIAGRAM VECTOR BACKUP) */}
-                        {q.svg_diagram && (
+                        {/* DIAGRAM / GRAPH BOX (VECTOR SVG) */}
+                        {q.svg_diagram && !q.image_url && !q.ai_generated_image_url && (
                           <div style={{ margin: '0.85rem 0', display: 'flex', justifyContent: 'center' }}>
                             <div
                               style={{
                                 width: '100%',
-                                maxWidth: 780,
-                                padding: '0.85rem 1.25rem',
-                                background: '#FFF9F2',
-                                border: '1px solid #E5DFD3',
-                                borderRadius: 14,
-                                boxShadow: '0 4px 14px rgba(0,0,0,0.05)'
+                                maxWidth: 780
                               }}
                               dangerouslySetInnerHTML={{ __html: q.svg_diagram }}
                             />
