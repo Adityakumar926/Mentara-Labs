@@ -82,6 +82,7 @@ async function loadQuestionsFromCsv(filePath) {
 async function getAllDatasetQuestions() {
   const datasetDir = path.join(__dirname, '../../../../dataset');
   const filesToTry = [
+    path.join(datasetDir, 'questions_dataset_new.csv'),
     path.join(datasetDir, 'questions_dataset.csv'),
     path.join(datasetDir, 'math_questions.csv')
   ];
