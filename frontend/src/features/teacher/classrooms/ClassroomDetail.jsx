@@ -359,7 +359,7 @@ export default function ClassroomDetail() {
   if (isLoading || !classroom) {
     return (
       <PageWrapper title="Classroom Detail">
-        <div style={{ textAlign: 'center', padding: '4rem 0', color: 'rgba(255,255,255,0.5)' }}>
+        <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--color-text-muted)' }}>
           Loading Classroom Details...
         </div>
       </PageWrapper>
@@ -406,7 +406,7 @@ export default function ClassroomDetail() {
                 background: '#EF4444',
                 border: 'none',
                 borderRadius: 8,
-                color: '#fff',
+                color: 'var(--color-text-primary)',
                 padding: '0.45rem 0.9rem',
                 fontWeight: 700,
                 fontSize: '0.8rem',
@@ -456,7 +456,7 @@ export default function ClassroomDetail() {
               )}
             </div>
 
-            <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', margin: '0 0 0.4rem 0' }}>
+            <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: '0 0 0.4rem 0' }}>
               {classroom.name}
             </h1>
             <p style={{ fontSize: '0.88rem', color: 'rgba(255, 255, 255, 0.65)', margin: 0 }}>
@@ -468,8 +468,8 @@ export default function ClassroomDetail() {
             <button
               onClick={copyJoinLink}
               style={{
-                background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
-                padding: '0.75rem 1.25rem', borderRadius: 14, color: '#fff', fontWeight: 700,
+                background: 'var(--local-card-bdr)', border: '1px solid rgba(255,255,255,0.15)',
+                padding: '0.75rem 1.25rem', borderRadius: 14, color: 'var(--color-text-primary)', fontWeight: 700,
                 fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem'
               }}
             >
@@ -485,7 +485,7 @@ export default function ClassroomDetail() {
               }}
               style={{
                 background: 'linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%)', border: 'none',
-                padding: '0.75rem 1.25rem', borderRadius: 14, color: '#fff', fontWeight: 800,
+                padding: '0.75rem 1.25rem', borderRadius: 14, color: 'var(--color-text-primary)', fontWeight: 800,
                 fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem',
                 boxShadow: '0 4px 15px rgba(139, 92, 246, 0.3)'
               }}
@@ -517,7 +517,7 @@ export default function ClassroomDetail() {
                 padding: '0.65rem 1.1rem', borderRadius: 12, border: 'none', fontSize: '0.82rem', fontWeight: 700,
                 cursor: 'pointer', transition: 'all 0.15s', whitespace: 'nowrap',
                 background: activeTab === tab.id ? 'linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%)' : 'transparent',
-                color: activeTab === tab.id ? '#fff' : 'rgba(255,255,255,0.6)'
+                color: activeTab === tab.id ? 'var(--color-text-primary)' : 'rgba(255,255,255,0.6)'
               }}
             >
               {tab.label}
@@ -531,35 +531,35 @@ export default function ClassroomDetail() {
             {/* Quick Stats Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
               <div style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '1.25rem' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: '0.3rem' }}>ACTIVE STUDENTS</div>
-                <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#fff' }}>{activeCount}</div>
-                <div style={{ fontSize: '0.75rem', color: isOverLimit ? '#EF4444' : 'rgba(255,255,255,0.5)', marginTop: '0.2rem' }}>Quota: {limit} Seats</div>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '0.3rem' }}>ACTIVE STUDENTS</div>
+                <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-text-primary)' }}>{activeCount}</div>
+                <div style={{ fontSize: '0.75rem', color: isOverLimit ? '#EF4444' : 'var(--color-text-muted)', marginTop: '0.2rem' }}>Quota: {limit} Seats</div>
               </div>
 
               <div style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '1.25rem' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: '0.3rem' }}>PENDING INVITES</div>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '0.3rem' }}>PENDING INVITES</div>
                 <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#F59E0B' }}>{pendingCount}</div>
-                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginTop: '0.2rem' }}>Reserves seat quota</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>Reserves seat quota</div>
               </div>
 
               <div style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '1.25rem' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: '0.3rem' }}>ASSIGNED EXAMS</div>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '0.3rem' }}>ASSIGNED EXAMS</div>
                 <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#06B6D4' }}>{(classroom.assigned_exams || []).length}</div>
-                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginTop: '0.2rem' }}>Targeted assessments</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>Targeted assessments</div>
               </div>
 
               <div style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '1.25rem' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: '0.3rem' }}>STUDY MATERIALS</div>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--color-text-muted)', marginBottom: '0.3rem' }}>STUDY MATERIALS</div>
                 <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#10B981' }}>{(classroom.assigned_materials || []).length}</div>
-                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginTop: '0.2rem' }}>Isolated notes & labs</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.2rem' }}>Isolated notes & labs</div>
               </div>
             </div>
 
             {/* Recent Announcements Overview */}
             <div style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', marginBottom: '1rem' }}>📢 Recent Announcements</h3>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text-primary)', marginBottom: '1rem' }}>📢 Recent Announcements</h3>
               {(classroom.announcements || []).length === 0 ? (
-                <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', margin: 0 }}>No announcements posted yet.</p>
+                <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', margin: 0 }}>No announcements posted yet.</p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
                   {(classroom.announcements || []).slice(0, 3).map(a => (
@@ -568,8 +568,8 @@ export default function ClassroomDetail() {
                         <span>{a.author_name}</span>
                         <span>{new Date(a.created_at).toLocaleDateString()}</span>
                       </div>
-                      <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff', margin: '0 0 0.3rem 0' }}>{a.title}</h4>
-                      <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', margin: 0 }}>{a.content}</p>
+                      <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-text-primary)', margin: '0 0 0.3rem 0' }}>{a.title}</h4>
+                      <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', margin: 0 }}>{a.content}</p>
                     </div>
                   ))}
                 </div>
@@ -582,10 +582,10 @@ export default function ClassroomDetail() {
         {activeTab === 'students' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', margin: 0 }}>Enrolled Students ({activeCount})</h3>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: 0 }}>Enrolled Students ({activeCount})</h3>
               <button
                 onClick={() => setShowInviteModal(true)}
-                style={{ background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none', padding: '0.65rem 1.1rem', borderRadius: 12, color: '#fff', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}
+                style={{ background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none', padding: '0.65rem 1.1rem', borderRadius: 12, color: 'var(--color-text-primary)', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}
               >
                 + Invite Student by Email
               </button>
@@ -594,13 +594,13 @@ export default function ClassroomDetail() {
             {/* Active Students Table */}
             <div style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, overflow: 'hidden' }}>
               {(classroom.students || []).length === 0 ? (
-                <div style={{ padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem' }}>
+                <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
                   No active students enrolled in this classroom yet. Click "+ Invite Student by Email" or share the Join Link!
                 </div>
               ) : (
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
                   <thead>
-                    <tr style={{ background: 'rgba(0,0,0,0.4)', color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', textTransform: 'uppercase' }}>
+                    <tr style={{ background: 'rgba(0,0,0,0.4)', color: 'var(--color-text-muted)', fontSize: '0.75rem', textTransform: 'uppercase' }}>
                       <th style={{ padding: '1rem 1.25rem' }}>Student Name</th>
                       <th style={{ padding: '1rem 1.25rem' }}>Email</th>
                       <th style={{ padding: '1rem 1.25rem' }}>Think Streak</th>
@@ -611,8 +611,8 @@ export default function ClassroomDetail() {
                   <tbody>
                     {(classroom.students || []).map(s => (
                       <tr key={s.membership_id} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                        <td style={{ padding: '1rem 1.25rem', color: '#fff', fontWeight: 700 }}>{s.full_name || 'Student'}</td>
-                        <td style={{ padding: '1rem 1.25rem', color: 'rgba(255,255,255,0.7)' }}>{s.email}</td>
+                        <td style={{ padding: '1rem 1.25rem', color: 'var(--color-text-primary)', fontWeight: 700 }}>{s.full_name || 'Student'}</td>
+                        <td style={{ padding: '1rem 1.25rem', color: 'var(--color-text-secondary)' }}>{s.email}</td>
                         <td style={{ padding: '1rem 1.25rem' }}>
                           <span style={{
                             display: 'inline-flex',
@@ -620,19 +620,19 @@ export default function ClassroomDetail() {
                             gap: '0.35rem',
                             background: s.current_streak > 0 ? 'rgba(245, 158, 11, 0.15)' : 'rgba(255, 255, 255, 0.05)',
                             border: s.current_streak > 0 ? '1px solid rgba(245, 158, 11, 0.35)' : '1px solid rgba(255, 255, 255, 0.1)',
-                            color: s.current_streak > 0 ? '#F59E0B' : 'rgba(255,255,255,0.5)',
+                            color: s.current_streak > 0 ? '#F59E0B' : 'var(--color-text-muted)',
                             padding: '0.25rem 0.65rem',
                             borderRadius: '50px',
                             fontWeight: 800,
                             fontSize: '0.78rem'
                           }}>
                             🔥 {s.current_streak || 0}d Streak
-                            <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.45)', marginLeft: '0.2rem' }}>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', marginLeft: '0.2rem' }}>
                               (Best: {s.longest_streak || 0}d)
                             </span>
                           </span>
                         </td>
-                        <td style={{ padding: '1rem 1.25rem', color: 'rgba(255,255,255,0.5)' }}>{new Date(s.joined_at).toLocaleDateString()}</td>
+                        <td style={{ padding: '1rem 1.25rem', color: 'var(--color-text-muted)' }}>{new Date(s.joined_at).toLocaleDateString()}</td>
                         <td style={{ padding: '1rem 1.25rem', textAlign: 'right' }}>
                           <button
                             onClick={() => handleRemoveStudent(s.student_id, s.full_name)}
@@ -657,7 +657,7 @@ export default function ClassroomDetail() {
                 <div style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.82rem' }}>
                     <thead>
-                      <tr style={{ background: 'rgba(0,0,0,0.4)', color: 'rgba(255,255,255,0.5)', fontSize: '0.72rem', textTransform: 'uppercase' }}>
+                      <tr style={{ background: 'rgba(0,0,0,0.4)', color: 'var(--color-text-muted)', fontSize: '0.72rem', textTransform: 'uppercase' }}>
                         <th style={{ padding: '0.85rem 1.25rem' }}>Invited Email</th>
                         <th style={{ padding: '0.85rem 1.25rem' }}>Sent Date</th>
                         <th style={{ padding: '0.85rem 1.25rem' }}>Expires</th>
@@ -666,8 +666,8 @@ export default function ClassroomDetail() {
                     <tbody>
                       {(classroom.pending_invitations || []).map(inv => (
                         <tr key={inv.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                          <td style={{ padding: '0.85rem 1.25rem', color: '#fff', fontWeight: 600 }}>{inv.student_email}</td>
-                          <td style={{ padding: '0.85rem 1.25rem', color: 'rgba(255,255,255,0.5)' }}>{new Date(inv.created_at).toLocaleDateString()}</td>
+                          <td style={{ padding: '0.85rem 1.25rem', color: 'var(--color-text-primary)', fontWeight: 600 }}>{inv.student_email}</td>
+                          <td style={{ padding: '0.85rem 1.25rem', color: 'var(--color-text-muted)' }}>{new Date(inv.created_at).toLocaleDateString()}</td>
                           <td style={{ padding: '0.85rem 1.25rem', color: '#F59E0B' }}>{new Date(inv.expires_at).toLocaleDateString()}</td>
                         </tr>
                       ))}
@@ -683,17 +683,17 @@ export default function ClassroomDetail() {
         {activeTab === 'exams' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', margin: 0 }}>Assigned Exams ({(classroom.assigned_exams || []).length})</h3>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: 0 }}>Assigned Exams ({(classroom.assigned_exams || []).length})</h3>
               <button
                 onClick={openAssignExamsModal}
-                style={{ background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none', padding: '0.65rem 1.1rem', borderRadius: 12, color: '#fff', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}
+                style={{ background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none', padding: '0.65rem 1.1rem', borderRadius: 12, color: 'var(--color-text-primary)', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}
               >
                 + Assign Exams from Library
               </button>
             </div>
 
             {(classroom.assigned_exams || []).length === 0 ? (
-              <div style={{ background: 'rgba(15, 22, 41, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
+              <div style={{ background: 'rgba(15, 22, 41, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
                 No exams assigned to this classroom yet. Click "+ Assign Exams from Library" to assign Cambridge Primary assessments!
               </div>
             ) : (
@@ -721,7 +721,7 @@ export default function ClassroomDetail() {
                           </span>
                         )}
                       </div>
-                      <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff', margin: '0.3rem 0 0.5rem 0' }}>{e.title}</h4>
+                      <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: '0.3rem 0 0.5rem 0' }}>{e.title}</h4>
                       <div style={{ display: 'flex', gap: '0.85rem', fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', flexWrap: 'wrap' }}>
                         <span>⏱️ {e.duration_minutes || 30} mins</span>
                         {e.question_count > 0 && <span>📝 {e.question_count} Questions</span>}
@@ -745,17 +745,17 @@ export default function ClassroomDetail() {
         {activeTab === 'materials' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', margin: 0 }}>Assigned Study Materials ({(classroom.assigned_materials || []).length})</h3>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: 0 }}>Assigned Study Materials ({(classroom.assigned_materials || []).length})</h3>
               <button
                 onClick={openAssignMaterialsModal}
-                style={{ background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none', padding: '0.65rem 1.1rem', borderRadius: 12, color: '#fff', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}
+                style={{ background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none', padding: '0.65rem 1.1rem', borderRadius: 12, color: 'var(--color-text-primary)', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}
               >
                 + Assign Materials from Curriculum
               </button>
             </div>
 
             {(classroom.assigned_materials || []).length === 0 ? (
-              <div style={{ background: 'rgba(15, 22, 41, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
+              <div style={{ background: 'rgba(15, 22, 41, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
                 No study materials assigned yet. Click "+ Assign Materials from Curriculum" to share exclusive 3D labs and notes!
               </div>
             ) : (
@@ -764,7 +764,7 @@ export default function ClassroomDetail() {
                   <div key={m.id} style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '1.25rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '1rem' }}>
                     <div>
                       <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#10B981', textTransform: 'uppercase' }}>{m.content_type || 'Material'}</span>
-                      <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff', margin: '0.3rem 0 0.5rem 0' }}>{m.title}</h4>
+                      <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: '0.3rem 0 0.5rem 0' }}>{m.title}</h4>
                     </div>
                     <button
                       onClick={() => handleUnassignMaterial(m.id)}
@@ -783,17 +783,17 @@ export default function ClassroomDetail() {
         {activeTab === 'assignments' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', margin: 0 }}>Classroom Assignments ({(classroom.custom_assignments || []).length})</h3>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: 0 }}>Classroom Assignments ({(classroom.custom_assignments || []).length})</h3>
               <button
                 onClick={() => setShowAssignmentModal(true)}
-                style={{ background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none', padding: '0.65rem 1.1rem', borderRadius: 12, color: '#fff', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}
+                style={{ background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none', padding: '0.65rem 1.1rem', borderRadius: 12, color: 'var(--color-text-primary)', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}
               >
                 + Create Assignment
               </button>
             </div>
 
             {(classroom.custom_assignments || []).length === 0 ? (
-              <div style={{ background: 'rgba(15, 22, 41, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
+              <div style={{ background: 'rgba(15, 22, 41, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
                 No custom classroom assignments created yet. Click "+ Create Assignment" to post coursework!
               </div>
             ) : (
@@ -802,8 +802,8 @@ export default function ClassroomDetail() {
                   <div key={as.id} style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '1.25rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div>
-                        <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff', margin: '0 0 0.4rem 0' }}>{as.title}</h4>
-                        <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', margin: 0 }}>{as.description}</p>
+                        <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: '0 0 0.4rem 0' }}>{as.title}</h4>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', margin: 0 }}>{as.description}</p>
                       </div>
                       {as.due_date && (
                         <span style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid #F59E0B', color: '#F59E0B', padding: '0.25rem 0.65rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700 }}>
@@ -822,7 +822,7 @@ export default function ClassroomDetail() {
         {activeTab === 'announcements' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', marginBottom: '1rem' }}>📢 Post Classroom Announcement</h3>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text-primary)', marginBottom: '1rem' }}>📢 Post Classroom Announcement</h3>
               <form onSubmit={handlePostAnnouncementSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <input
                   type="text"
@@ -830,7 +830,7 @@ export default function ClassroomDetail() {
                   placeholder="Announcement Title..."
                   value={announcementData.title}
                   onChange={(e) => setAnnouncementData({ ...announcementData, title: e.target.value })}
-                  style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '0.75rem 1rem', color: '#fff', fontSize: '0.85rem', outline: 'none' }}
+                  style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '0.75rem 1rem', color: 'var(--color-text-primary)', fontSize: '0.85rem', outline: 'none' }}
                 />
                 <textarea
                   rows={3}
@@ -838,13 +838,13 @@ export default function ClassroomDetail() {
                   placeholder="Announcement content for all students in this batch..."
                   value={announcementData.content}
                   onChange={(e) => setAnnouncementData({ ...announcementData, content: e.target.value })}
-                  style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '0.75rem 1rem', color: '#fff', fontSize: '0.85rem', outline: 'none', resize: 'vertical' }}
+                  style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '0.75rem 1rem', color: 'var(--color-text-primary)', fontSize: '0.85rem', outline: 'none', resize: 'vertical' }}
                 />
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <button
                     type="submit"
                     disabled={isPostingAnnouncement}
-                    style={{ background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none', padding: '0.65rem 1.4rem', borderRadius: 12, color: '#fff', fontWeight: 800, fontSize: '0.85rem', cursor: isPostingAnnouncement ? 'wait' : 'pointer' }}
+                    style={{ background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none', padding: '0.65rem 1.4rem', borderRadius: 12, color: 'var(--color-text-primary)', fontWeight: 800, fontSize: '0.85rem', cursor: isPostingAnnouncement ? 'wait' : 'pointer' }}
                   >
                     {isPostingAnnouncement ? 'Posting...' : 'Broadcast Announcement'}
                   </button>
@@ -860,7 +860,7 @@ export default function ClassroomDetail() {
                     <span>Author: {a.author_name}</span>
                     <span>{new Date(a.created_at).toLocaleString()}</span>
                   </div>
-                  <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', margin: '0 0 0.35rem 0' }}>{a.title}</h4>
+                  <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: '0 0 0.35rem 0' }}>{a.title}</h4>
                   <p style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.8)', margin: 0, lineHeight: 1.5 }}>{a.content}</p>
                 </div>
               ))}
@@ -872,32 +872,32 @@ export default function ClassroomDetail() {
         {activeTab === 'settings' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: 650 }}>
             <div style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', marginBottom: '1.25rem' }}>⚙️ Classroom Settings</h3>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text-primary)', marginBottom: '1.25rem' }}>⚙️ Classroom Settings</h3>
               <form onSubmit={handleUpdateSettings} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div>
-                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'rgba(255,255,255,0.7)', marginBottom: '0.4rem', display: 'block' }}>Classroom Name</label>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: '0.4rem', display: 'block' }}>Classroom Name</label>
                   <input
                     type="text"
                     required
                     value={settingsData.name}
                     onChange={(e) => setSettingsData({ ...settingsData, name: e.target.value })}
-                    style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '0.75rem 1rem', color: '#fff', fontSize: '0.85rem', outline: 'none' }}
+                    style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '0.75rem 1rem', color: 'var(--color-text-primary)', fontSize: '0.85rem', outline: 'none' }}
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'rgba(255,255,255,0.7)', marginBottom: '0.4rem', display: 'block' }}>Description</label>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: '0.4rem', display: 'block' }}>Description</label>
                   <textarea
                     rows={3}
                     value={settingsData.description}
                     onChange={(e) => setSettingsData({ ...settingsData, description: e.target.value })}
-                    style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '0.75rem 1rem', color: '#fff', fontSize: '0.85rem', outline: 'none', resize: 'vertical' }}
+                    style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '0.75rem 1rem', color: 'var(--color-text-primary)', fontSize: '0.85rem', outline: 'none', resize: 'vertical' }}
                   />
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
                   <button
                     type="submit"
                     disabled={isUpdatingSettings}
-                    style={{ background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none', padding: '0.65rem 1.4rem', borderRadius: 12, color: '#fff', fontWeight: 800, fontSize: '0.85rem', cursor: isUpdatingSettings ? 'wait' : 'pointer' }}
+                    style={{ background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none', padding: '0.65rem 1.4rem', borderRadius: 12, color: 'var(--color-text-primary)', fontWeight: 800, fontSize: '0.85rem', cursor: isUpdatingSettings ? 'wait' : 'pointer' }}
                   >
                     {isUpdatingSettings ? 'Saving...' : 'Save Settings'}
                   </button>
@@ -912,7 +912,7 @@ export default function ClassroomDetail() {
               </p>
               <button
                 onClick={handleArchiveClassroom}
-                style={{ background: '#EF4444', border: 'none', padding: '0.65rem 1.25rem', borderRadius: 12, color: '#fff', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer' }}
+                style={{ background: '#EF4444', border: 'none', padding: '0.65rem 1.25rem', borderRadius: 12, color: 'var(--color-text-primary)', fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer' }}
               >
                 Archive Classroom
               </button>
@@ -925,30 +925,30 @@ export default function ClassroomDetail() {
           <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
             <div style={{ background: '#0E1424', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 24, padding: '2rem', maxWidth: 480, width: '100%', boxShadow: '0 20px 50px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff', margin: 0 }}>Invite Student by Email</h3>
-                <button onClick={() => setShowInviteModal(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: 0 }}>Invite Student by Email</h3>
+                <button onClick={() => setShowInviteModal(false)} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
               </div>
 
               <form onSubmit={handleSendInvite} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
                 <div>
-                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'rgba(255,255,255,0.7)', marginBottom: '0.4rem', display: 'block' }}>Student Email Address *</label>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: '0.4rem', display: 'block' }}>Student Email Address *</label>
                   <input
                     type="email"
                     required
                     placeholder="e.g. student@gmail.com"
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
-                    style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '0.75rem 1rem', color: '#fff', fontSize: '0.85rem', outline: 'none' }}
+                    style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '0.75rem 1rem', color: 'var(--color-text-primary)', fontSize: '0.85rem', outline: 'none' }}
                   />
                 </div>
 
-                <div style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.25)', borderRadius: 12, padding: '0.85rem', fontSize: '0.78rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+                <div style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.25)', borderRadius: 12, padding: '0.85rem', fontSize: '0.78rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
                   🛡️ <strong>Security Notice:</strong> Pending invitations reserve 1 seat quota. Student must log in with this exact email to accept and join.
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-                  <button type="button" onClick={() => setShowInviteModal(false)} style={{ flex: 1, padding: '0.75rem', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
-                  <button type="submit" disabled={isInviting} style={{ flex: 1, padding: '0.75rem', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', color: '#fff', fontWeight: 800, cursor: isInviting ? 'wait' : 'pointer' }}>
+                  <button type="button" onClick={() => setShowInviteModal(false)} style={{ flex: 1, padding: '0.75rem', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--color-text-primary)', fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
+                  <button type="submit" disabled={isInviting} style={{ flex: 1, padding: '0.75rem', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', color: 'var(--color-text-primary)', fontWeight: 800, cursor: isInviting ? 'wait' : 'pointer' }}>
                     {isInviting ? 'Sending...' : 'Send Invitation'}
                   </button>
                 </div>
@@ -986,7 +986,7 @@ export default function ClassroomDetail() {
               }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', margin: 0 }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: 0 }}>
                       Assign Assessments to Classroom
                     </h3>
                     <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#06B6D4', background: 'rgba(6, 182, 212, 0.12)', border: '1px solid rgba(6, 182, 212, 0.3)', padding: '0.15rem 0.6rem', borderRadius: 50 }}>
@@ -999,7 +999,7 @@ export default function ClassroomDetail() {
                 </div>
                 <button
                   onClick={() => setShowExamModal(false)}
-                  style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: 'rgba(255,255,255,0.7)', width: 34, height: 34, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', cursor: 'pointer' }}
+                  style={{ background: 'var(--local-card-bdr)', border: 'none', color: 'var(--color-text-secondary)', width: 34, height: 34, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', cursor: 'pointer' }}
                 >
                   ✕
                 </button>
@@ -1030,7 +1030,7 @@ export default function ClassroomDetail() {
                         border: '1px solid rgba(255,255,255,0.12)',
                         borderRadius: 12,
                         padding: '0.6rem 1rem 0.6rem 2.2rem',
-                        color: '#fff',
+                        color: 'var(--color-text-primary)',
                         fontSize: '0.82rem',
                         outline: 'none'
                       }}
@@ -1049,7 +1049,7 @@ export default function ClassroomDetail() {
                       border: '1px solid rgba(255,255,255,0.12)',
                       borderRadius: 12,
                       padding: '0.6rem 0.85rem',
-                      color: '#fff',
+                      color: 'var(--color-text-primary)',
                       fontSize: '0.82rem',
                       outline: 'none',
                       cursor: 'pointer'
@@ -1070,7 +1070,7 @@ export default function ClassroomDetail() {
                       border: '1px solid rgba(255,255,255,0.12)',
                       borderRadius: 12,
                       padding: '0.6rem 0.85rem',
-                      color: '#fff',
+                      color: 'var(--color-text-primary)',
                       fontSize: '0.82rem',
                       outline: 'none',
                       cursor: 'pointer'
@@ -1091,7 +1091,7 @@ export default function ClassroomDetail() {
                       border: '1px solid rgba(255,255,255,0.12)',
                       borderRadius: 12,
                       padding: '0.6rem 0.85rem',
-                      color: '#fff',
+                      color: 'var(--color-text-primary)',
                       fontSize: '0.82rem',
                       outline: 'none',
                       cursor: 'pointer',
@@ -1114,7 +1114,7 @@ export default function ClassroomDetail() {
                         borderRadius: 8,
                         border: 'none',
                         background: examViewMode === 'grouped' ? 'rgba(139,92,246,0.3)' : 'transparent',
-                        color: examViewMode === 'grouped' ? '#A78BFA' : 'rgba(255,255,255,0.5)',
+                        color: examViewMode === 'grouped' ? '#A78BFA' : 'var(--color-text-muted)',
                         fontSize: '0.75rem',
                         fontWeight: 700,
                         cursor: 'pointer',
@@ -1134,7 +1134,7 @@ export default function ClassroomDetail() {
                         borderRadius: 8,
                         border: 'none',
                         background: examViewMode === 'list' ? 'rgba(139,92,246,0.3)' : 'transparent',
-                        color: examViewMode === 'list' ? '#A78BFA' : 'rgba(255,255,255,0.5)',
+                        color: examViewMode === 'list' ? '#A78BFA' : 'var(--color-text-muted)',
                         fontSize: '0.75rem',
                         fontWeight: 700,
                         cursor: 'pointer',
@@ -1180,7 +1180,7 @@ export default function ClassroomDetail() {
                       <button
                         type="button"
                         onClick={handleDeselectAllFiltered}
-                        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', padding: '0.35rem 0.75rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                        style={{ background: 'var(--local-card-bg)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', padding: '0.35rem 0.75rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
                       >
                         Clear Filtered
                       </button>
@@ -1195,14 +1195,14 @@ export default function ClassroomDetail() {
               {/* Scrollable Exams Body */}
               <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem 1.75rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 {isLoadingExams ? (
-                  <div style={{ textAlign: 'center', padding: '4rem 0', color: 'rgba(255,255,255,0.5)' }}>
+                  <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--color-text-muted)' }}>
                     <Sparkles size={28} color="#8B5CF6" style={{ animation: 'spin 2s linear infinite', marginBottom: '0.75rem' }} />
                     <div>Loading system exam library...</div>
                   </div>
                 ) : filteredAvailableExams.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '4rem 2rem', background: 'rgba(0,0,0,0.2)', borderRadius: 18, border: '1px dashed rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)' }}>
+                  <div style={{ textAlign: 'center', padding: '4rem 2rem', background: 'rgba(0,0,0,0.2)', borderRadius: 18, border: '1px dashed rgba(255,255,255,0.08)', color: 'var(--color-text-muted)' }}>
                     <FileText size={32} style={{ margin: '0 auto 0.75rem auto', opacity: 0.4 }} />
-                    <h4 style={{ color: '#fff', fontSize: '1rem', fontWeight: 700, margin: '0 0 0.35rem 0' }}>No Assessments Match Criteria</h4>
+                    <h4 style={{ color: 'var(--color-text-primary)', fontSize: '1rem', fontWeight: 700, margin: '0 0 0.35rem 0' }}>No Assessments Match Criteria</h4>
                     <p style={{ fontSize: '0.82rem', margin: 0 }}>Try clearing search keywords or selecting a different subject/stage filter.</p>
                   </div>
                 ) : examViewMode === 'grouped' ? (
@@ -1231,8 +1231,8 @@ export default function ClassroomDetail() {
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                             {isSubjectCollapsed ? <ChevronRight size={18} color="#A78BFA" /> : <ChevronDown size={18} color="#A78BFA" />}
-                            <span style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff' }}>{subjectGroupKey}</span>
-                            <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.08)', padding: '0.15rem 0.5rem', borderRadius: 50 }}>
+                            <span style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-text-primary)' }}>{subjectGroupKey}</span>
+                            <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-text-muted)', background: 'var(--local-card-bdr)', padding: '0.15rem 0.5rem', borderRadius: 50 }}>
                               {allSubjectExams.length} assessments
                             </span>
                           </div>
@@ -1243,9 +1243,9 @@ export default function ClassroomDetail() {
                                 type="button"
                                 onClick={() => toggleSelectGroup(allSubjectExams)}
                                 style={{
-                                  background: isAllSubjectSelected ? 'rgba(139,92,246,0.3)' : 'rgba(255,255,255,0.06)',
+                                  background: isAllSubjectSelected ? 'rgba(139,92,246,0.3)' : 'var(--local-card-bg)',
                                   border: '1px solid rgba(255,255,255,0.12)',
-                                  color: isAllSubjectSelected ? '#C4B5FD' : 'rgba(255,255,255,0.7)',
+                                  color: isAllSubjectSelected ? '#C4B5FD' : 'var(--color-text-secondary)',
                                   padding: '0.3rem 0.65rem',
                                   borderRadius: 8,
                                   fontSize: '0.72rem',
@@ -1300,7 +1300,7 @@ export default function ClassroomDetail() {
                                         style={{
                                           background: 'none',
                                           border: 'none',
-                                          color: isAllTopicSelected ? '#A78BFA' : 'rgba(255,255,255,0.5)',
+                                          color: isAllTopicSelected ? '#A78BFA' : 'var(--color-text-muted)',
                                           fontSize: '0.72rem',
                                           fontWeight: 700,
                                           cursor: 'pointer',
@@ -1376,11 +1376,11 @@ export default function ClassroomDetail() {
                                                 )}
                                               </div>
 
-                                              <h5 style={{ fontSize: '0.92rem', fontWeight: 800, color: '#fff', margin: '0.2rem 0 0.4rem 0', lineHeight: 1.35 }}>
+                                              <h5 style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: '0.2rem 0 0.4rem 0', lineHeight: 1.35 }}>
                                                 {ex.title}
                                               </h5>
 
-                                              <div style={{ display: 'flex', gap: '0.6rem', fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', flexWrap: 'wrap' }}>
+                                              <div style={{ display: 'flex', gap: '0.6rem', fontSize: '0.75rem', color: 'var(--color-text-muted)', flexWrap: 'wrap' }}>
                                                 <span>⏱️ {ex.duration_minutes || 30}m</span>
                                                 {ex.question_count > 0 && <span>📝 {ex.question_count} Qs</span>}
                                                 {ex.total_marks > 0 && <span>🎯 {ex.total_marks} Marks</span>}
@@ -1463,7 +1463,7 @@ export default function ClassroomDetail() {
                               )}
                             </div>
 
-                            <h5 style={{ fontSize: '0.98rem', fontWeight: 800, color: '#fff', margin: '0.25rem 0 0.45rem 0', lineHeight: 1.35 }}>
+                            <h5 style={{ fontSize: '0.98rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: '0.25rem 0 0.45rem 0', lineHeight: 1.35 }}>
                               {ex.title}
                             </h5>
 
@@ -1496,15 +1496,15 @@ export default function ClassroomDetail() {
                 alignItems: 'center',
                 flexShrink: 0
               }}>
-                <div style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.7)' }}>
-                  Selected: <strong style={{ color: selectedExamIds.length > 0 ? '#10B981' : '#fff' }}>{selectedExamIds.length} assessment(s)</strong>
+                <div style={{ fontSize: '0.88rem', color: 'var(--color-text-secondary)' }}>
+                  Selected: <strong style={{ color: selectedExamIds.length > 0 ? '#10B981' : 'var(--color-text-primary)' }}>{selectedExamIds.length} assessment(s)</strong>
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.75rem' }}>
                   <button
                     type="button"
                     onClick={() => setShowExamModal(false)}
-                    style={{ padding: '0.75rem 1.25rem', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: '#fff', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}
+                    style={{ padding: '0.75rem 1.25rem', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: 'var(--color-text-primary)', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}
                   >
                     Cancel
                   </button>
@@ -1516,8 +1516,8 @@ export default function ClassroomDetail() {
                       padding: '0.75rem 1.5rem',
                       borderRadius: 12,
                       border: 'none',
-                      background: selectedExamIds.length === 0 ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #8B5CF6, #06B6D4)',
-                      color: selectedExamIds.length === 0 ? 'rgba(255,255,255,0.4)' : '#fff',
+                      background: selectedExamIds.length === 0 ? 'var(--local-card-bdr)' : 'linear-gradient(135deg, #8B5CF6, #06B6D4)',
+                      color: selectedExamIds.length === 0 ? 'rgba(255,255,255,0.4)' : 'var(--color-text-primary)',
                       fontWeight: 800,
                       fontSize: '0.88rem',
                       cursor: (isAssigningExam || selectedExamIds.length === 0) ? 'not-allowed' : 'pointer',
@@ -1539,8 +1539,8 @@ export default function ClassroomDetail() {
           <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
             <div style={{ background: '#0E1424', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 24, padding: '2rem', maxWidth: 600, width: '100%', maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 20px 50px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff', margin: 0 }}>Assign Materials from Curriculum</h3>
-                <button onClick={() => setShowMaterialModal(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: 0 }}>Assign Materials from Curriculum</h3>
+                <button onClick={() => setShowMaterialModal(false)} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: 360, overflowY: 'auto' }}>
@@ -1562,7 +1562,7 @@ export default function ClassroomDetail() {
                     >
                       <div>
                         <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#10B981', textTransform: 'uppercase' }}>{mat.content_type || 'Material'}</div>
-                        <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#fff' }}>{mat.title}</div>
+                        <div style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>{mat.title}</div>
                       </div>
                       <input type="checkbox" checked={isChecked} readOnly style={{ accentColor: '#10B981', width: 18, height: 18 }} />
                     </div>
@@ -1571,8 +1571,8 @@ export default function ClassroomDetail() {
               </div>
 
               <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-                <button onClick={() => setShowMaterialModal(false)} style={{ flex: 1, padding: '0.75rem', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
-                <button onClick={handleAssignMaterialsSubmit} disabled={isAssigningMaterial} style={{ flex: 1, padding: '0.75rem', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', color: '#fff', fontWeight: 800, cursor: isAssigningMaterial ? 'wait' : 'pointer' }}>
+                <button onClick={() => setShowMaterialModal(false)} style={{ flex: 1, padding: '0.75rem', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--color-text-primary)', fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
+                <button onClick={handleAssignMaterialsSubmit} disabled={isAssigningMaterial} style={{ flex: 1, padding: '0.75rem', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', color: 'var(--color-text-primary)', fontWeight: 800, cursor: isAssigningMaterial ? 'wait' : 'pointer' }}>
                   {isAssigningMaterial ? 'Assigning...' : `Assign ${selectedMaterialIds.length} Selected`}
                 </button>
               </div>
@@ -1585,47 +1585,47 @@ export default function ClassroomDetail() {
           <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
             <div style={{ background: '#0E1424', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 24, padding: '2rem', maxWidth: 500, width: '100%', boxShadow: '0 20px 50px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff', margin: 0 }}>Create Classroom Assignment</h3>
-                <button onClick={() => setShowAssignmentModal(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: 0 }}>Create Classroom Assignment</h3>
+                <button onClick={() => setShowAssignmentModal(false)} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
               </div>
 
               <form onSubmit={handleCreateAssignmentSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div>
-                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'rgba(255,255,255,0.7)', marginBottom: '0.4rem', display: 'block' }}>Assignment Title *</label>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: '0.4rem', display: 'block' }}>Assignment Title *</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Java OOP Concepts Assignment 1"
                     value={assignmentData.title}
                     onChange={(e) => setAssignmentData({ ...assignmentData, title: e.target.value })}
-                    style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '0.75rem 1rem', color: '#fff', fontSize: '0.85rem', outline: 'none' }}
+                    style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '0.75rem 1rem', color: 'var(--color-text-primary)', fontSize: '0.85rem', outline: 'none' }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'rgba(255,255,255,0.7)', marginBottom: '0.4rem', display: 'block' }}>Instructions / Details</label>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: '0.4rem', display: 'block' }}>Instructions / Details</label>
                   <textarea
                     rows={3}
                     placeholder="Detailed instructions for students..."
                     value={assignmentData.description}
                     onChange={(e) => setAssignmentData({ ...assignmentData, description: e.target.value })}
-                    style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '0.75rem 1rem', color: '#fff', fontSize: '0.85rem', outline: 'none', resize: 'vertical' }}
+                    style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '0.75rem 1rem', color: 'var(--color-text-primary)', fontSize: '0.85rem', outline: 'none', resize: 'vertical' }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'rgba(255,255,255,0.7)', marginBottom: '0.4rem', display: 'block' }}>Due Date (Optional)</label>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: '0.4rem', display: 'block' }}>Due Date (Optional)</label>
                   <input
                     type="date"
                     value={assignmentData.due_date}
                     onChange={(e) => setAssignmentData({ ...assignmentData, due_date: e.target.value })}
-                    style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '0.75rem 1rem', color: '#fff', fontSize: '0.85rem', outline: 'none' }}
+                    style={{ width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '0.75rem 1rem', color: 'var(--color-text-primary)', fontSize: '0.85rem', outline: 'none' }}
                   />
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-                  <button type="button" onClick={() => setShowAssignmentModal(false)} style={{ flex: 1, padding: '0.75rem', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
-                  <button type="submit" disabled={isCreatingAssignment} style={{ flex: 1, padding: '0.75rem', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', color: '#fff', fontWeight: 800, cursor: isCreatingAssignment ? 'wait' : 'pointer' }}>
+                  <button type="button" onClick={() => setShowAssignmentModal(false)} style={{ flex: 1, padding: '0.75rem', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--color-text-primary)', fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
+                  <button type="submit" disabled={isCreatingAssignment} style={{ flex: 1, padding: '0.75rem', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', color: 'var(--color-text-primary)', fontWeight: 800, cursor: isCreatingAssignment ? 'wait' : 'pointer' }}>
                     {isCreatingAssignment ? 'Posting...' : 'Create Assignment'}
                   </button>
                 </div>

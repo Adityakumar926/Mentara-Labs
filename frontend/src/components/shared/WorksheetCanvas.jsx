@@ -218,7 +218,7 @@ export default function WorksheetCanvas({ imageUrl, contentId, title = 'Interact
             onClick={onClose}
             style={{
               width: '32px', height: '32px', borderRadius: '10px',
-              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+              background: 'var(--local-card-bg)', border: '1px solid rgba(255,255,255,0.12)',
               color: 'rgba(245,240,232,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center',
               cursor: 'pointer', transition: 'all 0.15s'
             }}

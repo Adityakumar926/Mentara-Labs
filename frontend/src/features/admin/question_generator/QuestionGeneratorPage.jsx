@@ -777,8 +777,8 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                     <button
                       onClick={toggleSelectAll}
                       style={{
-                        background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
-                        padding: '0.45rem 0.85rem', borderRadius: 10, color: '#fff', fontSize: '0.78rem', fontWeight: 700,
+                        background: 'var(--local-card-bg)', border: '1px solid rgba(255,255,255,0.12)',
+                        padding: '0.45rem 0.85rem', borderRadius: 10, color: 'var(--color-text-primary)', fontSize: '0.78rem', fontWeight: 700,
                         cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem'
                       }}
                     >
@@ -799,7 +799,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                         padding: '0.4rem 0.85rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700,
                         border: 'none', cursor: 'pointer', transition: 'all 0.2s',
                         background: viewMode === 'carousel' ? 'var(--cyan)' : 'transparent',
-                        color: viewMode === 'carousel' ? '#000' : 'rgba(255,255,255,0.7)'
+                        color: viewMode === 'carousel' ? '#000' : 'var(--color-text-secondary)'
                       }}
                     >
                       🎴 Carousel View (1-by-1)
@@ -811,7 +811,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                         padding: '0.4rem 0.85rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700,
                         border: 'none', cursor: 'pointer', transition: 'all 0.2s',
                         background: viewMode === 'list' ? 'var(--cyan)' : 'transparent',
-                        color: viewMode === 'list' ? '#000' : 'rgba(255,255,255,0.7)'
+                        color: viewMode === 'list' ? '#000' : 'var(--color-text-secondary)'
                       }}
                     >
                       📜 List All
@@ -823,7 +823,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                         padding: '0.4rem 0.85rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700,
                         border: 'none', cursor: 'pointer', transition: 'all 0.2s', marginLeft: '0.5rem',
                         background: showAnswers ? '#10B981' : 'transparent',
-                        color: showAnswers ? '#fff' : 'rgba(255,255,255,0.7)'
+                        color: showAnswers ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'
                       }}
                     >
                       {showAnswers ? 'Hide Mark Scheme' : 'Show Mark Scheme'}
@@ -836,7 +836,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                       disabled={!selectedQuestionIndexes.length}
                       style={{
                         background: 'linear-gradient(135deg, #3B82F6, #1D4ED8)', border: 'none',
-                        padding: '0.6rem 1.2rem', borderRadius: 12, color: '#fff', fontSize: '0.82rem', fontWeight: 700,
+                        padding: '0.6rem 1.2rem', borderRadius: 12, color: 'var(--color-text-primary)', fontSize: '0.82rem', fontWeight: 700,
                         cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
                         boxShadow: '0 4px 14px rgba(59,130,246,0.3)', opacity: selectedQuestionIndexes.length ? 1 : 0.5
                       }}
@@ -850,7 +850,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                         disabled={isSaving || !selectedQuestionIndexes.length}
                         style={{
                           background: 'linear-gradient(135deg, #10B981, #059669)', border: 'none',
-                          padding: '0.6rem 1.2rem', borderRadius: 12, color: '#fff', fontSize: '0.82rem', fontWeight: 700,
+                          padding: '0.6rem 1.2rem', borderRadius: 12, color: 'var(--color-text-primary)', fontSize: '0.82rem', fontWeight: 700,
                           cursor: isSaving ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem',
                           boxShadow: '0 4px 14px rgba(16,185,129,0.3)', opacity: selectedQuestionIndexes.length ? 1 : 0.5
                         }}
@@ -872,8 +872,8 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                     <Sparkles size={24} color="var(--cyan)" />
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fff', margin: 0 }}>No Questions Generated Yet</h3>
-                    <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.5)', maxWidth: 460, margin: '0 auto' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-text-primary)', margin: 0 }}>No Questions Generated Yet</h3>
+                    <p style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)', maxWidth: 460, margin: '0 auto' }}>
                       Configure your Stage, Subject, Topic, and RAG document context on the left, then click <strong>"Generate Questions"</strong> to generate live questions!
                     </p>
                   </div>
@@ -893,10 +893,10 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                         onClick={() => setCurrentCardIndex(prev => Math.max(0, prev - 1))}
                         disabled={currentCardIndex === 0}
                         style={{
-                          background: currentCardIndex === 0 ? 'rgba(255,255,255,0.04)' : 'rgba(0, 212, 255, 0.15)',
+                          background: currentCardIndex === 0 ? 'var(--local-card-bg)' : 'rgba(0, 212, 255, 0.15)',
                           border: '1px solid',
-                          borderColor: currentCardIndex === 0 ? 'rgba(255,255,255,0.08)' : 'var(--cyan)',
-                          color: currentCardIndex === 0 ? 'rgba(255,255,255,0.3)' : 'var(--cyan)',
+                          borderColor: currentCardIndex === 0 ? 'var(--local-card-bdr)' : 'var(--cyan)',
+                          color: currentCardIndex === 0 ? 'var(--color-text-muted)' : 'var(--cyan)',
                           padding: '0.5rem 1.1rem', borderRadius: 10, fontSize: '0.82rem', fontWeight: 700,
                           cursor: currentCardIndex === 0 ? 'not-allowed' : 'pointer', transition: 'all 0.15s'
                         }}
@@ -917,7 +917,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                               height: 10,
                               borderRadius: 10,
                               border: 'none',
-                              background: currentCardIndex === dotIdx ? 'var(--cyan)' : 'rgba(255,255,255,0.2)',
+                              background: currentCardIndex === dotIdx ? 'var(--cyan)' : 'var(--local-card-bdr)',
                               cursor: 'pointer',
                               transition: 'all 0.2s'
                             }}
@@ -930,10 +930,10 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                         onClick={() => setCurrentCardIndex(prev => Math.min(generatedQuestions.length - 1, prev + 1))}
                         disabled={currentCardIndex === generatedQuestions.length - 1}
                         style={{
-                          background: currentCardIndex === generatedQuestions.length - 1 ? 'rgba(255,255,255,0.04)' : 'rgba(0, 212, 255, 0.15)',
+                          background: currentCardIndex === generatedQuestions.length - 1 ? 'var(--local-card-bg)' : 'rgba(0, 212, 255, 0.15)',
                           border: '1px solid',
-                          borderColor: currentCardIndex === generatedQuestions.length - 1 ? 'rgba(255,255,255,0.08)' : 'var(--cyan)',
-                          color: currentCardIndex === generatedQuestions.length - 1 ? 'rgba(255,255,255,0.3)' : 'var(--cyan)',
+                          borderColor: currentCardIndex === generatedQuestions.length - 1 ? 'var(--local-card-bdr)' : 'var(--cyan)',
+                          color: currentCardIndex === generatedQuestions.length - 1 ? 'var(--color-text-muted)' : 'var(--cyan)',
                           padding: '0.5rem 1.1rem', borderRadius: 10, fontSize: '0.82rem', fontWeight: 700,
                           cursor: currentCardIndex === generatedQuestions.length - 1 ? 'not-allowed' : 'pointer', transition: 'all 0.15s'
                         }}
@@ -1112,7 +1112,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
             paddingTop: '0.85rem',
             borderTop: '1px solid rgba(255, 255, 255, 0.06)',
             fontSize: '0.74rem',
-            color: 'rgba(255, 255, 255, 0.45)',
+            color: 'var(--color-text-muted)',
             textAlign: 'center'
           }}>
             <Sparkles size={12} style={{ color: 'var(--cyan)', opacity: 0.8, flexShrink: 0 }} />

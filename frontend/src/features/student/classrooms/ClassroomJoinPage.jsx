@@ -128,10 +128,10 @@ export default function ClassroomJoinPage() {
 
   if (isLoading) {
     return (
-      <div style={{ height: '100vh', background: '#080C16', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif' }}>
+      <div style={{ height: '100vh', background: '#080C16', color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif' }}>
         <div style={{ textAlign: 'center' }}>
           <Sparkles size={36} color="#8B5CF6" style={{ animation: 'spin 2s linear infinite', marginBottom: '1rem' }} />
-          <div style={{ fontSize: '1rem', fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Loading Classroom Invitation...</div>
+          <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>Loading Classroom Invitation...</div>
         </div>
       </div>
     );
@@ -139,7 +139,7 @@ export default function ClassroomJoinPage() {
 
   if (errorMsg || !joinInfo) {
     return (
-      <div style={{ minHeight: '100vh', background: '#080C16', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', fontFamily: 'Inter, sans-serif' }}>
+      <div style={{ minHeight: '100vh', background: '#080C16', color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', fontFamily: 'Inter, sans-serif' }}>
         <div style={{ background: 'rgba(14,20,36,0.9)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 24, padding: '3rem 2rem', textAlign: 'center', maxWidth: 460, width: '100%', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
           <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem auto' }}>
             <AlertCircle size={30} color="#EF4444" />
@@ -150,7 +150,7 @@ export default function ClassroomJoinPage() {
           </p>
           <button 
             onClick={() => navigate('/')} 
-            style={{ background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none', padding: '0.85rem 1.75rem', borderRadius: 12, color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}
+            style={{ background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none', padding: '0.85rem 1.75rem', borderRadius: 12, color: 'var(--color-text-primary)', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}
           >
             Return to Home
           </button>
@@ -160,7 +160,7 @@ export default function ClassroomJoinPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#080C16', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 1.25rem', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: '#080C16', color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 1.25rem', fontFamily: 'Inter, sans-serif' }}>
       <div style={{
         background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(20, 30, 58, 0.9) 100%)',
         border: '1px solid rgba(139, 92, 246, 0.35)',
@@ -186,10 +186,10 @@ export default function ClassroomJoinPage() {
 
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(139, 92, 246, 0.15)', border: '1px solid rgba(139, 92, 246, 0.3)', padding: '0.25rem 0.75rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800, color: '#C4B5FD', fontFamily: 'monospace', marginBottom: '0.75rem' }}>
             <span>INVITE CODE:</span>
-            <strong style={{ color: '#fff' }}>{joinInfo.invite_code}</strong>
+            <strong style={{ color: 'var(--color-text-primary)' }}>{joinInfo.invite_code}</strong>
           </div>
 
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#fff', margin: '0 0 0.4rem 0', lineHeight: 1.2 }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: '0 0 0.4rem 0', lineHeight: 1.2 }}>
             {joinInfo.name}
           </h1>
 
@@ -199,13 +199,13 @@ export default function ClassroomJoinPage() {
 
           {/* Quick Classroom Stats */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', padding: '0.25rem 0.65rem', borderRadius: 8, color: '#CBD5E1' }}>
+            <span style={{ fontSize: '0.75rem', background: 'var(--local-card-bg)', border: '1px solid rgba(255,255,255,0.1)', padding: '0.25rem 0.65rem', borderRadius: 8, color: '#CBD5E1' }}>
               📝 {joinInfo.assigned_exams?.length || 0} Exams
             </span>
-            <span style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', padding: '0.25rem 0.65rem', borderRadius: 8, color: '#CBD5E1' }}>
+            <span style={{ fontSize: '0.75rem', background: 'var(--local-card-bg)', border: '1px solid rgba(255,255,255,0.1)', padding: '0.25rem 0.65rem', borderRadius: 8, color: '#CBD5E1' }}>
               📚 {joinInfo.assigned_materials?.length || 0} Materials
             </span>
-            <span style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', padding: '0.25rem 0.65rem', borderRadius: 8, color: '#CBD5E1' }}>
+            <span style={{ fontSize: '0.75rem', background: 'var(--local-card-bg)', border: '1px solid rgba(255,255,255,0.1)', padding: '0.25rem 0.65rem', borderRadius: 8, color: '#CBD5E1' }}>
               👥 {joinInfo.active_students || 0} Students
             </span>
           </div>
@@ -237,7 +237,7 @@ export default function ClassroomJoinPage() {
               style={{
                 background: 'rgba(245, 158, 11, 0.25)',
                 border: '1px solid rgba(245, 158, 11, 0.5)',
-                color: '#fff',
+                color: 'var(--color-text-primary)',
                 padding: '0.4rem 0.8rem',
                 borderRadius: 8,
                 fontSize: '0.78rem',
@@ -285,7 +285,7 @@ export default function ClassroomJoinPage() {
                 border: 'none',
                 padding: '0.95rem',
                 borderRadius: 12,
-                color: '#fff',
+                color: 'var(--color-text-primary)',
                 fontWeight: 800,
                 fontSize: '1rem',
                 cursor: isQuickJoining ? 'wait' : 'pointer',
@@ -303,7 +303,7 @@ export default function ClassroomJoinPage() {
             <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
               <button
                 onClick={() => logout()}
-                style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.45)', fontSize: '0.78rem', cursor: 'pointer', textDecoration: 'underline' }}
+                style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '0.78rem', cursor: 'pointer', textDecoration: 'underline' }}
               >
                 Not your account? Log out and join with another email
               </button>
@@ -328,13 +328,13 @@ export default function ClassroomJoinPage() {
                   borderRadius: 12,
                   background: 'rgba(0,0,0,0.45)',
                   border: '1px solid rgba(255,255,255,0.18)',
-                  color: '#fff',
+                  color: 'var(--color-text-primary)',
                   fontSize: '0.95rem',
                   outline: 'none',
                   boxSizing: 'border-box'
                 }}
               />
-              <span style={{ display: 'block', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', marginTop: '0.4rem' }}>
+              <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '0.4rem' }}>
                 Enter the email address where your teacher sent the invitation.
               </span>
             </div>
@@ -365,7 +365,7 @@ export default function ClassroomJoinPage() {
                 border: 'none',
                 padding: '0.95rem',
                 borderRadius: 12,
-                color: '#fff',
+                color: 'var(--color-text-primary)',
                 fontWeight: 800,
                 fontSize: '0.95rem',
                 cursor: isVerifying ? 'wait' : 'pointer',

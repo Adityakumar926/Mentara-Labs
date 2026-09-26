@@ -1610,7 +1610,7 @@ export default function CurriculumDetail() {
                     />
                   )}
                   {animTab === 'output' && (
-                    <div style={{ borderRadius: '12px', overflow: 'hidden', background: '#fff', height: '320px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <div style={{ borderRadius: '12px', overflow: 'hidden', background: 'var(--color-text-primary)', height: '320px', border: '1px solid rgba(255,255,255,0.1)' }}>
                       <iframe
                         srcDoc={compileHtmlContent(contentForm.html_part, contentForm.css_part, contentForm.js_part, contentForm.json_part) || ANIM_PLACEHOLDER}
                         title="Animation Preview"

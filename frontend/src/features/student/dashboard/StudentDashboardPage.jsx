@@ -1442,7 +1442,7 @@ export default function StudentDashboardPage() {
                                     width: '32px',
                                     height: '32px',
                                     borderRadius: '10px',
-                                    background: isSubActive ? 'linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%)' : 'rgba(255, 255, 255, 0.06)',
+                                    background: isSubActive ? 'linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%)' : 'var(--local-card-bg)',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
@@ -1504,7 +1504,7 @@ export default function StudentDashboardPage() {
                             fontWeight: 900,
                             padding: '0.15rem 0.55rem',
                             borderRadius: '50px',
-                            background: activeTab === t.id ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)',
+                            background: activeTab === t.id ? 'rgba(255,255,255,0.25)' : 'var(--local-card-bdr)',
                             color: activeTab === t.id ? '#FFF' : 'var(--muted)'
                           }}>
                             {t.count}
@@ -1795,7 +1795,7 @@ export default function StudentDashboardPage() {
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
               <button
                 onClick={() => setPremiumModalContent(null)}
-                style={{ padding: '0.65rem 1.2rem', borderRadius: '12px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'var(--color-text-secondary)', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer' }}
+                style={{ padding: '0.65rem 1.2rem', borderRadius: '12px', background: 'var(--local-card-bg)', border: '1px solid rgba(255,255,255,0.12)', color: 'var(--color-text-secondary)', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer' }}
               >
                 Close
               </button>

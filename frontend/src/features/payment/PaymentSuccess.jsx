@@ -48,15 +48,15 @@ const PaymentSuccess = () => {
           <CheckCircle size={40} color="white" />
         </div>
 
-        <h1 style={{ color: '#fff', fontSize: '28px', fontWeight: '700', marginBottom: '12px' }}>
+        <h1 style={{ color: 'var(--color-text-primary)', fontSize: '28px', fontWeight: '700', marginBottom: '12px' }}>
           Payment Successful! 🎉
         </h1>
 
-        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '16px', marginBottom: '8px' }}>
+        <p style={{ color: 'var(--color-text-secondary)', fontSize: '16px', marginBottom: '8px' }}>
           Welcome to <strong style={{ color: '#a78bfa' }}>{planLabel}</strong>
         </p>
 
-        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', marginBottom: '32px' }}>
+        <p style={{ color: 'var(--color-text-muted)', fontSize: '14px', marginBottom: '32px' }}>
           Your subscription is now active. Redirecting to dashboard in 5 seconds...
         </p>
 
@@ -86,7 +86,7 @@ const PaymentSuccess = () => {
             width: '100%',
             padding: '14px',
             background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
-            color: '#fff',
+            color: 'var(--color-text-primary)',
             border: 'none',
             borderRadius: '12px',
             fontSize: '16px',

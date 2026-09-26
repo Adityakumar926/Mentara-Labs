@@ -673,7 +673,7 @@ function InteractiveTimer({ remaining, timerLabel, isUrgent, durationMinutes }) 
             </div>
 
             {/* Time progress bar */}
-            <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '10px', overflow: 'hidden', marginBottom: '0.75rem' }}>
+            <div style={{ width: '100%', height: '6px', background: 'var(--local-card-bdr)', borderRadius: '10px', overflow: 'hidden', marginBottom: '0.75rem' }}>
               <div
                 style={{
                   height: '100%',

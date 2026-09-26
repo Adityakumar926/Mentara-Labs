@@ -478,7 +478,7 @@ export default function ResultPage() {
               <button 
                 type="button" 
                 className="result-back" 
-                style={{ padding: '0.65rem 2rem', background: 'linear-gradient(135deg, var(--violet), #4F46E5)', color: '#fff', border: 'none', boxShadow: '0 0 20px rgba(124,58,237,0.35)' }} 
+                style={{ padding: '0.65rem 2rem', background: 'linear-gradient(135deg, var(--violet), #4F46E5)', color: 'var(--color-text-primary)', border: 'none', boxShadow: '0 0 20px rgba(124,58,237,0.35)' }} 
                 onClick={() => navigate(user?.role === 'student' ? '/student/dashboard' : '/exams')}
               >
                 Explore More Exams
@@ -592,7 +592,7 @@ export default function ResultPage() {
               const correct  = q.is_correct === true;
               const wrong    = answered && !correct;
 
-              const accentColor = correct ? 'var(--green)' : wrong ? 'var(--red)' : 'rgba(255,255,255,0.15)';
+              const accentColor = correct ? 'var(--green)' : wrong ? 'var(--red)' : 'var(--local-card-bdr)';
               const cardGlow    = correct ? 'rgba(16,185,129,0.05)' : wrong ? 'rgba(239,68,68,0.05)' : 'transparent';
 
               return (

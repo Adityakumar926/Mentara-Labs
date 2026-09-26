@@ -1462,7 +1462,7 @@ export default function QuestionsPage() {
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.75rem', marginTop: bulkFiles.length > 0 ? '0' : '0.25rem' }}>
-                  <label className="qp-add-btn" style={{ padding: '0.45rem 1rem', fontSize: '0.75rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: 'none', margin: 0 }}>
+                  <label className="qp-add-btn" style={{ padding: '0.45rem 1rem', fontSize: '0.75rem', background: 'var(--local-card-bg)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: 'none', margin: 0 }}>
                     <input
                       type="file"
                       multiple
@@ -1505,7 +1505,7 @@ export default function QuestionsPage() {
                         fontWeight: 700,
                         cursor: 'pointer',
                         border: '1px solid',
-                        borderColor: bulkConfig.defaultDifficulty === d ? 'var(--cyan)' : 'rgba(255,255,255,0.1)',
+                        borderColor: bulkConfig.defaultDifficulty === d ? 'var(--cyan)' : 'var(--local-card-bdr)',
                         background: bulkConfig.defaultDifficulty === d ? 'rgba(0,212,255,0.15)' : 'transparent',
                         color: bulkConfig.defaultDifficulty === d ? 'var(--cyan)' : 'var(--muted)'
                       }}
@@ -1634,7 +1634,7 @@ export default function QuestionsPage() {
                                     flex: 1,
                                     padding: '0.45rem 0.3rem',
                                     borderRadius: '10px',
-                                    border: `1px solid ${active ? col : 'rgba(255,255,255,0.1)'}`,
+                                    border: `1px solid ${active ? col : 'var(--local-card-bdr)'}`,
                                     background: active ? `${col}22` : 'transparent',
                                     color: active ? col : 'var(--muted)',
                                     fontSize: '0.75rem', fontWeight: 700,
@@ -1655,7 +1655,7 @@ export default function QuestionsPage() {
                             onClick={() => setBulkFiles(prev => prev.map(f => f.id === item.id ? { ...f, is_premium: !f.is_premium } : f))}
                             style={{
                               flex: 1, padding: '0.45rem 0.5rem', borderRadius: '10px',
-                              border: `1px solid ${item.is_premium ? '#FCD34D' : 'rgba(255,255,255,0.1)'}`,
+                              border: `1px solid ${item.is_premium ? '#FCD34D' : 'var(--local-card-bdr)'}`,
                               background: item.is_premium ? 'rgba(252,211,77,0.15)' : 'transparent',
                               color: item.is_premium ? '#FCD34D' : 'var(--muted)',
                               fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s',
@@ -1693,7 +1693,7 @@ export default function QuestionsPage() {
                     <span>Uploading questions to Cloudinary &amp; Database...</span>
                     <span>{bulkProgress}%</span>
                   </div>
-                  <div style={{ height: '6px', width: '100%', background: 'rgba(255,255,255,0.08)', borderRadius: '50px', overflow: 'hidden' }}>
+                  <div style={{ height: '6px', width: '100%', background: 'var(--local-card-bdr)', borderRadius: '50px', overflow: 'hidden' }}>
                     <div style={{ height: '100%', width: `${bulkProgress}%`, background: 'linear-gradient(90deg, #00D4FF, #7C3AED)', transition: 'width 0.3s ease' }} />
                   </div>
                 </div>
@@ -1789,7 +1789,7 @@ export default function QuestionsPage() {
                     type="button"
                     onClick={() => setActiveImage(null)}
                     style={{
-                      background: 'rgba(255,255,255,0.12)',
+                      background: 'var(--local-card-bdr)',
                       border: 'none',
                       color: 'var(--cream)',
                       width: '36px',

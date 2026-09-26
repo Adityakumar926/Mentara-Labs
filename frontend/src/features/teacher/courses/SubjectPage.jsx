@@ -1273,7 +1273,7 @@ function WorksheetCanvas({ imageUrl, contentId, onSubmit, onClose }) {
                   <button className="ws-submit-btn" style={{ background: 'linear-gradient(135deg,#7C3AED,#5B21B6)' }} onClick={handleRedo}>
                     <RotateCcw size={14} /> Try again
                   </button>
-                  <button className="ws-submit-btn" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: 'none' }} onClick={onClose}>
+                  <button className="ws-submit-btn" style={{ background: 'var(--local-card-bdr)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: 'none' }} onClick={onClose}>
                     <X size={14} /> Close
                   </button>
                 </div>

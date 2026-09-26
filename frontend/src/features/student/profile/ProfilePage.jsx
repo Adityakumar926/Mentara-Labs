@@ -865,7 +865,7 @@ export default function ProfilePage() {
                   >
                     {savingProfile ? (
                       <>
-                        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }} style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%' }} />
+                        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }} style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'var(--color-text-primary)', borderRadius: '50%' }} />
                         Saving…
                       </>
                     ) : 'Save Changes'}
@@ -923,7 +923,7 @@ export default function ProfilePage() {
                     const gridColor = isLight ? 'rgba(15, 23, 42, 0.08)' : 'rgba(255, 255, 255, 0.05)';
                     const textColor = isLight ? '#475569' : 'rgba(255, 255, 255, 0.4)';
                     const tooltipBg = isLight ? '#FFFFFF' : '#0F1629';
-                    const tooltipBdr = isLight ? 'rgba(15, 23, 42, 0.12)' : 'rgba(255, 255, 255, 0.08)';
+                    const tooltipBdr = isLight ? 'rgba(15, 23, 42, 0.12)' : 'var(--local-card-bdr)';
                     const tooltipTxt = isLight ? '#0F172A' : '#F5F0E8';
                     const tooltipItemColor = isLight ? '#7C3AED' : '#00D4FF';
 
@@ -1189,14 +1189,14 @@ export default function ProfilePage() {
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <button
                       onClick={() => setCalYear((y) => y - 1)}
-                      style={{ padding: '0.35rem 0.75rem', borderRadius: 10, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', color: 'var(--muted)', fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'Inter, sans-serif' }}
+                      style={{ padding: '0.35rem 0.75rem', borderRadius: 10, border: '1px solid rgba(255,255,255,0.1)', background: 'var(--local-card-bg)', color: 'var(--muted)', fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'Inter, sans-serif' }}
                     >
                       ← {calYear - 1}
                     </button>
                     {calYear < now.getFullYear() && (
                       <button
                         onClick={() => setCalYear((y) => y + 1)}
-                        style={{ padding: '0.35rem 0.75rem', borderRadius: 10, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', color: 'var(--muted)', fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'Inter, sans-serif' }}
+                        style={{ padding: '0.35rem 0.75rem', borderRadius: 10, border: '1px solid rgba(255,255,255,0.1)', background: 'var(--local-card-bg)', color: 'var(--muted)', fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'Inter, sans-serif' }}
                       >
                         {calYear + 1} →
                       </button>
@@ -1258,7 +1258,7 @@ export default function ProfilePage() {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
                   <button
                     onClick={prevMonth}
-                    style={{ width: 36, height: 36, borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', color: 'var(--cream)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
+                    style={{ width: 36, height: 36, borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'var(--local-card-bg)', color: 'var(--cream)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }}
                   >
                     <ChevronLeft size={16} />
                   </button>
@@ -1268,7 +1268,7 @@ export default function ProfilePage() {
                   <button
                     onClick={nextMonth}
                     disabled={!canNext}
-                    style={{ width: 36, height: 36, borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)', color: 'var(--cream)', cursor: canNext ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: canNext ? 1 : 0.3, transition: 'all 0.15s' }}
+                    style={{ width: 36, height: 36, borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'var(--local-card-bg)', color: 'var(--cream)', cursor: canNext ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: canNext ? 1 : 0.3, transition: 'all 0.15s' }}
                   >
                     <ChevronRight size={16} />
                   </button>

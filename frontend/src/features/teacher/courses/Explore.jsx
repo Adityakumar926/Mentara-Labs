@@ -932,7 +932,7 @@ export default function Explore() {
                   </div>
                 </div>
 
-                <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '4px 0' }} />
+                <div style={{ height: '1px', background: 'var(--local-card-bdr)', margin: '4px 0' }} />
 
                 {uniqueSubjects.map((sub) => (
                   <div
@@ -963,7 +963,7 @@ export default function Explore() {
             >
               {[1, 2, 3].map(n => (
                 <div key={n} className="ex-card" style={{ height: 180, background: 'rgba(255,255,255,0.015)' }}>
-                  <div style={{ width: '40%', height: 14, background: 'rgba(255,255,255,0.04)', borderRadius: 4 }} />
+                  <div style={{ width: '40%', height: 14, background: 'var(--local-card-bg)', borderRadius: 4 }} />
                   <div style={{ width: '80%', height: 12, background: 'rgba(255,255,255,0.03)', borderRadius: 4, marginTop: 12 }} />
                   <div style={{ width: '100%', height: 36, background: 'rgba(255,255,255,0.02)', borderRadius: 10, marginTop: 'auto' }} />
                 </div>

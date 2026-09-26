@@ -1001,12 +1001,12 @@ export default function StudentExamsPage() {
                   <span style={{ position: 'relative', zIndex: 1 }}>{label}</span>
                   {id === 'live' && !liveLoading && liveList.length > 0 && (
                     <span style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <PingDot color="rgba(239,68,68,0.6)" bgColor={activeTab === 'live' ? '#fff' : '#EF4444'} />
+                      <PingDot color="rgba(239,68,68,0.6)" bgColor={activeTab === 'live' ? 'var(--color-text-primary)' : '#EF4444'} />
                       <span style={{ fontSize: '0.68rem', fontWeight: 700, color: activeTab === 'live' ? 'rgba(255,255,255,0.85)' : '#EF4444' }}>{liveList.length}</span>
                     </span>
                   )}
                   {id === 'scheduled' && !scheduledLoading && scheduledList.length > 0 && (
-                    <span style={{ position: 'relative', zIndex: 1, background: activeTab === 'scheduled' ? 'rgba(255,255,255,0.2)' : 'rgba(124,58,237,0.15)', padding: '0.1rem 0.45rem', borderRadius: 99, fontSize: '0.68rem', fontWeight: 700, color: activeTab === 'scheduled' ? '#fff' : 'var(--violet-l)' }}>
+                    <span style={{ position: 'relative', zIndex: 1, background: activeTab === 'scheduled' ? 'var(--local-card-bdr)' : 'rgba(124,58,237,0.15)', padding: '0.1rem 0.45rem', borderRadius: 99, fontSize: '0.68rem', fontWeight: 700, color: activeTab === 'scheduled' ? 'var(--color-text-primary)' : 'var(--violet-l)' }}>
                       {scheduledList.length}
                     </span>
                   )}

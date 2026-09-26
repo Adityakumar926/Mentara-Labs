@@ -329,7 +329,7 @@ const CustomTooltip = ({ active, payload, label }) => {
       {payload.map((p) => (
         <div key={p.name} className="db-tooltip-row">
           <div className="db-tooltip-dot" style={{ background: p.color, boxShadow: `0 0 8px ${p.color}` }} />
-          <span style={{ color: '#94A3B8', fontSize: '0.78rem' }}>{p.name}:</span>
+          <span style={{ color: 'var(--color-text-secondary)', fontSize: '0.78rem' }}>{p.name}:</span>
           <span className="db-tooltip-val">{p.value}</span>
         </div>
       ))}
@@ -547,10 +547,10 @@ export default function DashboardPage() {
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="day"
-                  tick={{ fill: '#94A3B8', fontSize: 11, fontWeight: 500 }}
-                  axisLine={{ stroke: 'rgba(255,255,255,0.06)' }} tickLine={false} />
+                  tick={{ fill: 'var(--color-text-secondary)', fontSize: 11, fontWeight: 500 }}
+                  axisLine={{ stroke: 'var(--local-card-bg)' }} tickLine={false} />
                 <YAxis
-                  tick={{ fill: '#94A3B8', fontSize: 11, fontWeight: 500 }}
+                  tick={{ fill: 'var(--color-text-secondary)', fontSize: 11, fontWeight: 500 }}
                   axisLine={false} tickLine={false} />
                 <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(124,58,237,0.3)', strokeWidth: 1.5, strokeDasharray: '4 4' }} />
                 <Area type="monotone" dataKey="students" stroke="#7C3AED" fill="url(#db-g-students)" strokeWidth={2.5} name="Active Students" dot={false} activeDot={{ r: 6, fill: '#7C3AED', stroke: '#FFFFFF', strokeWidth: 2 }} />
@@ -653,8 +653,8 @@ export default function DashboardPage() {
 
             <ResponsiveContainer width="100%" height={160}>
               <BarChart data={questionTypeData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                <XAxis dataKey="name" tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 600 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#94A3B8', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <XAxis dataKey="name" tick={{ fill: 'var(--color-text-secondary)', fontSize: 10, fontWeight: 600 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: 'var(--color-text-secondary)', fontSize: 10 }} axisLine={false} tickLine={false} />
                 <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
                 <Bar dataKey="count" fill="#00D4FF" radius={[6, 6, 0, 0]} name="Questions">
                   {questionTypeData.map((_, i) => (

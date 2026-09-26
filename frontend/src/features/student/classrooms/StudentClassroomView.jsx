@@ -54,7 +54,7 @@ export default function StudentClassroomView() {
   if (isLoading || !classroom) {
     return (
       <PageWrapper title="Classroom Workspace">
-        <div style={{ textAlign: 'center', padding: '4rem 0', color: 'rgba(255,255,255,0.5)' }}>
+        <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--color-text-muted)' }}>
           Loading Isolated Classroom Content...
         </div>
       </PageWrapper>
@@ -83,7 +83,7 @@ export default function StudentClassroomView() {
             <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#A78BFA', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               TEACHER: {classroom.teacher_name}
             </span>
-            <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', margin: '0.4rem 0 0.4rem 0' }}>
+            <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: '0.4rem 0 0.4rem 0' }}>
               {classroom.name}
             </h1>
             <p style={{ fontSize: '0.88rem', color: 'rgba(255, 255, 255, 0.65)', margin: 0 }}>
@@ -115,7 +115,7 @@ export default function StudentClassroomView() {
                 padding: '0.65rem 1.25rem', borderRadius: 12, border: 'none', fontSize: '0.85rem', fontWeight: 700,
                 cursor: 'pointer', transition: 'all 0.15s',
                 background: activeTab === tab.id ? 'linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%)' : 'transparent',
-                color: activeTab === tab.id ? '#fff' : 'rgba(255,255,255,0.6)'
+                color: activeTab === tab.id ? 'var(--color-text-primary)' : 'rgba(255,255,255,0.6)'
               }}
             >
               {tab.label}
@@ -127,7 +127,7 @@ export default function StudentClassroomView() {
         {activeTab === 'exams' && (
           <div>
             {exams.length === 0 ? (
-              <div style={{ background: 'rgba(14, 20, 36, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
+              <div style={{ background: 'rgba(14, 20, 36, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
                 No exams assigned to this classroom yet. Check back soon!
               </div>
             ) : (
@@ -150,7 +150,7 @@ export default function StudentClassroomView() {
                           </span>
                         )}
                       </div>
-                      <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', margin: '0.3rem 0 0.5rem 0' }}>{e.title}</h3>
+                      <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: '0.3rem 0 0.5rem 0' }}>{e.title}</h3>
                       <div style={{ display: 'flex', gap: '0.85rem', fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', flexWrap: 'wrap' }}>
                         <span>⏱️ {e.duration_minutes || 30} mins</span>
                         {e.question_count > 0 && <span>📝 {e.question_count} Questions</span>}
@@ -161,7 +161,7 @@ export default function StudentClassroomView() {
                       onClick={() => navigate(`/exams/${e.id}/take`)}
                       style={{
                         background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none',
-                        padding: '0.75rem', borderRadius: 12, color: '#fff', fontWeight: 800,
+                        padding: '0.75rem', borderRadius: 12, color: 'var(--color-text-primary)', fontWeight: 800,
                         fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem',
                         boxShadow: '0 6px 20px rgba(139, 92, 246, 0.35)', transition: 'transform 0.15s ease'
                       }}
@@ -179,7 +179,7 @@ export default function StudentClassroomView() {
         {activeTab === 'materials' && (
           <div>
             {materials.length === 0 ? (
-              <div style={{ background: 'rgba(14, 20, 36, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
+              <div style={{ background: 'rgba(14, 20, 36, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
                 No study materials assigned to this classroom yet.
               </div>
             ) : (
@@ -188,7 +188,7 @@ export default function StudentClassroomView() {
                   <div key={m.id} style={{ background: 'rgba(14, 20, 36, 0.75)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '1.25rem' }}>
                     <div>
                       <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#10B981', textTransform: 'uppercase' }}>{m.content_type || 'Material'}</span>
-                      <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', margin: '0.3rem 0 0.5rem 0' }}>{m.title}</h3>
+                      <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: '0.3rem 0 0.5rem 0' }}>{m.title}</h3>
                     </div>
                     {m.file_url && (
                       <a
@@ -215,7 +215,7 @@ export default function StudentClassroomView() {
         {activeTab === 'assignments' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {assignments.length === 0 ? (
-              <div style={{ background: 'rgba(14, 20, 36, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
+              <div style={{ background: 'rgba(14, 20, 36, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
                 No assignments posted for this batch yet.
               </div>
             ) : (
@@ -223,8 +223,8 @@ export default function StudentClassroomView() {
                 <div key={as.id} style={{ background: 'rgba(14, 20, 36, 0.75)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '1.5rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
-                      <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', margin: '0 0 0.4rem 0' }}>{as.title}</h3>
-                      <p style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.7)', margin: 0, lineHeight: 1.5 }}>{as.description}</p>
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: '0 0 0.4rem 0' }}>{as.title}</h3>
+                      <p style={{ fontSize: '0.88rem', color: 'var(--color-text-secondary)', margin: 0, lineHeight: 1.5 }}>{as.description}</p>
                     </div>
                     {as.due_date && (
                       <span style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid #F59E0B', color: '#F59E0B', padding: '0.25rem 0.65rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700 }}>
@@ -242,7 +242,7 @@ export default function StudentClassroomView() {
         {activeTab === 'announcements' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {announcements.length === 0 ? (
-              <div style={{ background: 'rgba(14, 20, 36, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
+              <div style={{ background: 'rgba(14, 20, 36, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
                 No announcements broadcasted yet.
               </div>
             ) : (
@@ -252,7 +252,7 @@ export default function StudentClassroomView() {
                     <span>Author: {a.author_name}</span>
                     <span>{new Date(a.created_at).toLocaleString()}</span>
                   </div>
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff', margin: '0 0 0.35rem 0' }}>{a.title}</h3>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: '0 0 0.35rem 0' }}>{a.title}</h3>
                   <p style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.8)', margin: 0, lineHeight: 1.5 }}>{a.content}</p>
                 </div>
               ))

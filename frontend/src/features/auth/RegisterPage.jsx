@@ -646,10 +646,10 @@ export default function RegisterPage() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   border: `1px solid ${selectedRole === 'student' ? 'rgba(56,189,248,0.4)' : 'transparent'}`
                 }}>
-                  <BookOpen size={20} style={{ color: selectedRole === 'student' ? '#38bdf8' : 'rgba(255,255,255,0.5)' }} />
+                  <BookOpen size={20} style={{ color: selectedRole === 'student' ? '#38bdf8' : 'var(--color-text-muted)' }} />
                 </div>
                 <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#ffffff' }}>I am a Student</div>
-                <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', lineHeight: 1.25 }}>Access primary tools, animations & worksheets</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', lineHeight: 1.25 }}>Access primary tools, animations & worksheets</div>
                 {selectedRole === 'student' && (
                   <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,0.15)', padding: '0.15rem 0.5rem', borderRadius: '6px', marginTop: '4px' }}>
                     ✓ Selected
@@ -681,10 +681,10 @@ export default function RegisterPage() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   border: `1px solid ${selectedRole === 'teacher' ? 'rgba(129,140,248,0.4)' : 'transparent'}`
                 }}>
-                  <GraduationCap size={20} style={{ color: selectedRole === 'teacher' ? '#a5b4fc' : 'rgba(255,255,255,0.5)' }} />
+                  <GraduationCap size={20} style={{ color: selectedRole === 'teacher' ? '#a5b4fc' : 'var(--color-text-muted)' }} />
                 </div>
                 <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#ffffff' }}>I am a Teacher</div>
-                <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', lineHeight: 1.25 }}>Teach with interactive controls, whiteboard & tools</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)', lineHeight: 1.25 }}>Teach with interactive controls, whiteboard & tools</div>
                 {selectedRole === 'teacher' && (
                   <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#a5b4fc', background: 'rgba(99,102,241,0.15)', padding: '0.15rem 0.5rem', borderRadius: '6px', marginTop: '4px' }}>
                     ✓ Selected

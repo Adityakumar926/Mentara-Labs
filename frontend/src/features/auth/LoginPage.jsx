@@ -783,7 +783,7 @@ export default function LoginPage() {
                   <div>
                     <div style={{ fontSize: '0.68rem', fontFamily: 'Space Grotesk, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#38bdf8', fontWeight: 700 }}>Saved Account</div>
                     <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#ffffff', lineHeight: 1.2 }}>{savedAccount.name || savedAccount.email}</div>
-                    <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)' }}>{savedAccount.email}</div>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--color-text-muted)' }}>{savedAccount.email}</div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

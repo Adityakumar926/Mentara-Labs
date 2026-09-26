@@ -53,7 +53,7 @@ export default function StudentClassroomsPage() {
             }}>
               <Users size={14} /> Mentara Student Workspace
             </div>
-            <h1 style={{ fontSize: '1.85rem', fontWeight: 800, color: '#fff', margin: '0 0 0.5rem 0' }}>
+            <h1 style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: '0 0 0.5rem 0' }}>
               My Enrolled Classrooms
             </h1>
             <p style={{ fontSize: '0.88rem', color: 'rgba(255, 255, 255, 0.65)', margin: 0 }}>
@@ -64,7 +64,7 @@ export default function StudentClassroomsPage() {
 
         {/* ── CLASSROOM LISTING ── */}
         {isLoading ? (
-          <div style={{ textAlign: 'center', padding: '4rem 0', color: 'rgba(255,255,255,0.5)' }}>
+          <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--color-text-muted)' }}>
             Loading Enrolled Classrooms...
           </div>
         ) : classrooms.length === 0 ? (
@@ -82,8 +82,8 @@ export default function StudentClassroomsPage() {
             <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'rgba(139,92,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Users size={28} color="#8B5CF6" />
             </div>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fff', margin: 0 }}>No Classrooms Joined Yet</h3>
-            <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', maxWidth: 460, margin: '0 auto' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-text-primary)', margin: 0 }}>No Classrooms Joined Yet</h3>
+            <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', maxWidth: 460, margin: '0 auto' }}>
               You have not joined any teacher classrooms yet. Use an invitation join link provided by your teacher to access isolated batch content!
             </p>
           </div>
@@ -109,7 +109,7 @@ export default function StudentClassroomsPage() {
                   <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#A78BFA', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                     TEACHER: {c.teacher_name}
                   </span>
-                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff', margin: '0.4rem 0 0.4rem 0' }}>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: '0.4rem 0 0.4rem 0' }}>
                     {c.name}
                   </h3>
                   <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
@@ -125,7 +125,7 @@ export default function StudentClassroomsPage() {
                     onClick={() => navigate(`/student/classrooms/${c.id}`)}
                     style={{
                       background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none',
-                      padding: '0.65rem 1.1rem', borderRadius: 12, color: '#fff',
+                      padding: '0.65rem 1.1rem', borderRadius: 12, color: 'var(--color-text-primary)',
                       fontWeight: 800, fontSize: '0.82rem', cursor: 'pointer',
                       display: 'flex', alignItems: 'center', gap: '0.4rem'
                     }}

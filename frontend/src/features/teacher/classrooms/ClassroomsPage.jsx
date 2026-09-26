@@ -98,7 +98,7 @@ export default function ClassroomsPage() {
             }}>
               <Users size={14} /> Mentara Labs • Virtual Batch Manager
             </div>
-            <h1 style={{ fontSize: '1.85rem', fontWeight: 800, color: '#fff', margin: '0 0 0.5rem 0' }}>
+            <h1 style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: '0 0 0.5rem 0' }}>
               My Virtual Classrooms
             </h1>
             <p style={{ fontSize: '0.88rem', color: 'rgba(255, 255, 255, 0.65)', lineHeight: 1.6, margin: 0 }}>
@@ -113,7 +113,7 @@ export default function ClassroomsPage() {
               border: 'none',
               padding: '0.85rem 1.4rem',
               borderRadius: 14,
-              color: '#fff',
+              color: 'var(--color-text-primary)',
               fontWeight: 800,
               fontSize: '0.9rem',
               cursor: 'pointer',
@@ -143,21 +143,21 @@ export default function ClassroomsPage() {
                 border: '1px solid rgba(255,255,255,0.1)',
                 borderRadius: 12,
                 padding: '0.65rem 1rem 0.65rem 2.4rem',
-                color: '#fff',
+                color: 'var(--color-text-primary)',
                 fontSize: '0.85rem',
                 outline: 'none'
               }}
             />
           </div>
 
-          <div style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>
+          <div style={{ fontSize: '0.82rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>
             Showing <strong>{filtered.length}</strong> active classroom(s)
           </div>
         </div>
 
         {/* ── CLASSROOM GRID ── */}
         {isLoading ? (
-          <div style={{ textAlign: 'center', padding: '4rem 0', color: 'rgba(255,255,255,0.5)' }}>
+          <div style={{ textAlign: 'center', padding: '4rem 0', color: 'var(--color-text-muted)' }}>
             Loading Classrooms...
           </div>
         ) : filtered.length === 0 ? (
@@ -175,8 +175,8 @@ export default function ClassroomsPage() {
             <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'rgba(139,92,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Users size={28} color="#8B5CF6" />
             </div>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fff', margin: 0 }}>No Classrooms Found</h3>
-            <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', maxWidth: 460, margin: '0 auto' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--color-text-primary)', margin: 0 }}>No Classrooms Found</h3>
+            <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', maxWidth: 460, margin: '0 auto' }}>
               {searchQuery ? 'No classrooms match your search terms.' : 'Create your first classroom batch to invite students and assign targeted Cambridge Primary content.'}
             </p>
             {!searchQuery && (
@@ -184,7 +184,7 @@ export default function ClassroomsPage() {
                 onClick={() => setShowCreateModal(true)}
                 style={{
                   background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none',
-                  padding: '0.75rem 1.25rem', borderRadius: 12, color: '#fff', fontWeight: 700,
+                  padding: '0.75rem 1.25rem', borderRadius: 12, color: 'var(--color-text-primary)', fontWeight: 700,
                   fontSize: '0.85rem', cursor: 'pointer', marginTop: '0.5rem'
                 }}
               >
@@ -237,8 +237,8 @@ export default function ClassroomsPage() {
                           onClick={() => copyInviteLink(c.invite_code)}
                           title="Copy Join Link"
                           style={{
-                            background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-                            borderRadius: 6, padding: '0.25rem 0.4rem', color: '#fff', cursor: 'pointer'
+                            background: 'var(--local-card-bg)', border: '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: 6, padding: '0.25rem 0.4rem', color: 'var(--color-text-primary)', cursor: 'pointer'
                           }}
                         >
                           {copiedCode === c.invite_code ? <Check size={13} color="#10B981" /> : <Copy size={13} />}
@@ -261,7 +261,7 @@ export default function ClassroomsPage() {
                     </div>
 
                     {/* Classroom Name & Description */}
-                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff', margin: '0 0 0.4rem 0', lineHeight: 1.3 }}>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: '0 0 0.4rem 0', lineHeight: 1.3 }}>
                       {c.name}
                     </h3>
                     <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)', margin: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: 38 }}>
@@ -278,7 +278,7 @@ export default function ClassroomsPage() {
                       </span>
                     </div>
 
-                    <div style={{ width: '100%', height: 7, background: 'rgba(255,255,255,0.08)', borderRadius: 10, overflow: 'hidden' }}>
+                    <div style={{ width: '100%', height: 7, background: 'var(--local-card-bdr)', borderRadius: 10, overflow: 'hidden' }}>
                       <div style={{
                         height: '100%',
                         width: `${percent}%`,
@@ -295,7 +295,7 @@ export default function ClassroomsPage() {
                       onClick={() => navigate(`/classrooms/${c.id}`)}
                       style={{
                         flex: 1, padding: '0.7rem', borderRadius: 12, border: 'none',
-                        background: 'rgba(255, 255, 255, 0.08)', color: '#fff',
+                        background: 'var(--local-card-bdr)', color: 'var(--color-text-primary)',
                         fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem',
                         transition: 'all 0.2s'
@@ -334,13 +334,13 @@ export default function ClassroomsPage() {
               boxShadow: '0 20px 50px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: '1.25rem'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', margin: 0 }}>Create New Classroom</h3>
-                <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-text-primary)', margin: 0 }}>Create New Classroom</h3>
+                <button onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
               </div>
 
               <form onSubmit={handleCreateSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
                 <div>
-                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'rgba(255,255,255,0.7)', marginBottom: '0.4rem', display: 'block' }}>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: '0.4rem', display: 'block' }}>
                     Classroom Batch Name *
                   </label>
                   <input
@@ -351,13 +351,13 @@ export default function ClassroomsPage() {
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     style={{
                       width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.12)',
-                      borderRadius: 12, padding: '0.75rem 1rem', color: '#fff', fontSize: '0.85rem', outline: 'none'
+                      borderRadius: 12, padding: '0.75rem 1rem', color: 'var(--color-text-primary)', fontSize: '0.85rem', outline: 'none'
                     }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'rgba(255,255,255,0.7)', marginBottom: '0.4rem', display: 'block' }}>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: '0.4rem', display: 'block' }}>
                     Description / Target Objectives (Optional)
                   </label>
                   <textarea
@@ -367,12 +367,12 @@ export default function ClassroomsPage() {
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     style={{
                       width: '100%', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.12)',
-                      borderRadius: 12, padding: '0.75rem 1rem', color: '#fff', fontSize: '0.85rem', outline: 'none', resize: 'vertical'
+                      borderRadius: 12, padding: '0.75rem 1rem', color: 'var(--color-text-primary)', fontSize: '0.85rem', outline: 'none', resize: 'vertical'
                     }}
                   />
                 </div>
 
-                <div style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.25)', borderRadius: 12, padding: '0.85rem', fontSize: '0.78rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+                <div style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.25)', borderRadius: 12, padding: '0.85rem', fontSize: '0.78rem', color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>
                   💡 <strong>Seat Quota Note:</strong> Maximum student capacity per classroom is automatically determined by your active teacher subscription plan.
                 </div>
 
@@ -380,14 +380,14 @@ export default function ClassroomsPage() {
                   <button
                     type="button"
                     onClick={() => setShowCreateModal(false)}
-                    style={{ flex: 1, padding: '0.75rem', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#fff', fontWeight: 700, cursor: 'pointer' }}
+                    style={{ flex: 1, padding: '0.75rem', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--color-text-primary)', fontWeight: 700, cursor: 'pointer' }}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    style={{ flex: 1, padding: '0.75rem', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', color: '#fff', fontWeight: 800, cursor: isSubmitting ? 'wait' : 'pointer' }}
+                    style={{ flex: 1, padding: '0.75rem', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', color: 'var(--color-text-primary)', fontWeight: 800, cursor: isSubmitting ? 'wait' : 'pointer' }}
                   >
                     {isSubmitting ? 'Creating...' : 'Create Classroom'}
                   </button>

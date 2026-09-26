@@ -431,7 +431,7 @@ function StrandItem({ topic, idx }) {
               {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
           ) : (
-            <Link to={`/topics/${topic.id}`} style={{ color: '#94A3B8', display: 'flex', alignItems: 'center' }}>
+            <Link to={`/topics/${topic.id}`} style={{ color: 'var(--color-text-secondary)', display: 'flex', alignItems: 'center' }}>
               <ChevronRight size={13} />
             </Link>
           )}
@@ -472,7 +472,7 @@ function StrandItem({ topic, idx }) {
                   {sub.resource_count > 0 && (
                     <span className="cp-meta-chip" style={{ fontSize: '0.62rem' }}>{sub.resource_count} items</span>
                   )}
-                  <ChevronRight size={11} color="#94A3B8" />
+                  <ChevronRight size={11} color="var(--color-text-secondary)" />
                 </div>
               </Link>
             ))}
@@ -628,7 +628,7 @@ export default function CoursesPage() {
                 style={{
                   transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
                   transition: 'transform 0.2s ease',
-                  color: '#94A3B8'
+                  color: 'var(--color-text-secondary)'
                 }}
               />
             </button>
@@ -744,12 +744,12 @@ export default function CoursesPage() {
                           <span style={{
                             padding: '0.2rem 0.65rem', borderRadius: '6px',
                             background: '#0F172A', border: '1px solid #334155',
-                            color: '#94A3B8', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase'
+                            color: 'var(--color-text-secondary)', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase'
                           }}>
                             CAMBRIDGE PRIMARY
                           </span>
                         </div>
-                        <p style={{ fontSize: '0.85rem', color: '#94A3B8', lineHeight: 1.6, margin: 0, fontWeight: 500, maxWidth: '820px' }}>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.6, margin: 0, fontWeight: 500, maxWidth: '820px' }}>
                           Discover practical teaching methodologies and reference guidance designed for Cambridge Primary educators. Access active learning, assessment strategies, differentiation, and ready-to-use classroom materials.
                         </p>
                       </div>
@@ -801,7 +801,7 @@ export default function CoursesPage() {
                           <span>{stage.name}</span>
                           <span className="cp-stage-badge">{stage.curriculum_name || 'CAMBRIDGE PRIMARY'}</span>
                         </div>
-                        {stage.description && <p style={{ fontSize: '0.8rem', color: '#94A3B8', marginTop: '0.2rem' }}>{stage.description}</p>}
+                        {stage.description && <p style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)', marginTop: '0.2rem' }}>{stage.description}</p>}
                       </div>
                       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
                         <span style={{ fontSize: '0.75rem', color: '#38BDF8', fontWeight: 700, background: '#1E293B', border: '1px solid #334155', padding: '0.35rem 0.75rem', borderRadius: '6px' }}>
@@ -850,7 +850,7 @@ export default function CoursesPage() {
                                 <div className="cp-subj-title">{subject.name}</div>
                                 {subject.description && (
                                   <p style={{
-                                    fontSize: '0.74rem', color: '#94A3B8', marginTop: '2px',
+                                    fontSize: '0.74rem', color: 'var(--color-text-secondary)', marginTop: '2px',
                                     display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: 1.4
                                   }}>
                                     {subject.description}
@@ -860,7 +860,7 @@ export default function CoursesPage() {
                             </div>
 
                             <span style={{
-                              fontSize: '0.72rem', fontWeight: 700, color: '#94A3B8',
+                              fontSize: '0.72rem', fontWeight: 700, color: 'var(--color-text-secondary)',
                               background: '#1E293B', border: '1px solid #334155',
                               padding: '0.2rem 0.65rem', borderRadius: '6px', flexShrink: 0
                             }}>
@@ -871,7 +871,7 @@ export default function CoursesPage() {
                       {/* Topics / Documents List inside Subject */}
                       <div className="cp-topics-list">
                         {(subject.topics || []).length === 0 ? (
-                          <div style={{ fontSize: '0.75rem', color: '#94A3B8', fontStyle: 'italic', padding: '0.4rem 0' }}>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', fontStyle: 'italic', padding: '0.4rem 0' }}>
                             No topics added yet for this subject.
                           </div>
                         ) : (
@@ -947,11 +947,11 @@ export default function CoursesPage() {
                   <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#F8FAFC', margin: 0 }}>
                     {activeSubjectModal.name}
                   </h2>
-                  <span style={{ padding: '0.2rem 0.65rem', borderRadius: '6px', background: '#0F172A', border: '1px solid #334155', color: '#94A3B8', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase' }}>
+                  <span style={{ padding: '0.2rem 0.65rem', borderRadius: '6px', background: '#0F172A', border: '1px solid #334155', color: 'var(--color-text-secondary)', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase' }}>
                     Cambridge Primary
                   </span>
                 </div>
-                <p style={{ fontSize: '0.85rem', color: '#94A3B8', lineHeight: 1.5, margin: 0, fontWeight: 500 }}>
+                <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.5, margin: 0, fontWeight: 500 }}>
                   {activeSubjectModal.description || 'Explore teaching guidance, classroom strategies, and ready-to-use ideas for this approach.'}
                 </p>
               </div>
@@ -964,7 +964,7 @@ export default function CoursesPage() {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.25rem' }}>
                 {(activeSubjectModal.topics || []).length === 0 ? (
-                  <div style={{ padding: '1.5rem', textAlign: 'center', background: '#1E293B', borderRadius: '10px', color: '#94A3B8', fontStyle: 'italic' }}>
+                  <div style={{ padding: '1.5rem', textAlign: 'center', background: '#1E293B', borderRadius: '10px', color: 'var(--color-text-secondary)', fontStyle: 'italic' }}>
                     No chapters found for this subject yet.
                   </div>
                 ) : (
@@ -997,13 +997,13 @@ export default function CoursesPage() {
                         <div>
                           <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{topic.name}</div>
                           {topic.resource_count > 0 && (
-                            <div style={{ fontSize: '0.75rem', color: '#94A3B8', marginTop: '2px' }}>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-secondary)', marginTop: '2px' }}>
                               📁 {topic.resource_count} items available
                             </div>
                           )}
                         </div>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#94A3B8', fontWeight: 700, fontSize: '0.8rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text-secondary)', fontWeight: 700, fontSize: '0.8rem' }}>
                         <span>Open Chapter</span>
                         <ChevronRight size={15} />
                       </div>
@@ -1064,11 +1064,11 @@ export default function CoursesPage() {
                       Teacher's Zone Approaches
                     </h2>
                   </div>
-                  <span style={{ padding: '0.2rem 0.65rem', borderRadius: '6px', background: '#0F172A', border: '1px solid #334155', color: '#94A3B8', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase' }}>
+                  <span style={{ padding: '0.2rem 0.65rem', borderRadius: '6px', background: '#0F172A', border: '1px solid #334155', color: 'var(--color-text-secondary)', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase' }}>
                     CAMBRIDGE PRIMARY
                   </span>
                 </div>
-                <p style={{ fontSize: '0.85rem', color: '#94A3B8', lineHeight: 1.5, margin: 0, fontWeight: 500 }}>
+                <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', lineHeight: 1.5, margin: 0, fontWeight: 500 }}>
                   Discover practical teaching methodologies and reference guidance designed for Cambridge Primary educators. Click any approach card to open and view its official document.
                 </p>
               </div>
@@ -1102,7 +1102,7 @@ export default function CoursesPage() {
                           <span style={realDocCount > 0 ? {
                             fontSize: '0.7rem', fontWeight: 700, color: '#38BDF8', background: '#0F172A', border: '1px solid #334155', padding: '0.2rem 0.65rem', borderRadius: '6px'
                           } : {
-                            fontSize: '0.7rem', fontWeight: 600, color: '#94A3B8', background: '#0F172A', border: '1px solid #334155', padding: '0.2rem 0.65rem', borderRadius: '6px'
+                            fontSize: '0.7rem', fontWeight: 600, color: 'var(--color-text-secondary)', background: '#0F172A', border: '1px solid #334155', padding: '0.2rem 0.65rem', borderRadius: '6px'
                           }}>
                             {realDocCount} {realDocCount === 1 ? 'document' : 'documents'}
                           </span>
@@ -1116,7 +1116,7 @@ export default function CoursesPage() {
                         {/* Approach Description */}
                         <p style={{
                           fontSize: '0.82rem',
-                          color: '#94A3B8',
+                          color: 'var(--color-text-secondary)',
                           lineHeight: 1.5,
                           marginBottom: '1.25rem'
                         }}>
@@ -1139,7 +1139,7 @@ export default function CoursesPage() {
                                 borderRadius: '8px',
                                 background: hasDoc ? '#2563EB' : '#0F172A',
                                 border: hasDoc ? 'none' : '1px solid #334155',
-                                color: hasDoc ? '#FFFFFF' : '#94A3B8',
+                                color: hasDoc ? '#FFFFFF' : 'var(--color-text-secondary)',
                                 fontSize: '0.82rem',
                                 fontWeight: 700,
                                 cursor: hasDoc ? 'pointer' : 'default',
@@ -1158,13 +1158,13 @@ export default function CoursesPage() {
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', overflow: 'hidden' }}>
-                                <FileText size={15} color={hasDoc ? '#FFFFFF' : '#94A3B8'} style={{ flexShrink: 0 }} />
+                                <FileText size={15} color={hasDoc ? '#FFFFFF' : 'var(--color-text-secondary)'} style={{ flexShrink: 0 }} />
                                 <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                   {hasDoc ? 'View Document' : 'No Document Uploaded'}
                                 </span>
                               </div>
                               {hasDoc && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.2)', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 800, flexShrink: 0 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--local-card-bdr)', padding: '0.15rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 800, flexShrink: 0 }}>
                                   <Eye size={12} />
                                   <span>Read</span>
                                 </div>
