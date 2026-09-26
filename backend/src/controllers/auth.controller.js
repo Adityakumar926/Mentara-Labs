@@ -251,18 +251,9 @@ exports.googleLogin = async (req, res) => {
     let user = rows[0];
 
     if (!user) {
-      // If logging in without an existing account, refuse auto-registration and prompt role selection on /register
-      if (mode === 'login' || !roleInput) {
-        return res.status(404).json({
-          success: false,
-          code: 'USER_NOT_FOUND',
-          message: 'No account found with this Google email. Please select a role on the registration page.'
-        });
-      }
-
       const role = ['student', 'teacher'].includes(roleInput) ? roleInput : 'student';
 
-      // Register new user with the selected role
+      // Register new user with the selected role (defaults to student)
       const dummyPassword = Math.random().toString(36).substring(2, 15);
       const hash = await bcrypt.hash(dummyPassword, 12);
       
@@ -273,6 +264,30 @@ exports.googleLogin = async (req, res) => {
         [email, hash, full_name, role]
       );
       user = insertRes.rows[0];
+    }
+
+    // Auto-accept any pending classroom invitations for this user's email
+    try {
+      const pendingInvites = await db.query(
+        `SELECT id, classroom_id FROM classroom_invitations 
+         WHERE LOWER(student_email) = $1 AND status = 'pending' AND expires_at > NOW()`,
+        [email]
+      );
+      for (const inv of pendingInvites.rows) {
+        await db.query(
+          `INSERT INTO classroom_members (classroom_id, student_id, status, joined_at)
+           VALUES ($1, $2, 'active', NOW())
+           ON CONFLICT (classroom_id, student_id)
+           DO UPDATE SET status = 'active', joined_at = NOW(), removed_at = NULL`,
+          [inv.classroom_id, user.id]
+        );
+        await db.query(
+          `UPDATE classroom_invitations SET status = 'accepted', updated_at = NOW() WHERE id = $1`,
+          [inv.id]
+        );
+      }
+    } catch (invErr) {
+      console.warn('[googleLogin auto-enroll error]:', invErr.message);
     }
 
     const cleanUser = stripHash(user);

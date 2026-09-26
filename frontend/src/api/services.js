@@ -218,6 +218,8 @@ export const classroomApi = {
   // Public join landing info & verification
   getJoinInfo: (code) => api.get(`/classrooms/join-info/${code}`),
   verifyJoinEmail: (data) => api.post('/classrooms/verify-join-email', data),
+  registerAndJoin: (data) => api.post('/classrooms/register-and-join', data),
+  loginAndJoin: (data) => api.post('/classrooms/login-and-join', data),
   joinClassroom: (code, token) => api.post(`/classrooms/join/${code}${token ? `?token=${token}` : ''}`),
 
   // Teacher Classroom Management

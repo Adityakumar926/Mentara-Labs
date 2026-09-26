@@ -2,15 +2,18 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Users, BookOpen, FileText, Plus, Trash2, Copy, Check, Share2, 
-  AlertTriangle, ShieldCheck, Sparkles, Send, Calendar, Clock, Archive, ExternalLink
+  AlertTriangle, ShieldCheck, Sparkles, Send, Calendar, Clock, Archive, ExternalLink,
+  Search, Filter, Layers, CheckSquare, Square, ChevronDown, ChevronRight, Crown, CheckCircle, Tag
 } from 'lucide-react';
 import { PageWrapper, Button, EmptyState } from '@/components/ui';
 import { classroomApi, adminApi } from '@/api/services';
+import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
 
 export default function ClassroomDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
 
   const [classroom, setClassroom] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,10 +25,20 @@ export default function ClassroomDetail() {
   const [inviteEmail, setInviteEmail] = useState('');
   const [isInviting, setIsInviting] = useState(false);
 
+  // Structured Exam Chooser State
   const [showExamModal, setShowExamModal] = useState(false);
   const [availableExams, setAvailableExams] = useState([]);
   const [selectedExamIds, setSelectedExamIds] = useState([]);
   const [isAssigningExam, setIsAssigningExam] = useState(false);
+  const [isLoadingExams, setIsLoadingExams] = useState(false);
+  const [examSearchQuery, setExamSearchQuery] = useState('');
+  const [examFilterSubject, setExamFilterSubject] = useState('all');
+  const [examFilterClass, setExamFilterClass] = useState('all');
+  const [examFilterTopic, setExamFilterTopic] = useState('all');
+  const [examFilterStatus, setExamFilterStatus] = useState('all');
+  const [examViewMode, setExamViewMode] = useState('grouped'); // 'grouped' | 'list'
+  const [collapsedSubjects, setCollapsedSubjects] = useState({});
+  const [collapsedTopics, setCollapsedTopics] = useState({});
 
   const [showMaterialModal, setShowMaterialModal] = useState(false);
   const [availableMaterials, setAvailableMaterials] = useState([]);
@@ -78,6 +91,13 @@ export default function ClassroomDetail() {
     e.preventDefault();
     if (!inviteEmail.trim()) return toast.error('Email is required');
 
+    if (user && user.role !== 'teacher' && user.role !== 'admin') {
+      return toast.error(
+        `Session conflict: Active browser account is "${user.email}" (${user.role}). Please log out and sign in with your Teacher account.`,
+        { duration: 6000 }
+      );
+    }
+
     try {
       setIsInviting(true);
       const res = await classroomApi.sendInvitation(id, inviteEmail.trim());
@@ -88,6 +108,13 @@ export default function ClassroomDetail() {
     } catch (err) {
       if (err.response?.data?.code === 'LIMIT_REACHED') {
         toast.error(err.response.data.message, { duration: 5000 });
+      } else if (err.response?.status === 403) {
+        toast.error(
+          err.response?.data?.message?.includes('permissions')
+            ? 'Permission denied: Your current browser session is logged in as a student. Please log out and sign in with your Teacher account.'
+            : (err.response?.data?.message || 'Forbidden: You do not have permission for this classroom'),
+          { duration: 6000 }
+        );
       } else {
         toast.error(err.response?.data?.message || 'Failed to send invitation');
       }
@@ -110,12 +137,86 @@ export default function ClassroomDetail() {
   // ── EXAMS ASSIGNMENT ──
   const openAssignExamsModal = async () => {
     setShowExamModal(true);
+    setIsLoadingExams(true);
     try {
       const res = await adminApi.getExams();
       setAvailableExams(res.data?.data || []);
     } catch (err) {
       toast.error('Failed to load system exam library');
+    } finally {
+      setIsLoadingExams(false);
     }
+  };
+
+  const allExamSubjects = Array.from(new Set(availableExams.map(e => e.subject_name).filter(Boolean))).sort();
+  const allExamClasses = Array.from(new Set(availableExams.map(e => e.class_name).filter(Boolean))).sort();
+  const allExamTopics = Array.from(new Set(
+    availableExams
+      .filter(e => examFilterSubject === 'all' || e.subject_name === examFilterSubject)
+      .map(e => e.topic_name)
+      .filter(Boolean)
+  )).sort();
+
+  const assignedExamIdSet = new Set((classroom?.assigned_exams || []).map(e => e.id || e.exam_id));
+
+  const filteredAvailableExams = availableExams.filter(ex => {
+    if (examFilterSubject !== 'all' && ex.subject_name !== examFilterSubject) return false;
+    if (examFilterClass !== 'all' && ex.class_name !== examFilterClass) return false;
+    if (examFilterTopic !== 'all' && ex.topic_name !== examFilterTopic) return false;
+    if (examFilterStatus !== 'all' && ex.status !== examFilterStatus) return false;
+    if (examSearchQuery.trim()) {
+      const q = examSearchQuery.toLowerCase().trim();
+      const matchTitle = (ex.title || '').toLowerCase().includes(q);
+      const matchSub = (ex.subject_name || '').toLowerCase().includes(q);
+      const matchTop = (ex.topic_name || '').toLowerCase().includes(q);
+      const matchCls = (ex.class_name || '').toLowerCase().includes(q);
+      if (!matchTitle && !matchSub && !matchTop && !matchCls) return false;
+    }
+    return true;
+  });
+
+  // Grouped structure: Map<Subject, Map<Topic, Exam[]>>
+  const groupedExams = {};
+  filteredAvailableExams.forEach(ex => {
+    const sName = ex.subject_name ? `${ex.subject_name}${ex.class_name ? ` (${ex.class_name})` : ''}` : 'General Subject';
+    const tName = ex.topic_name || 'General Topic';
+    if (!groupedExams[sName]) groupedExams[sName] = {};
+    if (!groupedExams[sName][tName]) groupedExams[sName][tName] = [];
+    groupedExams[sName][tName].push(ex);
+  });
+
+  const handleSelectAllFiltered = () => {
+    const unassignedFilteredIds = filteredAvailableExams
+      .filter(e => !assignedExamIdSet.has(e.id))
+      .map(e => e.id);
+    const newSet = new Set([...selectedExamIds, ...unassignedFilteredIds]);
+    setSelectedExamIds(Array.from(newSet));
+  };
+
+  const handleDeselectAllFiltered = () => {
+    const filteredIdSet = new Set(filteredAvailableExams.map(e => e.id));
+    setSelectedExamIds(selectedExamIds.filter(id => !filteredIdSet.has(id)));
+  };
+
+  const toggleSelectGroup = (examList) => {
+    const selectable = examList.filter(e => !assignedExamIdSet.has(e.id));
+    if (selectable.length === 0) return;
+    const allSelected = selectable.every(e => selectedExamIds.includes(e.id));
+    if (allSelected) {
+      const removeSet = new Set(selectable.map(e => e.id));
+      setSelectedExamIds(selectedExamIds.filter(id => !removeSet.has(id)));
+    } else {
+      const addSet = new Set([...selectedExamIds, ...selectable.map(e => e.id)]);
+      setSelectedExamIds(Array.from(addSet));
+    }
+  };
+
+  const toggleSubjectCollapse = (subjectName) => {
+    setCollapsedSubjects(prev => ({ ...prev, [subjectName]: !prev[subjectName] }));
+  };
+
+  const toggleTopicCollapse = (topicKey) => {
+    setCollapsedTopics(prev => ({ ...prev, [topicKey]: !prev[topicKey] }));
   };
 
   const handleAssignExamsSubmit = async () => {
@@ -276,6 +377,47 @@ export default function ClassroomDetail() {
     <PageWrapper title={classroom.name}>
       <div style={{ maxWidth: 1300, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem', paddingBottom: '4rem' }}>
         
+        {/* Session Conflict Alert Banner */}
+        {user && user.role !== 'teacher' && user.role !== 'admin' && (
+          <div style={{
+            background: 'rgba(239, 68, 68, 0.15)',
+            border: '1px solid rgba(239, 68, 68, 0.4)',
+            borderRadius: 16,
+            padding: '1rem 1.25rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '0.75rem',
+            color: '#FCA5A5'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <AlertTriangle size={20} color="#EF4444" />
+              <span style={{ fontSize: '0.9rem' }}>
+                <strong>Session Mismatch:</strong> You are currently signed in as <strong>{user.email}</strong> ({user.role}). Classroom management requires your Teacher account.
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                useAuthStore.getState().logout();
+                navigate('/login');
+              }}
+              style={{
+                background: '#EF4444',
+                border: 'none',
+                borderRadius: 8,
+                color: '#fff',
+                padding: '0.45rem 0.9rem',
+                fontWeight: 700,
+                fontSize: '0.8rem',
+                cursor: 'pointer'
+              }}
+            >
+              Sign Out & Re-login
+            </button>
+          </div>
+        )}
+
         {/* ── HEADER BANNER ── */}
         <div style={{
           position: 'relative',
@@ -559,9 +701,32 @@ export default function ClassroomDetail() {
                 {(classroom.assigned_exams || []).map(e => (
                   <div key={e.id} style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '1.25rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '1rem' }}>
                     <div>
-                      <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#06B6D4', textTransform: 'uppercase' }}>{e.exam_type || 'Exam'}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.4rem' }}>
+                        <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#06B6D4', textTransform: 'uppercase', background: 'rgba(6, 182, 212, 0.12)', border: '1px solid rgba(6, 182, 212, 0.25)', padding: '0.15rem 0.55rem', borderRadius: 6 }}>
+                          {e.subject_name || e.exam_type || 'Exam'}
+                        </span>
+                        {e.class_name && (
+                          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#A78BFA', background: 'rgba(139, 92, 246, 0.12)', border: '1px solid rgba(139, 92, 246, 0.25)', padding: '0.15rem 0.55rem', borderRadius: 6 }}>
+                            {e.class_name}
+                          </span>
+                        )}
+                        {e.topic_name && (
+                          <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.05)', padding: '0.15rem 0.55rem', borderRadius: 6 }}>
+                            {e.topic_name}
+                          </span>
+                        )}
+                        {e.is_premium && (
+                          <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#F59E0B', background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '0.15rem 0.45rem', borderRadius: 6 }}>
+                            VIP
+                          </span>
+                        )}
+                      </div>
                       <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff', margin: '0.3rem 0 0.5rem 0' }}>{e.title}</h4>
-                      <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', margin: 0 }}>Duration: {e.duration_minutes || 30} mins</p>
+                      <div style={{ display: 'flex', gap: '0.85rem', fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', flexWrap: 'wrap' }}>
+                        <span>⏱️ {e.duration_minutes || 30} mins</span>
+                        {e.question_count > 0 && <span>📝 {e.question_count} Questions</span>}
+                        {e.total_marks > 0 && <span>🎯 {e.total_marks} Marks</span>}
+                      </div>
                     </div>
                     <button
                       onClick={() => handleUnassignExam(e.id)}
@@ -792,48 +957,579 @@ export default function ClassroomDetail() {
           </div>
         )}
 
-        {/* ── MODAL: ASSIGN EXAMS ── */}
+        {/* ── MODAL: ASSIGN EXAMS (STRUCTURED CHOOSER) ── */}
         {showExamModal && (
-          <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-            <div style={{ background: '#0E1424', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 24, padding: '2rem', maxWidth: 600, width: '100%', maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 20px 50px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff', margin: 0 }}>Assign Exams from Library</h3>
-                <button onClick={() => setShowExamModal(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxHeight: 360, overflowY: 'auto' }}>
-                {availableExams.map(ex => {
-                  const isChecked = selectedExamIds.includes(ex.id);
-                  return (
-                    <div
-                      key={ex.id}
-                      onClick={() => {
-                        if (isChecked) setSelectedExamIds(selectedExamIds.filter(i => i !== ex.id));
-                        else setSelectedExamIds([...selectedExamIds, ex.id]);
-                      }}
-                      style={{
-                        padding: '1rem', borderRadius: 14, cursor: 'pointer',
-                        background: isChecked ? 'rgba(139,92,246,0.15)' : 'rgba(0,0,0,0.3)',
-                        border: isChecked ? '1px solid #8B5CF6' : '1px solid rgba(255,255,255,0.08)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between'
-                      }}
-                    >
-                      <div>
-                        <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#06B6D4', textTransform: 'uppercase' }}>{ex.exam_type || 'Exam'}</div>
-                        <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#fff' }}>{ex.title}</div>
-                      </div>
-                      <input type="checkbox" checked={isChecked} readOnly style={{ accentColor: '#8B5CF6', width: 18, height: 18 }} />
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-                <button onClick={() => setShowExamModal(false)} style={{ flex: 1, padding: '0.75rem', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
-                <button onClick={handleAssignExamsSubmit} disabled={isAssigningExam} style={{ flex: 1, padding: '0.75rem', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', color: '#fff', fontWeight: 800, cursor: isAssigningExam ? 'wait' : 'pointer' }}>
-                  {isAssigningExam ? 'Assigning...' : `Assign ${selectedExamIds.length} Selected`}
+          <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+            <div style={{
+              background: '#0B101E',
+              border: '1px solid rgba(255,255,255,0.14)',
+              borderRadius: 24,
+              maxWidth: 920,
+              width: '100%',
+              height: '90vh',
+              maxHeight: 820,
+              boxShadow: '0 25px 70px rgba(0,0,0,0.7)',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden'
+            }}>
+              
+              {/* Modal Header */}
+              <div style={{
+                padding: '1.25rem 1.75rem',
+                borderBottom: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(15, 22, 41, 0.85)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexShrink: 0
+              }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', margin: 0 }}>
+                      Assign Assessments to Classroom
+                    </h3>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#06B6D4', background: 'rgba(6, 182, 212, 0.12)', border: '1px solid rgba(6, 182, 212, 0.3)', padding: '0.15rem 0.6rem', borderRadius: 50 }}>
+                      {availableExams.length} Total in Library
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', margin: '0.25rem 0 0 0' }}>
+                    Filter by Subject, Stage, and Topic to easily assign structured Cambridge Primary assessments.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowExamModal(false)}
+                  style={{ background: 'rgba(255,255,255,0.08)', border: 'none', color: 'rgba(255,255,255,0.7)', width: 34, height: 34, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', cursor: 'pointer' }}
+                >
+                  ✕
                 </button>
               </div>
+
+              {/* Filter & Search Bar */}
+              <div style={{
+                padding: '1rem 1.75rem',
+                borderBottom: '1px solid rgba(255,255,255,0.06)',
+                background: 'rgba(11, 16, 30, 0.95)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.85rem',
+                flexShrink: 0
+              }}>
+                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                  {/* Search input */}
+                  <div style={{ position: 'relative', flex: '1 1 240px' }}>
+                    <Search size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.4)' }} />
+                    <input
+                      type="text"
+                      placeholder="Search by exam title, subject, topic..."
+                      value={examSearchQuery}
+                      onChange={(e) => setExamSearchQuery(e.target.value)}
+                      style={{
+                        width: '100%',
+                        background: 'rgba(0,0,0,0.4)',
+                        border: '1px solid rgba(255,255,255,0.12)',
+                        borderRadius: 12,
+                        padding: '0.6rem 1rem 0.6rem 2.2rem',
+                        color: '#fff',
+                        fontSize: '0.82rem',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+
+                  {/* Subject Filter */}
+                  <select
+                    value={examFilterSubject}
+                    onChange={(e) => {
+                      setExamFilterSubject(e.target.value);
+                      setExamFilterTopic('all');
+                    }}
+                    style={{
+                      background: 'rgba(0,0,0,0.4)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: 12,
+                      padding: '0.6rem 0.85rem',
+                      color: '#fff',
+                      fontSize: '0.82rem',
+                      outline: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <option value="all" style={{ background: '#0F1629' }}>📚 All Subjects</option>
+                    {allExamSubjects.map(sub => (
+                      <option key={sub} value={sub} style={{ background: '#0F1629' }}>{sub}</option>
+                    ))}
+                  </select>
+
+                  {/* Stage / Class Filter */}
+                  <select
+                    value={examFilterClass}
+                    onChange={(e) => setExamFilterClass(e.target.value)}
+                    style={{
+                      background: 'rgba(0,0,0,0.4)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: 12,
+                      padding: '0.6rem 0.85rem',
+                      color: '#fff',
+                      fontSize: '0.82rem',
+                      outline: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <option value="all" style={{ background: '#0F1629' }}>🎓 All Stages</option>
+                    {allExamClasses.map(cls => (
+                      <option key={cls} value={cls} style={{ background: '#0F1629' }}>{cls}</option>
+                    ))}
+                  </select>
+
+                  {/* Topic Filter */}
+                  <select
+                    value={examFilterTopic}
+                    onChange={(e) => setExamFilterTopic(e.target.value)}
+                    style={{
+                      background: 'rgba(0,0,0,0.4)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      borderRadius: 12,
+                      padding: '0.6rem 0.85rem',
+                      color: '#fff',
+                      fontSize: '0.82rem',
+                      outline: 'none',
+                      cursor: 'pointer',
+                      maxWidth: 180
+                    }}
+                  >
+                    <option value="all" style={{ background: '#0F1629' }}>🔖 All Topics</option>
+                    {allExamTopics.map(top => (
+                      <option key={top} value={top} style={{ background: '#0F1629' }}>{top}</option>
+                    ))}
+                  </select>
+
+                  {/* View Mode Toggle */}
+                  <div style={{ display: 'flex', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: 2 }}>
+                    <button
+                      type="button"
+                      onClick={() => setExamViewMode('grouped')}
+                      style={{
+                        padding: '0.45rem 0.75rem',
+                        borderRadius: 8,
+                        border: 'none',
+                        background: examViewMode === 'grouped' ? 'rgba(139,92,246,0.3)' : 'transparent',
+                        color: examViewMode === 'grouped' ? '#A78BFA' : 'rgba(255,255,255,0.5)',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.35rem'
+                      }}
+                      title="Group by Subject & Topic Hierarchy"
+                    >
+                      <Layers size={13} /> Structured Tree
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setExamViewMode('list')}
+                      style={{
+                        padding: '0.45rem 0.75rem',
+                        borderRadius: 8,
+                        border: 'none',
+                        background: examViewMode === 'list' ? 'rgba(139,92,246,0.3)' : 'transparent',
+                        color: examViewMode === 'list' ? '#A78BFA' : 'rgba(255,255,255,0.5)',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.35rem'
+                      }}
+                      title="Flat Card Grid"
+                    >
+                      <FileText size={13} /> List View
+                    </button>
+                  </div>
+                </div>
+
+                {/* Selection Toolbar */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', fontSize: '0.78rem' }}>
+                  <div style={{ color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span>Showing <strong>{filteredAvailableExams.length}</strong> matching exams</span>
+                    {(examFilterSubject !== 'all' || examFilterClass !== 'all' || examFilterTopic !== 'all' || examSearchQuery) && (
+                      <button
+                        onClick={() => {
+                          setExamFilterSubject('all');
+                          setExamFilterClass('all');
+                          setExamFilterTopic('all');
+                          setExamSearchQuery('');
+                        }}
+                        style={{ background: 'none', border: 'none', color: '#06B6D4', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                      >
+                        Reset filters
+                      </button>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
+                    <button
+                      type="button"
+                      onClick={handleSelectAllFiltered}
+                      style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)', color: '#A78BFA', padding: '0.35rem 0.75rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                    >
+                      Select All Matching
+                    </button>
+                    {selectedExamIds.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={handleDeselectAllFiltered}
+                        style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', padding: '0.35rem 0.75rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer' }}
+                      >
+                        Clear Filtered
+                      </button>
+                    )}
+                    <span style={{ fontWeight: 800, color: selectedExamIds.length > 0 ? '#10B981' : 'rgba(255,255,255,0.4)', background: 'rgba(0,0,0,0.4)', padding: '0.35rem 0.75rem', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)' }}>
+                      {selectedExamIds.length} Selected
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Scrollable Exams Body */}
+              <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem 1.75rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                {isLoadingExams ? (
+                  <div style={{ textAlign: 'center', padding: '4rem 0', color: 'rgba(255,255,255,0.5)' }}>
+                    <Sparkles size={28} color="#8B5CF6" style={{ animation: 'spin 2s linear infinite', marginBottom: '0.75rem' }} />
+                    <div>Loading system exam library...</div>
+                  </div>
+                ) : filteredAvailableExams.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '4rem 2rem', background: 'rgba(0,0,0,0.2)', borderRadius: 18, border: '1px dashed rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)' }}>
+                    <FileText size={32} style={{ margin: '0 auto 0.75rem auto', opacity: 0.4 }} />
+                    <h4 style={{ color: '#fff', fontSize: '1rem', fontWeight: 700, margin: '0 0 0.35rem 0' }}>No Assessments Match Criteria</h4>
+                    <p style={{ fontSize: '0.82rem', margin: 0 }}>Try clearing search keywords or selecting a different subject/stage filter.</p>
+                  </div>
+                ) : examViewMode === 'grouped' ? (
+                  /* ── HIERARCHICAL GROUPED TREE VIEW ── */
+                  Object.entries(groupedExams).map(([subjectGroupKey, topicsMap]) => {
+                    const isSubjectCollapsed = Boolean(collapsedSubjects[subjectGroupKey]);
+                    const allSubjectExams = Object.values(topicsMap).flat();
+                    const selectableInSubject = allSubjectExams.filter(e => !assignedExamIdSet.has(e.id));
+                    const isAllSubjectSelected = selectableInSubject.length > 0 && selectableInSubject.every(e => selectedExamIds.includes(e.id));
+
+                    return (
+                      <div key={subjectGroupKey} style={{ background: 'rgba(15, 22, 41, 0.7)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, overflow: 'hidden' }}>
+                        {/* Subject Group Header */}
+                        <div
+                          style={{
+                            padding: '1rem 1.25rem',
+                            background: 'rgba(0,0,0,0.3)',
+                            borderBottom: isSubjectCollapsed ? 'none' : '1px solid rgba(255,255,255,0.06)',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            cursor: 'pointer',
+                            userSelect: 'none'
+                          }}
+                          onClick={() => toggleSubjectCollapse(subjectGroupKey)}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                            {isSubjectCollapsed ? <ChevronRight size={18} color="#A78BFA" /> : <ChevronDown size={18} color="#A78BFA" />}
+                            <span style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff' }}>{subjectGroupKey}</span>
+                            <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.08)', padding: '0.15rem 0.5rem', borderRadius: 50 }}>
+                              {allSubjectExams.length} assessments
+                            </span>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }} onClick={(e) => e.stopPropagation()}>
+                            {selectableInSubject.length > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => toggleSelectGroup(allSubjectExams)}
+                                style={{
+                                  background: isAllSubjectSelected ? 'rgba(139,92,246,0.3)' : 'rgba(255,255,255,0.06)',
+                                  border: '1px solid rgba(255,255,255,0.12)',
+                                  color: isAllSubjectSelected ? '#C4B5FD' : 'rgba(255,255,255,0.7)',
+                                  padding: '0.3rem 0.65rem',
+                                  borderRadius: 8,
+                                  fontSize: '0.72rem',
+                                  fontWeight: 700,
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                {isAllSubjectSelected ? 'Deselect All in Subject' : 'Select All in Subject'}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Subject Topics Content */}
+                        {!isSubjectCollapsed && (
+                          <div style={{ padding: '1rem 1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            {Object.entries(topicsMap).map(([topicName, examList]) => {
+                              const topicKey = `${subjectGroupKey}___${topicName}`;
+                              const isTopicCollapsed = Boolean(collapsedTopics[topicKey]);
+                              const selectableInTopic = examList.filter(e => !assignedExamIdSet.has(e.id));
+                              const isAllTopicSelected = selectableInTopic.length > 0 && selectableInTopic.every(e => selectedExamIds.includes(e.id));
+
+                              return (
+                                <div key={topicName} style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 14, overflow: 'hidden' }}>
+                                  {/* Topic Sub-Header */}
+                                  <div
+                                    style={{
+                                      padding: '0.65rem 1rem',
+                                      background: 'rgba(255,255,255,0.02)',
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      alignItems: 'center',
+                                      cursor: 'pointer',
+                                      userSelect: 'none',
+                                      borderBottom: isTopicCollapsed ? 'none' : '1px solid rgba(255,255,255,0.04)'
+                                    }}
+                                    onClick={() => toggleTopicCollapse(topicKey)}
+                                  >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                                      {isTopicCollapsed ? <ChevronRight size={15} color="#06B6D4" /> : <ChevronDown size={15} color="#06B6D4" />}
+                                      <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#06B6D4' }}>{topicName}</span>
+                                      <span style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)' }}>({examList.length})</span>
+                                    </div>
+
+                                    {selectableInTopic.length > 1 && (
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          toggleSelectGroup(examList);
+                                        }}
+                                        style={{
+                                          background: 'none',
+                                          border: 'none',
+                                          color: isAllTopicSelected ? '#A78BFA' : 'rgba(255,255,255,0.5)',
+                                          fontSize: '0.72rem',
+                                          fontWeight: 700,
+                                          cursor: 'pointer',
+                                          padding: 0
+                                        }}
+                                      >
+                                        {isAllTopicSelected ? 'Deselect Topic' : 'Select Topic'}
+                                      </button>
+                                    )}
+                                  </div>
+
+                                  {/* Exam Cards in Topic */}
+                                  {!isTopicCollapsed && (
+                                    <div style={{ padding: '0.85rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '0.75rem' }}>
+                                      {examList.map(ex => {
+                                        const isAssigned = assignedExamIdSet.has(ex.id);
+                                        const isChecked = selectedExamIds.includes(ex.id);
+
+                                        return (
+                                          <div
+                                            key={ex.id}
+                                            onClick={() => {
+                                              if (isAssigned) return;
+                                              if (isChecked) setSelectedExamIds(selectedExamIds.filter(i => i !== ex.id));
+                                              else setSelectedExamIds([...selectedExamIds, ex.id]);
+                                            }}
+                                            style={{
+                                              padding: '1rem',
+                                              borderRadius: 14,
+                                              cursor: isAssigned ? 'default' : 'pointer',
+                                              background: isAssigned 
+                                                ? 'rgba(255,255,255,0.02)' 
+                                                : isChecked 
+                                                  ? 'rgba(139,92,246,0.18)' 
+                                                  : 'rgba(15, 22, 41, 0.6)',
+                                              border: isAssigned
+                                                ? '1px solid rgba(255,255,255,0.04)'
+                                                : isChecked
+                                                  ? '1.5px solid #8B5CF6'
+                                                  : '1px solid rgba(255,255,255,0.08)',
+                                              opacity: isAssigned ? 0.6 : 1,
+                                              boxShadow: isChecked ? '0 0 16px rgba(139,92,246,0.25)' : 'none',
+                                              display: 'flex',
+                                              flexDirection: 'column',
+                                              justifyContent: 'space-between',
+                                              gap: '0.75rem',
+                                              transition: 'all 0.15s ease'
+                                            }}
+                                          >
+                                            <div>
+                                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.4rem', marginBottom: '0.35rem' }}>
+                                                <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                                                  <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#06B6D4', textTransform: 'uppercase', background: 'rgba(6, 182, 212, 0.12)', padding: '0.1rem 0.45rem', borderRadius: 6 }}>
+                                                    {ex.exam_type || 'Exam'}
+                                                  </span>
+                                                  {ex.is_premium && (
+                                                    <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#F59E0B', background: 'rgba(245, 158, 11, 0.12)', padding: '0.1rem 0.45rem', borderRadius: 6 }}>
+                                                      VIP
+                                                    </span>
+                                                  )}
+                                                </div>
+                                                {isAssigned ? (
+                                                  <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#10B981', background: 'rgba(16, 185, 129, 0.15)', padding: '0.15rem 0.5rem', borderRadius: 50 }}>
+                                                    ✓ In Classroom
+                                                  </span>
+                                                ) : (
+                                                  <input
+                                                    type="checkbox"
+                                                    checked={isChecked}
+                                                    readOnly
+                                                    style={{ accentColor: '#8B5CF6', width: 18, height: 18, cursor: 'pointer' }}
+                                                  />
+                                                )}
+                                              </div>
+
+                                              <h5 style={{ fontSize: '0.92rem', fontWeight: 800, color: '#fff', margin: '0.2rem 0 0.4rem 0', lineHeight: 1.35 }}>
+                                                {ex.title}
+                                              </h5>
+
+                                              <div style={{ display: 'flex', gap: '0.6rem', fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', flexWrap: 'wrap' }}>
+                                                <span>⏱️ {ex.duration_minutes || 30}m</span>
+                                                {ex.question_count > 0 && <span>📝 {ex.question_count} Qs</span>}
+                                                {ex.total_marks > 0 && <span>🎯 {ex.total_marks} Marks</span>}
+                                              </div>
+                                            </div>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  /* ── FLAT CARD GRID VIEW ── */
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: '0.85rem' }}>
+                    {filteredAvailableExams.map(ex => {
+                      const isAssigned = assignedExamIdSet.has(ex.id);
+                      const isChecked = selectedExamIds.includes(ex.id);
+
+                      return (
+                        <div
+                          key={ex.id}
+                          onClick={() => {
+                            if (isAssigned) return;
+                            if (isChecked) setSelectedExamIds(selectedExamIds.filter(i => i !== ex.id));
+                            else setSelectedExamIds([...selectedExamIds, ex.id]);
+                          }}
+                          style={{
+                            padding: '1.1rem',
+                            borderRadius: 16,
+                            cursor: isAssigned ? 'default' : 'pointer',
+                            background: isAssigned 
+                              ? 'rgba(255,255,255,0.02)' 
+                              : isChecked 
+                                ? 'rgba(139,92,246,0.18)' 
+                                : 'rgba(15, 22, 41, 0.7)',
+                            border: isAssigned
+                              ? '1px solid rgba(255,255,255,0.04)'
+                              : isChecked
+                                ? '1.5px solid #8B5CF6'
+                                : '1px solid rgba(255,255,255,0.08)',
+                            opacity: isAssigned ? 0.6 : 1,
+                            boxShadow: isChecked ? '0 0 16px rgba(139,92,246,0.25)' : 'none',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            gap: '0.85rem',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.4rem', marginBottom: '0.4rem' }}>
+                              <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#06B6D4', textTransform: 'uppercase', background: 'rgba(6, 182, 212, 0.12)', padding: '0.15rem 0.5rem', borderRadius: 6 }}>
+                                  {ex.subject_name || ex.exam_type || 'Exam'}
+                                </span>
+                                {ex.class_name && (
+                                  <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#A78BFA', background: 'rgba(139, 92, 246, 0.12)', padding: '0.15rem 0.5rem', borderRadius: 6 }}>
+                                    {ex.class_name}
+                                  </span>
+                                )}
+                              </div>
+                              {isAssigned ? (
+                                <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#10B981', background: 'rgba(16, 185, 129, 0.15)', padding: '0.15rem 0.5rem', borderRadius: 50 }}>
+                                  ✓ Assigned
+                                </span>
+                              ) : (
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  readOnly
+                                  style={{ accentColor: '#8B5CF6', width: 18, height: 18, cursor: 'pointer' }}
+                                />
+                              )}
+                            </div>
+
+                            <h5 style={{ fontSize: '0.98rem', fontWeight: 800, color: '#fff', margin: '0.25rem 0 0.45rem 0', lineHeight: 1.35 }}>
+                              {ex.title}
+                            </h5>
+
+                            {ex.topic_name && (
+                              <div style={{ fontSize: '0.75rem', color: '#A78BFA', marginBottom: '0.4rem' }}>
+                                🔖 {ex.topic_name}
+                              </div>
+                            )}
+
+                            <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.78rem', color: 'rgba(255,255,255,0.55)', flexWrap: 'wrap' }}>
+                              <span>⏱️ {ex.duration_minutes || 30} mins</span>
+                              {ex.question_count > 0 && <span>📝 {ex.question_count} Questions</span>}
+                              {ex.total_marks > 0 && <span>🎯 {ex.total_marks} Marks</span>}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Sticky Modal Footer Bar */}
+              <div style={{
+                padding: '1.25rem 1.75rem',
+                borderTop: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(15, 22, 41, 0.95)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                flexShrink: 0
+              }}>
+                <div style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.7)' }}>
+                  Selected: <strong style={{ color: selectedExamIds.length > 0 ? '#10B981' : '#fff' }}>{selectedExamIds.length} assessment(s)</strong>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowExamModal(false)}
+                    style={{ padding: '0.75rem 1.25rem', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: '#fff', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleAssignExamsSubmit}
+                    disabled={isAssigningExam || selectedExamIds.length === 0}
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      borderRadius: 12,
+                      border: 'none',
+                      background: selectedExamIds.length === 0 ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #8B5CF6, #06B6D4)',
+                      color: selectedExamIds.length === 0 ? 'rgba(255,255,255,0.4)' : '#fff',
+                      fontWeight: 800,
+                      fontSize: '0.88rem',
+                      cursor: (isAssigningExam || selectedExamIds.length === 0) ? 'not-allowed' : 'pointer',
+                      boxShadow: selectedExamIds.length > 0 ? '0 6px 20px rgba(139, 92, 246, 0.4)' : 'none',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    {isAssigningExam ? 'Assigning...' : `Assign ${selectedExamIds.length} Assessment(s)`}
+                  </button>
+                </div>
+              </div>
+
             </div>
           </div>
         )}

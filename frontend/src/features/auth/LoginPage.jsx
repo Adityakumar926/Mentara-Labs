@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Users, Star } from 'lucide-react';
 import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
@@ -64,11 +64,23 @@ const InteractiveHeadline = () => {
 export default function LoginPage() {
   const { login, loginWithGoogle, loading } = useAuthStore();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const [form, setForm]       = useState({ email: '', password: '' });
+  const inviteCode = searchParams.get('invite');
+  const emailParam = searchParams.get('email');
+  const bannerMsg = searchParams.get('msg');
+  const classroomName = searchParams.get('classroom_name');
+
+  const [form, setForm]       = useState({ email: emailParam || '', password: '' });
   const [show, setShow]       = useState(false);
   const [errors, setErrors]   = useState({});
   const [savedAccount, setSavedAccount] = useState(null);
+
+  useEffect(() => {
+    if (emailParam && !form.email) {
+      setForm((prev) => ({ ...prev, email: emailParam }));
+    }
+  }, [emailParam]);
 
   useEffect(() => {
     try {
@@ -98,8 +110,10 @@ export default function LoginPage() {
   const handleGoogleCallback = async (response) => {
     try {
       const user = await loginWithGoogle(response.credential, null, 'login');
-      toast.success(`Welcome back, ${user.full_name.split(' ')[0]}!`);
-      if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
+      toast.success(`Welcome back, ${user.full_name?.split(' ')[0] || 'User'}!`);
+      if (inviteCode) {
+        navigate(`/classroom/join/${inviteCode}`);
+      } else if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
         navigate('/onboarding');
       } else {
         navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
@@ -107,9 +121,10 @@ export default function LoginPage() {
     } catch (err) {
       if (err.code === 'USER_NOT_FOUND' || err.message?.toLowerCase().includes('no account found')) {
         toast.error('No account found for this Google email. Redirecting to register...');
-        setTimeout(() => navigate('/register'), 1000);
+        const regUrl = `/register${inviteCode ? `?invite=${inviteCode}${classroomName ? `&classroom_name=${encodeURIComponent(classroomName)}` : ''}` : ''}`;
+        setTimeout(() => navigate(regUrl), 1000);
       } else {
-        toast.error(err.message);
+        toast.error(err.message || 'Google authentication failed');
       }
     }
   };
@@ -144,8 +159,10 @@ export default function LoginPage() {
             if (tokenResponse?.access_token) {
               try {
                 const user = await loginWithGoogle({ access_token: tokenResponse.access_token }, null, 'login');
-                toast.success(`Welcome back, ${user.full_name.split(' ')[0]}!`);
-                if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
+                toast.success(`Welcome back, ${user.full_name?.split(' ')[0] || 'User'}!`);
+                if (inviteCode) {
+                  navigate(`/classroom/join/${inviteCode}`);
+                } else if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
                   navigate('/onboarding');
                 } else {
                   navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
@@ -153,7 +170,8 @@ export default function LoginPage() {
               } catch (err) {
                 if (err.code === 'USER_NOT_FOUND' || err.message?.toLowerCase().includes('no account found')) {
                   toast.error('No account found for this Google email. Redirecting to register...');
-                  setTimeout(() => navigate('/register'), 1000);
+                  const regUrl = `/register${inviteCode ? `?invite=${inviteCode}${classroomName ? `&classroom_name=${encodeURIComponent(classroomName)}` : ''}` : ''}`;
+                  setTimeout(() => navigate(regUrl), 1000);
                 } else {
                   toast.error(err.message || 'Google authentication failed');
                 }
@@ -198,8 +216,14 @@ export default function LoginPage() {
     try {
       const user = await login(form);
       saveAccountToCache(user);
-      toast.success(`Welcome back, ${user.full_name.split(' ')[0]}!`);
-      navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
+      toast.success(`Welcome back, ${user.full_name?.split(' ')[0] || 'User'}!`);
+      if (inviteCode) {
+        navigate(`/classroom/join/${inviteCode}`);
+      } else if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
+        navigate('/onboarding');
+      } else {
+        navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
+      }
     } catch (err) {
       toast.error(err.message);
     }
@@ -713,7 +737,27 @@ export default function LoginPage() {
 
             <div className="form-eyebrow">Welcome back</div>
             <h1 className="form-title">Sign in</h1>
-            <p className="form-sub">Enter your credentials to continue learning.</p>
+            <p className="form-sub" style={{ marginBottom: (bannerMsg || classroomName) ? '1rem' : '1.5rem' }}>Enter your credentials to continue learning.</p>
+
+            {(bannerMsg || classroomName) && (
+              <div style={{
+                background: 'rgba(56, 189, 248, 0.12)',
+                border: '1px solid rgba(56, 189, 248, 0.35)',
+                borderRadius: '12px',
+                padding: '0.85rem 1rem',
+                marginBottom: '1.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                color: '#38bdf8',
+                fontSize: '0.88rem',
+                fontWeight: 500,
+                lineHeight: 1.4
+              }}>
+                <span style={{ fontSize: '1.2rem' }}>🎓</span>
+                <span>{bannerMsg || `Please sign in to join ${classroomName}`}</span>
+              </div>
+            )}
 
             {savedAccount && (
               <div style={{
@@ -841,7 +885,7 @@ export default function LoginPage() {
 
             <div className="auth-divider" />
             <p className="auth-footer-link">
-              Don't have an account? <Link to="/register">Create one free</Link>
+              Don't have an account? <Link to={`/register${inviteCode ? `?invite=${inviteCode}${classroomName ? `&classroom_name=${encodeURIComponent(classroomName)}` : ''}` : ''}`}>Create one free</Link>
             </p>
           </div>
         </main>

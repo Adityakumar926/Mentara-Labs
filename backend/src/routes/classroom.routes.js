@@ -7,6 +7,8 @@ const classroomCtrl = require('../controllers/classroom.controller');
 // ─── PUBLIC JOIN DISCOVERY & EMAIL VERIFICATION ────────────────────────────
 router.get('/join-info/:inviteCode', classroomCtrl.getJoinInfo);
 router.post('/verify-join-email', classroomCtrl.verifyJoinEmail);
+router.post('/register-and-join', classroomCtrl.registerAndJoin);
+router.post('/login-and-join', classroomCtrl.loginAndJoin);
 
 // All subsequent routes require authentication
 router.use(protect);

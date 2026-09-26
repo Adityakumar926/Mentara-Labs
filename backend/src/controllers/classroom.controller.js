@@ -209,11 +209,18 @@ exports.getClassroomById = async (req, res) => {
       [id]
     );
 
-    // Fetch assigned exams
+    // Fetch assigned exams with subject, topic, class hierarchy and question count
     const examsRes = await db.query(
-      `SELECT ce.id AS assignment_id, ce.assigned_at, ce.due_date, e.*
+      `SELECT ce.id AS assignment_id, ce.assigned_at, ce.due_date, e.*,
+              s.name AS subject_name,
+              t.name AS topic_name,
+              cl.name AS class_name,
+              (SELECT COUNT(*)::int FROM exam_questions eq WHERE eq.exam_id = e.id) AS question_count
        FROM classroom_exams ce
        JOIN exams e ON ce.exam_id = e.id
+       LEFT JOIN subjects s ON s.id = e.subject_id
+       LEFT JOIN topics t ON t.id = e.topic_id
+       LEFT JOIN classes cl ON cl.id = s.class_id
        WHERE ce.classroom_id = $1
        ORDER BY ce.assigned_at DESC`,
       [id]
@@ -492,9 +499,16 @@ exports.getJoinInfo = async (req, res) => {
 
     // Fetch assigned exams
     const examsRes = await db.query(
-      `SELECT ce.id AS assignment_id, ce.assigned_at, ce.due_date, e.id, e.title, e.description, e.duration_minutes, e.status AS exam_type
+      `SELECT ce.id AS assignment_id, ce.assigned_at, ce.due_date, e.id, e.title, e.description, e.duration_minutes, e.total_marks, e.passing_marks, e.is_premium, e.status AS exam_type,
+              s.name AS subject_name,
+              t.name AS topic_name,
+              cl.name AS class_name,
+              (SELECT COUNT(*)::int FROM exam_questions eq WHERE eq.exam_id = e.id) AS question_count
        FROM classroom_exams ce
        JOIN exams e ON ce.exam_id = e.id
+       LEFT JOIN subjects s ON s.id = e.subject_id
+       LEFT JOIN topics t ON t.id = e.topic_id
+       LEFT JOIN classes cl ON cl.id = s.class_id
        WHERE ce.classroom_id = $1
        ORDER BY ce.assigned_at DESC`,
       [classroom.id]
@@ -502,7 +516,7 @@ exports.getJoinInfo = async (req, res) => {
 
     // Fetch assigned materials
     const materialsRes = await db.query(
-      `SELECT cm.id AS assignment_id, cm.assigned_at, cnt.id, cnt.title, cnt.content_type, cnt.file_url AS resource_url
+      `SELECT cm.id AS assignment_id, cm.assigned_at, cnt.id, cnt.title, cnt.content_type, cnt.file_url, cnt.file_url AS resource_url
        FROM classroom_materials cm
        JOIN content cnt ON cm.material_id = cnt.id
        WHERE cm.classroom_id = $1
@@ -584,7 +598,7 @@ exports.verifyJoinEmail = async (req, res) => {
     );
 
     const userRes = await client.query(
-      `SELECT id, full_name, email, role FROM users WHERE LOWER(email) = $1`,
+      `SELECT id, full_name, email, role, is_premium, onboarded FROM users WHERE LOWER(email) = $1`,
       [cleanEmail]
     );
 
@@ -611,65 +625,320 @@ exports.verifyJoinEmail = async (req, res) => {
       });
     }
 
-    // If user does not exist yet (invited candidate who hasn't registered account yet)
+    // ── CASE 1: USER DOES NOT HAVE AN ACCOUNT ──
     if (!user) {
-      // Auto-create a student user record for this invited email
-      const defaultPasswordHash = await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 10);
-      const nameFromEmail = cleanEmail.split('@')[0];
-      const newUserRes = await client.query(
-        `INSERT INTO users (full_name, email, password_hash, role, created_at, updated_at)
-         VALUES ($1, $2, $3, 'student', NOW(), NOW())
-         RETURNING id, full_name, email, role`,
-        [nameFromEmail, cleanEmail, defaultPasswordHash]
-      );
-      user = newUserRes.rows[0];
+      await client.query('COMMIT');
+
+      return res.json({
+        success: true,
+        message: 'Invitation verified. Please create an account or log in to join the classroom.',
+        data: {
+          has_account: false,
+          email: cleanEmail,
+          classroom_id: classroom.id,
+          classroom_name: classroom.name,
+          invite_code: classroom.invite_code
+        }
+      });
     }
 
-    // Enroll in classroom if not already an active member
-    if (!isMember) {
-      await client.query(
-        `INSERT INTO classroom_members (classroom_id, student_id, status, joined_at)
-         VALUES ($1, $2, 'active', NOW())
-         ON CONFLICT (classroom_id, student_id)
-         DO UPDATE SET status = 'active', joined_at = NOW(), removed_at = NULL`,
-        [classroom.id, user.id]
-      );
-
-      if (inviteRes.rows.length > 0) {
-        await client.query(
-          `UPDATE classroom_invitations SET status = 'accepted' WHERE id = $1`,
-          [inviteRes.rows[0].id]
-        );
+    // ── CASE 2: USER HAS AN ACCOUNT ──
+    // Check if the request is already authenticated as this student OR verified by secure token
+    let authenticatedUserId = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET);
+        authenticatedUserId = decoded.id;
+      } catch (e) {
+        // ignore
       }
     }
 
+    const tokenParam = req.body.token || req.query.token;
+    const isTokenVerified = inviteRes.rows.length > 0 && tokenParam && inviteRes.rows[0].token === tokenParam;
+    const isOwnerOfSession = authenticatedUserId && authenticatedUserId === user.id;
+
+    if (isOwnerOfSession || isTokenVerified) {
+      // Enroll in classroom members if not already an active member
+      if (!isMember) {
+        await client.query(
+          `INSERT INTO classroom_members (classroom_id, student_id, status, joined_at)
+           VALUES ($1, $2, 'active', NOW())
+           ON CONFLICT (classroom_id, student_id)
+           DO UPDATE SET status = 'active', joined_at = NOW(), removed_at = NULL`,
+          [classroom.id, user.id]
+        );
+
+        if (inviteRes.rows.length > 0) {
+          await client.query(
+            `UPDATE classroom_invitations SET status = 'accepted' WHERE id = $1`,
+            [inviteRes.rows[0].id]
+          );
+        }
+      }
+
+      await client.query('COMMIT');
+
+      let accessToken = null;
+      let refreshToken = null;
+      if (!isOwnerOfSession && isTokenVerified) {
+        accessToken = signAccessToken(user.id);
+        refreshToken = signRefreshToken(user.id);
+      }
+
+      return res.json({
+        success: true,
+        message: 'Classroom added to your student account! You can now manage it from your Student Dashboard.',
+        data: {
+          has_account: true,
+          is_authenticated: true,
+          accessToken,
+          refreshToken,
+          user: {
+            id: user.id,
+            full_name: user.full_name,
+            email: user.email,
+            role: user.role,
+            is_premium: Boolean(user.is_premium),
+            onboarded: true
+          },
+          classroom_id: classroom.id,
+          classroom_name: classroom.name,
+          invite_code: classroom.invite_code
+        }
+      });
+    }
+
+    // User has an existing account in DB, but is not currently authenticated in this browser session
     await client.query('COMMIT');
-
-    // Generate JWT access & refresh tokens
-    const accessToken = signAccessToken(user.id);
-    const refreshToken = signRefreshToken(user.id);
-
-    res.json({
+    return res.json({
       success: true,
-      message: 'Access granted to classroom',
+      message: 'Account found for this email. Please log in to add this classroom to your Student Dashboard.',
       data: {
-        accessToken,
-        refreshToken,
-        user: {
-          id: user.id,
-          full_name: user.full_name,
-          email: user.email,
-          role: user.role,
-          onboarded: true
-        },
+        has_account: true,
+        is_authenticated: false,
+        email: user.email,
+        full_name: user.full_name,
         classroom_id: classroom.id,
-        classroom_name: classroom.name
+        classroom_name: classroom.name,
+        invite_code: classroom.invite_code
       }
     });
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('Error verifying join email:', err);
     res.status(500).json({ success: false, message: err.message });
+  } finally {
+    client.release();
+  }
+};
+
+// POST /api/classrooms/register-and-join - Register a student and enroll in classroom in one step
+exports.registerAndJoin = async (req, res) => {
+  const client = await db.pool.connect();
+  try {
+    const { inviteCode, email, password, full_name, token } = req.body;
+
+    if (!inviteCode || !email || !password || !full_name) {
+      return res.status(400).json({ success: false, message: 'Full name, email, and password are required' });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 8 characters' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    await client.query('BEGIN');
+
+    // 1. Find classroom
+    const classRes = await client.query(
+      `SELECT c.* FROM classrooms c WHERE c.invite_code = $1 AND c.status = 'active' FOR UPDATE`,
+      [inviteCode]
+    );
+    if (classRes.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ success: false, message: 'Invalid or expired classroom link' });
+    }
+    const classroom = classRes.rows[0];
+
+    // 2. Check invitation by email or token
+    const inviteRes = await client.query(
+      `SELECT * FROM classroom_invitations 
+       WHERE classroom_id = $1 AND LOWER(student_email) = $2 AND status = 'pending' AND expires_at > NOW()`,
+      [classroom.id, cleanEmail]
+    );
+
+    let validInvite = inviteRes.rows[0] || null;
+
+    if (!validInvite && token) {
+      const tokenRes = await client.query(
+        `SELECT * FROM classroom_invitations WHERE classroom_id = $1 AND token = $2 AND status = 'pending' AND expires_at > NOW()`,
+        [classroom.id, token]
+      );
+      if (tokenRes.rows.length > 0) {
+        validInvite = tokenRes.rows[0];
+      }
+    }
+
+    if (!validInvite) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ success: false, message: 'This email has not been invited to this classroom yet.' });
+    }
+
+    // 3. Check if user already exists
+    const existingUserRes = await client.query(`SELECT id FROM users WHERE LOWER(email) = $1`, [cleanEmail]);
+    if (existingUserRes.rows.length > 0) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({ success: false, message: 'An account with this email already exists. Please log in.' });
+    }
+
+    // 4. Check seat capacity
+    const effectiveLimit = await getEffectiveSeatLimit(classroom.teacher_id);
+    const seats = await getUsedSeats(classroom.id, client);
+    if (seats.total_used > effectiveLimit) {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ success: false, message: 'This classroom has reached its maximum seat limit.' });
+    }
+
+    // 5. Create new student user
+    const hash = await bcrypt.hash(password, 12);
+    const userRes = await client.query(
+      `INSERT INTO users (email, password_hash, full_name, role, onboarded)
+       VALUES ($1, $2, $3, 'student', true)
+       RETURNING id, full_name, email, role, is_premium, onboarded, created_at`,
+      [cleanEmail, hash, full_name.trim()]
+    );
+    const newUser = userRes.rows[0];
+
+    // 6. Enroll in classroom members
+    await client.query(
+      `INSERT INTO classroom_members (classroom_id, student_id, status, joined_at)
+       VALUES ($1, $2, 'active', NOW())
+       ON CONFLICT (classroom_id, student_id)
+       DO UPDATE SET status = 'active', joined_at = NOW(), removed_at = NULL`,
+      [classroom.id, newUser.id]
+    );
+
+    // 7. Mark invitation accepted
+    await client.query(
+      `UPDATE classroom_invitations SET status = 'accepted' WHERE id = $1`,
+      [validInvite.id]
+    );
+
+    // 8. Sign tokens
+    const accessToken = signAccessToken(newUser.id);
+    const refreshToken = signRefreshToken(newUser.id);
+
+    await client.query(`UPDATE users SET refresh_token = $1 WHERE id = $2`, [refreshToken, newUser.id]);
+
+    await client.query('COMMIT');
+
+    return res.status(201).json({
+      success: true,
+      message: 'Account created and joined classroom successfully!',
+      data: {
+        accessToken,
+        refreshToken,
+        user: newUser,
+        classroom_id: classroom.id,
+        classroom_name: classroom.name
+      }
+    });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error in registerAndJoin:', err);
+    return res.status(500).json({ success: false, message: err.message });
+  } finally {
+    client.release();
+  }
+};
+
+// POST /api/classrooms/login-and-join - Login existing student and join classroom in one step
+exports.loginAndJoin = async (req, res) => {
+  const client = await db.pool.connect();
+  try {
+    const { inviteCode, email, password } = req.body;
+
+    if (!inviteCode || !email || !password) {
+      return res.status(400).json({ success: false, message: 'Email and password are required' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    await client.query('BEGIN');
+
+    // 1. Find user
+    const userRes = await client.query(
+      `SELECT * FROM users WHERE LOWER(TRIM(email)) = LOWER(TRIM($1))`,
+      [cleanEmail]
+    );
+    const foundUser = userRes.rows[0];
+    const dummyHash = '$2a$12$invalidhashfortimingprotection000000000000000000000';
+    const isValid = await bcrypt.compare(String(password || '').trim(), foundUser?.password_hash ?? dummyHash);
+
+    if (!foundUser || !isValid) {
+      await client.query('ROLLBACK');
+      return res.status(401).json({ success: false, message: 'Invalid email or password' });
+    }
+
+    if (foundUser.role !== 'student') {
+      await client.query('ROLLBACK');
+      return res.status(403).json({ success: false, message: 'Only student accounts can join classroom batches' });
+    }
+
+    // 2. Find classroom
+    const classRes = await client.query(
+      `SELECT c.* FROM classrooms c WHERE c.invite_code = $1 AND c.status = 'active' FOR UPDATE`,
+      [inviteCode]
+    );
+    if (classRes.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ success: false, message: 'Invalid or expired classroom link' });
+    }
+    const classroom = classRes.rows[0];
+
+    // 3. Add to classroom_members
+    await client.query(
+      `INSERT INTO classroom_members (classroom_id, student_id, status, joined_at)
+       VALUES ($1, $2, 'active', NOW())
+       ON CONFLICT (classroom_id, student_id)
+       DO UPDATE SET status = 'active', joined_at = NOW(), removed_at = NULL`,
+      [classroom.id, foundUser.id]
+    );
+
+    // 4. Mark invitation as accepted if pending exists
+    await client.query(
+      `UPDATE classroom_invitations SET status = 'accepted' WHERE classroom_id = $1 AND LOWER(student_email) = $2`,
+      [classroom.id, cleanEmail]
+    );
+
+    // 5. Generate tokens
+    const accessToken = signAccessToken(foundUser.id);
+    const refreshToken = signRefreshToken(foundUser.id);
+
+    await client.query(`UPDATE users SET refresh_token = $1 WHERE id = $2`, [refreshToken, foundUser.id]);
+
+    await client.query('COMMIT');
+
+    const { password_hash, refresh_token, ...safeUser } = foundUser;
+
+    return res.json({
+      success: true,
+      message: 'Logged in and joined classroom successfully!',
+      data: {
+        accessToken,
+        refreshToken,
+        user: safeUser,
+        classroom_id: classroom.id,
+        classroom_name: classroom.name
+      }
+    });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error in loginAndJoin:', err);
+    return res.status(500).json({ success: false, message: err.message });
   } finally {
     client.release();
   }
@@ -1031,9 +1300,16 @@ exports.getStudentClassroomExams = async (req, res) => {
     }
 
     const { rows } = await db.query(
-      `SELECT ce.id AS assignment_id, ce.assigned_at, ce.due_date, e.*
+      `SELECT ce.id AS assignment_id, ce.assigned_at, ce.due_date, e.*,
+              s.name AS subject_name,
+              t.name AS topic_name,
+              cl.name AS class_name,
+              (SELECT COUNT(*)::int FROM exam_questions eq WHERE eq.exam_id = e.id) AS question_count
        FROM classroom_exams ce
        JOIN exams e ON ce.exam_id = e.id
+       LEFT JOIN subjects s ON s.id = e.subject_id
+       LEFT JOIN topics t ON t.id = e.topic_id
+       LEFT JOIN classes cl ON cl.id = s.class_id
        WHERE ce.classroom_id = $1
        ORDER BY ce.assigned_at DESC`,
       [id]

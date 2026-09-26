@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
 
@@ -55,8 +55,13 @@ const InteractiveHeadline = () => {
 export default function RegisterPage() {
   const { loginWithGoogle, loading } = useAuthStore();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const [selectedRole, setSelectedRole] = useState(null);
+  const inviteCode = searchParams.get('invite');
+  const bannerMsg = searchParams.get('msg');
+  const classroomName = searchParams.get('classroom_name');
+
+  const [selectedRole, setSelectedRole] = useState(inviteCode ? 'student' : null);
 
   const handleGoogleCallback = async (response) => {
     if (!selectedRole) {
@@ -66,7 +71,9 @@ export default function RegisterPage() {
     try {
       const user = await loginWithGoogle(response.credential, selectedRole, 'register');
       toast.success(`Account resolved! Welcome, ${user.full_name.split(' ')[0]}!`);
-      if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
+      if (inviteCode) {
+        navigate(`/classroom/join/${inviteCode}`);
+      } else if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
         navigate('/onboarding');
       } else {
         navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
@@ -111,7 +118,9 @@ export default function RegisterPage() {
               try {
                 const user = await loginWithGoogle({ access_token: tokenResponse.access_token }, selectedRole, 'register');
                 toast.success(`Account resolved! Welcome, ${user.full_name.split(' ')[0]}!`);
-                if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
+                if (inviteCode) {
+                  navigate(`/classroom/join/${inviteCode}`);
+                } else if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
                   navigate('/onboarding');
                 } else {
                   navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
@@ -589,7 +598,27 @@ export default function RegisterPage() {
 
             <div className="form-eyebrow">Create Account</div>
             <h1 className="form-title">Sign up</h1>
-            <p className="form-sub" style={{ marginBottom: '1.5rem' }}>Select your role to register your account.</p>
+            <p className="form-sub" style={{ marginBottom: (bannerMsg || classroomName) ? '1rem' : '1.5rem' }}>Select your role to register your account.</p>
+
+            {(bannerMsg || classroomName) && (
+              <div style={{
+                background: 'rgba(56, 189, 248, 0.12)',
+                border: '1px solid rgba(56, 189, 248, 0.35)',
+                borderRadius: '12px',
+                padding: '0.85rem 1rem',
+                marginBottom: '1.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                color: '#38bdf8',
+                fontSize: '0.88rem',
+                fontWeight: 500,
+                lineHeight: 1.4
+              }}>
+                <span style={{ fontSize: '1.2rem' }}>🎓</span>
+                <span>{bannerMsg || `Please create an account to join ${classroomName}`}</span>
+              </div>
+            )}
 
             {/* Role selector */}
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.75rem' }}>
@@ -694,7 +723,7 @@ export default function RegisterPage() {
 
             <div className="auth-divider" style={{ margin: '2rem 0' }} />
             <p className="auth-footer-link" style={{ marginTop: 0 }}>
-              Already have an account? <Link to="/login">Sign in</Link>
+              Already have an account? <Link to={`/login${inviteCode ? `?invite=${inviteCode}${classroomName ? `&classroom_name=${encodeURIComponent(classroomName)}` : ''}` : ''}`}>Sign in</Link>
             </p>
           </div>
         </main>

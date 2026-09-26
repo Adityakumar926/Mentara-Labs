@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { 
-  Users, ArrowRight, BookOpen, FileText, CheckCircle2, AlertCircle, 
-  Award, Clock, Calendar, Sparkles, Share2, Copy, Check 
+  Users, ArrowRight, BookOpen, AlertCircle, Sparkles, CheckCircle2, LogOut 
 } from 'lucide-react';
 import { classroomApi } from '@/api/services';
 import useAuthStore from '@/store/authStore';
@@ -13,27 +12,26 @@ export default function ClassroomJoinPage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, logout, setAuthData } = useAuthStore();
 
   const [joinInfo, setJoinInfo] = useState(null);
-  const [activeTab, setActiveTab] = useState('overview');
   const [isLoading, setIsLoading] = useState(true);
-  const [isJoining, setIsJoining] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [copiedLink, setCopiedLink] = useState(false);
 
   // Email verification state
-  const [emailInput, setEmailInput] = useState(user?.email || '');
+  const [emailInput, setEmailInput] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyError, setVerifyError] = useState(null);
-  const [accessGranted, setAccessGranted] = useState(false);
+
+  // Quick join for already authenticated student
+  const [isQuickJoining, setIsQuickJoining] = useState(false);
 
   useEffect(() => {
     fetchJoinInfo();
   }, [inviteCode]);
 
   useEffect(() => {
-    if (user?.email) {
+    if (user?.email && !emailInput) {
       setEmailInput(user.email);
     }
   }, [user]);
@@ -41,6 +39,7 @@ export default function ClassroomJoinPage() {
   const fetchJoinInfo = async () => {
     try {
       setIsLoading(true);
+      setErrorMsg(null);
       const res = await classroomApi.getJoinInfo(inviteCode);
       setJoinInfo(res.data?.data || null);
     } catch (err) {
@@ -50,37 +49,52 @@ export default function ClassroomJoinPage() {
     }
   };
 
-  const copyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopiedLink(true);
-    toast.success('Classroom link copied!');
-    setTimeout(() => setCopiedLink(false), 2000);
-  };
-
+  // ── Verify Email & Route to Register / Login / Classroom ──
   const handleVerifyEmail = async (e) => {
     e?.preventDefault();
-    if (!emailInput || !emailInput.trim()) {
+    const clean = (emailInput || '').trim().toLowerCase();
+    if (!clean) {
       return setVerifyError('Please enter your email address');
     }
     setVerifyError(null);
     setIsVerifying(true);
+
     try {
       const res = await classroomApi.verifyJoinEmail({
         inviteCode,
-        email: emailInput.trim()
+        email: clean,
+        token
       });
       const data = res.data?.data;
       if (data) {
-        useAuthStore.getState().setAuthData({
-          accessToken: data.accessToken,
-          refreshToken: data.refreshToken,
-          user: data.user
-        });
-        setAccessGranted(true);
-        toast.success(res.data?.message || 'Access granted to classroom!');
-        if (data.classroom_id) {
+        // If student is already authenticated and matched
+        if (data.is_authenticated) {
+          if (data.accessToken) {
+            setAuthData({
+              accessToken: data.accessToken,
+              refreshToken: data.refreshToken,
+              user: data.user
+            });
+          }
+          toast.success(`Classroom joined! Welcome to ${joinInfo?.name || 'Classroom'} 🎉`);
           navigate(`/student/classrooms/${data.classroom_id}`);
+          return;
         }
+
+        const classTitle = joinInfo?.name || data.classroom_name || 'the classroom';
+
+        // CASE 1: User does NOT have an account -> redirect to Register page with message
+        if (!data.has_account) {
+          toast(`Please create an account to join ${classTitle}`, { icon: '🎓', duration: 5000 });
+          const registerUrl = `/register?email=${encodeURIComponent(data.email)}&invite=${inviteCode}${token ? `&token=${token}` : ''}&classroom_name=${encodeURIComponent(classTitle)}&msg=${encodeURIComponent(`Please create an account to join ${classTitle}`)}`;
+          navigate(registerUrl);
+          return;
+        }
+
+        // CASE 2: User DOES have an account -> redirect to Login page with message
+        toast(`Please log in to join ${classTitle}`, { icon: '🔑', duration: 5000 });
+        const loginUrl = `/login?email=${encodeURIComponent(data.email)}&invite=${inviteCode}${token ? `&token=${token}` : ''}&classroom_name=${encodeURIComponent(classTitle)}&msg=${encodeURIComponent(`Please log in to join ${classTitle}`)}`;
+        navigate(loginUrl);
       }
     } catch (err) {
       const msg = err.response?.data?.message || 'This email has not been invited to this classroom yet.';
@@ -90,40 +104,34 @@ export default function ClassroomJoinPage() {
     }
   };
 
-  const handleJoinClick = async () => {
-    if (!isAuthenticated) {
-      // If not logged in, trigger email verification prompt
-      return handleVerifyEmail();
+  // ── Quick Join for Already Logged-in Student ──
+  const handleQuickJoin = async () => {
+    if (user?.role !== 'student') {
+      return toast.error('Only students can join classrooms');
     }
-
-    if (user?.role === 'teacher') {
-      return toast.error('You are logged in as a Teacher. Please switch to a student account to enroll.');
-    }
-
+    setIsQuickJoining(true);
     try {
-      setIsJoining(true);
       const res = await classroomApi.joinClassroom(inviteCode, token);
       toast.success(res.data?.message || 'Successfully joined classroom! 🎉');
-      if (res.data?.data?.classroom_id) {
-        navigate(`/student/classrooms/${res.data.data.classroom_id}`);
-      }
+      const cid = res.data?.data?.classroom_id || joinInfo?.id;
+      navigate(`/student/classrooms/${cid}`);
     } catch (err) {
       if (err.response?.data?.code === 'CLASSROOM_FULL') {
-        toast.error('This classroom has reached its maximum seat capacity limit.', { duration: 5000 });
+        toast.error('This classroom has reached its maximum student limit.');
       } else {
-        toast.error(err.response?.data?.message || 'Joined classroom view active!');
+        toast.error(err.response?.data?.message || 'Failed to join classroom');
       }
     } finally {
-      setIsJoining(false);
+      setIsQuickJoining(false);
     }
   };
 
   if (isLoading) {
     return (
-      <div style={{ height: '100vh', background: '#080C16', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ height: '100vh', background: '#080C16', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif' }}>
         <div style={{ textAlign: 'center' }}>
           <Sparkles size={36} color="#8B5CF6" style={{ animation: 'spin 2s linear infinite', marginBottom: '1rem' }} />
-          <div>Loading Classroom Invitation...</div>
+          <div style={{ fontSize: '1rem', fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>Loading Classroom Invitation...</div>
         </div>
       </div>
     );
@@ -131,14 +139,19 @@ export default function ClassroomJoinPage() {
 
   if (errorMsg || !joinInfo) {
     return (
-      <div style={{ height: '100vh', background: '#080C16', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-        <div style={{ background: 'rgba(14,20,36,0.8)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 24, padding: '3rem 2rem', textAlign: 'center', maxWidth: 480, width: '100%' }}>
-          <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
-            <AlertCircle size={28} color="#EF4444" />
+      <div style={{ minHeight: '100vh', background: '#080C16', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', fontFamily: 'Inter, sans-serif' }}>
+        <div style={{ background: 'rgba(14,20,36,0.9)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 24, padding: '3rem 2rem', textAlign: 'center', maxWidth: 460, width: '100%', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
+          <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem auto' }}>
+            <AlertCircle size={30} color="#EF4444" />
           </div>
           <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 0.5rem 0' }}>Invitation Error</h2>
-          <p style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.6)', marginBottom: '1.5rem' }}>{errorMsg || 'Classroom link not found'}</p>
-          <button onClick={() => navigate('/')} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', padding: '0.75rem 1.5rem', borderRadius: 12, color: '#fff', fontWeight: 700, cursor: 'pointer' }}>
+          <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.6)', marginBottom: '1.75rem', lineHeight: 1.5 }}>
+            {errorMsg || 'Classroom link not found or has expired.'}
+          </p>
+          <button 
+            onClick={() => navigate('/')} 
+            style={{ background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none', padding: '0.85rem 1.75rem', borderRadius: 12, color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem' }}
+          >
             Return to Home
           </button>
         </div>
@@ -146,49 +159,161 @@ export default function ClassroomJoinPage() {
     );
   }
 
-  // ── EMAIL VERIFICATION STEP FOR GUESTS / UNVERIFIED USERS ──
-  if (!isAuthenticated && !accessGranted) {
-    return (
-      <div style={{ minHeight: '100vh', background: '#080C16', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', fontFamily: 'Inter, sans-serif' }}>
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(15, 22, 41, 0.95) 0%, rgba(20, 30, 55, 0.9) 100%)',
-          border: '1px solid rgba(139, 92, 246, 0.3)',
-          borderRadius: 24,
-          padding: '2.5rem 2rem',
-          maxWidth: 480,
-          width: '100%',
-          boxShadow: '0 25px 60px rgba(0,0,0,0.6)',
-          backdropFilter: 'blur(16px)'
-        }}>
-          <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-            <div style={{
-              width: 60, height: 60, borderRadius: '50%',
-              background: 'linear-gradient(135deg, rgba(139,92,246,0.2), rgba(6,182,212,0.2))',
-              border: '1px solid rgba(139,92,246,0.4)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto'
-            }}>
-              <BookOpen size={30} color="#8B5CF6" />
-            </div>
-
-            <span style={{
-              background: 'rgba(139, 92, 246, 0.2)', border: '1px solid rgba(139, 92, 246, 0.4)',
-              padding: '0.2rem 0.65rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800,
-              color: '#A78BFA', fontFamily: 'monospace'
-            }}>
-              CODE: {joinInfo.invite_code}
-            </span>
-
-            <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#fff', margin: '0.75rem 0 0.4rem 0' }}>
-              Join {joinInfo.name}
-            </h2>
-            <p style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.6)', margin: 0 }}>
-              Teacher: <strong>{joinInfo.teacher_name}</strong>
-            </p>
+  return (
+    <div style={{ minHeight: '100vh', background: '#080C16', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem 1.25rem', fontFamily: 'Inter, sans-serif' }}>
+      <div style={{
+        background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(20, 30, 58, 0.9) 100%)',
+        border: '1px solid rgba(139, 92, 246, 0.35)',
+        borderRadius: 24,
+        padding: '2.5rem 2rem',
+        maxWidth: 480,
+        width: '100%',
+        boxShadow: '0 30px 70px rgba(0,0,0,0.6), 0 0 35px rgba(139, 92, 246, 0.15)',
+        backdropFilter: 'blur(20px)'
+      }}>
+        
+        {/* ── CLASSROOM HEADER ── */}
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <div style={{
+            width: 64, height: 64, borderRadius: '50%',
+            background: 'linear-gradient(135deg, rgba(139,92,246,0.25), rgba(6,182,212,0.25))',
+            border: '1px solid rgba(139,92,246,0.5)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.2rem auto',
+            boxShadow: '0 0 20px rgba(139,92,246,0.3)'
+          }}>
+            <BookOpen size={30} color="#A78BFA" />
           </div>
 
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(139, 92, 246, 0.15)', border: '1px solid rgba(139, 92, 246, 0.3)', padding: '0.25rem 0.75rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 800, color: '#C4B5FD', fontFamily: 'monospace', marginBottom: '0.75rem' }}>
+            <span>INVITE CODE:</span>
+            <strong style={{ color: '#fff' }}>{joinInfo.invite_code}</strong>
+          </div>
+
+          <h1 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#fff', margin: '0 0 0.4rem 0', lineHeight: 1.2 }}>
+            {joinInfo.name}
+          </h1>
+
+          <p style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.65)', margin: '0 0 1rem 0' }}>
+            Teacher: <strong style={{ color: '#E2E8F0' }}>{joinInfo.teacher_name}</strong>
+          </p>
+
+          {/* Quick Classroom Stats */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', padding: '0.25rem 0.65rem', borderRadius: 8, color: '#CBD5E1' }}>
+              📝 {joinInfo.assigned_exams?.length || 0} Exams
+            </span>
+            <span style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', padding: '0.25rem 0.65rem', borderRadius: 8, color: '#CBD5E1' }}>
+              📚 {joinInfo.assigned_materials?.length || 0} Materials
+            </span>
+            <span style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', padding: '0.25rem 0.65rem', borderRadius: 8, color: '#CBD5E1' }}>
+              👥 {joinInfo.active_students || 0} Students
+            </span>
+          </div>
+        </div>
+
+        {/* ── TEACHER WARNING (if teacher is logged in) ── */}
+        {user && (user.role === 'teacher' || user.role === 'admin') && (
+          <div style={{
+            background: 'rgba(245, 158, 11, 0.12)',
+            border: '1px solid rgba(245, 158, 11, 0.35)',
+            borderRadius: 14,
+            padding: '1rem',
+            marginBottom: '1.5rem',
+            fontSize: '0.82rem',
+            color: '#FDE68A',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.6rem'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}>
+              <AlertCircle size={16} color="#F59E0B" />
+              <span>Signed in as {user.role.toUpperCase()}: {user.email}</span>
+            </div>
+            <p style={{ margin: 0, opacity: 0.85 }}>
+              Classrooms are for student enrollment. To join as a student, please log out first.
+            </p>
+            <button
+              onClick={() => logout()}
+              style={{
+                background: 'rgba(245, 158, 11, 0.25)',
+                border: '1px solid rgba(245, 158, 11, 0.5)',
+                color: '#fff',
+                padding: '0.4rem 0.8rem',
+                borderRadius: 8,
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                alignSelf: 'flex-start',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem'
+              }}
+            >
+              <LogOut size={13} />
+              Log Out of Teacher Account
+            </button>
+          </div>
+        )}
+
+        {/* ── ALREADY LOGGED IN AS STUDENT (1-Click Join) ── */}
+        {isAuthenticated && user?.role === 'student' ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{
+              background: 'rgba(16, 185, 129, 0.12)',
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              borderRadius: 14,
+              padding: '0.9rem 1rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              color: '#6EE7B7',
+              fontSize: '0.88rem'
+            }}>
+              <CheckCircle2 size={20} color="#10B981" style={{ flexShrink: 0 }} />
+              <div>
+                Logged in as <strong>{user.full_name}</strong>
+                <div style={{ fontSize: '0.78rem', opacity: 0.8 }}>{user.email}</div>
+              </div>
+            </div>
+
+            <button
+              onClick={handleQuickJoin}
+              disabled={isQuickJoining}
+              style={{
+                width: '100%',
+                background: 'linear-gradient(135deg, #10B981 0%, #06B6D4 100%)',
+                border: 'none',
+                padding: '0.95rem',
+                borderRadius: 12,
+                color: '#fff',
+                fontWeight: 800,
+                fontSize: '1rem',
+                cursor: isQuickJoining ? 'wait' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                boxShadow: '0 8px 25px rgba(16, 185, 129, 0.35)'
+              }}
+            >
+              {isQuickJoining ? 'Enrolling in Classroom...' : 'Join Classroom Now'}
+              <ArrowRight size={18} />
+            </button>
+
+            <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
+              <button
+                onClick={() => logout()}
+                style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.45)', fontSize: '0.78rem', cursor: 'pointer', textDecoration: 'underline' }}
+              >
+                Not your account? Log out and join with another email
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* ── VERIFY INVITED EMAIL FORM ── */
           <form onSubmit={handleVerifyEmail} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, color: 'rgba(255,255,255,0.8)', marginBottom: '0.5rem' }}>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'rgba(255,255,255,0.9)', marginBottom: '0.5rem' }}>
                 Enter your invited email address:
               </label>
               <input
@@ -201,20 +326,23 @@ export default function ClassroomJoinPage() {
                   width: '100%',
                   padding: '0.85rem 1rem',
                   borderRadius: 12,
-                  background: 'rgba(0,0,0,0.4)',
-                  border: '1px solid rgba(255,255,255,0.15)',
+                  background: 'rgba(0,0,0,0.45)',
+                  border: '1px solid rgba(255,255,255,0.18)',
                   color: '#fff',
-                  fontSize: '0.92rem',
+                  fontSize: '0.95rem',
                   outline: 'none',
                   boxSizing: 'border-box'
                 }}
               />
+              <span style={{ display: 'block', fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)', marginTop: '0.4rem' }}>
+                Enter the email address where your teacher sent the invitation.
+              </span>
             </div>
 
             {verifyError && (
               <div style={{
                 background: 'rgba(239, 68, 68, 0.12)',
-                border: '1px solid rgba(239, 68, 68, 0.3)',
+                border: '1px solid rgba(239, 68, 68, 0.35)',
                 borderRadius: 12,
                 padding: '0.85rem 1rem',
                 color: '#F87171',
@@ -235,7 +363,7 @@ export default function ClassroomJoinPage() {
                 width: '100%',
                 background: 'linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%)',
                 border: 'none',
-                padding: '0.9rem',
+                padding: '0.95rem',
                 borderRadius: 12,
                 color: '#fff',
                 fontWeight: 800,
@@ -246,275 +374,13 @@ export default function ClassroomJoinPage() {
                 justifyContent: 'center',
                 gap: '0.5rem',
                 boxShadow: '0 8px 25px rgba(139, 92, 246, 0.4)',
-                transition: 'opacity 0.2s'
+                opacity: isVerifying ? 0.7 : 1
               }}
             >
-              {isVerifying ? 'Verifying Invitation...' : 'Verify Email & Join Classroom'}
+              {isVerifying ? 'Verifying Invitation...' : 'Verify Invitation & Continue'}
               <ArrowRight size={18} />
             </button>
           </form>
-        </div>
-      </div>
-    );
-  }
-
-  const exams = joinInfo.assigned_exams || [];
-  const materials = joinInfo.assigned_materials || [];
-  const customAssignments = joinInfo.custom_assignments || [];
-  const announcements = joinInfo.announcements || [];
-
-  return (
-    <div style={{ minHeight: '100vh', background: '#080C16', color: '#fff', padding: '2rem 1rem', fontFamily: 'Inter, sans-serif' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-
-        {/* ── HEADER BANNER ── */}
-        <div style={{
-          background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.25) 0%, rgba(6, 182, 212, 0.15) 50%, rgba(14, 20, 36, 0.95) 100%)',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          borderRadius: 24,
-          padding: '2.25rem',
-          backdropFilter: 'blur(16px)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1.5rem',
-          boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
-        }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.6rem' }}>
-              <span style={{
-                background: 'rgba(139, 92, 246, 0.2)', border: '1px solid rgba(139, 92, 246, 0.4)',
-                padding: '0.25rem 0.75rem', borderRadius: 8, fontSize: '0.78rem', fontWeight: 800,
-                color: '#A78BFA', fontFamily: 'monospace'
-              }}>
-                BATCH CODE: {joinInfo.invite_code}
-              </span>
-              <span style={{ background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10B981', color: '#10B981', padding: '0.2rem 0.7rem', borderRadius: 50, fontSize: '0.72rem', fontWeight: 800 }}>
-                Open Batch Access ({joinInfo.active_students || 0} Enrolled)
-              </span>
-            </div>
-
-            <h1 style={{ fontSize: '2.2rem', fontWeight: 900, color: '#fff', margin: '0 0 0.5rem 0' }}>
-              {joinInfo.name}
-            </h1>
-            <p style={{ fontSize: '0.92rem', color: 'rgba(255, 255, 255, 0.7)', margin: '0 0 0.4rem 0' }}>
-              Teacher: <strong>{joinInfo.teacher_name}</strong> ({joinInfo.teacher_email})
-            </p>
-            {joinInfo.description && (
-              <p style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.5)', margin: 0, fontStyle: 'italic' }}>
-                "{joinInfo.description}"
-              </p>
-            )}
-          </div>
-
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <button
-              onClick={copyLink}
-              style={{
-                background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
-                padding: '0.8rem 1.25rem', borderRadius: 14, color: '#fff', fontWeight: 700,
-                fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem'
-              }}
-            >
-              {copiedLink ? <Check size={16} color="#10B981" /> : <Copy size={16} />}
-              {copiedLink ? 'Copied!' : 'Share Link'}
-            </button>
-            <button
-              onClick={handleJoinClick}
-              disabled={isJoining}
-              style={{
-                background: 'linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%)', border: 'none',
-                padding: '0.8rem 1.4rem', borderRadius: 14, color: '#fff', fontWeight: 800,
-                fontSize: '0.88rem', cursor: isJoining ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem',
-                boxShadow: '0 6px 20px rgba(139, 92, 246, 0.4)'
-              }}
-            >
-              {isJoining ? 'Joining...' : 'Enter Batch Workspace'} <ArrowRight size={16} />
-            </button>
-          </div>
-        </div>
-
-        {/* ── TABS NAV ── */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: '0.4rem',
-          background: 'rgba(15, 22, 41, 0.7)', border: '1px solid rgba(255, 255, 255, 0.08)',
-          borderRadius: 16, padding: '0.35rem', overflowX: 'auto'
-        }}>
-          {[
-            { id: 'overview', label: 'Batch Overview' },
-            { id: 'materials', label: `Study Materials (${materials.length})` },
-            { id: 'exams', label: `Assigned Exams (${exams.length})` },
-            { id: 'assignments', label: `Assignments (${customAssignments.length})` },
-            { id: 'announcements', label: `Announcements (${announcements.length})` }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                padding: '0.65rem 1.25rem', borderRadius: 12, border: 'none', fontSize: '0.84rem', fontWeight: 700,
-                cursor: 'pointer', transition: 'all 0.15s', whitespace: 'nowrap',
-                background: activeTab === tab.id ? 'linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%)' : 'transparent',
-                color: activeTab === tab.id ? '#fff' : 'rgba(255,255,255,0.6)'
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* ── TAB 1: OVERVIEW ── */}
-        {activeTab === 'overview' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
-              <div style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '1.25rem' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: '0.3rem' }}>STUDY MATERIALS</div>
-                <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#10B981' }}>{materials.length}</div>
-                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginTop: '0.2rem' }}>Isolated notes & labs</div>
-              </div>
-
-              <div style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '1.25rem' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: '0.3rem' }}>ASSIGNED EXAMS</div>
-                <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#06B6D4' }}>{exams.length}</div>
-                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginTop: '0.2rem' }}>Targeted assessments</div>
-              </div>
-
-              <div style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '1.25rem' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: '0.3rem' }}>COURSE ASSIGNMENTS</div>
-                <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#F59E0B' }}>{customAssignments.length}</div>
-                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginTop: '0.2rem' }}>Batch coursework</div>
-              </div>
-
-              <div style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '1.25rem' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: '0.3rem' }}>ANNOUNCEMENTS</div>
-                <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#A78BFA' }}>{announcements.length}</div>
-                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginTop: '0.2rem' }}>Teacher broadcasts</div>
-              </div>
-            </div>
-
-            {/* Quick Announcements Preview */}
-            <div style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', marginBottom: '1rem' }}>📢 Batch Announcements</h3>
-              {announcements.length === 0 ? (
-                <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', margin: 0 }}>No announcements posted yet.</p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-                  {announcements.map(a => (
-                    <div key={a.id} style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '1rem' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', marginBottom: '0.3rem' }}>
-                        <span>Author: {a.author_name}</span>
-                        <span>{new Date(a.created_at).toLocaleDateString()}</span>
-                      </div>
-                      <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#fff', margin: '0 0 0.3rem 0' }}>{a.title}</h4>
-                      <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', margin: 0 }}>{a.content}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ── TAB 2: MATERIALS ── */}
-        {activeTab === 'materials' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {materials.length === 0 ? (
-              <div style={{ background: 'rgba(15, 22, 41, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
-                No study materials assigned to this batch yet.
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
-                {materials.map(m => (
-                  <div key={m.id} style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '1.25rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '1rem' }}>
-                    <div>
-                      <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#10B981', textTransform: 'uppercase' }}>{m.content_type || 'Material'}</span>
-                      <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff', margin: '0.3rem 0 0.5rem 0' }}>{m.title}</h4>
-                      <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', margin: 0 }}>{m.description || 'Exclusive classroom study material.'}</p>
-                    </div>
-                    {m.resource_url && (
-                      <a href={m.resource_url} target="_blank" rel="noreferrer" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid #10B981', color: '#10B981', padding: '0.5rem', borderRadius: 10, fontWeight: 700, fontSize: '0.78rem', textDecoration: 'none', textAlign: 'center' }}>
-                        View Material
-                      </a>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── TAB 3: EXAMS ── */}
-        {activeTab === 'exams' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {exams.length === 0 ? (
-              <div style={{ background: 'rgba(15, 22, 41, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
-                No exams assigned to this batch yet.
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
-                {exams.map(e => (
-                  <div key={e.id} style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '1.25rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '1rem' }}>
-                    <div>
-                      <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#06B6D4', textTransform: 'uppercase' }}>{e.exam_type || 'Exam'}</span>
-                      <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff', margin: '0.3rem 0 0.5rem 0' }}>{e.title}</h4>
-                      <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', margin: 0 }}>Duration: {e.duration_minutes || 30} mins</p>
-                    </div>
-                    <button
-                      onClick={() => navigate(`/exams/${e.id}/take`)}
-                      style={{ background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none', color: '#fff', padding: '0.5rem', borderRadius: 10, fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer' }}
-                    >
-                      Start Assessment Now
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── TAB 4: ASSIGNMENTS ── */}
-        {activeTab === 'assignments' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {customAssignments.length === 0 ? (
-              <div style={{ background: 'rgba(15, 22, 41, 0.4)', border: '1px dashed rgba(255,255,255,0.1)', borderRadius: 20, padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>
-                No custom assignments posted yet.
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {customAssignments.map(as => (
-                  <div key={as.id} style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '1.25rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div>
-                        <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#fff', margin: '0 0 0.4rem 0' }}>{as.title}</h4>
-                        <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', margin: 0 }}>{as.description}</p>
-                      </div>
-                      {as.due_date && (
-                        <span style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid #F59E0B', color: '#F59E0B', padding: '0.25rem 0.65rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700 }}>
-                          Due: {new Date(as.due_date).toLocaleDateString()}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── TAB 5: ANNOUNCEMENTS ── */}
-        {activeTab === 'announcements' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {announcements.map(a => (
-              <div key={a.id} style={{ background: 'rgba(15, 22, 41, 0.6)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '1.25rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', marginBottom: '0.4rem' }}>
-                  <span>Author: {a.author_name}</span>
-                  <span>{new Date(a.created_at).toLocaleString()}</span>
-                </div>
-                <h4 style={{ fontSize: '1rem', fontWeight: 800, color: '#fff', margin: '0 0 0.35rem 0' }}>{a.title}</h4>
-                <p style={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.8)', margin: 0, lineHeight: 1.5 }}>{a.content}</p>
-              </div>
-            ))}
-          </div>
         )}
 
       </div>

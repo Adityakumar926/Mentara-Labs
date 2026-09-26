@@ -11,16 +11,25 @@ exports.startExam = async (req, res) => {
     const studentId = req.user.id;
     const isTeacher = req.user.role === 'teacher' || req.user.role === 'admin';
 
-    // 1. Verify exam exists
+    // 1. Verify exam exists and user is eligible
     const { rows: examRows } = await client.query(
       `SELECT e.id, e.title, e.duration_minutes, e.total_marks,
-              e.passing_marks, e.is_premium, e.status, e.ends_at
+              e.passing_marks, e.is_premium, e.status, e.ends_at,
+              EXISTS (
+                SELECT 1 FROM classroom_exams ce
+                JOIN classroom_members cm ON cm.classroom_id = ce.classroom_id
+                WHERE ce.exam_id = e.id AND cm.student_id = $2 AND cm.status = 'active'
+              ) AS is_classroom_assigned
        FROM exams e
        LEFT JOIN subjects s ON s.id = e.subject_id
        WHERE e.id = $1 
          AND ($3::boolean = true OR e.batch_id IS NULL OR EXISTS (
            SELECT 1 FROM batch_students bs
            WHERE bs.batch_id = e.batch_id AND bs.student_id = $2
+         ) OR EXISTS (
+           SELECT 1 FROM classroom_exams ce
+           JOIN classroom_members cm ON cm.classroom_id = ce.classroom_id
+           WHERE ce.exam_id = e.id AND cm.student_id = $2 AND cm.status = 'active'
          ))`,
       [examId, studentId, isTeacher]
     );
@@ -30,7 +39,8 @@ exports.startExam = async (req, res) => {
 
     const exam = examRows[0];
 
-    if (exam.is_premium && !req.user.is_premium && !isTeacher)
+    // Premium check: Teachers, premium students, OR students with teacher classroom assignment are permitted
+    if (exam.is_premium && !req.user.is_premium && !isTeacher && !exam.is_classroom_assigned)
       return res.status(403).json({ success: false, message: 'Premium access required for this exam' });
 
     // 2. Check existing attempt

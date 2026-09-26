@@ -14,8 +14,10 @@ export default function ProtectedRoute({ role }) {
   }
 
   // Redirect student/teacher to onboarding if not onboarded yet
-  const isClassroomPath = location.pathname.startsWith('/classroom/join/') || location.pathname.startsWith('/student/classrooms');
-  if (['student', 'teacher'].includes(user.role) && !user.onboarded && location.pathname !== '/onboarding' && !isClassroomPath) {
+  const isExemptPath = location.pathname.startsWith('/classroom/join/') || 
+                       location.pathname.startsWith('/student/classrooms') || 
+                       location.pathname.startsWith('/exams/');
+  if (['student', 'teacher'].includes(user.role) && !user.onboarded && location.pathname !== '/onboarding' && !isExemptPath) {
     return <Navigate to="/onboarding" replace />;
   }
 

@@ -135,19 +135,38 @@ export default function StudentClassroomView() {
                 {exams.map(e => (
                   <div key={e.id} style={{ background: 'rgba(14, 20, 36, 0.75)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '1.25rem' }}>
                     <div>
-                      <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#06B6D4', textTransform: 'uppercase' }}>{e.exam_type || 'Exam'}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.4rem' }}>
+                        <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#06B6D4', textTransform: 'uppercase', background: 'rgba(6, 182, 212, 0.12)', border: '1px solid rgba(6, 182, 212, 0.25)', padding: '0.15rem 0.55rem', borderRadius: 6 }}>
+                          {e.subject_name || e.exam_type || 'Exam'}
+                        </span>
+                        {e.class_name && (
+                          <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#A78BFA', background: 'rgba(139, 92, 246, 0.12)', border: '1px solid rgba(139, 92, 246, 0.25)', padding: '0.15rem 0.55rem', borderRadius: 6 }}>
+                            {e.class_name}
+                          </span>
+                        )}
+                        {e.topic_name && (
+                          <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.05)', padding: '0.15rem 0.55rem', borderRadius: 6 }}>
+                            {e.topic_name}
+                          </span>
+                        )}
+                      </div>
                       <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', margin: '0.3rem 0 0.5rem 0' }}>{e.title}</h3>
-                      <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)', margin: 0 }}>Duration: {e.duration_minutes || 30} mins</p>
+                      <div style={{ display: 'flex', gap: '0.85rem', fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', flexWrap: 'wrap' }}>
+                        <span>⏱️ {e.duration_minutes || 30} mins</span>
+                        {e.question_count > 0 && <span>📝 {e.question_count} Questions</span>}
+                        {e.total_marks > 0 && <span>🎯 {e.total_marks} Marks</span>}
+                      </div>
                     </div>
                     <button
-                      onClick={() => navigate(`/teacher/exams/${e.id}/take`)}
+                      onClick={() => navigate(`/exams/${e.id}/take`)}
                       style={{
                         background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)', border: 'none',
-                        padding: '0.7rem', borderRadius: 12, color: '#fff', fontWeight: 800,
-                        fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem'
+                        padding: '0.75rem', borderRadius: 12, color: '#fff', fontWeight: 800,
+                        fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem',
+                        boxShadow: '0 6px 20px rgba(139, 92, 246, 0.35)', transition: 'transform 0.15s ease'
                       }}
                     >
-                      Start Assessment <ArrowRight size={14} />
+                      Start Assessment <ArrowRight size={15} />
                     </button>
                   </div>
                 ))}

@@ -60,7 +60,11 @@ const useAuthStore = create((set, get) => ({
       return data.user;
     } catch (err) {
       const errorData = err.response?.data;
-      const msg = errorData?.message ?? 'Google Sign-In failed';
+      const msg = errorData?.message || (
+        !err.response || err.message === 'Network Error' || err.code === 'ERR_NETWORK'
+          ? 'Cannot connect to server. Please verify backend is running on port 5000.'
+          : err.message || 'Google Sign-In failed'
+      );
       set({ error: msg, loading: false });
       const customError = new Error(msg);
       if (errorData?.code) customError.code = errorData.code;
@@ -125,5 +129,31 @@ const useAuthStore = create((set, get) => ({
   isAdmin:   () => get().user?.role === 'admin',
   isPremium: () => get().user?.is_premium === true,
 }));
+
+// Sync auth across browser tabs so in-memory Zustand state matches localStorage
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'user') {
+      try {
+        const newUser = event.newValue ? JSON.parse(event.newValue) : null;
+        useAuthStore.setState({ user: newUser });
+      } catch {
+        useAuthStore.setState({ user: null });
+      }
+    } else if (event.key === 'accessToken') {
+      if (!event.newValue) {
+        useAuthStore.setState({ user: null });
+      } else {
+        try {
+          const currentUserStr = localStorage.getItem('user');
+          const currentUser = currentUserStr ? JSON.parse(currentUserStr) : null;
+          useAuthStore.setState({ user: currentUser });
+        } catch {
+          // ignore
+        }
+      }
+    }
+  });
+}
 
 export default useAuthStore;
