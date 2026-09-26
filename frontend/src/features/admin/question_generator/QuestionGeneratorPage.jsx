@@ -610,24 +610,26 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
               </div>
             )}
 
-            {/* Grade Selection */}
-            <div>
-              <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
-                Select Grade / Stage
-              </label>
-              <select
-                value={stage}
-                onChange={(e) => setStage(e.target.value)}
-                className="qg-select"
-              >
-                <option value="Stage 1" style={{ background: '#0F172A', color: '#F8FAFC' }}>Stage 1 (Primary 1)</option>
-                <option value="Stage 2" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 1 (Stage 2)</option>
-                <option value="Stage 3" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 2 (Stage 3)</option>
-                <option value="Stage 4" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 3 (Stage 4)</option>
-                <option value="Stage 5" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 4 (Stage 5)</option>
-                <option value="Stage 6" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 5 (Stage 6)</option>
-              </select>
-            </div>
+            {/* Grade Selection (Hidden for Students — automatically locked to their registered stage) */}
+            {!isStudent && (
+              <div>
+                <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
+                  Select Grade / Stage
+                </label>
+                <select
+                  value={stage}
+                  onChange={(e) => setStage(e.target.value)}
+                  className="qg-select"
+                >
+                  <option value="Stage 1" style={{ background: '#0F172A', color: '#F8FAFC' }}>Stage 1 (Primary 1)</option>
+                  <option value="Stage 2" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 1 (Stage 2)</option>
+                  <option value="Stage 3" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 2 (Stage 3)</option>
+                  <option value="Stage 4" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 3 (Stage 4)</option>
+                  <option value="Stage 5" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 4 (Stage 5)</option>
+                  <option value="Stage 6" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 5 (Stage 6)</option>
+                </select>
+              </div>
+            )}
 
             {/* Subject */}
             <div>

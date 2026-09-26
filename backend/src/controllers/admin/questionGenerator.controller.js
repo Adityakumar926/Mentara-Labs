@@ -637,7 +637,32 @@ exports.generateQuestions = async (req, res) => {
     } = req.body;
 
     const limit = Math.min(Math.max(Number(count) || 5, 1), 10);
-    const safeStage = String(stage || 'Stage 2').trim();
+    let safeStage = String(stage || 'Stage 2').trim();
+
+    // If request is from a student, strictly enforce their registered class/stage
+    if (req.user?.role === 'student' && req.user?.class_id) {
+      try {
+        const { rows: cRows } = await db.query('SELECT name, stage FROM classes WHERE id = $1', [req.user.class_id]);
+        if (cRows[0]) {
+          const rawClass = cRows[0].stage || cRows[0].name || '';
+          const stageMatch = rawClass.match(/Stage\s*(\d)/i);
+          const gradeMatch = rawClass.match(/Grade\s*(\d)/i);
+          const numMatch = rawClass.match(/(\d)/);
+          if (stageMatch) {
+            safeStage = `Stage ${stageMatch[1]}`;
+          } else if (gradeMatch) {
+            const gNum = parseInt(gradeMatch[1], 10);
+            const map = { 1: 'Stage 2', 2: 'Stage 3', 3: 'Stage 4', 4: 'Stage 5', 5: 'Stage 6', 6: 'Stage 6' };
+            safeStage = map[gNum] || 'Stage 5';
+          } else if (numMatch) {
+            safeStage = `Stage ${numMatch[1]}`;
+          }
+        }
+      } catch (cErr) {
+        console.warn('[generateQuestions] Student class lookup warning:', cErr.message);
+      }
+    }
+
     const safeSubject = String(subject || 'Mathematics').trim();
     const safeStrand = String(strand || topic || 'General').trim();
     const isMixed = difficulty === 'mixed';
