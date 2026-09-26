@@ -108,11 +108,11 @@ const CSS = `
     color: #475569;
   }
   html.light .hs-item:hover, .light .hs-item:hover {
-    color: #0F172A;
+    color: var(--color-surface);
     background: #F1F5F9;
   }
   html.light .hs-item.active, .light .hs-item.active {
-    color: #0F172A;
+    color: var(--color-surface);
     background: rgba(124, 58, 237, 0.08);
     border-color: rgba(124, 58, 237, 0.22);
   }
@@ -127,7 +127,7 @@ const CSS = `
   }
   html.light .hs-chevron:hover, .light .hs-chevron:hover {
     background: #E2E8F0;
-    color: #0F172A;
+    color: var(--color-surface);
   }
   html.light .hs-nested, .light .hs-nested {
     border-left-color: #CBD5E1;

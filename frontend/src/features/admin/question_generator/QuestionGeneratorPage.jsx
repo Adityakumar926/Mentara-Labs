@@ -393,7 +393,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
             const canvas = await html2canvas(cardElem, {
               scale: 2,
               useCORS: true,
-              backgroundColor: '#FAF7F2',
+              backgroundColor: 'var(--color-surface-card)',
               logging: false
             });
             capturedImageUrl = canvas.toDataURL('image/png');
@@ -433,11 +433,11 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
       <style>{`
         .qg-select {
           width: 100%;
-          background-color: #1E293B !important;
+          background-color: var(--color-surface-border) !important;
           border: 1px solid #334155 !important;
           border-radius: 10px !important;
           padding: 0.65rem 0.85rem !important;
-          color: #F8FAFC !important;
+          color: var(--color-text-primary) !important;
           font-size: 0.84rem !important;
           font-weight: 600 !important;
           outline: none !important;
@@ -453,15 +453,15 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
           box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25) !important;
         }
         .qg-select option {
-          background-color: #0F172A !important;
-          color: #F8FAFC !important;
+          background-color: var(--color-surface) !important;
+          color: var(--color-text-primary) !important;
           padding: 10px 14px !important;
           font-size: 0.88rem !important;
         }
         .qg-select option:hover,
         .qg-select option:focus,
         .qg-select option:checked {
-          background-color: #1E293B !important;
+          background-color: var(--color-surface-border) !important;
           color: #38BDF8 !important;
         }
         .qg-btn-generate {
@@ -500,8 +500,8 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
         {/* ── PAGE HEADER BANNER ── */}
         <div style={{
           position: 'relative',
-          background: '#0F172A',
-          border: '1px solid #1E293B',
+          background: 'var(--color-surface)',
+          border: '1px solid var(--color-surface-border)',
           borderRadius: 20,
           padding: '1.4rem 2rem',
           display: 'flex',
@@ -513,7 +513,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
           <div style={{ position: 'relative', zIndex: 1, flex: 1 }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-              background: '#1E293B', border: '1px solid #334155',
+              background: 'var(--color-surface-border)', border: '1px solid #334155',
               padding: '0.3rem 0.85rem', borderRadius: 50,
               fontSize: '0.72rem', fontWeight: 700, color: '#38BDF8',
               letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '0.6rem'
@@ -526,13 +526,13 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
               fontSize: '1.85rem',
               fontWeight: 800,
               letterSpacing: '-0.02em',
-              color: '#ffffff',
+              color: 'var(--color-text-primary)',
               margin: '0 0 0.35rem 0',
               lineHeight: 1.15
             }}>
               Assessment Studio
             </h1>
-            <p style={{ fontSize: '0.85rem', color: '#94A3B8', margin: 0, lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', margin: 0, lineHeight: 1.5 }}>
               Generate authentic Cambridge Primary checkpoint questions
             </p>
           </div>
@@ -543,13 +543,13 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
           
           {/* LEFT CONTROLS PANEL */}
           <div style={{
-            background: '#0F172A', border: '1px solid #1E293B',
+            background: 'var(--color-surface)', border: '1px solid var(--color-surface-border)',
             borderRadius: 16, padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem',
             position: 'sticky', top: '1rem', boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingBottom: '0.65rem', borderBottom: '1px solid #1E293B' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingBottom: '0.65rem', borderBottom: '1px solid var(--color-surface-border)' }}>
               <Sliders size={16} color="#38BDF8" />
-              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.92rem', fontWeight: 700, color: '#F8FAFC' }}>
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.92rem', fontWeight: 700, color: 'var(--color-text-primary)' }}>
                 Curriculum Parameters
               </span>
             </div>
@@ -565,10 +565,10 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                   onChange={(e) => setAiModel(e.target.value)}
                   className="qg-select"
                 >
-                  <option value="gemini-3.6-flash" style={{ background: '#0F172A', color: '#F8FAFC' }}>Gemini 3.6 Flash (Recommended Active Fast)</option>
-                  <option value="gemini-3.1-pro-preview" style={{ background: '#0F172A', color: '#F8FAFC' }}>Gemini 3.1 Pro (Recommended High Reasoning)</option>
-                  <option value="gemini-3.5-flash" style={{ background: '#0F172A', color: '#F8FAFC' }}>Gemini 3.5 Flash</option>
-                  <option value="gemini-flash-latest" style={{ background: '#0F172A', color: '#F8FAFC' }}>Gemini Flash Latest</option>
+                  <option value="gemini-3.6-flash" style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}>Gemini 3.6 Flash (Recommended Active Fast)</option>
+                  <option value="gemini-3.1-pro-preview" style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}>Gemini 3.1 Pro (Recommended High Reasoning)</option>
+                  <option value="gemini-3.5-flash" style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}>Gemini 3.5 Flash</option>
+                  <option value="gemini-flash-latest" style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}>Gemini Flash Latest</option>
                 </select>
               </div>
             )}
@@ -576,7 +576,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
             {/* Grade Selection */}
             {!isStudent && (
               <div>
-                <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
+                <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '0.4rem', display: 'block' }}>
                   Select Grade
                 </label>
                 <select
@@ -584,18 +584,18 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                   onChange={(e) => setStage(e.target.value)}
                   className="qg-select"
                 >
-                  <option value="Stage 2" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 1 (Stage 2)</option>
-                  <option value="Stage 3" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 2 (Stage 3)</option>
-                  <option value="Stage 4" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 3 (Stage 4)</option>
-                  <option value="Stage 5" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 4 (Stage 5)</option>
-                  <option value="Stage 6" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 5 (Stage 6)</option>
+                  <option value="Stage 2" style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}>Grade 1 (Stage 2)</option>
+                  <option value="Stage 3" style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}>Grade 2 (Stage 3)</option>
+                  <option value="Stage 4" style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}>Grade 3 (Stage 4)</option>
+                  <option value="Stage 5" style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}>Grade 4 (Stage 5)</option>
+                  <option value="Stage 6" style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}>Grade 5 (Stage 6)</option>
                 </select>
               </div>
             )}
 
             {/* Subject */}
             <div>
-              <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
+              <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '0.4rem', display: 'block' }}>
                 Subject
               </label>
               <select
@@ -615,12 +615,12 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                 }}
                 className="qg-select"
               >
-                <option value="Mathematics" style={{ background: '#0F172A', color: '#F8FAFC' }}>Mathematics</option>
-                <option value="Science" style={{ background: '#0F172A', color: '#F8FAFC' }}>Science</option>
-                <option value="English" style={{ background: '#0F172A', color: '#F8FAFC' }}>English</option>
+                <option value="Mathematics" style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}>Mathematics</option>
+                <option value="Science" style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}>Science</option>
+                <option value="English" style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}>English</option>
                 {filteredSubjects.map(s => (
                   !['mathematics', 'science', 'english'].includes(s.name.toLowerCase()) && (
-                    <option key={s.id} value={s.name} style={{ background: '#0F172A', color: '#F8FAFC' }}>{s.name}</option>
+                    <option key={s.id} value={s.name} style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}>{s.name}</option>
                   )
                 ))}
               </select>
@@ -628,7 +628,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
 
             {/* Topic / Strand */}
             <div>
-              <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
+              <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '0.4rem', display: 'block' }}>
                 Curriculum Strand / Topic Name
               </label>
               <select
@@ -648,7 +648,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
               >
                 {topics && topics.length > 0 ? (
                   topics.map(t => (
-                    <option key={t.id} value={t.id} style={{ background: '#0F172A', color: '#F8FAFC' }}>{t.name}</option>
+                    <option key={t.id} value={t.id} style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}>{t.name}</option>
                   ))
                 ) : (
                   (selectedSubjectName.toLowerCase().includes('math')
@@ -657,7 +657,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                     ? DEFAULT_STRANDS_BY_SUBJECT.science
                     : DEFAULT_STRANDS_BY_SUBJECT.english
                   ).map(strand => (
-                    <option key={strand} value={strand} style={{ background: '#0F172A', color: '#F8FAFC' }}>{strand}</option>
+                    <option key={strand} value={strand} style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}>{strand}</option>
                   ))
                 )}
               </select>
@@ -667,7 +667,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
             <div style={{ display: 'grid', gridTemplateColumns: hideAdvancedOptions ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-                  <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8' }}>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text-secondary)' }}>
                     Count
                   </label>
                   <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#38BDF8' }}>
@@ -685,7 +685,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
               </div>
               {!hideAdvancedOptions && (
                 <div>
-                  <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '0.4rem', display: 'block' }}>
                     Format
                   </label>
                   <select
@@ -693,10 +693,10 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                     onChange={(e) => setQuestionType(e.target.value)}
                     className="qg-select"
                   >
-                    <option value="fill_in_lines" style={{ background: '#0F172A', color: '#F8FAFC' }}>Authentic Fill-in Lines (Paper Structure)</option>
-                    <option value="mcq" style={{ background: '#0F172A', color: '#F8FAFC' }}>MCQ (Options)</option>
-                    <option value="short_answer" style={{ background: '#0F172A', color: '#F8FAFC' }}>Short Answer</option>
-                    <option value="mixed" style={{ background: '#0F172A', color: '#F8FAFC' }}>Mixed</option>
+                    <option value="fill_in_lines" style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}>Authentic Fill-in Lines (Paper Structure)</option>
+                    <option value="mcq" style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}>MCQ (Options)</option>
+                    <option value="short_answer" style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}>Short Answer</option>
+                    <option value="mixed" style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)' }}>Mixed</option>
                   </select>
                 </div>
               )}
@@ -704,7 +704,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
 
             {/* Difficulty */}
             <div>
-              <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
+              <label style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text-secondary)', marginBottom: '0.4rem', display: 'block' }}>
                 Difficulty Level
               </label>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.4rem' }}>
@@ -716,9 +716,9 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                     style={{
                       padding: '0.45rem 0.2rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700,
                       textTransform: 'capitalize', border: '1px solid', cursor: 'pointer', transition: 'all 0.15s',
-                      background: difficulty === d ? '#2563EB' : '#1E293B',
+                      background: difficulty === d ? '#2563EB' : 'var(--color-surface-border)',
                       borderColor: difficulty === d ? '#3B82F6' : '#334155',
-                      color: difficulty === d ? '#FFFFFF' : '#94A3B8'
+                      color: difficulty === d ? '#FFFFFF' : 'var(--color-text-secondary)'
                     }}
                   >
                     {d}
@@ -769,7 +769,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
               {/* TOP BAR ACTION & NOTEBOOKLM CAROUSEL TOGGLE */}
               {generatedQuestions.length > 0 && (
                 <div style={{
-                  background: 'rgba(15, 22, 41, 0.85)', border: '1px solid rgba(255, 255, 255, 0.08)',
+                  background: 'var(--color-surface)', border: '1px solid rgba(255, 255, 255, 0.08)',
                   borderRadius: 18, padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   backdropFilter: 'blur(16px)', flexWrap: 'wrap', gap: '1rem'
                 }}>
@@ -865,7 +865,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
               {/* QUESTIONS DISPLAY AREA */}
               {generatedQuestions.length === 0 ? (
                 <div style={{
-                  background: 'rgba(15, 22, 41, 0.5)', border: '1px border-dashed rgba(255, 255, 255, 0.1)',
+                  background: 'var(--color-surface)', border: '1px border-dashed rgba(255, 255, 255, 0.1)',
                   borderRadius: 20, padding: '4rem 2rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem'
                 }}>
                   <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(0,212,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -885,7 +885,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                   {viewMode === 'carousel' && (
                     <div style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      background: 'rgba(15, 22, 41, 0.75)', border: '1px solid rgba(255, 255, 255, 0.08)',
+                      background: 'var(--color-surface)', border: '1px solid rgba(255, 255, 255, 0.08)',
                       borderRadius: 16, padding: '0.85rem 1.5rem', backdropFilter: 'blur(12px)'
                     }}>
                       <button
@@ -957,8 +957,8 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.2 }}
                         style={{
-                          background: '#FAF7F2',
-                          color: '#1C1917',
+                          background: 'var(--color-surface-card)',
+                          color: 'var(--color-text-primary)',
                           border: isSelected ? '2.5px solid #00D4FF' : '1px solid #E5DFD3',
                           borderRadius: 16,
                           padding: '1.75rem 2.25rem',
@@ -973,7 +973,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                         {/* EXAM PAPER SHEET HEADER */}
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontFamily: 'Inter, sans-serif', borderBottom: '1px solid #ECE5D8', paddingBottom: '0.75rem' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                            <span style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1C1917', letterSpacing: '-0.01em' }}>
+                            <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text-primary)', letterSpacing: '-0.01em' }}>
                               Question {q.question_number || (idx + 1)}
                             </span>
                             <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', color: '#0369A1', background: '#E0F2FE', padding: '0.2rem 0.55rem', borderRadius: 6 }}>
@@ -995,7 +995,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                         </div>
 
                         {/* MAIN QUESTION STATEMENT */}
-                        <div style={{ fontSize: '1.05rem', fontWeight: 600, color: '#1C1917', lineHeight: 1.6 }}>
+                        <div style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--color-text-primary)', lineHeight: 1.6 }}>
                           {q.main_instruction || q.question_text || q.title}
                         </div>
 
@@ -1005,7 +1005,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                             {q.sub_parts.map((sp, spIdx) => (
                               <div key={spIdx} style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                                 <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '1rem', fontSize: '1.02rem' }}>
-                                  <div style={{ display: 'flex', gap: '0.6rem', color: '#1C1917' }}>
+                                  <div style={{ display: 'flex', gap: '0.6rem', color: 'var(--color-text-primary)' }}>
                                     <span style={{ fontWeight: 700 }}>{sp.label}</span>
                                     <span>{sp.text}</span>
                                   </div>

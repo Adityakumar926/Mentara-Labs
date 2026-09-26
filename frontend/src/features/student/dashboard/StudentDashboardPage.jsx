@@ -43,7 +43,7 @@ const CSS = `
     --violet:   #7C3AED;
     --violet-l: #8B5CF6;
     --cyan:     #0284C7;
-    --cream:    #0F172A;
+    --cream:    var(--color-surface);
     --muted:    #64748B;
     --card-bg:  #FFFFFF;
     --card-bdr: #E2E8F0;
@@ -937,10 +937,10 @@ export default function StudentDashboardPage() {
     if (!imageUrl) return;
     const PALETTE_COLORS = [
       '#1a1a1a','#EF4444','#F97316','#EAB308',
-      '#22C55E','#3B82F6','#8B5CF6','#EC4899','#ffffff',
+      '#22C55E','#3B82F6','#8B5CF6','#EC4899','var(--color-text-primary)',
     ];
     const swatchesHtml = PALETTE_COLORS.map((c, i) =>
-      `<button class="swatch${i === 0 ? ' active' : ''}" data-color="${c}" style="background:${c};${c === '#ffffff' ? 'border:2px solid rgba(255,255,255,0.3)' : ''}" title="${c}"></button>`
+      `<button class="swatch${i === 0 ? ' active' : ''}" data-color="${c}" style="background:${c};${c === 'var(--color-text-primary)' ? 'border:2px solid rgba(255,255,255,0.3)' : ''}" title="${c}"></button>`
     ).join('');
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -1788,14 +1788,14 @@ export default function StudentDashboardPage() {
               Unlock "{premiumModalContent?.title}"
             </h3>
 
-            <p style={{ fontSize: '0.88rem', color: '#94A3B8', lineHeight: 1.5, marginBottom: '1.5rem', fontWeight: 600 }}>
+            <p style={{ fontSize: '0.88rem', color: 'var(--color-text-secondary)', lineHeight: 1.5, marginBottom: '1.5rem', fontWeight: 600 }}>
               This interactive {premiumModalContent?.content_type || 'learning resource'} is exclusive to Mentara VIP Premium members. Upgrade your account to unlock all worksheets, mock papers, 3D labs, and AI Voice Tutor! 🚀
             </p>
 
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
               <button
                 onClick={() => setPremiumModalContent(null)}
-                style={{ padding: '0.65rem 1.2rem', borderRadius: '12px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#94A3B8', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer' }}
+                style={{ padding: '0.65rem 1.2rem', borderRadius: '12px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'var(--color-text-secondary)', fontSize: '0.85rem', fontWeight: 700, cursor: 'pointer' }}
               >
                 Close
               </button>
