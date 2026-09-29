@@ -1072,7 +1072,7 @@ function SubjectsGrid() {
 function Testimonials() {
   const TESTIMONIAL_DATA = [
     {
-      quote: "Fractions were always difficult for my son. The visual practice on Mentara has helped him understand them better.",
+      quote: "My son used to really struggle with math and science topics, but the visual practice and simulations on Mentara Labs helped him understand everything so easily!",
       name: "Aanya Sharma",
       role: "Parent",
       img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=250&q=80",
@@ -1084,10 +1084,10 @@ function Testimonials() {
       img: "/mahesh_prasad.png",
     },
     {
-      quote: "The 3D science labs make some topics easier to understand. I like being able to move things around and see what happens.",
-      name: "Liang Wei",
+      quote: "I really like Mentara Labs It makes learning fun and easy. The games and simulations help me understand things better. I enjoy using it for my studies! 😊",
+      name: "Janvi Singh",
       role: "Stage 5 Student",
-      img: "https://images.pexels.com/photos/8085257/pexels-photo-8085257.jpeg?auto=compress&cs=tinysrgb&w=250",
+      img: "/janvi_singh.png",
     },
   ];
 
