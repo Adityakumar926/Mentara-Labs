@@ -1072,11 +1072,20 @@ export default function CurriculumDetail() {
         const compiledHtml = isFullDocument
           ? f.html_part.trim()
           : compileHtmlContent(f.html_part, f.css_part, f.js_part, f.json_part);
+
+        const isStudyAdventure = f.target_tab === 'notes' || f.target_tab === 'study_adventure';
+        let finalHtml = compiledHtml;
+        if (isStudyAdventure && !finalHtml.includes('METADATA:target_tab=notes')) {
+          finalHtml = `<!-- METADATA:target_tab=notes -->\n` + finalHtml;
+        } else if (!isStudyAdventure) {
+          finalHtml = finalHtml.replace(/<!--\s*METADATA:target_tab=notes\s*-->\n?/gi, '');
+        }
+
         const animBody = {
           title: f.title,
-          html_content: compiledHtml,
+          html_content: finalHtml,
           is_premium: f.is_premium,
-          target_tab: f.target_tab || 'simulators',
+          target_tab: isStudyAdventure ? 'notes' : 'simulators',
           animation_id: editingContent ? editingContent.animation_id : undefined
         };
         const animRes = await adminApi.upsertAnimation(animBody);
@@ -1088,7 +1097,7 @@ export default function CurriculumDetail() {
           animation_id: savedAnim.id,
           is_premium: f.is_premium,
           destination: f.destination,
-          target_tab: f.target_tab || 'simulators',
+          target_tab: isStudyAdventure ? 'notes' : 'simulators',
         };
         if (editingContent) {
           await adminApi.updateContent(editingContent.id, body);
@@ -1531,7 +1540,10 @@ export default function CurriculumDetail() {
                 <Select
                   label="Display Column / Section"
                   value={contentForm.target_tab || 'simulators'}
-                  onChange={(e) => setContentForm({ ...contentForm, target_tab: e.target.value })}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setContentForm(prev => ({ ...prev, target_tab: val }));
+                  }}
                 >
                   <option value="simulators">🎮 Play Simulators (Default)</option>
                   <option value="notes">📖 Study Adventure</option>
@@ -1874,15 +1886,15 @@ function TopicContentPanel({ topicId, contentRefreshKey, onEditContent, onDelete
                   <span 
                     className="px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase border"
                     style={{
-                      background: (c.target_tab === 'notes' || c.target_tab === 'study_adventure') ? 'rgba(6,182,212,0.1)' : 'rgba(16,185,129,0.1)',
-                      borderColor: (c.target_tab === 'notes' || c.target_tab === 'study_adventure') ? 'rgba(6,182,212,0.3)' : 'rgba(16,185,129,0.3)',
-                      color: (c.target_tab === 'notes' || c.target_tab === 'study_adventure') ? 'var(--cyan)' : '#10B981',
+                      background: (c.target_tab === 'notes' || c.target_tab === 'study_adventure' || c.html_content?.includes('target_tab=notes')) ? 'rgba(6,182,212,0.1)' : 'rgba(16,185,129,0.1)',
+                      borderColor: (c.target_tab === 'notes' || c.target_tab === 'study_adventure' || c.html_content?.includes('target_tab=notes')) ? 'rgba(6,182,212,0.3)' : 'rgba(16,185,129,0.3)',
+                      color: (c.target_tab === 'notes' || c.target_tab === 'study_adventure' || c.html_content?.includes('target_tab=notes')) ? 'var(--cyan)' : '#10B981',
                       fontSize: '8px',
                       fontWeight: 800,
                       letterSpacing: '0.04em'
                     }}
                   >
-                    {(c.target_tab === 'notes' || c.target_tab === 'study_adventure') ? '📖 Study Adv' : '🎮 Play Sim'}
+                    {(c.target_tab === 'notes' || c.target_tab === 'study_adventure' || c.html_content?.includes('target_tab=notes')) ? '📖 Study Adv' : '🎮 Play Sim'}
                   </span>
                 )}
                 {c.is_premium && <span className="cd-premium-tag" title="Premium"><Lock size={11} /></span>}

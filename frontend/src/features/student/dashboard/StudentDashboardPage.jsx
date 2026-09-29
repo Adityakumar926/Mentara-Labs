@@ -1108,11 +1108,11 @@ export default function StudentDashboardPage() {
   const notesAndVideos = safeItems.filter(c => 
     c.content_type === 'note' || 
     c.content_type === 'video' ||
-    ((c.content_type === 'animation' || c.content_type === 'simulator' || c.content_type === 'simulation' || Boolean(c.animation_id)) && (c.target_tab === 'notes' || c.target_tab === 'study_adventure'))
+    ((c.content_type === 'animation' || c.content_type === 'simulator' || c.content_type === 'simulation' || Boolean(c.animation_id)) && (c.target_tab === 'notes' || c.target_tab === 'study_adventure' || c.html_content?.includes('target_tab=notes')))
   );
   const simulators = safeItems.filter(c => 
     (c.content_type === 'animation' || c.content_type === 'simulator' || c.content_type === 'simulation' || Boolean(c.animation_id)) && 
-    c.target_tab !== 'notes' && c.target_tab !== 'study_adventure'
+    c.target_tab !== 'notes' && c.target_tab !== 'study_adventure' && !c.html_content?.includes('target_tab=notes')
   );
   const worksheets = safeItems.filter(c => c.content_type === 'worksheet');
 
