@@ -230,7 +230,14 @@ exports.getTopicContent = async (req, res) => {
       [topicId, isPremium, req.user.id, destination]
     );
 
-    // Fetch direct animations from animations table for subject/topic
+    // Fetch animations from animations table that are NOT already represented
+    // in the content table for this topic cluster. This prevents duplicate
+    // entries where the content.target_tab (authoritative) gets shadowed by
+    // an animations.target_tab that may be stale or null.
+    const contentAnimIds = contentRows
+      .filter(c => c.animation_id)
+      .map(c => c.animation_id);
+
     const { rows: animRows } = await db.query(
       `SELECT
          a.id,
@@ -248,14 +255,26 @@ exports.getTopicContent = async (req, res) => {
        WHERE (
          a.subject_id = (SELECT subject_id FROM topics WHERE id = $1)
          OR a.subject_id IN (SELECT id FROM subjects WHERE LOWER(name) = (SELECT LOWER(name) FROM subjects WHERE id = (SELECT subject_id FROM topics WHERE id = $1)))
+       )
+       -- Only include animations NOT already tracked via a content row for this topic
+       AND NOT EXISTS (
+         SELECT 1 FROM content c2
+         WHERE c2.animation_id = a.id
+           AND (
+             c2.topic_id = $1
+             OR c2.topic_id IN (SELECT id FROM topics WHERE parent_topic_id = $1)
+             OR c2.topic_id = (SELECT parent_topic_id FROM topics WHERE id = $1)
+           )
        )`,
       [topicId]
     );
 
+    // Merge: contentRows are authoritative (correct target_tab from content table).
+    // animRows only adds truly orphaned animations not linked via any content row.
     const mergedItems = [...contentRows];
     animRows.forEach(anim => {
-      const exists = mergedItems.some(c => 
-        (c.animation_id && c.animation_id === anim.id) || 
+      const exists = mergedItems.some(c =>
+        (c.animation_id && c.animation_id === anim.id) ||
         (c.id === anim.id) ||
         (c.title?.toLowerCase() === anim.title?.toLowerCase() && c.content_type === 'animation')
       );

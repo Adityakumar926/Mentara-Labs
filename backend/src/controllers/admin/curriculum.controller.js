@@ -604,6 +604,16 @@ exports.addContent = async (req, res) => {
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
       [topic_id, title, content_type, animation_id, is_premium, orderRows[0].next_order, targetDestination, assignedTab]
     );
+
+    // Sync animations.target_tab to match content.target_tab so both tables stay consistent.
+    // This prevents the student dashboard fallback query from using a stale animations.target_tab.
+    if (animation_id) {
+      await db.query(
+        `UPDATE animations SET target_tab = $1 WHERE id = $2`,
+        [assignedTab, animation_id]
+      );
+    }
+
     res.status(201).json({ success: true, data: rows[0] });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -631,8 +641,10 @@ exports.updateContent = async (req, res) => {
       params.push(order_index);
       updates.push(`order_index = $${params.length}`);
     }
+
+    let assignedTab;
     if (target_tab !== undefined) {
-      const assignedTab = (target_tab === 'notes' || target_tab === 'study_adventure') ? 'notes' : 'simulators';
+      assignedTab = (target_tab === 'notes' || target_tab === 'study_adventure') ? 'notes' : 'simulators';
       params.push(assignedTab);
       updates.push(`target_tab = $${params.length}`);
     }
@@ -647,11 +659,23 @@ exports.updateContent = async (req, res) => {
 
     const { rows } = await db.query(query, params);
     if (!rows[0]) return res.status(404).json({ success: false, message: 'Content not found' });
+
+    // Sync animations.target_tab whenever content.target_tab changes.
+    // This keeps both tables consistent and prevents the student dashboard from
+    // picking up a stale target_tab from the animations table via the fallback query.
+    if (assignedTab !== undefined && rows[0].animation_id) {
+      await db.query(
+        `UPDATE animations SET target_tab = $1 WHERE id = $2`,
+        [assignedTab, rows[0].animation_id]
+      );
+    }
+
     res.json({ success: true, data: rows[0] });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
 
 // ─── CONTENT — DELETE ─────────────────────────────────────────────────────────
 
