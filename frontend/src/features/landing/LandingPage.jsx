@@ -1078,10 +1078,10 @@ function Testimonials() {
       img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=250&q=80",
     },
     {
-      quote: "The mock exams are pretty close to the real format. My daughter felt more prepared going into her Checkpoint.",
-      name: "Marcus Hale",
+      quote: "The mock test was really helpful and i personaly like the simulations provided in this platform.",
+      name: "Mahesh Prasad",
       role: "Parent",
-      img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=250&q=80",
+      img: "/mahesh_prasad.png",
     },
     {
       quote: "The 3D science labs make some topics easier to understand. I like being able to move things around and see what happens.",
