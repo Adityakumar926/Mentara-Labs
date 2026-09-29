@@ -4,8 +4,17 @@ const isLocal = !process.env.DATABASE_URL ||
   process.env.DATABASE_URL.includes('localhost') ||
   process.env.DATABASE_URL.includes('127.0.0.1');
 
+let connectionString = process.env.DATABASE_URL;
+
+// Automatically map Supabase direct connection to IPv4 pooler host to prevent local IPv6 connection timeouts
+if (connectionString && connectionString.includes('db.nphplkhrqtvgizzbsbqw.supabase.co')) {
+  connectionString = connectionString
+    .replace('db.nphplkhrqtvgizzbsbqw.supabase.co:5432', 'aws-1-ap-northeast-2.pooler.supabase.com:6543')
+    .replace('://postgres:', '://postgres.nphplkhrqtvgizzbsbqw:');
+}
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString,
   ssl: isLocal ? false : { rejectUnauthorized: false },
   max: 10,
   idleTimeoutMillis: 60000,        // keep idle connections for 60s
