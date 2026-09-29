@@ -1105,14 +1105,25 @@ export default function StudentDashboardPage() {
   const rawFullName = user?.full_name || profile?.full_name;
   const firstName = typeof rawFullName === 'string' ? rawFullName.trim().split(' ')[0] : 'Learner';
 
+  const isStudyAdvItem = (c) => {
+    if (c.target_tab === 'notes' || c.target_tab === 'study_adventure') return true;
+    if (c.html_content && typeof c.html_content === 'string') {
+      const hc = c.html_content.toLowerCase();
+      if (hc.includes('target_tab=notes') || hc.includes('target_tab:notes') || hc.includes('target_tab="notes"') || hc.includes('study_adventure')) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   const notesAndVideos = safeItems.filter(c => 
     c.content_type === 'note' || 
     c.content_type === 'video' ||
-    ((c.content_type === 'animation' || c.content_type === 'simulator' || c.content_type === 'simulation' || Boolean(c.animation_id)) && (c.target_tab === 'notes' || c.target_tab === 'study_adventure' || c.html_content?.includes('target_tab=notes')))
+    ((c.content_type === 'animation' || c.content_type === 'simulator' || c.content_type === 'simulation' || Boolean(c.animation_id)) && isStudyAdvItem(c))
   );
   const simulators = safeItems.filter(c => 
     (c.content_type === 'animation' || c.content_type === 'simulator' || c.content_type === 'simulation' || Boolean(c.animation_id)) && 
-    c.target_tab !== 'notes' && c.target_tab !== 'study_adventure' && !c.html_content?.includes('target_tab=notes')
+    !isStudyAdvItem(c)
   );
   const worksheets = safeItems.filter(c => c.content_type === 'worksheet');
 

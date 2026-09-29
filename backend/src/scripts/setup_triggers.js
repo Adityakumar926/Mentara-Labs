@@ -1,5 +1,5 @@
 require('dotenv').config();
-const db = require('./src/config/db');
+const db = require('../config/db');
 
 async function setupTriggers() {
   try {
