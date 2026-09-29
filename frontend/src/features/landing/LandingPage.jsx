@@ -1072,9 +1072,9 @@ function SubjectsGrid() {
 function Testimonials() {
   const TESTIMONIAL_DATA = [
     {
-      quote: "My son used to really struggle with math and science topics, but the visual practice and simulations on Mentara Labs helped him understand everything so easily!",
+      quote: "The Platform is really intractive and as a teacher from this platform i am able to make classrooms also.",
       name: "Aanya Sharma",
-      role: "Parent",
+      role: "Teacher",
       img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=250&q=80",
     },
     {
