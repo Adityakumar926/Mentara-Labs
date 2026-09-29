@@ -219,10 +219,12 @@ exports.getTopicContent = async (req, res) => {
          CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.file_url          END AS file_url,
          CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.mux_playback_id   END AS mux_playback_id,
          c.animation_id AS animation_id,
-         COALESCE(c.target_tab, 'simulators') AS target_tab,
+         COALESCE(c.target_tab, a.target_tab, 'simulators') AS target_tab,
+         CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE a.html_content      END AS html_content,
          up.completed AS is_completed,
          up.video_progress
        FROM content c
+       LEFT JOIN animations a ON a.id = c.animation_id
        LEFT JOIN user_progress up ON up.content_id = c.id AND up.user_id = $3
        WHERE (c.topic_id = $1 OR c.topic_id IN (SELECT id FROM topics WHERE parent_topic_id = $1) OR c.topic_id = (SELECT parent_topic_id FROM topics WHERE id = $1))
          AND (c.destination IS NULL OR c.destination IN ('shared', $4))
@@ -250,7 +252,8 @@ exports.getTopicContent = async (req, res) => {
          a.id AS animation_id,
          false AS is_completed,
          0 AS video_progress,
-         COALESCE(a.target_tab, 'simulators') AS target_tab
+         COALESCE(a.target_tab, 'simulators') AS target_tab,
+         a.html_content
        FROM animations a
        WHERE (
          a.subject_id = (SELECT subject_id FROM topics WHERE id = $1)
@@ -579,12 +582,14 @@ exports.getExploreContents = async (req, res) => {
               CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.file_url          END AS file_url,
               CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.mux_playback_id   END AS mux_playback_id,
               CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.animation_id      END AS animation_id,
-              COALESCE(c.target_tab, 'simulators') AS target_tab,
+              COALESCE(c.target_tab, a.target_tab, 'simulators') AS target_tab,
+              CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE a.html_content      END AS html_content,
               up.completed AS is_completed
        FROM content c
        JOIN topics t ON t.id = c.topic_id
        JOIN subjects s ON s.id = t.subject_id
        JOIN classes cl ON cl.id = s.class_id
+       LEFT JOIN animations a ON a.id = c.animation_id
        LEFT JOIN user_progress up ON up.content_id = c.id AND up.user_id = $3
        WHERE ($5::boolean = true OR s.class_id = $1) AND c.destination IN ('shared', $4)
        ORDER BY s.order_index, t.order_index, c.order_index`,
