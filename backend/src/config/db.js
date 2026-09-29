@@ -23,6 +23,13 @@ const pool = new Pool({
   keepAliveInitialDelayMillis: 10000,
 });
 
+// Prevent Node from crashing if cloud/Supabase drops a TCP socket connection unexpectedly
+pool.on('connect', (client) => {
+  client.on('error', (err) => {
+    console.error('[DB Client] Socket error — pool will reconnect automatically:', err.message);
+  });
+});
+
 // Do NOT crash the server on connection drop — let the pool reconnect automatically
 pool.on('error', (err, client) => {
   console.error('[DB] Idle client error — pool will reconnect automatically:', err.message);
