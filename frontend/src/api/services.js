@@ -190,7 +190,7 @@ export const studentApi = {
   markAllNotificationsRead: ()       => api.patch('/student/notifications/read-all'),
 
   // Exams
-  startExam:       (examId)                     => api.post(`/student/exams/${examId}/start`),
+  startExam:       (examId, data)               => api.post(`/student/exams/${examId}/start`, data),
   getExamQuestions:(examId)                     => api.get(`/student/exams/${examId}/questions`),
   saveAnswer:      (examId, submissionId, data) => api.post(`/student/exams/${examId}/submissions/${submissionId}/answers`, data),
   savePhotoAnswer: (examId, submissionId, questionId, file) => {

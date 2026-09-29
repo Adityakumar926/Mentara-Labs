@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Clock, ChevronLeft, ChevronRight, Send, AlertTriangle, Maximize2, Minimize2, Paintbrush, Slash, Eraser, Undo2, Redo2, RefreshCw, Loader2, Volume2 } from 'lucide-react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { Clock, ChevronLeft, ChevronRight, Send, AlertTriangle, Maximize2, Minimize2, Paintbrush, Slash, Eraser, Undo2, Redo2, RefreshCw, Loader2, Volume2, CheckCircle, RotateCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button, Modal } from '@/components/ui';
 import { studentApi } from '@/api/services';
@@ -1101,6 +1101,9 @@ function StructureCanvas({ imageUrl, strokes = [], onChange }) {
 export default function ExamTakePage() {
   const { id: examId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isRetake = searchParams.get('retake') === 'true';
+
   const authUser = useAuthStore((s) => s.user);
   const user = authUser || (() => {
     try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch { return null; }
@@ -1189,7 +1192,7 @@ export default function ExamTakePage() {
 
     (async () => {
       try {
-        const startRes = await studentApi.startExam(examId);
+        const startRes = await studentApi.startExam(examId, isRetake ? { forceReset: true } : {});
         if (!isMounted) return;
 
         const startData = startRes.data?.data ?? startRes.data ?? {};
@@ -1206,6 +1209,12 @@ export default function ExamTakePage() {
         if (!isMounted) return;
 
         const qData = qRes.data?.data ?? qRes.data ?? {};
+
+        if (qRes.data?.already_submitted || qData.already_submitted) {
+          setPhase('already_submitted');
+          return;
+        }
+
         const rawQs = Array.isArray(qData.questions) ? qData.questions : Array.isArray(qData) ? qData : [];
 
         const fetchedQuestions = rawQs.map((q) => {
@@ -1227,14 +1236,23 @@ export default function ExamTakePage() {
 
         setQuestions(fetchedQuestions);
         
-        // Initialize answers state from database
+        // Initialize answers state and drawing strokes from database
         const initialAnswers = {};
+        const initialStrokes = {};
         fetchedQuestions.forEach(q => {
           if (q.student_answer !== undefined && q.student_answer !== null) {
             initialAnswers[q.id] = q.student_answer;
           }
+          if (q.drawing_data) {
+            try {
+              initialStrokes[q.id] = typeof q.drawing_data === 'string' ? JSON.parse(q.drawing_data) : q.drawing_data;
+            } catch (e) {
+              initialStrokes[q.id] = [];
+            }
+          }
         });
         setAnswers(initialAnswers);
+        setCanvasStrokes(initialStrokes);
 
         setPhase('taking');
       } catch (err) {
@@ -1250,22 +1268,62 @@ export default function ExamTakePage() {
     return () => {
       isMounted = false;
     };
-  }, [examId, navigate, user]);
+  }, [examId, navigate, user, isRetake]);
 
   useEffect(() => {
     if (expired && phase === 'taking') handleSubmit(true);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expired]);
 
-  const saveAnswer = useCallback(async (questionId, answer) => {
+  const saveAnswerAndStrokes = useCallback(async (questionId, answer, strokes) => {
     if (!submissionId) return;
-    try { await studentApi.saveAnswer(examId, submissionId, { question_id: questionId, answer }); } catch { /* silent */ }
+    try {
+      const payload = { question_id: questionId };
+      if (answer !== undefined) payload.answer = answer;
+      if (strokes !== undefined) payload.drawing_data = JSON.stringify(strokes);
+      await studentApi.saveAnswer(examId, submissionId, payload);
+    } catch { /* silent */ }
   }, [examId, submissionId]);
 
   const handleAnswer = (questionId, answer) => {
     setAnswers((p) => ({ ...p, [questionId]: answer }));
     clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => saveAnswer(questionId, answer), 800);
+    saveTimer.current = setTimeout(() => saveAnswerAndStrokes(questionId, answer, canvasStrokes[questionId]), 600);
+  };
+
+  const handleCanvasChange = (questionId, newStrokes) => {
+    setCanvasStrokes((p) => ({ ...p, [questionId]: newStrokes }));
+    clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => saveAnswerAndStrokes(questionId, answers[questionId], newStrokes), 600);
+  };
+
+  const handleRetakeExam = async () => {
+    try {
+      setPhase('loading');
+      const startRes = await studentApi.startExam(examId, { forceReset: true });
+      const startData = startRes.data?.data ?? startRes.data ?? {};
+      const sid = startData.submission_id;
+      const dl  = startData.deadline_at;
+      const st  = startData.server_time;
+      if (st) setServerOffset(new Date(st).getTime() - Date.now());
+      setSubmissionId(sid);
+      setDeadline(dl);
+      setCanvasStrokes({});
+      setAnswers({});
+
+      const qRes = await studentApi.getExamQuestions(examId);
+      const qData = qRes.data?.data ?? qRes.data ?? {};
+      const rawQs = Array.isArray(qData.questions) ? qData.questions : Array.isArray(qData) ? qData : [];
+      setQuestions(rawQs.map(q => ({
+        ...q,
+        options: typeof q.options === 'string' ? JSON.parse(q.options) : (q.options ?? [])
+      })));
+      setCurrent(0);
+      setPhase('taking');
+    } catch (err) {
+      toast.error(err.response?.data?.message ?? err.message ?? 'Could not restart exam');
+      setPhase('error');
+    }
   };
 
   const handleSubmit = async (auto = false) => {
@@ -1274,6 +1332,20 @@ export default function ExamTakePage() {
     setConfirmSubmit(false);
     setPhase('submitting');
     try {
+      // Final commit: save all canvas drawings and text answers to backend before submit
+      if (submissionId && questions.length > 0) {
+        for (const qItem of questions) {
+          const strokes = canvasStrokes[qItem.id];
+          const ans = answers[qItem.id];
+          if ((strokes && strokes.length > 0) || ans !== undefined) {
+            await studentApi.saveAnswer(examId, submissionId, {
+              question_id: qItem.id,
+              answer: ans ?? null,
+              drawing_data: strokes ? JSON.stringify(strokes) : null,
+            }).catch(() => {});
+          }
+        }
+      }
       await studentApi.submitExam(examId, submissionId);
       if (!auto) toast.success('Exam submitted!');
       navigate(`/exams/${examId}/result`);
@@ -1289,6 +1361,46 @@ export default function ExamTakePage() {
   const q        = questions[current];
   const isUrgent = remaining > 0 && remaining < 5 * 60 * 1000;
   const pct      = total > 0 ? (answered / total) * 100 : 0;
+
+  /* ── Already Submitted Screen ── */
+  if (phase === 'already_submitted') {
+    return (
+      <div className="take-root" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0F1629' }}>
+        <style>{CSS}</style>
+        <div style={{ maxWidth: '480px', width: '90%', padding: '2.5rem 2rem', background: '#0A0E1A', border: '2px solid rgba(255,255,255,0.08)', borderRadius: '28px', textAlign: 'center', backdropFilter: 'blur(20px)', boxShadow: '0 16px 40px rgba(0,0,0,0.3)' }}>
+          <div style={{ width: 68, height: 68, borderRadius: '50%', background: 'rgba(16, 185, 129, 0.15)', border: '2px solid rgba(16, 185, 129, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem', color: '#10B981' }}>
+            <CheckCircle size={36} />
+          </div>
+          <h2 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '1.45rem', fontWeight: 800, color: '#F5F0E8', marginBottom: '0.5rem' }}>
+            Exam Already Attempted
+          </h2>
+          <p style={{ fontSize: '0.88rem', color: 'rgba(245,240,232,0.6)', lineHeight: 1.6, marginBottom: '1.75rem', fontWeight: 500 }}>
+            You have already completed an attempt for this exam. Would you like to view your previous answers or appear again?
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            <button
+              type="button"
+              onClick={() => navigate(`/exams/${examId}/result`)}
+              className="take-nav-btn primary"
+              style={{ padding: '0.9rem 1.5rem', borderRadius: '14px', justifyContent: 'center', fontSize: '0.92rem', fontWeight: 800 }}
+            >
+              📑 Show My Answer
+            </button>
+
+            <button
+              type="button"
+              onClick={handleRetakeExam}
+              className="take-nav-btn outline"
+              style={{ padding: '0.9rem 1.5rem', borderRadius: '14px', justifyContent: 'center', fontSize: '0.92rem', fontWeight: 800 }}
+            >
+              🔄 Appear Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   /* ── Loading / Submitting screens ── */
   if (phase === 'loading') {
@@ -1460,12 +1572,12 @@ export default function ExamTakePage() {
                   </div>
                   {q.question_text && <p className="take-qtext">{q.question_text}</p>}
                   
-                  {/* Structure Question Canvas overlay with toolbox */}
-                  {q.question_type === 'photo' && q.image_url && (
+                  {/* Drawing Canvas (enabled whenever question image is present) */}
+                  {q.image_url && (
                     <StructureCanvas
                       imageUrl={q.image_url}
                       strokes={canvasStrokes[q.id] || []}
-                      onChange={(newStrokes) => setCanvasStrokes(p => ({ ...p, [q.id]: newStrokes }))}
+                      onChange={(newStrokes) => handleCanvasChange(q.id, newStrokes)}
                     />
                   )}
 

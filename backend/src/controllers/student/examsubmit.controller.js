@@ -46,11 +46,12 @@ exports.startExam = async (req, res) => {
     const newDeadline = new Date(Date.now() + durationMins * 60 * 1000).toISOString();
 
     let finalDeadline = newDeadline;
+    const forceReset = req.body?.forceReset || req.query?.forceReset;
 
     if (existing[0]) {
       const existingDeadline = existing[0].deadline_at ? new Date(existing[0].deadline_at).getTime() : 0;
-      // If previous deadline expired or status was submitted, reset timer for fresh time
-      if (existing[0].status === 'submitted' || existingDeadline < Date.now()) {
+      // If forceReset requested or previous deadline expired or status was submitted, reset timer for fresh attempt
+      if (forceReset || existing[0].status === 'submitted' || existingDeadline < Date.now()) {
         finalDeadline = newDeadline;
         await client.query(
           `UPDATE exam_submissions
@@ -100,7 +101,6 @@ exports.startExam = async (req, res) => {
 };
 
 // ─── GET EXAM QUESTIONS (for the student during attempt) ──────────────────────
-// Strips correct_answer and explanation before sending
 
 exports.getExamQuestions = async (req, res) => {
   try {
@@ -119,8 +119,14 @@ exports.getExamQuestions = async (req, res) => {
     if (!session[0] && !isTeacher)
       return res.status(403).json({ success: false, message: 'Start the exam before fetching questions' });
 
-    if (session[0]?.status === 'submitted' && !isTeacher)
-      return res.status(400).json({ success: false, message: 'Exam already submitted' });
+    if (session[0]?.status === 'submitted' && !isTeacher) {
+      return res.status(200).json({
+        success: true,
+        already_submitted: true,
+        message: 'Exam already submitted',
+        submission_id: session[0].id
+      });
+    }
 
     // Auto-submit if past deadline (only for regular students)
     if (session[0]?.deadline_at && new Date(session[0].deadline_at) < new Date() && !isTeacher) {
@@ -129,10 +135,15 @@ exports.getExamQuestions = async (req, res) => {
          WHERE id = $1`,
         [session[0].id]
       );
-      return res.status(400).json({ success: false, message: 'Time is up — your exam was auto-submitted' });
+      return res.status(200).json({
+        success: true,
+        already_submitted: true,
+        message: 'Time is up — your exam was auto-submitted',
+        submission_id: session[0].id
+      });
     }
 
-    // Questions without answers
+    // Questions with saved answers and drawing_data
     let { rows } = await db.query(
       `SELECT
          q.id,
@@ -143,12 +154,15 @@ exports.getExamQuestions = async (req, res) => {
          q.audio_url,
          q.difficulty,
          eq.marks,
-         eq.order_index
+         eq.order_index,
+         sa.answer AS student_answer,
+         sa.drawing_data AS drawing_data
        FROM exam_questions eq
        JOIN questions q ON q.id = eq.question_id
+       LEFT JOIN submission_answers sa ON sa.question_id = eq.question_id AND sa.submission_id = $2
        WHERE eq.exam_id = $1
        ORDER BY eq.order_index ASC, q.created_at ASC`,
-      [examId]
+      [examId, session[0].id]
     );
 
     if (rows.length === 0) {
@@ -182,12 +196,15 @@ exports.getExamQuestions = async (req, res) => {
                q.audio_url,
                q.difficulty,
                eq.marks,
-               eq.order_index
+               eq.order_index,
+               sa.answer AS student_answer,
+               sa.drawing_data AS drawing_data
              FROM exam_questions eq
              JOIN questions q ON q.id = eq.question_id
+             LEFT JOIN submission_answers sa ON sa.question_id = eq.question_id AND sa.submission_id = $2
              WHERE eq.exam_id = $1
              ORDER BY eq.order_index ASC, q.created_at ASC`,
-            [examId]
+            [examId, session[0].id]
           );
           rows = refetched;
         }
@@ -216,11 +233,11 @@ exports.getExamQuestions = async (req, res) => {
 exports.saveAnswer = async (req, res) => {
   try {
     const { submissionId } = req.params;
-    const { question_id, answer } = req.body;
+    const { question_id, answer, drawing_data } = req.body;
     const studentId = req.user.id;
 
-    if (!question_id || answer === undefined)
-      return res.status(400).json({ success: false, message: 'question_id and answer are required' });
+    if (!question_id || (answer === undefined && drawing_data === undefined))
+      return res.status(400).json({ success: false, message: 'question_id and (answer or drawing_data) are required' });
 
     // Verify ownership and active status
     const { rows: session } = await db.query(
@@ -238,13 +255,16 @@ exports.saveAnswer = async (req, res) => {
     if (session[0].deadline_at && new Date(session[0].deadline_at) < new Date())
       return res.status(400).json({ success: false, message: 'Time is up' });
 
-    // Upsert the answer
+    // Upsert answer & drawing_data
     await db.query(
-      `INSERT INTO submission_answers (submission_id, question_id, answer, saved_at)
-       VALUES ($1, $2, $3, NOW())
+      `INSERT INTO submission_answers (submission_id, question_id, answer, drawing_data, saved_at)
+       VALUES ($1, $2, $3, $4, NOW())
        ON CONFLICT (submission_id, question_id)
-       DO UPDATE SET answer = EXCLUDED.answer, saved_at = NOW()`,
-      [submissionId, question_id, answer]
+       DO UPDATE SET
+         answer = COALESCE(EXCLUDED.answer, submission_answers.answer),
+         drawing_data = COALESCE(EXCLUDED.drawing_data, submission_answers.drawing_data),
+         saved_at = NOW()`,
+      [submissionId, question_id, answer ?? null, drawing_data ?? null]
     );
 
     res.json({ success: true, message: 'Answer saved' });
@@ -527,9 +547,11 @@ exports.getMyResult = async (req, res) => {
          q.question_text,
          q.question_type,
          q.options,
+         q.image_url,
          q.correct_answer,
          q.explanation,
-         sa.answer   AS student_answer,
+         sa.answer       AS student_answer,
+         sa.drawing_data AS student_drawing_data,
          sa.is_correct,
          eq.marks
        FROM exam_questions eq

@@ -753,7 +753,7 @@ function HistoryTab({ history, loading, isFiltered }) {
                       </div>
                     )}
 
-                    <div className="exam-card-foot">
+                    <div className="exam-card-foot" style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
                       <span><Clock size={11} style={{ color: 'var(--cyan)' }} />{fmt(r.submitted_at)}</span>
                       {r.is_structure_only ? (
                         <span>Practice</span>
@@ -761,7 +761,42 @@ function HistoryTab({ history, loading, isFiltered }) {
                         <span>{r.score}/{r.total_marks ?? '-'} marks</span>
                       )}
                       {r.rank && !r.is_structure_only && <span style={{ color: 'var(--amber)' }}>Rank #{r.rank}</span>}
-                      <span className="exam-view-btn">View <ChevronRight size={12} /></span>
+                      
+                      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <Link 
+                          to={`/exams/${r.exam_id}/result`} 
+                          onClick={(e) => e.stopPropagation()}
+                          style={{
+                            padding: '0.3rem 0.65rem',
+                            borderRadius: '8px',
+                            background: 'rgba(34, 211, 238, 0.1)',
+                            border: '1px solid rgba(34, 211, 238, 0.3)',
+                            color: '#22d3ee',
+                            fontSize: '0.68rem',
+                            fontWeight: 700,
+                            textDecoration: 'none'
+                          }}
+                        >
+                          📑 Show Answer
+                        </Link>
+
+                        <Link 
+                          to={`/exams/${r.exam_id}/take?retake=true`} 
+                          onClick={(e) => e.stopPropagation()}
+                          style={{
+                            padding: '0.3rem 0.65rem',
+                            borderRadius: '8px',
+                            background: 'rgba(124, 58, 237, 0.15)',
+                            border: '1px solid rgba(167, 139, 250, 0.3)',
+                            color: '#a78bfa',
+                            fontSize: '0.68rem',
+                            fontWeight: 700,
+                            textDecoration: 'none'
+                          }}
+                        >
+                          🔄 Appear Again
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </Link>

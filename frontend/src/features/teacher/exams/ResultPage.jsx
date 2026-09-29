@@ -319,6 +319,108 @@ function Confetti() {
   );
 }
 
+const redraw = (ctx, width, height, strokeList) => {
+  ctx.clearRect(0, 0, width, height);
+  if (!Array.isArray(strokeList)) return;
+  strokeList.forEach(stroke => {
+    if (!stroke || !stroke.points) return;
+    ctx.beginPath();
+    ctx.strokeStyle = stroke.color || '#EF4444';
+    ctx.lineWidth = stroke.size || 4;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    if (stroke.type === 'freehand' || stroke.type === 'draw') {
+      if (stroke.points.length > 0) {
+        ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+        for (let i = 1; i < stroke.points.length; i++) {
+          ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+        }
+        ctx.stroke();
+      }
+    } else if (stroke.type === 'line') {
+      if (stroke.points.length >= 2) {
+        ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+        ctx.lineTo(stroke.points[1].x, stroke.points[1].y);
+        ctx.stroke();
+      }
+    } else if (stroke.type === 'erase') {
+      ctx.globalCompositeOperation = 'destination-out';
+      if (stroke.points.length > 0) {
+        ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+        for (let i = 1; i < stroke.points.length; i++) {
+          ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+        }
+        ctx.stroke();
+      }
+      ctx.globalCompositeOperation = 'source-over';
+    }
+  });
+};
+
+function ResultCanvas({ imageUrl, drawingData }) {
+  const imgRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
+
+  const strokes = useMemo(() => {
+    if (!drawingData) return [];
+    if (Array.isArray(drawingData)) return drawingData;
+    try { return JSON.parse(drawingData); } catch { return []; }
+  }, [drawingData]);
+
+  const handleImageLoad = () => {
+    if (!imgRef.current) return;
+    const rect = imgRef.current.getBoundingClientRect();
+    setCanvasSize({ width: rect.width, height: rect.height });
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (!imgRef.current) return;
+      const rect = imgRef.current.getBoundingClientRect();
+      setCanvasSize({ width: rect.width, height: rect.height });
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!canvasRef.current || canvasSize.width === 0) return;
+    const canvas = canvasRef.current;
+    if (canvas.width !== canvasSize.width) canvas.width = canvasSize.width;
+    if (canvas.height !== canvasSize.height) canvas.height = canvasSize.height;
+
+    const ctx = canvas.getContext('2d');
+    redraw(ctx, canvasSize.width, canvasSize.height, strokes);
+  }, [canvasSize, strokes]);
+
+  return (
+    <div style={{ position: 'relative', display: 'inline-block', maxWidth: '100%', borderRadius: '16px', overflow: 'hidden', border: '2px solid var(--card-bdr)', background: '#090D16' }}>
+      <img
+        ref={imgRef}
+        src={imageUrl}
+        alt="Question with saved drawing"
+        onLoad={handleImageLoad}
+        style={{ width: '100%', maxHeight: '480px', objectFit: 'contain', borderRadius: '14px', display: 'block' }}
+      />
+      {canvasSize.width > 0 && (
+        <canvas
+          ref={canvasRef}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: canvasSize.width,
+            height: canvasSize.height,
+            pointerEvents: 'none'
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
 /* ─── MAIN ─────────────────────────────────────────────────────────────────── */
 export default function ResultPage() {
   const { id: examId } = useParams();
@@ -624,15 +726,24 @@ export default function ResultPage() {
                       </div>
                     </div>
 
-                    {/* Image Display for Questions */}
+                    {/* Image & Saved Drawing Display for Questions */}
                     {q.image_url && (
-                      <div style={{ marginTop: '0.85rem', display: 'flex', justifyContent: 'center' }}>
-                        <img 
-                          src={q.image_url} 
-                          alt="Question illustration" 
-                          style={{ maxWidth: '100%', maxHeight: '240px', borderRadius: '12px', border: '2px solid var(--card-bdr)', display: 'block' }} 
-                          loading="lazy"
-                        />
+                      <div style={{ marginTop: '0.85rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                        {q.student_drawing_data ? (
+                          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--cyan)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.35rem' }}>
+                              🎨 Your Saved Drawing
+                            </div>
+                            <ResultCanvas imageUrl={q.image_url} drawingData={q.student_drawing_data} />
+                          </div>
+                        ) : (
+                          <img 
+                            src={q.image_url} 
+                            alt="Question illustration" 
+                            style={{ maxWidth: '100%', maxHeight: '240px', borderRadius: '12px', border: '2px solid var(--card-bdr)', display: 'block' }} 
+                            loading="lazy"
+                          />
+                        )}
                       </div>
                     )}
 
