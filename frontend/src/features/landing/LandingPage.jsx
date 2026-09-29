@@ -1075,7 +1075,7 @@ function Testimonials() {
       quote: "The Platform is really intractive and as a teacher from this platform i am able to make classrooms also.",
       name: "Aanya Sharma",
       role: "Teacher",
-      img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=250&q=80",
+      img: "/aanya_sharma.png",
     },
     {
       quote: "The mock test was really helpful and i personaly like the simulations provided in this platform.",
