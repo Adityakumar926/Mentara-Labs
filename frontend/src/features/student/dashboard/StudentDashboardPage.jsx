@@ -1552,9 +1552,9 @@ export default function StudentDashboardPage() {
                                 <div key={c.id} id={`resource-card-${c.id}`} className={`sd-resource-card ${highlightedItemId === c.id ? 'highlighted-voice-item' : ''}`}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                                     <div className="sd-res-icon-wrapper" style={{
-                                      background: isAnim ? 'rgba(16, 185, 129, 0.15)' : (c.content_type === 'video' ? 'rgba(139, 92, 246, 0.15)' : 'rgba(6, 182, 212, 0.15)')
+                                      background: isAnim ? 'rgba(6, 182, 212, 0.18)' : (c.content_type === 'video' ? 'rgba(139, 92, 246, 0.15)' : 'rgba(6, 182, 212, 0.15)')
                                     }}>
-                                      {isAnim ? '🎮' : (c.content_type === 'video' ? '🎥' : '📖')}
+                                      {isAnim ? '✨' : (c.content_type === 'video' ? '🎥' : '📖')}
                                     </div>
                                     <div>
                                       <div style={{ fontSize: '0.92rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1567,7 +1567,7 @@ export default function StudentDashboardPage() {
                                         )}
                                       </div>
                                       <div style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 600 }}>
-                                        {isAnim ? 'Interactive Simulation Adventure' : (c.content_type === 'video' ? 'Watch Video Story' : 'Read Illustrated Story Book')}
+                                        {isAnim ? 'Interactive 3D Study Adventure' : (c.content_type === 'video' ? 'Watch Video Story' : 'Read Illustrated Story Book')}
                                       </div>
                                     </div>
                                   </div>
@@ -1576,7 +1576,7 @@ export default function StudentDashboardPage() {
                                     style={{
                                       background: c.is_premium && !user?.is_premium
                                         ? 'linear-gradient(135deg, #7C3AED 0%, #F59E0B 100%)'
-                                        : (isAnim ? 'linear-gradient(135deg, #10B981 0%, #34D399 100%)' : (c.content_type === 'video' ? 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)' : 'linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%)')),
+                                        : (isAnim ? 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)' : (c.content_type === 'video' ? 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)' : 'linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%)')),
                                       margin: 0
                                     }}
                                     onClick={() => {
@@ -1592,7 +1592,7 @@ export default function StudentDashboardPage() {
                                     }}
                                   >
                                     {c.is_premium && !user?.is_premium ? <Lock size={14} /> : (c.content_type === 'video' || isAnim ? <Play size={14} /> : <Eye size={14} />)}
-                                    {c.is_premium && !user?.is_premium ? 'Unlock VIP' : (isAnim ? 'Play Simulator' : (c.content_type === 'video' ? 'Watch Story' : 'Read Story'))}
+                                    {c.is_premium && !user?.is_premium ? 'Unlock VIP' : (isAnim ? 'Launch Adventure' : (c.content_type === 'video' ? 'Watch Story' : 'Read Story'))}
                                   </button>
                                 </div>
                               );
