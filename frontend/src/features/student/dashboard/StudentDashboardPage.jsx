@@ -529,6 +529,19 @@ export default function StudentDashboardPage() {
   const [activeSimulation, setActiveSimulation] = useState(null);
   const [voiceLauncherItem, setVoiceLauncherItem] = useState(null);
   const [premiumModalContent, setPremiumModalContent] = useState(null);
+  const [attemptedExamIds, setAttemptedExamIds] = useState(new Set());
+
+  useEffect(() => {
+    studentApi.getAllResults()
+      .then((res) => {
+        const list = res?.data?.data ?? res?.data ?? res ?? [];
+        if (Array.isArray(list)) {
+          const ids = new Set(list.map((r) => r.exam_id).filter(Boolean));
+          setAttemptedExamIds(ids);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const { data: profileRes } = useApi(studentApi.getProfile);
   const profile = profileRes?.data ?? profileRes;
@@ -1659,41 +1672,77 @@ export default function StudentDashboardPage() {
                           exams.length === 0 ? (
                             renderEmptyState('exams')
                           ) : (
-                            exams.map((e) => (
-                              <div key={e.id} id={`resource-card-${e.id}`} className={`sd-resource-card ${highlightedItemId === e.id ? 'highlighted-voice-item' : ''}`}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                                  <div className="sd-res-icon-wrapper" style={{ background: 'rgba(239, 68, 68, 0.15)' }}>
-                                    🏆
-                                  </div>
-                                  <div>
-                                    <div style={{ fontSize: '0.92rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                      <span>{e.title}</span>
-                                      {e.is_premium && (
-                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', borderRadius: '50px', background: 'rgba(245,158,11,0.18)', border: '1px solid rgba(245,158,11,0.4)', color: '#FCD34D', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.04em', boxShadow: '0 0 10px rgba(245,158,11,0.2)' }}>
-                                          <Crown size={11} style={{ fill: '#F59E0B', color: '#F59E0B' }} />
-                                          VIP Premium
-                                        </span>
-                                      )}
+                            exams.map((e) => {
+                              const isAttempted = attemptedExamIds.has(e.id);
+                              const isLocked = e.is_premium && !user?.is_premium;
+
+                              return (
+                                <div key={e.id} id={`resource-card-${e.id}`} className={`sd-resource-card ${highlightedItemId === e.id ? 'highlighted-voice-item' : ''}`}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                    <div className="sd-res-icon-wrapper" style={{ background: 'rgba(239, 68, 68, 0.15)' }}>
+                                      🏆
                                     </div>
-                                    <div style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 600 }}>⏱️ {e.duration_minutes} Mins Challenge Quest</div>
+                                    <div>
+                                      <div style={{ fontSize: '0.92rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                        <span>{e.title}</span>
+                                        {e.is_premium && (
+                                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', borderRadius: '50px', background: 'rgba(245,158,11,0.18)', border: '1px solid rgba(245,158,11,0.4)', color: '#FCD34D', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.04em', boxShadow: '0 0 10px rgba(245,158,11,0.2)' }}>
+                                            <Crown size={11} style={{ fill: '#F59E0B', color: '#F59E0B' }} />
+                                            VIP Premium
+                                          </span>
+                                        )}
+                                        {isAttempted && (
+                                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', borderRadius: '50px', background: 'rgba(16, 185, 129, 0.18)', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#34D399', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                                            <CheckCircle size={11} />
+                                            Attempted
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 600 }}>⏱️ {e.duration_minutes} Mins Challenge Quest</div>
+                                    </div>
+                                  </div>
+
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                    {isLocked ? (
+                                      <button
+                                        className="sd-subj-btn"
+                                        style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #F59E0B 100%)', margin: 0 }}
+                                        onClick={() => setPremiumModalContent(e)}
+                                      >
+                                        <Lock size={14} />
+                                        Unlock VIP
+                                      </button>
+                                    ) : isAttempted ? (
+                                      <>
+                                        <button
+                                          className="sd-subj-btn"
+                                          style={{ background: 'linear-gradient(135deg, #06B6D4 0%, #3B82F6 100%)', margin: 0, padding: '0.45rem 0.85rem', fontSize: '0.8rem' }}
+                                          onClick={() => navigate(`/exams/${e.id}/result`)}
+                                        >
+                                          📑 Show My Answer
+                                        </button>
+                                        <button
+                                          className="sd-subj-btn"
+                                          style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)', margin: 0, padding: '0.45rem 0.85rem', fontSize: '0.8rem' }}
+                                          onClick={() => navigate(`/exams/${e.id}/take?retake=true`)}
+                                        >
+                                          🔄 Appear Again
+                                        </button>
+                                      </>
+                                    ) : (
+                                      <button
+                                        className="sd-subj-btn"
+                                        style={{ background: 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)', margin: 0 }}
+                                        onClick={() => navigate(`/exams/${e.id}/take`)}
+                                      >
+                                        <CheckCircle size={14} />
+                                        Start Quest
+                                      </button>
+                                    )}
                                   </div>
                                 </div>
-                                <button
-                                  className="sd-subj-btn"
-                                  style={{ background: e.is_premium && !user?.is_premium ? 'linear-gradient(135deg, #7C3AED 0%, #F59E0B 100%)' : 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)', margin: 0 }}
-                                  onClick={() => {
-                                    if (e.is_premium && !user?.is_premium) {
-                                      setPremiumModalContent(e);
-                                    } else {
-                                      navigate(`/exams/${e.id}/take`);
-                                    }
-                                  }}
-                                >
-                                  {e.is_premium && !user?.is_premium ? <Lock size={14} /> : <CheckCircle size={14} />}
-                                  {e.is_premium && !user?.is_premium ? 'Unlock VIP' : 'Start Quest'}
-                                </button>
-                              </div>
-                            ))
+                              );
+                            })
                           )
                         )}
                       </div>

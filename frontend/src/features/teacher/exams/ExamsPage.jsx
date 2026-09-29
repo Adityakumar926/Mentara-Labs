@@ -533,7 +533,40 @@ function LiveExamCard({ exam, idx }) {
         <span><Clock size={11} style={{ color: 'var(--cyan)' }} />{exam.duration_minutes ? `${exam.duration_minutes}m` : 'Untimed'}</span>
         {exam.question_count > 0 && <span>{exam.question_count} Qs</span>}
         {attempted ? (
-          <span style={{ marginLeft: 'auto', fontWeight: 600, color: 'var(--muted)' }}>Submitted</span>
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <Link
+              to={`/exams/${exam.id}/result`}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                padding: '0.3rem 0.65rem',
+                borderRadius: '8px',
+                background: 'rgba(34, 211, 238, 0.1)',
+                border: '1px solid rgba(34, 211, 238, 0.3)',
+                color: '#22d3ee',
+                fontSize: '0.68rem',
+                fontWeight: 700,
+                textDecoration: 'none'
+              }}
+            >
+              📑 Show Answer
+            </Link>
+            <Link
+              to={`/exams/${exam.id}/take?retake=true`}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                padding: '0.3rem 0.65rem',
+                borderRadius: '8px',
+                background: 'rgba(124, 58, 237, 0.15)',
+                border: '1px solid rgba(167, 139, 250, 0.3)',
+                color: '#a78bfa',
+                fontSize: '0.68rem',
+                fontWeight: 700,
+                textDecoration: 'none'
+              }}
+            >
+              🔄 Appear Again
+            </Link>
+          </div>
         ) : locked ? (
           <span className="exam-locked-btn"><Lock size={11} />Premium</span>
         ) : (
@@ -556,14 +589,10 @@ function LiveExamCard({ exam, idx }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: idx * 0.07, duration: 0.25 }}
     >
-      {attempted ? (
-        <Link to={user?.role === 'student' ? `/exams/${exam.id}/result` : `/exams/${exam.id}/take`} style={{ textDecoration: 'none' }}>
-          {inner}
-        </Link>
-      ) : locked ? (
+      {locked ? (
         <div onClick={handleClick} style={{ cursor: 'pointer' }}>{inner}</div>
       ) : (
-        <Link to={`/exams/${exam.id}/take`} style={{ textDecoration: 'none' }}>{inner}</Link>
+        <Link to={attempted ? `/exams/${exam.id}/result` : `/exams/${exam.id}/take`} style={{ textDecoration: 'none' }}>{inner}</Link>
       )}
     </motion.div>
   );
