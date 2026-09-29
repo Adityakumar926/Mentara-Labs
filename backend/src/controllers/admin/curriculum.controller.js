@@ -567,7 +567,7 @@ exports.confirmMuxUpload = async (req, res) => {
 
 exports.addContent = async (req, res) => {
   try {
-    const { title, content_type, animation_id, is_premium, destination } = req.body;
+    const { title, content_type, animation_id, is_premium, destination, target_tab } = req.body;
     const topic_id = req.params.topicId;
 
     if (content_type !== 'animation') {
@@ -591,6 +591,7 @@ exports.addContent = async (req, res) => {
       return res.status(400).json({ success: false, message: 'animation_id is required' });
 
     const targetDestination = ['shared', 'student', 'teacher'].includes(destination) ? destination : 'shared';
+    const assignedTab = (target_tab === 'notes' || target_tab === 'study_adventure') ? 'notes' : 'simulators';
 
     const { rows: orderRows } = await db.query(
       `SELECT COALESCE(MAX(order_index), -1) + 1 AS next_order
@@ -599,9 +600,9 @@ exports.addContent = async (req, res) => {
     );
     const { rows } = await db.query(
       `INSERT INTO content
-         (topic_id, title, content_type, animation_id, is_premium, order_index, destination)
-       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
-      [topic_id, title, content_type, animation_id, is_premium, orderRows[0].next_order, targetDestination]
+         (topic_id, title, content_type, animation_id, is_premium, order_index, destination, target_tab)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+      [topic_id, title, content_type, animation_id, is_premium, orderRows[0].next_order, targetDestination, assignedTab]
     );
     res.status(201).json({ success: true, data: rows[0] });
   } catch (err) {
@@ -613,15 +614,38 @@ exports.addContent = async (req, res) => {
 
 exports.updateContent = async (req, res) => {
   try {
-    const { title, is_premium, order_index } = req.body;
-    const { rows } = await db.query(
-      `UPDATE content
-       SET title       = COALESCE($1, title),
-           is_premium  = COALESCE($2, is_premium),
-           order_index = COALESCE($3, order_index)
-       WHERE id = $4 RETURNING *`,
-      [title, is_premium, order_index, req.params.id]
-    );
+    const { title, is_premium, order_index, target_tab } = req.body;
+    let query = 'UPDATE content SET ';
+    const updates = [];
+    const params = [];
+
+    if (title !== undefined) {
+      params.push(title);
+      updates.push(`title = $${params.length}`);
+    }
+    if (is_premium !== undefined) {
+      params.push(is_premium);
+      updates.push(`is_premium = $${params.length}`);
+    }
+    if (order_index !== undefined) {
+      params.push(order_index);
+      updates.push(`order_index = $${params.length}`);
+    }
+    if (target_tab !== undefined) {
+      const assignedTab = (target_tab === 'notes' || target_tab === 'study_adventure') ? 'notes' : 'simulators';
+      params.push(assignedTab);
+      updates.push(`target_tab = $${params.length}`);
+    }
+
+    if (updates.length === 0) {
+      const { rows } = await db.query('SELECT * FROM content WHERE id = $1', [req.params.id]);
+      return res.json({ success: true, data: rows[0] });
+    }
+
+    params.push(req.params.id);
+    query += updates.join(', ') + ` WHERE id = $${params.length} RETURNING *`;
+
+    const { rows } = await db.query(query, params);
     if (!rows[0]) return res.status(404).json({ success: false, message: 'Content not found' });
     res.json({ success: true, data: rows[0] });
   } catch (err) {

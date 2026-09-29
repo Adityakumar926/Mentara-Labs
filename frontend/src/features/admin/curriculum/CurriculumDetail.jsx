@@ -556,6 +556,7 @@ const BLANK_TOPIC = { name: '', description: '', parent_topic_id: '' };
 const BLANK_CONTENT = {
   title: '', content_type: 'note',
   destination: 'shared',
+  target_tab: 'simulators',
   noteFile: null,
   videoStage: 'idle',
   videoFile: null,
@@ -1075,6 +1076,7 @@ export default function CurriculumDetail() {
           title: f.title,
           html_content: compiledHtml,
           is_premium: f.is_premium,
+          target_tab: f.target_tab || 'simulators',
           animation_id: editingContent ? editingContent.animation_id : undefined
         };
         const animRes = await adminApi.upsertAnimation(animBody);
@@ -1086,6 +1088,7 @@ export default function CurriculumDetail() {
           animation_id: savedAnim.id,
           is_premium: f.is_premium,
           destination: f.destination,
+          target_tab: f.target_tab || 'simulators',
         };
         if (editingContent) {
           await adminApi.updateContent(editingContent.id, body);
@@ -1247,6 +1250,7 @@ export default function CurriculumDetail() {
       title: c.title,
       content_type: c.content_type,
       destination: c.destination ?? 'shared',
+      target_tab: c.target_tab || 'simulators',
       html_content: c.html_content ?? '',
       is_premium: c.is_premium,
       videoStage: c.content_type === 'video' ? 'done' : 'idle',
@@ -1523,7 +1527,17 @@ export default function CurriculumDetail() {
             )}
 
              {contentForm.content_type === 'animation' && (
-              <div className="cd-anim-editor-wrap">
+              <div className="space-y-3">
+                <Select
+                  label="Display Column / Section"
+                  value={contentForm.target_tab || 'simulators'}
+                  onChange={(e) => setContentForm({ ...contentForm, target_tab: e.target.value })}
+                >
+                  <option value="simulators">🎮 Play Simulators (Default)</option>
+                  <option value="notes">📖 Study Adventure</option>
+                </Select>
+
+                <div className="cd-anim-editor-wrap">
                 <SimulationFolderDropzone
                   onParsed={({ html_part, css_part, js_part, json_part }) => {
                     setContentForm(prev => ({
@@ -1620,6 +1634,7 @@ export default function CurriculumDetail() {
                     </div>
                   )}
                 </div>
+              </div>
               </div>
             )}
 
@@ -1853,6 +1868,21 @@ function TopicContentPanel({ topicId, contentRefreshKey, onEditContent, onDelete
                     }}
                   >
                     {c.destination}
+                  </span>
+                )}
+                {c.content_type === 'animation' && (
+                  <span 
+                    className="px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase border"
+                    style={{
+                      background: (c.target_tab === 'notes' || c.target_tab === 'study_adventure') ? 'rgba(6,182,212,0.1)' : 'rgba(16,185,129,0.1)',
+                      borderColor: (c.target_tab === 'notes' || c.target_tab === 'study_adventure') ? 'rgba(6,182,212,0.3)' : 'rgba(16,185,129,0.3)',
+                      color: (c.target_tab === 'notes' || c.target_tab === 'study_adventure') ? 'var(--cyan)' : '#10B981',
+                      fontSize: '8px',
+                      fontWeight: 800,
+                      letterSpacing: '0.04em'
+                    }}
+                  >
+                    {(c.target_tab === 'notes' || c.target_tab === 'study_adventure') ? '📖 Study Adv' : '🎮 Play Sim'}
                   </span>
                 )}
                 {c.is_premium && <span className="cd-premium-tag" title="Premium"><Lock size={11} /></span>}

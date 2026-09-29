@@ -172,12 +172,14 @@ exports.preview = async (req, res) => {
 // Returns the animation row so the frontend can grab its id.
 exports.upsert = async (req, res) => {
   try {
-    const { title, html_content, subject_id, animation_id, is_premium } = req.body;
+    const { title, html_content, subject_id, animation_id, is_premium, target_tab } = req.body;
 
     if (!title || !html_content)
       return res.status(400).json({ success: false, message: 'title and html_content are required' });
 
     if (sanitizeHtml(html_content, res)) return; // sanitizeHtml writes the error response and returns true
+
+    const assignedTab = (target_tab === 'notes' || target_tab === 'study_adventure') ? 'notes' : 'simulators';
 
     let row;
 
@@ -188,10 +190,11 @@ exports.upsert = async (req, res) => {
            title        = $1,
            html_content = $2,
            is_premium   = COALESCE($3, is_premium),
-           subject_id   = COALESCE($4, subject_id)
-         WHERE id = $5
+           subject_id   = COALESCE($4, subject_id),
+           target_tab   = COALESCE($5, target_tab)
+         WHERE id = $6
          RETURNING *`,
-        [title, html_content, is_premium ?? null, subject_id ?? null, animation_id]
+        [title, html_content, is_premium ?? null, subject_id ?? null, assignedTab, animation_id]
       );
       if (!rows[0]) return res.status(404).json({ success: false, message: 'Animation not found' });
       row = rows[0];
@@ -199,10 +202,10 @@ exports.upsert = async (req, res) => {
       // Create new animation
       const { rows } = await db.query(
         `INSERT INTO animations
-         (title, html_content, subject_id, is_premium, created_by)
-         VALUES ($1, $2, $3, $4, $5)
+         (title, html_content, subject_id, is_premium, created_by, target_tab)
+         VALUES ($1, $2, $3, $4, $5, $6)
          RETURNING *`,
-        [title, html_content, subject_id ?? null, is_premium ?? false, req.user.id]
+        [title, html_content, subject_id ?? null, is_premium ?? false, req.user.id, assignedTab]
       );
       row = rows[0];
     }

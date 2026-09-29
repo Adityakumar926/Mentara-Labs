@@ -1105,8 +1105,15 @@ export default function StudentDashboardPage() {
   const rawFullName = user?.full_name || profile?.full_name;
   const firstName = typeof rawFullName === 'string' ? rawFullName.trim().split(' ')[0] : 'Learner';
 
-  const notesAndVideos = safeItems.filter(c => c.content_type === 'note' || c.content_type === 'video');
-  const simulators = safeItems.filter(c => c.content_type === 'animation' || c.content_type === 'simulator' || c.content_type === 'simulation' || Boolean(c.animation_id));
+  const notesAndVideos = safeItems.filter(c => 
+    c.content_type === 'note' || 
+    c.content_type === 'video' ||
+    ((c.content_type === 'animation' || c.content_type === 'simulator' || c.content_type === 'simulation' || Boolean(c.animation_id)) && (c.target_tab === 'notes' || c.target_tab === 'study_adventure'))
+  );
+  const simulators = safeItems.filter(c => 
+    (c.content_type === 'animation' || c.content_type === 'simulator' || c.content_type === 'simulation' || Boolean(c.animation_id)) && 
+    c.target_tab !== 'notes' && c.target_tab !== 'study_adventure'
+  );
   const worksheets = safeItems.filter(c => c.content_type === 'worksheet');
 
   return (
@@ -1539,48 +1546,57 @@ export default function StudentDashboardPage() {
                           notesAndVideos.length === 0 ? (
                             renderEmptyState('notes')
                           ) : (
-                            notesAndVideos.map((c) => (
-                              <div key={c.id} id={`resource-card-${c.id}`} className={`sd-resource-card ${highlightedItemId === c.id ? 'highlighted-voice-item' : ''}`}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                                  <div className="sd-res-icon-wrapper" style={{ background: c.content_type === 'video' ? 'rgba(139, 92, 246, 0.15)' : 'rgba(6, 182, 212, 0.15)' }}>
-                                    {c.content_type === 'video' ? '🎥' : '📖'}
-                                  </div>
-                                  <div>
-                                    <div style={{ fontSize: '0.92rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                      <span>{c.title}</span>
-                                      {c.is_premium && (
-                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', borderRadius: '50px', background: 'rgba(245,158,11,0.18)', border: '1px solid rgba(245,158,11,0.4)', color: '#FCD34D', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.04em', boxShadow: '0 0 10px rgba(245,158,11,0.2)' }}>
-                                          <Crown size={11} style={{ fill: '#F59E0B', color: '#F59E0B' }} />
-                                          VIP Premium
-                                        </span>
-                                      )}
+                            notesAndVideos.map((c) => {
+                              const isAnim = c.content_type === 'animation' || c.content_type === 'simulator' || c.content_type === 'simulation' || Boolean(c.animation_id);
+                              return (
+                                <div key={c.id} id={`resource-card-${c.id}`} className={`sd-resource-card ${highlightedItemId === c.id ? 'highlighted-voice-item' : ''}`}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                    <div className="sd-res-icon-wrapper" style={{
+                                      background: isAnim ? 'rgba(16, 185, 129, 0.15)' : (c.content_type === 'video' ? 'rgba(139, 92, 246, 0.15)' : 'rgba(6, 182, 212, 0.15)')
+                                    }}>
+                                      {isAnim ? '🎮' : (c.content_type === 'video' ? '🎥' : '📖')}
                                     </div>
-                                    <div style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 600 }}>
-                                      {c.content_type === 'video' ? 'Watch Video Story' : 'Read Illustrated Story Book'}
+                                    <div>
+                                      <div style={{ fontSize: '0.92rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <span>{c.title}</span>
+                                        {c.is_premium && (
+                                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', borderRadius: '50px', background: 'rgba(245,158,11,0.18)', border: '1px solid rgba(245,158,11,0.4)', color: '#FCD34D', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.04em', boxShadow: '0 0 10px rgba(245,158,11,0.2)' }}>
+                                            <Crown size={11} style={{ fill: '#F59E0B', color: '#F59E0B' }} />
+                                            VIP Premium
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 600 }}>
+                                        {isAnim ? 'Interactive Simulation Adventure' : (c.content_type === 'video' ? 'Watch Video Story' : 'Read Illustrated Story Book')}
+                                      </div>
                                     </div>
                                   </div>
+                                  <button
+                                    className="sd-subj-btn"
+                                    style={{
+                                      background: c.is_premium && !user?.is_premium
+                                        ? 'linear-gradient(135deg, #7C3AED 0%, #F59E0B 100%)'
+                                        : (isAnim ? 'linear-gradient(135deg, #10B981 0%, #34D399 100%)' : (c.content_type === 'video' ? 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)' : 'linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%)')),
+                                      margin: 0
+                                    }}
+                                    onClick={() => {
+                                      if (c.is_premium && !user?.is_premium) {
+                                        setPremiumModalContent(c);
+                                      } else if (isAnim) {
+                                        handleOpenAnimation(c);
+                                      } else if (c.content_type === 'video') {
+                                        handleOpenVideo(c);
+                                      } else {
+                                        handleOpenNote(c);
+                                      }
+                                    }}
+                                  >
+                                    {c.is_premium && !user?.is_premium ? <Lock size={14} /> : (c.content_type === 'video' || isAnim ? <Play size={14} /> : <Eye size={14} />)}
+                                    {c.is_premium && !user?.is_premium ? 'Unlock VIP' : (isAnim ? 'Play Simulator' : (c.content_type === 'video' ? 'Watch Story' : 'Read Story'))}
+                                  </button>
                                 </div>
-                                <button
-                                  className="sd-subj-btn"
-                                  style={{
-                                    background: c.is_premium && !user?.is_premium ? 'linear-gradient(135deg, #7C3AED 0%, #F59E0B 100%)' : (c.content_type === 'video' ? 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)' : 'linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%)'),
-                                    margin: 0
-                                  }}
-                                  onClick={() => {
-                                    if (c.is_premium && !user?.is_premium) {
-                                      setPremiumModalContent(c);
-                                    } else if (c.content_type === 'video') {
-                                      handleOpenVideo(c);
-                                    } else {
-                                      handleOpenNote(c);
-                                    }
-                                  }}
-                                >
-                                  {c.is_premium && !user?.is_premium ? <Lock size={14} /> : (c.content_type === 'video' ? <Play size={14} /> : <Eye size={14} />)}
-                                  {c.is_premium && !user?.is_premium ? 'Unlock VIP' : (c.content_type === 'video' ? 'Watch Story' : 'Read Story')}
-                                </button>
-                              </div>
-                            ))
+                              );
+                            })
                           )
                         )}
 
