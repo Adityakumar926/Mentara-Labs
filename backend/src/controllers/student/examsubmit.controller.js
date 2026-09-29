@@ -50,8 +50,8 @@ exports.startExam = async (req, res) => {
 
     if (existing[0]) {
       const existingDeadline = existing[0].deadline_at ? new Date(existing[0].deadline_at).getTime() : 0;
-      // If forceReset requested or previous deadline expired or status was submitted, reset timer for fresh attempt
-      if (forceReset || existing[0].status === 'submitted' || existingDeadline < Date.now()) {
+      // ONLY reset and delete previous answers if forceReset is explicitly requested
+      if (forceReset) {
         finalDeadline = newDeadline;
         await client.query(
           `UPDATE exam_submissions
@@ -62,6 +62,27 @@ exports.startExam = async (req, res) => {
         await client.query(
           `DELETE FROM submission_answers WHERE submission_id = $1`,
           [existing[0].id]
+        );
+      } else if (existing[0].status === 'submitted') {
+        // If already submitted and NOT forceReset, return existing submission without deleting anything
+        await client.query('COMMIT');
+        return res.status(200).json({
+          success: true,
+          already_submitted: true,
+          message: 'Exam already submitted',
+          data: {
+            submission_id: existing[0].id,
+            already_submitted: true,
+            exam
+          }
+        });
+      } else if (existingDeadline < Date.now()) {
+        finalDeadline = newDeadline;
+        await client.query(
+          `UPDATE exam_submissions
+           SET status = 'in_progress', started_at = NOW(), deadline_at = $3
+           WHERE exam_id = $1 AND student_id = $2`,
+          [examId, studentId, finalDeadline]
         );
       } else {
         finalDeadline = existing[0].deadline_at;
@@ -233,11 +254,11 @@ exports.getExamQuestions = async (req, res) => {
 exports.saveAnswer = async (req, res) => {
   try {
     const { submissionId } = req.params;
-    const { question_id, answer, drawing_data } = req.body;
+    const { question_id, answer, drawing_data, drawing_image } = req.body;
     const studentId = req.user.id;
 
-    if (!question_id || (answer === undefined && drawing_data === undefined))
-      return res.status(400).json({ success: false, message: 'question_id and (answer or drawing_data) are required' });
+    if (!question_id || (answer === undefined && drawing_data === undefined && drawing_image === undefined))
+      return res.status(400).json({ success: false, message: 'question_id and answer/drawing data are required' });
 
     // Verify ownership and active status
     const { rows: session } = await db.query(
@@ -255,6 +276,69 @@ exports.saveAnswer = async (req, res) => {
     if (session[0].deadline_at && new Date(session[0].deadline_at) < new Date())
       return res.status(400).json({ success: false, message: 'Time is up' });
 
+    let finalDrawingData = drawing_data ?? null;
+
+    // Handle Cloudinary image upload for drawn question image
+    if (drawing_image && typeof drawing_image === 'string' && drawing_image.startsWith('data:image/')) {
+      try {
+        const base64Data = drawing_image.replace(/^data:image\/\w+;base64,/, '');
+        const imageBuffer = Buffer.from(base64Data, 'base64');
+
+        const userName = req.user.full_name || req.user.name || req.user.username || req.user.email?.split('@')[0] || `user_${studentId}`;
+        const cleanUserName = userName.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_+|_+$/g, '') || 'student';
+        const folderName = `${cleanUserName}_answer`;
+
+        const cloudinaryService = require('../../services/cloudinary.service');
+        const { url: cUrl } = await cloudinaryService.uploadImage(imageBuffer, folderName, {
+          public_id: `exam_${submissionId}_q_${question_id}_${Date.now()}`
+        });
+
+        let parsedStrokes = [];
+        if (drawing_data) {
+          try {
+            parsedStrokes = typeof drawing_data === 'string' ? JSON.parse(drawing_data) : drawing_data;
+          } catch (e) {
+            parsedStrokes = [];
+          }
+        }
+
+        finalDrawingData = JSON.stringify({
+          url: cUrl,
+          strokes: parsedStrokes
+        });
+      } catch (uploadErr) {
+        console.error('Failed to upload drawn image to Cloudinary:', uploadErr);
+      }
+    } else if (drawing_data) {
+      // If drawing_image is NOT sent, check if DB already has a Cloudinary URL to preserve
+      try {
+        const { rows: existingAns } = await db.query(
+          `SELECT drawing_data FROM submission_answers WHERE submission_id = $1 AND question_id = $2`,
+          [submissionId, question_id]
+        );
+        if (existingAns[0]?.drawing_data) {
+          const prev = typeof existingAns[0].drawing_data === 'string'
+            ? JSON.parse(existingAns[0].drawing_data)
+            : existingAns[0].drawing_data;
+
+          if (prev && prev.url) {
+            let newStrokes = [];
+            try {
+              newStrokes = typeof drawing_data === 'string' ? JSON.parse(drawing_data) : drawing_data;
+            } catch (e) {
+              newStrokes = [];
+            }
+            finalDrawingData = JSON.stringify({
+              url: prev.url,
+              strokes: newStrokes
+            });
+          }
+        }
+      } catch (e) {
+        /* fallback to drawing_data as is */
+      }
+    }
+
     // Upsert answer & drawing_data
     await db.query(
       `INSERT INTO submission_answers (submission_id, question_id, answer, drawing_data, saved_at)
@@ -264,7 +348,7 @@ exports.saveAnswer = async (req, res) => {
          answer = COALESCE(EXCLUDED.answer, submission_answers.answer),
          drawing_data = COALESCE(EXCLUDED.drawing_data, submission_answers.drawing_data),
          saved_at = NOW()`,
-      [submissionId, question_id, answer ?? null, drawing_data ?? null]
+      [submissionId, question_id, answer ?? null, finalDrawingData]
     );
 
     res.json({ success: true, message: 'Answer saved' });

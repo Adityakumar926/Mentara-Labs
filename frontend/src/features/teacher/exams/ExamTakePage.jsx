@@ -892,12 +892,77 @@ function StructureCanvas({ imageUrl, strokes = [], onChange }) {
     setCurrentStroke(updatedStroke);
   };
 
+  const generateCompositedDataUrl = (strokesList) => {
+    if (!imgRef.current || !strokesList || !Array.isArray(strokesList) || strokesList.length === 0) return null;
+    const img = imgRef.current;
+    const clientW = canvasSize.width || img.clientWidth || img.getBoundingClientRect().width;
+    const clientH = canvasSize.height || img.clientHeight || img.getBoundingClientRect().height;
+    const natW = img.naturalWidth || clientW;
+    const natH = img.naturalHeight || clientH;
+
+    if (!clientW || !clientH) return null;
+
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = natW;
+      canvas.height = natH;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, natW, natH);
+
+      const scaleX = natW / clientW;
+      const scaleY = natH / clientH;
+
+      strokesList.forEach(stroke => {
+        if (!stroke || !stroke.points) return;
+        ctx.save();
+        ctx.beginPath();
+        ctx.strokeStyle = stroke.color || '#EF4444';
+        ctx.lineWidth = (stroke.size || 4) * Math.min(scaleX, scaleY);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        if (stroke.type === 'freehand' || stroke.type === 'draw' || !stroke.type) {
+          if (stroke.points.length > 0) {
+            ctx.moveTo(stroke.points[0].x * scaleX, stroke.points[0].y * scaleY);
+            for (let i = 1; i < stroke.points.length; i++) {
+              ctx.lineTo(stroke.points[i].x * scaleX, stroke.points[i].y * scaleY);
+            }
+            ctx.stroke();
+          }
+        } else if (stroke.type === 'line') {
+          if (stroke.points.length >= 2) {
+            ctx.moveTo(stroke.points[0].x * scaleX, stroke.points[0].y * scaleY);
+            ctx.lineTo(stroke.points[1].x * scaleX, stroke.points[1].y * scaleY);
+            ctx.stroke();
+          }
+        } else if (stroke.type === 'erase') {
+          ctx.globalCompositeOperation = 'destination-out';
+          if (stroke.points.length > 0) {
+            ctx.moveTo(stroke.points[0].x * scaleX, stroke.points[0].y * scaleY);
+            for (let i = 1; i < stroke.points.length; i++) {
+              ctx.lineTo(stroke.points[i].x * scaleX, stroke.points[i].y * scaleY);
+            }
+            ctx.stroke();
+          }
+          ctx.globalCompositeOperation = 'source-over';
+        }
+        ctx.restore();
+      });
+
+      return canvas.toDataURL('image/png');
+    } catch (e) {
+      console.error('Failed to generate composited image:', e);
+      return null;
+    }
+  };
+
   const handleEnd = () => {
     if (!isDrawing || !currentStroke) return;
     setIsDrawing(false);
-    
+
     const finalStrokes = [...strokes, currentStroke];
-    onChange(finalStrokes);
+    const compImg = generateCompositedDataUrl(finalStrokes);
+    onChange(finalStrokes, compImg);
     setCurrentStroke(null);
     setRedoList([]);
   };
@@ -906,7 +971,8 @@ function StructureCanvas({ imageUrl, strokes = [], onChange }) {
     if (strokes.length === 0) return;
     const undone = strokes[strokes.length - 1];
     const newStrokes = strokes.slice(0, -1);
-    onChange(newStrokes);
+    const compImg = generateCompositedDataUrl(newStrokes);
+    onChange(newStrokes, compImg);
     setRedoList([...redoList, undone]);
   };
 
@@ -914,12 +980,13 @@ function StructureCanvas({ imageUrl, strokes = [], onChange }) {
     if (redoList.length === 0) return;
     const redone = redoList[redoList.length - 1];
     const newStrokes = [...strokes, redone];
-    onChange(newStrokes);
+    const compImg = generateCompositedDataUrl(newStrokes);
+    onChange(newStrokes, compImg);
     setRedoList(redoList.slice(0, -1));
   };
 
   const handleClear = () => {
-    onChange([]);
+    onChange([], null);
     setRedoList([]);
   };
 
@@ -950,7 +1017,7 @@ function StructureCanvas({ imageUrl, strokes = [], onChange }) {
           alt="Structure diagram"
           onLoad={handleImageLoad}
           draggable={false}
-          style={{ width: '100%', maxHeight: '550px', objectFit: 'contain', borderRadius: '12px', display: 'block', pointerEvents: 'none', userSelect: 'none', WebkitUserSelect: 'none', WebkitUserDrag: 'none' }}
+          style={{ width: '100%', height: 'auto', borderRadius: '12px', display: 'block', pointerEvents: 'none', userSelect: 'none', WebkitUserSelect: 'none', WebkitUserDrag: 'none' }}
         />
         
         {canvasSize.width > 0 && (
@@ -1275,26 +1342,33 @@ export default function ExamTakePage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expired]);
 
-  const saveAnswerAndStrokes = useCallback(async (questionId, answer, strokes) => {
+  const [compositedImages, setCompositedImages] = useState({});
+
+  const saveAnswerAndStrokes = useCallback(async (questionId, answer, strokes, compImg) => {
     if (!submissionId) return;
     try {
+      const imgToUpload = compImg || compositedImages[questionId];
       const payload = { question_id: questionId };
       if (answer !== undefined) payload.answer = answer;
       if (strokes !== undefined) payload.drawing_data = JSON.stringify(strokes);
+      if (imgToUpload) payload.drawing_image = imgToUpload;
       await studentApi.saveAnswer(examId, submissionId, payload);
     } catch { /* silent */ }
-  }, [examId, submissionId]);
+  }, [examId, submissionId, compositedImages]);
 
   const handleAnswer = (questionId, answer) => {
     setAnswers((p) => ({ ...p, [questionId]: answer }));
     clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => saveAnswerAndStrokes(questionId, answer, canvasStrokes[questionId]), 600);
+    saveTimer.current = setTimeout(() => saveAnswerAndStrokes(questionId, answer, canvasStrokes[questionId], compositedImages[questionId]), 600);
   };
 
-  const handleCanvasChange = (questionId, newStrokes) => {
+  const handleCanvasChange = (questionId, newStrokes, compImg) => {
     setCanvasStrokes((p) => ({ ...p, [questionId]: newStrokes }));
+    if (compImg !== undefined) {
+      setCompositedImages((p) => ({ ...p, [questionId]: compImg }));
+    }
     clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => saveAnswerAndStrokes(questionId, answers[questionId], newStrokes), 600);
+    saveTimer.current = setTimeout(() => saveAnswerAndStrokes(questionId, answers[questionId], newStrokes, compImg), 600);
   };
 
   const handleRetakeExam = async () => {
@@ -1337,11 +1411,13 @@ export default function ExamTakePage() {
         for (const qItem of questions) {
           const strokes = canvasStrokes[qItem.id];
           const ans = answers[qItem.id];
+          const drawingImage = compositedImages[qItem.id] || null;
           if ((strokes && strokes.length > 0) || ans !== undefined) {
             await studentApi.saveAnswer(examId, submissionId, {
               question_id: qItem.id,
               answer: ans ?? null,
               drawing_data: strokes ? JSON.stringify(strokes) : null,
+              drawing_image: drawingImage
             }).catch(() => {});
           }
         }
@@ -1350,7 +1426,8 @@ export default function ExamTakePage() {
       if (!auto) toast.success('Exam submitted!');
       navigate(`/exams/${examId}/result`);
     } catch (err) {
-      toast.error(err.response?.data?.message ?? 'Submission failed');
+      console.error('Submission error:', err);
+      toast.error(err.response?.data?.message ?? err.message ?? 'Submission failed');
       setPhase('taking');
       setSubmitting(false);
     }
@@ -1577,27 +1654,8 @@ export default function ExamTakePage() {
                     <StructureCanvas
                       imageUrl={q.image_url}
                       strokes={canvasStrokes[q.id] || []}
-                      onChange={(newStrokes) => handleCanvasChange(q.id, newStrokes)}
+                      onChange={(newStrokes, compImg) => handleCanvasChange(q.id, newStrokes, compImg)}
                     />
-                  )}
-
-                  {/* Optional reference image for MCQ/fill_blank questions */}
-                  {q.question_type !== 'photo' && q.image_url && (
-                    <div style={{ marginTop: '1rem', width: '100%', display: 'flex', justifyContent: 'center' }}>
-                      <img 
-                        src={q.image_url} 
-                        alt="Question reference" 
-                        style={{ 
-                          maxWidth: '100%', 
-                          maxHeight: '320px', 
-                          objectFit: 'contain', 
-                          borderRadius: '12px', 
-                          border: '1px solid rgba(255,255,255,0.08)',
-                          background: 'rgba(0,0,0,0.2)',
-                          padding: '0.5rem'
-                        }} 
-                      />
-                    </div>
                   )}
 
                   {/* Optional Question Listening Audio Passage Player */}

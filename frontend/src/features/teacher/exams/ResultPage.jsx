@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, XCircle, Award, Trophy, Target } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -402,7 +402,7 @@ function ResultCanvas({ imageUrl, drawingData }) {
         src={imageUrl}
         alt="Question with saved drawing"
         onLoad={handleImageLoad}
-        style={{ width: '100%', maxHeight: '480px', objectFit: 'contain', borderRadius: '14px', display: 'block' }}
+        style={{ width: '100%', height: 'auto', borderRadius: '14px', display: 'block' }}
       />
       {canvasSize.width > 0 && (
         <canvas
@@ -448,7 +448,13 @@ export default function ResultPage() {
     );
   }
 
-  if (!result) {
+  const resData = result?.data ?? result;
+  const submission = resData?.submission;
+  const breakdown = Array.isArray(resData?.breakdown) ? resData.breakdown : [];
+  const rank = resData?.rank ?? null;
+  const total_submissions = resData?.total_submissions ?? null;
+
+  if (!result || !resData || !submission) {
     return (
       <PageWrapper>
         <style>{CSS}</style>
@@ -506,7 +512,6 @@ export default function ResultPage() {
     );
   }
 
-  const { submission, breakdown, rank, total_submissions } = result;
   const passed        = submission.passed;
   const percentage    = parseFloat(submission.percentage ?? 0);
   const examEnded     = submission.exam_status === 'ended'
@@ -522,78 +527,6 @@ export default function ResultPage() {
 
   const isStructureExam = breakdown && breakdown.length > 0 && breakdown.every(q => q.question_type === 'structure' || q.question_type === 'photo');
 
-  if (isStructureExam) {
-    return (
-      <PageWrapper>
-        <style>{CSS}</style>
-        <div className="result-root" style={{ padding: '1.5rem', maxWidth: '640px', margin: '4rem auto 0', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          
-          <motion.div
-            className="result-hero"
-            style={{ borderColor: 'rgba(124,58,237,0.25)', padding: '3.5rem 2rem' }}
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.45, ease: 'easeOut' }}
-          >
-            <div className="result-hero-blob result-hero-blob-1" style={{ background: 'rgba(124,58,237,0.18)' }} />
-            
-            <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              
-              <div style={{
-                width: 72, height: 72, borderRadius: '50%',
-                background: 'var(--local-card-bg)', border: '2px solid var(--local-violet-l)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                marginBottom: '1.5rem', boxShadow: '0 0 24px rgba(124,58,237,0.25)'
-              }}>
-                <Award size={36} color="var(--violet-l)" />
-              </div>
-
-              <h2 style={{
-                fontFamily: "'Space Grotesk', sans-serif", fontSize: '1.4rem', fontWeight: 700,
-                background: 'linear-gradient(135deg, var(--cream) 0%, var(--lavender) 100%)',
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-                marginBottom: '0.65rem'
-              }}>
-                Practice Attempt Submitted!
-              </h2>
-              
-              <p style={{ fontSize: '0.9rem', color: 'var(--muted)', marginBottom: '1.5rem', fontWeight: 700, fontStyle: 'italic' }}>
-                {submission.exam_title}
-              </p>
-
-              <div style={{
-                background: 'var(--local-card-bg)', border: '2px solid var(--local-card-bdr)',
-                borderRadius: '16px', padding: '1.25rem', marginBottom: '2rem',
-                textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '0.6rem'
-              }}>
-                <p style={{ fontSize: '0.82rem', lineHeight: 1.6, color: 'var(--color-text-primary)' }}>
-                  ✨ <strong>Great work completing this practice exam!</strong>
-                </p>
-                <p style={{ fontSize: '0.82rem', lineHeight: 1.6, color: 'var(--color-text-secondary)', fontWeight: 600 }}>
-                  This exam contains structure-drawing questions. These questions are designed to help you practice drawing chemical structures and diagrams, which are not evaluated by automated pass/fail scores.
-                </p>
-                <p style={{ fontSize: '0.82rem', lineHeight: 1.6, color: 'var(--color-text-secondary)', fontWeight: 600 }}>
-                  Keep attempting more exams on your dashboard to strengthen your skills, build muscle memory, and master chemical structures!
-                </p>
-              </div>
-
-              <button 
-                type="button" 
-                className="result-back" 
-                style={{ padding: '0.65rem 2rem', background: 'linear-gradient(135deg, var(--violet), #4F46E5)', color: '#fff', border: 'none', boxShadow: '0 0 20px rgba(124,58,237,0.35)' }} 
-                onClick={() => navigate(user?.role === 'student' ? '/student/dashboard' : '/exams')}
-              >
-                Explore More Exams
-              </button>
-
-            </div>
-          </motion.div>
-
-        </div>
-      </PageWrapper>
-    );
-  }
-
   return (
     <PageWrapper>
       <style>{CSS}</style>
@@ -606,77 +539,97 @@ export default function ResultPage() {
           </button>
         </motion.div>
 
-        {/* ── Score hero ── */}
-        <motion.div
-          className="result-hero"
-          style={{ borderColor: heroBorder }}
-          initial={{ opacity: 0, scale: 0.97 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.45, ease: 'easeOut' }}
-        >
-          {/* Background glow */}
-          <div className="result-hero-blob result-hero-blob-1" style={{ background: heroGlow }} />
-          <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse at 50% 0%, ${heroGlow} 0%, transparent 70%)`, pointerEvents: 'none' }} />
-
-          {passed && <Confetti />}
-
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            {/* Score ring */}
-            <ScoreRing percentage={percentage} passed={passed} />
-
-            {/* Exam title */}
-            <motion.p
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              style={{ fontSize: '1rem', fontWeight: 600, fontFamily: "'Space Grotesk', sans-serif", marginBottom: '0.75rem', color: 'var(--cream)' }}
-            >
-              {submission.exam_title}
-            </motion.p>
-
-            {/* Verdict badge */}
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35, type: 'spring', stiffness: 300 }}>
-              <span className="result-verdict" style={{ background: verdictBg, border: `1px solid ${verdictBdr}`, color: verdictClr }}>
-                {passed ? <Trophy size={14} /> : !hasPassing ? <CheckCircle size={14} /> : <XCircle size={14} />}
-                {passed ? 'Passed' : !hasPassing ? 'Completed' : 'Failed'}
+        {/* ── Score hero / Header card ── */}
+        {isStructureExam ? (
+          <motion.div
+            className="result-hero"
+            style={{ borderColor: 'rgba(124,58,237,0.3)', padding: '2rem 1.5rem' }}
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
+          >
+            <div className="result-hero-blob result-hero-blob-1" style={{ background: 'rgba(124,58,237,0.18)' }} />
+            <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.65rem' }}>
+              <h2 style={{ fontSize: '1.45rem', fontWeight: 800, color: 'var(--cream)', fontFamily: "'Space Grotesk', sans-serif", margin: 0 }}>
+                {submission.exam_title}
+              </h2>
+              <span className="result-verdict" style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid #10B981', color: '#10B981', margin: 0 }}>
+                <CheckCircle size={14} /> Practice Attempt Completed
               </span>
-            </motion.div>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            className="result-hero"
+            style={{ borderColor: heroBorder }}
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
+          >
+            {/* Background glow */}
+            <div className="result-hero-blob result-hero-blob-1" style={{ background: heroGlow }} />
+            <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse at 50% 0%, ${heroGlow} 0%, transparent 70%)`, pointerEvents: 'none' }} />
 
-            {/* Stats */}
-            <motion.div
-              className="result-stats-row"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.45 }}
-            >
-              {[
-                { label: 'Score',     val: submission.score,       color: 'var(--cream)' },
-                { label: 'Total',     val: submission.total_marks ?? '-', color: 'var(--cream)' },
-                submission.passing_marks && { label: 'Pass mark', val: submission.passing_marks, color: 'var(--muted)' },
-              ].filter(Boolean).map((s, i) => (
-                <div key={i} className="result-stat">
-                  <div className="result-stat-val" style={{ color: s.color }}>{s.val}</div>
-                  <div className="result-stat-label">{s.label}</div>
+            {passed && <Confetti />}
+
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              {/* Score ring */}
+              <ScoreRing percentage={percentage} passed={passed} />
+
+              {/* Exam title */}
+              <motion.p
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                style={{ fontSize: '1rem', fontWeight: 600, fontFamily: "'Space Grotesk', sans-serif", marginBottom: '0.75rem', color: 'var(--cream)' }}
+              >
+                {submission.exam_title}
+              </motion.p>
+
+              {/* Verdict badge */}
+              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.35, type: 'spring', stiffness: 300 }}>
+                <span className="result-verdict" style={{ background: verdictBg, border: `1px solid ${verdictBdr}`, color: verdictClr }}>
+                  {passed ? <Trophy size={14} /> : !hasPassing ? <CheckCircle size={14} /> : <XCircle size={14} />}
+                  {passed ? 'Passed' : !hasPassing ? 'Completed' : 'Failed'}
+                </span>
+              </motion.div>
+
+              {/* Stats */}
+              <motion.div
+                className="result-stats-row"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.45 }}
+              >
+                {[
+                  { label: 'Score',     val: submission.score,       color: 'var(--cream)' },
+                  { label: 'Total',     val: submission.total_marks ?? '-', color: 'var(--cream)' },
+                  submission.passing_marks && { label: 'Pass mark', val: submission.passing_marks, color: 'var(--muted)' },
+                ].filter(Boolean).map((s, i) => (
+                  <div key={i} className="result-stat">
+                    <div className="result-stat-val" style={{ color: s.color }}>{s.val}</div>
+                    <div className="result-stat-label">{s.label}</div>
+                  </div>
+                ))}
+                <div className="result-stat">
+                  {showRank ? (
+                    <>
+                      <div className="result-stat-val" style={{ color: 'var(--violet-l)' }}>#{rank}</div>
+                      <div className="result-stat-label">of {total_submissions}</div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="result-stat-val" style={{ color: 'var(--muted)', fontSize: '1rem' }}>
+                        <Award size={18} style={{ display: 'inline', verticalAlign: 'middle', marginBottom: 2 }} />
+                      </div>
+                      <div className="result-stat-label" style={{ whiteSpace: 'nowrap' }}>Rank after exam ends</div>
+                    </>
+                  )}
                 </div>
-              ))}
-              <div className="result-stat">
-                {showRank ? (
-                  <>
-                    <div className="result-stat-val" style={{ color: 'var(--violet-l)' }}>#{rank}</div>
-                    <div className="result-stat-label">of {total_submissions}</div>
-                  </>
-                ) : (
-                  <>
-                    <div className="result-stat-val" style={{ color: 'var(--muted)', fontSize: '1rem' }}>
-                      <Award size={18} style={{ display: 'inline', verticalAlign: 'middle', marginBottom: 2 }} />
-                    </div>
-                    <div className="result-stat-label" style={{ whiteSpace: 'nowrap' }}>Rank after exam ends</div>
-                  </>
-                )}
-              </div>
-            </motion.div>
-          </div>
-        </motion.div>
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
 
         {/* ── Question breakdown ── */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
@@ -727,25 +680,57 @@ export default function ResultPage() {
                     </div>
 
                     {/* Image & Saved Drawing Display for Questions */}
-                    {q.image_url && (
-                      <div style={{ marginTop: '0.85rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-                        {q.student_drawing_data ? (
-                          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--cyan)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.35rem' }}>
-                              🎨 Your Saved Drawing
+                    {q.image_url && (() => {
+                      let drawingUrl = null;
+                      let drawingStrokes = null;
+                      if (q.student_drawing_data) {
+                        if (typeof q.student_drawing_data === 'string' && q.student_drawing_data.startsWith('http')) {
+                          drawingUrl = q.student_drawing_data;
+                        } else {
+                          try {
+                            const parsed = typeof q.student_drawing_data === 'string' ? JSON.parse(q.student_drawing_data) : q.student_drawing_data;
+                            if (parsed && typeof parsed === 'object') {
+                              if (parsed.url) drawingUrl = parsed.url;
+                              if (parsed.strokes) drawingStrokes = parsed.strokes;
+                              else if (Array.isArray(parsed)) drawingStrokes = parsed;
+                            }
+                          } catch (e) {
+                            drawingStrokes = q.student_drawing_data;
+                          }
+                        }
+                      }
+
+                      return (
+                        <div style={{ marginTop: '0.85rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', width: '100%' }}>
+                          {drawingUrl ? (
+                            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                              <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--cyan)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.35rem' }}>
+                                🎨 Your Saved Drawing (Cloudinary)
+                              </div>
+                              <img
+                                src={drawingUrl}
+                                alt="Your saved drawing"
+                                style={{ width: '100%', height: 'auto', borderRadius: '14px', border: '2px solid var(--card-bdr)', display: 'block' }}
+                              />
                             </div>
-                            <ResultCanvas imageUrl={q.image_url} drawingData={q.student_drawing_data} />
-                          </div>
-                        ) : (
-                          <img 
-                            src={q.image_url} 
-                            alt="Question illustration" 
-                            style={{ maxWidth: '100%', maxHeight: '240px', borderRadius: '12px', border: '2px solid var(--card-bdr)', display: 'block' }} 
-                            loading="lazy"
-                          />
-                        )}
-                      </div>
-                    )}
+                          ) : drawingStrokes ? (
+                            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                              <div style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--cyan)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '0.35rem' }}>
+                                🎨 Your Saved Drawing
+                              </div>
+                              <ResultCanvas imageUrl={q.image_url} drawingData={drawingStrokes} />
+                            </div>
+                          ) : (
+                            <img
+                              src={q.image_url}
+                              alt="Question illustration"
+                              style={{ maxWidth: '100%', maxHeight: '240px', borderRadius: '12px', border: '2px solid var(--card-bdr)', display: 'block' }}
+                              loading="lazy"
+                            />
+                          )}
+                        </div>
+                      );
+                    })()}
 
                     {/* Answer pills */}
                     {q.question_type !== 'photo' && (
