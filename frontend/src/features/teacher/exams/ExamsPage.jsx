@@ -1052,6 +1052,40 @@ export default function StudentExamsPage() {
           <img src="/exam.png?v=2" alt="" className="exams-header-image" />
         </motion.div>
 
+        {/* Evaluation Notice Banner */}
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(124, 58, 237, 0.12) 100%)',
+            border: '1.5px solid rgba(245, 158, 11, 0.35)',
+            borderRadius: '18px',
+            padding: '0.9rem 1.25rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.85rem',
+            marginBottom: '0.5rem',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+          }}
+        >
+          <div style={{
+            width: '38px',
+            height: '38px',
+            borderRadius: '12px',
+            background: 'rgba(245, 158, 11, 0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '1.25rem',
+            flexShrink: 0
+          }}>
+            📝
+          </div>
+          <div style={{ fontSize: '0.86rem', fontWeight: 600, color: 'var(--cream)', lineHeight: 1.5 }}>
+            <strong style={{ color: '#FBBF24', fontWeight: 800 }}>Note:</strong> No robots marking here! 🤖 Your answers go to your teacher, because reasoning matters just as much as the final answer.
+          </div>
+        </motion.div>
+
         {/* Filters and Tabs row */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
           {/* Tab strip */}

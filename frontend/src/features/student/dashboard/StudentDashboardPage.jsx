@@ -1696,10 +1696,30 @@ export default function StudentDashboardPage() {
                         )}
 
                         {activeTab === 'exams' && (
-                          exams.length === 0 ? (
-                            renderEmptyState('exams')
-                          ) : (
-                            exams.map((e) => {
+                          <div>
+                            <div style={{
+                              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(124, 58, 237, 0.12) 100%)',
+                              border: '1.5px solid rgba(245, 158, 11, 0.35)',
+                              borderRadius: '18px',
+                              padding: '0.85rem 1.15rem',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.75rem',
+                              marginBottom: '1rem',
+                              boxShadow: '0 4px 15px rgba(0,0,0,0.06)'
+                            }}>
+                              <div style={{ fontSize: '1.3rem', flexShrink: 0 }}>
+                                📝
+                              </div>
+                              <div style={{ fontSize: '0.84rem', fontWeight: 600, color: 'var(--cream)', lineHeight: 1.45 }}>
+                                <strong style={{ color: '#FBBF24', fontWeight: 800 }}>Note:</strong> No robots marking here! 🤖 Your answers go to your teacher, because reasoning matters just as much as the final answer.
+                              </div>
+                            </div>
+
+                            {exams.length === 0 ? (
+                              renderEmptyState('exams')
+                            ) : (
+                              exams.map((e) => {
                               const isAttempted = attemptedExamIds.has(e.id);
                               const isLocked = e.is_premium && !user?.is_premium;
 
@@ -1770,7 +1790,8 @@ export default function StudentDashboardPage() {
                                 </div>
                               );
                             })
-                          )
+                          )}
+                        </div>
                         )}
                       </div>
                     )}
