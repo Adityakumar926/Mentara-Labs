@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
@@ -11,11 +11,12 @@ import { PageWrapper, Skeleton, Modal } from '@/components/ui';
 import { useApi } from '@/hooks/useApi';
 import { studentApi } from '@/api/services';
 import useAuthStore from '@/store/authStore';
-import MuxPlayer from '@mux/mux-player-react';
 import toast from 'react-hot-toast';
-import PdfViewerModal from '@/components/shared/PdfViewerModal';
-import WorksheetCanvas from '@/components/shared/WorksheetCanvas';
 import SEOHead from '@/components/shared/SEOHead';
+
+const MuxPlayer = lazy(() => import('@mux/mux-player-react'));
+const PdfViewerModal = lazy(() => import('@/components/shared/PdfViewerModal'));
+const WorksheetCanvas = lazy(() => import('@/components/shared/WorksheetCanvas'));
 
 const CSS = `
   
@@ -1988,25 +1989,31 @@ export default function StudentDashboardPage() {
         </div>
 
         {/* Custom Protected PDF Reader Modal */}
-        <PdfViewerModal
-          open={!!pdfUrl}
-          onClose={() => setPdfUrl(null)}
-          pdfUrl={typeof pdfUrl === 'string' ? pdfUrl : (pdfUrl?.url || pdfUrl?.file_url)}
-          title={selectedNoteTitle || 'Cambridge Primary Story Book'}
-        />
+        <Suspense fallback={null}>
+          {!!pdfUrl && (
+            <PdfViewerModal
+              open={!!pdfUrl}
+              onClose={() => setPdfUrl(null)}
+              pdfUrl={typeof pdfUrl === 'string' ? pdfUrl : (pdfUrl?.url || pdfUrl?.file_url)}
+              title={selectedNoteTitle || 'Cambridge Primary Story Book'}
+            />
+          )}
+        </Suspense>
 
         {/* Modal: Mux Video Player */}
         <Modal open={!!videoToken} onClose={() => setVideoToken(null)} title={selectedVideoContent?.title || 'Video Lesson'} size="md">
           <div style={{ width: '100%', aspectRatio: '16/9', overflow: 'hidden', borderRadius: '12px', background: '#000' }}>
-            {videoToken && (
-              <MuxPlayer
-                playbackId={videoToken}
-                metadataVideoTitle={selectedVideoContent?.title}
-                primaryColor="#7C3AED"
-                accentColor="#00D4FF"
-                style={{ width: '100%', height: '100%' }}
-              />
-            )}
+            <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94A3B8' }}>Loading video...</div>}>
+              {videoToken && (
+                <MuxPlayer
+                  playbackId={videoToken}
+                  metadataVideoTitle={selectedVideoContent?.title}
+                  primaryColor="#7C3AED"
+                  accentColor="#00D4FF"
+                  style={{ width: '100%', height: '100%' }}
+                />
+              )}
+            </Suspense>
           </div>
         </Modal>
 
@@ -2074,23 +2081,25 @@ export default function StudentDashboardPage() {
           size="full"
           hideHeader={true}
         >
-          {activeWorksheetModal && (
-            <WorksheetCanvas
-              imageUrl={activeWorksheetModal.imageUrl}
-              contentId={activeWorksheetModal.id}
-              title={activeWorksheetModal.title}
-              onSubmit={(cid) => {
-                studentApi.trackResource({ contentId: cid, completed: true })
-                  .then(() => toast.success('Worksheet submitted successfully! 🎉'))
-                  .catch(err => console.error('Failed to submit worksheet:', err));
-              }}
-              onClose={() => {
-                setActiveWorksheetModal(null);
-                window.activeExamContext = null;
-                window.dispatchEvent(new CustomEvent('active-exam-question-changed', { detail: null }));
-              }}
-            />
-          )}
+          <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', color: '#94A3B8' }}>Loading worksheet...</div>}>
+            {activeWorksheetModal && (
+              <WorksheetCanvas
+                imageUrl={activeWorksheetModal.imageUrl}
+                contentId={activeWorksheetModal.id}
+                title={activeWorksheetModal.title}
+                onSubmit={(cid) => {
+                  studentApi.trackResource({ contentId: cid, completed: true })
+                    .then(() => toast.success('Worksheet submitted successfully! 🎉'))
+                    .catch(err => console.error('Failed to submit worksheet:', err));
+                }}
+                onClose={() => {
+                  setActiveWorksheetModal(null);
+                  window.activeExamContext = null;
+                  window.dispatchEvent(new CustomEvent('active-exam-question-changed', { detail: null }));
+                }}
+              />
+            )}
+          </Suspense>
         </Modal>
 
       </div>

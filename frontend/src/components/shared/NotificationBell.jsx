@@ -7,7 +7,7 @@ import useNotificationStore from '@/store/notificationStore';
 const CSS = `
   .nb-desktop-trigger {
     position: relative;
-    width: 30px; height: 30px; border-radius: 10px;
+    width: 38px; height: 38px; min-width: 38px; min-height: 38px; border-radius: 12px;
     background: var(--local-card-bg);
     border: 2px solid var(--local-card-bdr);
     display: flex; align-items: center; justify-content: center;
@@ -22,9 +22,9 @@ const CSS = `
   }
 
   .nb-mobile-trigger {
-    flex: 1; display: flex; flex-direction: column;
+    flex: 1; min-height: 44px; display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    padding: 0.6rem 0 0.55rem; gap: 0.22rem;
+    padding: 0.4rem 0 0.35rem; gap: 0.22rem;
     background: none; border: none; cursor: pointer;
     color: var(--color-text-secondary);
     font-size: 0.58rem; font-weight: 700; letter-spacing: 0.04em;

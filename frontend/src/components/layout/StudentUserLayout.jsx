@@ -127,14 +127,16 @@ const CSS = `
     border: 1px solid var(--color-surface-border);
     color: var(--local-muted);
     cursor: pointer;
-    padding: 0.45rem 0.65rem;
+    padding: 0.5rem 0.75rem;
     border-radius: 50px;
     display: flex;
     align-items: center;
     gap: 0.5rem;
     font-size: 0.78rem;
     font-weight: 700;
-    min-width: 34px;
+    min-height: 44px;
+    min-width: 44px;
+    justify-content: center;
   }
   .sl-theme-text { white-space: nowrap; transition: opacity 0.2s; }
   .sl-aside:not(:hover) .sl-theme-text { opacity: 0; display: none; }
@@ -194,7 +196,7 @@ const CSS = `
   .sl-user-email { font-size: 0.68rem; color: var(--local-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .sl-logout {
     background: transparent; border: none; color: var(--local-muted); cursor: pointer;
-    padding: 0.45rem; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    padding: 0.5rem; min-width: 44px; min-height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
     transition: color 0.2s, background 0.2s;
   }
   .sl-logout:hover { color: #EF4444; background: rgba(239,68,68,0.1); }
@@ -250,6 +252,8 @@ const CSS = `
       text-decoration: none;
       padding: 0.35rem 0.5rem;
       border-radius: 12px;
+      min-height: 48px;
+      min-width: 48px;
       transition: all 0.2s ease;
     }
     .sl-mobile-nav-item.active {

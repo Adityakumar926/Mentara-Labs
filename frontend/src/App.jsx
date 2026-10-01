@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import useAuthStore from '@/store/authStore';
@@ -12,60 +12,80 @@ import AuthLayout        from '@/components/layout/AuthLayout';
 // Guards
 import ProtectedRoute from '@/components/shared/ProtectedRoute';
 
-// Landing
-import LandingPage from '@/features/landing/LandingPage';
-import PrivacyPolicyPage from '@/features/landing/PrivacyPolicyPage';
-import TermsOfServicePage from '@/features/landing/TermsOfServicePage';
-import PaymentSuccess from '@/features/payment/PaymentSuccess';
+// Landing (Lazy)
+const LandingPage                   = lazy(() => import('@/features/landing/LandingPage'));
+const PrivacyPolicyPage             = lazy(() => import('@/features/landing/PrivacyPolicyPage'));
+const TermsOfServicePage            = lazy(() => import('@/features/landing/TermsOfServicePage'));
+const PaymentSuccess                = lazy(() => import('@/features/payment/PaymentSuccess'));
+const PublicCertificateVerification = lazy(() => import('@/features/landing/PublicCertificateVerification'));
 
-// Auth pages
-import LoginPage    from '@/features/auth/LoginPage';
-import RegisterPage from '@/features/auth/RegisterPage';
+// Auth (Lazy)
+const LoginPage      = lazy(() => import('@/features/auth/LoginPage'));
+const RegisterPage   = lazy(() => import('@/features/auth/RegisterPage'));
+const OnboardingPage = lazy(() => import('@/features/auth/OnboardingPage'));
 
-// Admin pages
-import AdminDashboard   from '@/features/admin/dashboard/DashboardPage';
-import CurriculumPage   from '@/features/admin/curriculum/CurriculumPage';
-import CurriculumDetail from '@/features/admin/curriculum/CurriculumDetail';
-import QuestionsPage    from '@/features/admin/questions/QuestionsPage';
-import QuestionGeneratorPage from '@/features/admin/question_generator/QuestionGeneratorPage';
-import ExamsAdminPage   from '@/features/admin/exams/ExamsPage';
-import ExamDetail       from '@/features/admin/exams/ExamDetail';
-import StudentsPage     from '@/features/admin/students/StudentsPage';
-import SettingsPage     from '@/features/admin/settings/SettingsPage';
-import CertificatesPage from '@/features/admin/certificates/CertificatesPage';
+// Admin (Lazy)
+const AdminDashboard        = lazy(() => import('@/features/admin/dashboard/DashboardPage'));
+const CurriculumPage        = lazy(() => import('@/features/admin/curriculum/CurriculumPage'));
+const CurriculumDetail      = lazy(() => import('@/features/admin/curriculum/CurriculumDetail'));
+const QuestionsPage         = lazy(() => import('@/features/admin/questions/QuestionsPage'));
+const QuestionGeneratorPage = lazy(() => import('@/features/admin/question_generator/QuestionGeneratorPage'));
+const ExamsAdminPage        = lazy(() => import('@/features/admin/exams/ExamsPage'));
+const ExamDetail            = lazy(() => import('@/features/admin/exams/ExamDetail'));
+const StudentsPage          = lazy(() => import('@/features/admin/students/StudentsPage'));
+const SettingsPage          = lazy(() => import('@/features/admin/settings/SettingsPage'));
+const CertificatesPage      = lazy(() => import('@/features/admin/certificates/CertificatesPage'));
+const MaterialsPage         = lazy(() => import('@/features/admin/curriculum/MaterialsPage'));
 
-import MaterialsPage    from '@/features/admin/curriculum/MaterialsPage';
+// Student (Lazy)
+const StudentDashboardPage    = lazy(() => import('@/features/student/dashboard/StudentDashboardPage'));
+const ProfilePage             = lazy(() => import('@/features/student/profile/ProfilePage'));
+const PremiumPage             = lazy(() => import('@/features/student/premium/PremiumPage'));
+const StudentCertificatesPage = lazy(() => import('@/features/student/certificates/CertificatesPage'));
+const StudentClassroomsPage   = lazy(() => import('@/features/student/classrooms/StudentClassroomsPage'));
+const StudentClassroomView   = lazy(() => import('@/features/student/classrooms/StudentClassroomView'));
+const ClassroomJoinPage       = lazy(() => import('@/features/student/classrooms/ClassroomJoinPage'));
 
-// Student pages
-import OnboardingPage       from '@/features/auth/OnboardingPage';
-import StudentDashboardPage from '@/features/student/dashboard/StudentDashboardPage';
-import ProfilePage          from '@/features/student/profile/ProfilePage';
-import PremiumPage          from '@/features/student/premium/PremiumPage';
-import StudentCertificatesPage from '@/features/student/certificates/CertificatesPage';
-import PublicCertificateVerification from '@/features/landing/PublicCertificateVerification';
+// Teacher (Lazy)
+const SubjectsListPage     = lazy(() => import('@/features/teacher/courses/SubjectsListPage'));
+const CoursesPage          = lazy(() => import('@/features/teacher/courses/CoursesPage'));
+const TopicsPage           = lazy(() => import('@/features/teacher/courses/TopicsPage'));
+const SubjectPage          = lazy(() => import('@/features/teacher/courses/SubjectPage'));
+const ExamsStudentPage     = lazy(() => import('@/features/teacher/exams/ExamsPage'));
+const ExamTakePage         = lazy(() => import('@/features/teacher/exams/ExamTakePage'));
+const ResultPage           = lazy(() => import('@/features/teacher/exams/ResultPage'));
+const ExplorePage          = lazy(() => import('@/features/teacher/courses/Explore'));
+const StudentQuestionsPage = lazy(() => import('@/features/teacher/questions/QuestionsPage'));
+const ClassroomsPage       = lazy(() => import('@/features/teacher/classrooms/ClassroomsPage'));
+const ClassroomDetail      = lazy(() => import('@/features/teacher/classrooms/ClassroomDetail'));
 
-// Teacher pages
-import SubjectsListPage     from '@/features/teacher/courses/SubjectsListPage';
-import CoursesPage          from '@/features/teacher/courses/CoursesPage';
-import TopicsPage           from '@/features/teacher/courses/TopicsPage';
-import SubjectPage          from '@/features/teacher/courses/SubjectPage';
-import ExamsStudentPage     from '@/features/teacher/exams/ExamsPage';
-import ExamTakePage         from '@/features/teacher/exams/ExamTakePage';
-import ResultPage           from '@/features/teacher/exams/ResultPage';
-import ExplorePage          from '@/features/teacher/courses/Explore';
-import StudentQuestionsPage from '@/features/teacher/questions/QuestionsPage';
-import ClassroomsPage       from '@/features/teacher/classrooms/ClassroomsPage';
-import ClassroomDetail      from '@/features/teacher/classrooms/ClassroomDetail';
-import StudentClassroomsPage from '@/features/student/classrooms/StudentClassroomsPage';
-import StudentClassroomView from '@/features/student/classrooms/StudentClassroomView';
-import ClassroomJoinPage    from '@/features/student/classrooms/ClassroomJoinPage';
+function PageLoader() {
+  return (
+    <div style={{
+      minHeight: '60vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'column',
+      gap: '1rem',
+      color: '#94A3B8'
+    }}>
+      <div style={{
+        width: '40px',
+        height: '40px',
+        borderRadius: '50%',
+        border: '3px solid rgba(139, 92, 246, 0.2)',
+        borderTopColor: '#8B5CF6',
+        animation: 'spin 0.8s linear infinite'
+      }} />
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+}
 
 export default function App() {
   const fetchMe = useAuthStore((s) => s.fetchMe);
 
-  // Re-validates the session on every full page load and, as a side effect
-  // (see authStore.fetchMe), reconnects the notification socket. Without
-  // this, the socket only ever opens right after a fresh login/register.
   useEffect(() => {
     if (localStorage.getItem('accessToken')) {
       fetchMe();
@@ -79,98 +99,100 @@ export default function App() {
   }, [fetchMe]);
 
   return (
-    <AnimatePresence mode="wait">
-      <Routes>
+    <Suspense fallback={<PageLoader />}>
+      <AnimatePresence mode="wait">
+        <Routes>
 
-        {/* ── Landing ───────────────────────────────────────────────────── */}
-        <Route path="/"        element={<LandingPage />} />
-        <Route path="/privacy" element={<PrivacyPolicyPage />} />
-        <Route path="/terms"   element={<TermsOfServicePage />} />
+          {/* ── Landing ───────────────────────────────────────────────────── */}
+          <Route path="/"        element={<LandingPage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms"   element={<TermsOfServicePage />} />
 
-        {/* ── Auth ──────────────────────────────────────────────────────── */}
-        <Route element={<AuthLayout />}>
-          <Route path="/login"    element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-        </Route>
-
-        {/* ── Admin ─────────────────────────────────────────────────────── */}
-        <Route element={<ProtectedRoute role="admin" />}>
-          <Route element={<AdminLayout />}>
-            <Route path="/admin"                element={<AdminDashboard />} />
-            <Route path="/admin/curriculum"     element={<CurriculumPage />} />
-            <Route path="/admin/curriculum/:id" element={<CurriculumDetail />} />
-            <Route path="/admin/materials"      element={<MaterialsPage />} />
-            <Route path="/admin/questions"          element={<QuestionsPage />} />
-            <Route path="/admin/question-generator" element={<QuestionGeneratorPage />} />
-            <Route path="/admin/exams"              element={<ExamsAdminPage />} />
-            <Route path="/admin/exams/:id"      element={<ExamDetail />} />
-            <Route path="/admin/students"       element={<StudentsPage />} />
-            <Route path="/admin/settings"       element={<SettingsPage />} />
-            <Route path="/admin/certificates"   element={<CertificatesPage />} />
+          {/* ── Auth ──────────────────────────────────────────────────────── */}
+          <Route element={<AuthLayout />}>
+            <Route path="/login"    element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
           </Route>
-        </Route>
 
-        {/* ── Onboarding (no layout) ───────────────────────────────── */}
-        <Route element={<ProtectedRoute role={['student', 'teacher']} />}>
-          <Route path="/onboarding" element={<OnboardingPage />} />
-        </Route>
-
-        {/* ── Teacher Dashboard & Learning ────────────────────────────────── */}
-        <Route element={<ProtectedRoute role="teacher" />}>
-          <Route element={<StudentLayout />}>
-            <Route path="/courses"                                           element={<CoursesPage />} />
-            <Route path="/courses/:id"                                       element={<CurriculumDetail />} />
-            <Route path="/materials"                                         element={<Navigate to="/explore" replace />} />
-            <Route path="/subjects/:subjectId"                               element={<TopicsPage />} />
-            <Route path="/topics/:topicId"                                   element={<SubjectPage />} />
-            <Route path="/courses/subjects/:subjectId"                       element={<TopicsPage />} />
-            <Route path="/courses/topics/:topicId"                           element={<SubjectPage />} />
-            <Route path="/courses/:curriculumId/subjects"                    element={<SubjectsListPage />} />
-            <Route path="/courses/:curriculumId/subjects/:subjectId"         element={<TopicsPage />} />
-            <Route path="/courses/:curriculumId/subjects/:subjectId/topics/:topicId" element={<SubjectPage />} />
-            <Route path="/classrooms"                                         element={<ClassroomsPage />} />
-            <Route path="/classrooms/:id"                                     element={<ClassroomDetail />} />
-            <Route path="/questions"                                         element={<StudentQuestionsPage />} />
-            <Route path="/question-generator"                                element={<QuestionGeneratorPage isSimpleMode={true} />} />
-            <Route path="/exams"                                             element={<ExamsStudentPage />} />
-            <Route path="/explore"                                           element={<ExplorePage />} />
-            <Route path="/profile"                                           element={<ProfilePage />} />
-            <Route path="/premium"                                           element={<PremiumPage />} />
+          {/* ── Admin ─────────────────────────────────────────────────────── */}
+          <Route element={<ProtectedRoute role="admin" />}>
+            <Route element={<AdminLayout />}>
+              <Route path="/admin"                element={<AdminDashboard />} />
+              <Route path="/admin/curriculum"     element={<CurriculumPage />} />
+              <Route path="/admin/curriculum/:id" element={<CurriculumDetail />} />
+              <Route path="/admin/materials"      element={<MaterialsPage />} />
+              <Route path="/admin/questions"          element={<QuestionsPage />} />
+              <Route path="/admin/question-generator" element={<QuestionGeneratorPage />} />
+              <Route path="/admin/exams"              element={<ExamsAdminPage />} />
+              <Route path="/admin/exams/:id"      element={<ExamDetail />} />
+              <Route path="/admin/students"       element={<StudentsPage />} />
+              <Route path="/admin/settings"       element={<SettingsPage />} />
+              <Route path="/admin/certificates"   element={<CertificatesPage />} />
+            </Route>
           </Route>
-        </Route>
 
-        {/* ── Student Dashboard & Learning ────────────────────────────────── */}
-        <Route element={<ProtectedRoute role="student" />}>
-          <Route element={<StudentUserLayout />}>
-            <Route path="/student/dashboard"          element={<StudentDashboardPage />} />
-            <Route path="/student/classrooms"         element={<StudentClassroomsPage />} />
-            <Route path="/student/classrooms/:id"     element={<StudentClassroomView />} />
-            <Route path="/student/question-generator" element={<QuestionGeneratorPage isSimpleMode={true} />} />
-            <Route path="/student/profile"            element={<ProfilePage />} />
-            <Route path="/student/premium"            element={<PremiumPage />} />
-            <Route path="/student/certificates"       element={<StudentCertificatesPage />} />
+          {/* ── Onboarding (no layout) ───────────────────────────────── */}
+          <Route element={<ProtectedRoute role={['student', 'teacher']} />}>
+            <Route path="/onboarding" element={<OnboardingPage />} />
           </Route>
-        </Route>
 
-        {/* ── Unified Classroom Join Landing Page ── */}
-        <Route path="/classroom/join/:inviteCode" element={<ClassroomJoinPage />} />
+          {/* ── Teacher Dashboard & Learning ────────────────────────────────── */}
+          <Route element={<ProtectedRoute role="teacher" />}>
+            <Route element={<StudentLayout />}>
+              <Route path="/courses"                                           element={<CoursesPage />} />
+              <Route path="/courses/:id"                                       element={<CurriculumDetail />} />
+              <Route path="/materials"                                         element={<Navigate to="/explore" replace />} />
+              <Route path="/subjects/:subjectId"                               element={<TopicsPage />} />
+              <Route path="/topics/:topicId"                                   element={<SubjectPage />} />
+              <Route path="/courses/subjects/:subjectId"                       element={<TopicsPage />} />
+              <Route path="/courses/topics/:topicId"                           element={<SubjectPage />} />
+              <Route path="/courses/:curriculumId/subjects"                    element={<SubjectsListPage />} />
+              <Route path="/courses/:curriculumId/subjects/:subjectId"         element={<TopicsPage />} />
+              <Route path="/courses/:curriculumId/subjects/:subjectId/topics/:topicId" element={<SubjectPage />} />
+              <Route path="/classrooms"                                         element={<ClassroomsPage />} />
+              <Route path="/classrooms/:id"                                     element={<ClassroomDetail />} />
+              <Route path="/questions"                                         element={<StudentQuestionsPage />} />
+              <Route path="/question-generator"                                element={<QuestionGeneratorPage isSimpleMode={true} />} />
+              <Route path="/exams"                                             element={<ExamsStudentPage />} />
+              <Route path="/explore"                                           element={<ExplorePage />} />
+              <Route path="/profile"                                           element={<ProfilePage />} />
+              <Route path="/premium"                                           element={<PremiumPage />} />
+            </Route>
+          </Route>
 
-        {/* ── Shared Student/Teacher/Admin Exam Attempt & Results (Layout-Free) ── */}
-        <Route element={<ProtectedRoute role={['student', 'teacher', 'admin']} />}>
-          <Route path="/exams/:id/take"   element={<ExamTakePage />} />
-          <Route path="/exams/:id/result" element={<ResultPage />} />
-        </Route>
+          {/* ── Student Dashboard & Learning ────────────────────────────────── */}
+          <Route element={<ProtectedRoute role="student" />}>
+            <Route element={<StudentUserLayout />}>
+              <Route path="/student/dashboard"          element={<StudentDashboardPage />} />
+              <Route path="/student/classrooms"         element={<StudentClassroomsPage />} />
+              <Route path="/student/classrooms/:id"     element={<StudentClassroomView />} />
+              <Route path="/student/question-generator" element={<QuestionGeneratorPage isSimpleMode={true} />} />
+              <Route path="/student/profile"            element={<ProfilePage />} />
+              <Route path="/student/premium"            element={<PremiumPage />} />
+              <Route path="/student/certificates"       element={<StudentCertificatesPage />} />
+            </Route>
+          </Route>
 
-        {/* ── Public Certificate Verification ── */}
-        <Route path="/certificate/:certificateId" element={<PublicCertificateVerification />} />
+          {/* ── Unified Classroom Join Landing Page ── */}
+          <Route path="/classroom/join/:inviteCode" element={<ClassroomJoinPage />} />
 
-        {/* ── Payment ───────────────────────────────────────────────────── */}
-        <Route path="/payment/success" element={<PaymentSuccess />} />
+          {/* ── Shared Student/Teacher/Admin Exam Attempt & Results (Layout-Free) ── */}
+          <Route element={<ProtectedRoute role={['student', 'teacher', 'admin']} />}>
+            <Route path="/exams/:id/take"   element={<ExamTakePage />} />
+            <Route path="/exams/:id/result" element={<ResultPage />} />
+          </Route>
 
-        {/* ── Fallback ──────────────────────────────────────────────────── */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+          {/* ── Public Certificate Verification ── */}
+          <Route path="/certificate/:certificateId" element={<PublicCertificateVerification />} />
 
-      </Routes>
-    </AnimatePresence>
+          {/* ── Payment ───────────────────────────────────────────────────── */}
+          <Route path="/payment/success" element={<PaymentSuccess />} />
+
+          {/* ── Fallback ──────────────────────────────────────────────────── */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
+
+        </Routes>
+      </AnimatePresence>
+    </Suspense>
   );
 }
