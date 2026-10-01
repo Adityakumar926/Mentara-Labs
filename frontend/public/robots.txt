@@ -1,13 +1,7 @@
 User-agent: *
 Allow: /
-Allow: /login
-Allow: /register
 
-# Disallow private dashboards and backend APIs
-Disallow: /admin/
-Disallow: /student/
-Disallow: /teacher/
-Disallow: /courses/
+# Disallow backend internal API calls
 Disallow: /api/
 
 Sitemap: https://www.mentp.com/sitemap.xml

@@ -15,6 +15,7 @@ import MuxPlayer from '@mux/mux-player-react';
 import toast from 'react-hot-toast';
 import PdfViewerModal from '@/components/shared/PdfViewerModal';
 import WorksheetCanvas from '@/components/shared/WorksheetCanvas';
+import SEOHead from '@/components/shared/SEOHead';
 
 const CSS = `
   
@@ -1267,6 +1268,11 @@ export default function StudentDashboardPage() {
 
   return (
     <PageWrapper className="p-6">
+      <SEOHead
+        title="Student Learning Dashboard | Cambridge Primary | Mentara Labs"
+        description="Interactive Cambridge Primary learning dashboard with Stage 1-5 questions, worksheets, 3D simulations and mock checkpoint assessments."
+        canonical="/student/dashboard"
+      />
       <style>{CSS}</style>
       <div className="sd-root">
         
