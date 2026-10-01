@@ -122,10 +122,10 @@ function Header() {
         scrolled ? "bg-zinc-950/90 backdrop-blur-xl border-b border-white/5 h-16" : "bg-transparent h-20"
       } flex items-center`}
     >
-      <div className="max-w-[1480px] mx-auto px-6 lg:px-12 w-full flex items-center justify-between">
-        <a href="#" data-testid="brand-logo" className="flex items-center gap-3 group">
-          <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-11 w-11 object-contain transition-transform duration-300 group-hover:scale-105" />
-          <span className="font-display font-bold text-[26px] tracking-tight header-gradient-text">Mentara Labs</span>
+      <div className="max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-12 w-full flex items-center justify-between">
+        <a href="#" data-testid="brand-logo" className="flex items-center gap-2 sm:gap-3 group shrink-0">
+          <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-8 w-8 sm:h-11 sm:w-11 object-contain transition-transform duration-300 group-hover:scale-105" />
+          <span className="font-display font-bold text-lg sm:text-[26px] tracking-tight header-gradient-text whitespace-nowrap">Mentara Labs</span>
         </a>
 
         <nav className="hidden md:flex items-center gap-1.5">
@@ -141,7 +141,7 @@ function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <Link
             to="/login"
             data-testid="header-signin"
@@ -152,15 +152,15 @@ function Header() {
           <Link
             to="/register"
             data-testid="header-cta"
-            className="group inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[13px] font-semibold text-zinc-950 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:shadow-[0_0_30px_rgba(34,211,238,0.45)] transition-shadow duration-300"
+            className="group inline-flex items-center gap-1 sm:gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-[13px] font-semibold text-zinc-950 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:shadow-[0_0_30px_rgba(34,211,238,0.45)] transition-shadow duration-300 whitespace-nowrap"
           >
-            Get Started
-            <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            <span>Get Started</span>
+            <ArrowUpRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </Link>
           <button
             data-testid="mobile-menu-toggle"
             onClick={() => setOpen(!open)}
-            className="md:hidden p-2 text-zinc-300 hover:text-white transition-colors"
+            className="md:hidden p-1.5 text-zinc-300 hover:text-white transition-colors shrink-0"
             aria-label="Toggle menu"
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -207,7 +207,7 @@ function Header() {
 /* ── 2. HERO (Matching User Screenshot media_1787852283925.png) ── */
 function Hero() {
   return (
-    <section data-testid="hero-section" className="relative pt-24 pb-16 lg:pt-32 lg:pb-20 overflow-hidden bg-zinc-950 min-h-[580px] lg:min-h-[640px] flex items-center">
+    <section data-testid="hero-section" className="relative pt-20 pb-12 sm:pt-28 sm:pb-16 lg:pt-32 lg:pb-20 overflow-hidden bg-zinc-950 min-h-[500px] sm:min-h-[580px] lg:min-h-[640px] flex items-center">
       {/* Background Video - Darkened for High Contrast */}
       <div className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
         <video
@@ -226,29 +226,29 @@ function Hero() {
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/60 via-transparent to-zinc-950/40 z-10" />
       </div>
 
-      <div className="max-w-[1480px] mx-auto px-6 lg:px-12 relative z-20 w-full">
+      <div className="max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-12 relative z-20 w-full">
         <div className="max-w-3xl">
-          {/* Single Unified Hero Banner (Moved Upwards) */}
-          <div className="mb-6 inline-flex flex-wrap items-center gap-2.5 px-4 py-1.5 rounded-full border border-cyan-500/35 bg-zinc-950/90 backdrop-blur-xl shadow-[0_0_25px_rgba(6,182,212,0.18)] transition-all hover:border-cyan-400/60" data-testid="hero-unified-banner">
+          {/* Single Unified Hero Banner */}
+          <div className="mb-4 sm:mb-6 inline-flex flex-wrap items-center gap-1.5 sm:gap-2.5 px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-2xl sm:rounded-full border border-cyan-500/35 bg-zinc-950/90 backdrop-blur-xl shadow-[0_0_25px_rgba(6,182,212,0.18)] transition-all hover:border-cyan-400/60" data-testid="hero-unified-banner">
             <span className="relative flex h-2 w-2 shrink-0">
               <span className="absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75 animate-ping" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" />
             </span>
-            <span className="font-mono-label text-[10.5px] uppercase tracking-[0.2em] font-extrabold text-cyan-300">
+            <span className="font-mono-label text-[9.5px] sm:text-[10.5px] uppercase tracking-[0.12em] sm:tracking-[0.2em] font-extrabold text-cyan-300">
               BUILT FOR CAMBRIDGE PRIMARY
             </span>
-            <span className="text-zinc-500 font-bold">•</span>
-            <span className="font-mono-label text-[10.5px] uppercase tracking-[0.18em] font-bold text-zinc-200">
+            <span className="text-zinc-500 font-bold hidden sm:inline">•</span>
+            <span className="font-mono-label text-[9.5px] sm:text-[10.5px] uppercase tracking-[0.12em] sm:tracking-[0.18em] font-bold text-zinc-200">
               DESKTOP & TABLET FIRST
             </span>
-            <span className="text-zinc-500 font-bold">•</span>
-            <span className="font-mono-label text-[10.5px] uppercase tracking-[0.16em] font-semibold text-emerald-400">
+            <span className="text-zinc-500 font-bold hidden sm:inline">•</span>
+            <span className="font-mono-label text-[9.5px] sm:text-[10.5px] uppercase tracking-[0.12em] sm:tracking-[0.16em] font-semibold text-emerald-400">
               REDUCED MOBILE ADDICTION
             </span>
           </div>
 
           {/* Main Hero Heading with High-Contrast Punchy 4-Color Gradient */}
-          <h1 className="font-display font-black text-5xl sm:text-6xl lg:text-7xl leading-[0.96] tracking-tighter">
+          <h1 className="font-display font-black text-4xl sm:text-6xl lg:text-7xl leading-[1.02] sm:leading-[0.96] tracking-tighter">
             <span className="bg-gradient-to-r from-cyan-300 via-violet-300 via-fuchsia-300 to-amber-200 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
               Everything you need to teach and learn{" "}
             </span>
@@ -258,17 +258,17 @@ function Hero() {
           </h1>
 
           {/* Body Subtext */}
-          <p className="mt-5 text-base sm:text-lg leading-relaxed text-zinc-300 max-w-2xl font-medium">
+          <p className="mt-4 sm:mt-5 text-base sm:text-lg leading-relaxed text-zinc-300 max-w-2xl font-medium">
             Mentara Labs equips Cambridge Primary students with interactive 3D simulations,
             digital worksheets, and practical exam prep built to boost understanding and confidence.
           </p>
 
           {/* CTA Buttons */}
-          <div className="mt-6 flex flex-wrap items-center gap-4">
+          <div className="mt-5 sm:mt-6 flex flex-wrap items-center gap-3 sm:gap-4">
             <Link
               to="/register"
               data-testid="hero-cta-primary"
-              className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 font-semibold text-sm hover:shadow-[0_0_40px_rgba(34,211,238,0.45)] transition-shadow duration-300"
+              className="group inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 font-semibold text-sm hover:shadow-[0_0_40px_rgba(34,211,238,0.45)] transition-shadow duration-300 w-full sm:w-auto"
             >
               Start Free Trial
               <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -276,7 +276,7 @@ function Hero() {
             <a
               href="#features"
               data-testid="hero-cta-secondary"
-              className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-full border border-white/15 bg-zinc-900/80 backdrop-blur-md text-zinc-200 font-medium text-sm hover:border-white/30 hover:bg-zinc-900 transition-all"
+              className="group inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full border border-white/15 bg-zinc-900/80 backdrop-blur-md text-zinc-200 font-medium text-sm hover:border-white/30 hover:bg-zinc-900 transition-all w-full sm:w-auto"
             >
               <Play className="h-3.5 w-3.5 fill-cyan-400 text-cyan-400" />
               Explore Features
@@ -284,15 +284,15 @@ function Hero() {
           </div>
 
           {/* Stats Row */}
-          <div className="mt-7 grid grid-cols-3 gap-6 max-w-md border-t border-white/10 pt-4">
+          <div className="mt-6 sm:mt-7 grid grid-cols-3 gap-3 sm:gap-6 max-w-md border-t border-white/10 pt-4">
             {[
               { stat: "100+", label: "Active learners" },
               { stat: "98%", label: "Syllabus Pass Rate" },
               { stat: "240+", label: "Interactive Labs" },
             ].map((s) => (
               <div key={s.label}>
-                <div className="font-display text-2xl font-bold text-white">{s.stat}</div>
-                <div className="text-xs text-zinc-400 font-medium mt-0.5">{s.label}</div>
+                <div className="font-display text-xl sm:text-2xl font-bold text-white">{s.stat}</div>
+                <div className="text-[10px] sm:text-xs text-zinc-400 font-medium mt-0.5">{s.label}</div>
               </div>
             ))}
           </div>
@@ -403,6 +403,15 @@ function Card3DTilt({ children, hoverBorder = "hover:border-cyan-500/60 hover:sh
 
 /* ── 3D DRAMATIC CIRCULAR ARC SCROLL-UNFOLD CARD WRAPPER ── */
 function Card3DScrollArc({ index, totalCards = 4, children, scrollProgress }) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   // Dramatic 3D semicircle arc calculation
   const offset = index - (totalCards - 1) / 2;
   const initialRotY = offset * 34;
@@ -416,6 +425,10 @@ function Card3DScrollArc({ index, totalCards = 4, children, scrollProgress }) {
   const translateY = useTransform(scrollProgress, [0.15, 0.85], [initialY, 0]);
   const translateZ = useTransform(scrollProgress, [0.15, 0.85], [initialZ, 0]);
   const opacity = useTransform(scrollProgress, [0.1, 0.45], [0.3, 1]);
+
+  if (isMobile) {
+    return <div className="h-full">{children}</div>;
+  }
 
   return (
     <motion.div
@@ -455,18 +468,18 @@ function FeaturesBento() {
       ref={sectionRef} 
       id="features" 
       data-testid="features-section" 
-      className="relative py-10 lg:py-14 bg-zinc-950 border-t border-white/5 [perspective:1400px] overflow-hidden"
+      className="relative py-8 sm:py-10 lg:py-14 bg-zinc-950 border-t border-white/5 [perspective:1400px] overflow-hidden"
     >
-      <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
+      <div className="max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-12">
         {/* Section Heading */}
-        <div className="text-center max-w-3xl mx-auto mb-8 lg:mb-10">
-          <span className="font-mono-label text-xs uppercase tracking-[0.25em] text-cyan-400 font-bold px-3 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/10 inline-block mb-3">
+        <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-8 lg:mb-10">
+          <span className="font-mono-label text-[10px] sm:text-xs uppercase tracking-[0.2em] sm:tracking-[0.25em] text-cyan-400 font-bold px-3 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/10 inline-block mb-3">
             · Platform Features
           </span>
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+          <h2 className="font-display text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
             Platform <span className="bg-gradient-to-r from-cyan-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">Features</span>
           </h2>
-          <p className="mt-3 text-zinc-400 text-base sm:text-lg">
+          <p className="mt-2 sm:mt-3 text-zinc-400 text-sm sm:text-lg">
             Everything students need for Cambridge Primary success, all in one connected environment.
           </p>
         </div>
