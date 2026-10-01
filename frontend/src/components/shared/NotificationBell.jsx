@@ -180,9 +180,11 @@ export default function NotificationBell({ variant = 'desktop' }) {
 
       <button
         ref={triggerRef}
+        type="button"
         className={isMobile ? 'nb-mobile-trigger' : 'nb-desktop-trigger'}
         onClick={handleToggle}
         title="Notifications"
+        aria-label={`View notifications (${unreadCount} unread)`}
       >
         <span className="nb-icon-wrap">
           <Bell size={isMobile ? 19 : 15} />

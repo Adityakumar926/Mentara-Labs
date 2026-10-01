@@ -73,8 +73,7 @@ export default function OnboardingPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-
+        
         .onb-shell {
           min-height: 100vh;
           background: #09090b;

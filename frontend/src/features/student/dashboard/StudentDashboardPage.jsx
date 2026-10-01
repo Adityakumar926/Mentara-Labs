@@ -17,8 +17,7 @@ import PdfViewerModal from '@/components/shared/PdfViewerModal';
 import WorksheetCanvas from '@/components/shared/WorksheetCanvas';
 
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Quicksand:wght@600;700;800&display=swap');
-
+  
   .sd-root {
     --navy:     #080C16;
     --navy2:    #0E1424;
@@ -532,32 +531,58 @@ const getSubjectStyle = (name) => {
   };
 };
 
-function SafeLottie({ src, style, fallbackIcon }) {
+function SafeLottie({ src, style, fallbackIcon, lazy = true }) {
   const [hasError, setHasError] = useState(false);
+  const [isVisible, setIsVisible] = useState(!lazy);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!lazy || isVisible) return;
+    if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '150px' }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [lazy, isVisible]);
+
   if (hasError || !src) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', ...style }}>
+      <div ref={containerRef} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', ...style }}>
         {fallbackIcon || <GraduationCap size={40} color="var(--violet-l)" />}
       </div>
     );
   }
-  try {
-    return (
-      <DotLottieReact
-        src={src}
-        loop
-        autoplay
-        style={style}
-        onError={() => setHasError(true)}
-      />
-    );
-  } catch (e) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', ...style }}>
-        {fallbackIcon || <GraduationCap size={40} color="var(--violet-l)" />}
-      </div>
-    );
-  }
+
+  return (
+    <div ref={containerRef} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', ...style }}>
+      {isVisible ? (
+        <DotLottieReact
+          src={src}
+          loop
+          autoplay
+          style={{ width: '100%', height: '100%', ...style }}
+          onError={() => setHasError(true)}
+        />
+      ) : (
+        fallbackIcon || <GraduationCap size={40} color="var(--violet-l)" />
+      )}
+    </div>
+  );
 }
 
 const renderEmptyState = (type) => {
@@ -760,29 +785,42 @@ export default function StudentDashboardPage() {
   const [loadingTopics, setLoadingTopics] = useState(false);
 
   useEffect(() => {
+    let isCurrent = true;
     if (!selectedSubject) {
       setAllTopics([]);
       setTopics([]);
       setSelectedStrand(null);
       setSelectedTopic(null);
+      setTopicContent(null);
       return;
     }
+
+    // Immediately flush state to guarantee complete isolation between subjects
+    setAllTopics([]);
+    setTopics([]);
+    setSelectedStrand(null);
+    setSelectedTopic(null);
+    setTopicContent(null);
     setLoadingTopics(true);
+
     studentApi.getSubjectTopics(selectedSubject.id)
       .then(res => {
+        if (!isCurrent) return; // Discard stale out-of-order response
         const list = res.data?.data ?? res.data ?? res ?? [];
         setAllTopics(list);
         const roots = list.filter(t => !t.parent_topic_id);
         setTopics(roots);
-
-        setSelectedStrand(null);
-        setSelectedTopic(null);
         setLoadingTopics(false);
       })
       .catch(() => {
+        if (!isCurrent) return;
         toast.error('Failed to load topics');
         setLoadingTopics(false);
       });
+
+    return () => {
+      isCurrent = false;
+    };
   }, [selectedSubject]);
 
   useEffect(() => {
@@ -812,21 +850,32 @@ export default function StudentDashboardPage() {
   const [loadingContents, setLoadingContents] = useState(false);
 
   useEffect(() => {
+    let isCurrent = true;
     if (!selectedTopic) {
       setTopicContent(null);
       return;
     }
+
+    // Synchronously reset content for the newly selected topic
+    setTopicContent(null);
     setLoadingContents(true);
+
     studentApi.getTopicContent(selectedTopic.id)
       .then(res => {
+        if (!isCurrent) return; // Discard stale out-of-order response
         const data = res.data?.data ?? res.data ?? res;
         setTopicContent(data);
         setLoadingContents(false);
       })
       .catch(() => {
+        if (!isCurrent) return;
         toast.error('Failed to load learning resources');
         setLoadingContents(false);
       });
+
+    return () => {
+      isCurrent = false;
+    };
   }, [selectedTopic]);
 
   const items = Array.isArray(topicContent?.items) ? topicContent.items : (Array.isArray(topicContent) ? topicContent : []);
@@ -1258,15 +1307,16 @@ export default function StudentDashboardPage() {
             <SafeLottie
               src="/header_card_animation.json"
               style={{ width: '100%', height: '100%' }}
+              lazy={false}
             />
           </div>
         </motion.div>
 
         {/* ── 2. Dynamic 3D Subjects List Grid ── */}
         <div>
-          <div className="sd-section-title">
+          <h2 className="sd-section-title" style={{ margin: '0 0 1.25rem' }}>
             <span>Explore Subjects</span> <Sparkles size={20} color="#F59E0B" />
-          </div>
+          </h2>
 
           {loadingSubjects ? (
             <div className="sd-grid-3">
@@ -1332,6 +1382,8 @@ export default function StudentDashboardPage() {
                               <SafeLottie
                                 src={lottieSrc}
                                 style={{ width: '85px', height: '85px' }}
+                                fallbackIcon={<span style={{ fontSize: '2.5rem' }}>{style.avatar}</span>}
+                                lazy={true}
                               />
                             ) : (
                               style.avatar
@@ -1341,7 +1393,11 @@ export default function StudentDashboardPage() {
                       })()}
                     </div>
 
-                    <button className="sd-subj-btn" style={{ background: style.btnBg }}>
+                    <button
+                      className="sd-subj-btn"
+                      style={{ background: style.btnBg }}
+                      aria-label={`Explore ${subTitle}`}
+                    >
                       {isActive ? 'Selected' : `Explore ${
                         sName.includes('global') || sName.includes('perspective')
                           ? 'Global'
@@ -1606,7 +1662,7 @@ export default function StudentDashboardPage() {
                     </p>
 
                     {/* Tab Navigation */}
-                    <div className="sd-tabs-bar">
+                    <div className="sd-tabs-bar" role="tablist" aria-label="Learning Resource Tabs">
                       {[
                         { id: 'exams', label: '🏆 Mock Quests', count: safeExams.length },
                         { id: 'worksheets', label: '🎨 Coloring Sheets', count: worksheets.length },
@@ -1615,6 +1671,9 @@ export default function StudentDashboardPage() {
                       ].map((t) => (
                         <button
                           key={t.id}
+                          role="tab"
+                          aria-selected={activeTab === t.id}
+                          aria-label={`${t.label} (${t.count} items)`}
                           className={`sd-tab-btn ${activeTab === t.id ? 'active' : ''}`}
                           onClick={() => setActiveTab(t.id)}
                         >
@@ -1907,12 +1966,14 @@ export default function StudentDashboardPage() {
               <SafeLottie
                 src="/Cute Tiger_animation.json"
                 style={{ width: '100%', height: '100%' }}
+                fallbackIcon={<span style={{ fontSize: '3rem' }}>⭐</span>}
+                lazy={true}
               />
             </div>
             <div>
-              <div className="sd-superstar-title" style={{ fontSize: '1.65rem', fontWeight: 900, letterSpacing: '-0.02em', color: 'var(--cream)', lineHeight: 1.25, textShadow: '0 2px 10px rgba(245, 158, 11, 0.3)' }}>
+              <h2 className="sd-superstar-title" style={{ fontSize: '1.65rem', fontWeight: 900, letterSpacing: '-0.02em', color: 'var(--cream)', lineHeight: 1.25, textShadow: '0 2px 10px rgba(245, 158, 11, 0.3)', margin: 0 }}>
                 Keep going, superstar! ⭐
-              </div>
+              </h2>
               <div className="sd-superstar-sub" style={{ fontSize: '1.05rem', color: 'rgba(255, 255, 255, 0.85)', marginTop: '0.4rem', fontWeight: 700, lineHeight: 1.4 }}>
                 Every lesson brings you one step closer to your dreams!
               </div>

@@ -2,8 +2,7 @@ import { Outlet } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
-
+  
   .auth-root {
     height: 100vh;
     background: #020617;

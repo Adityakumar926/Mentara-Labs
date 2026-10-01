@@ -17,8 +17,7 @@ import PdfViewerModal from '@/components/shared/PdfViewerModal';
 
 /* ─── Premium Modern CSS ─── */
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
-
+  
   .ex-root {
     --navy:     var(--local-navy, #0A0E1A);
     --navy2:    var(--local-navy2, #0F1629);

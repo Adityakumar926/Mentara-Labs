@@ -55,8 +55,7 @@ export default function TopicsPage() {
   const rootTopics = topics.filter(t => !t.parent_topic_id);
 
   const CSS = `
-    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
-
+    
     .top-root {
       --navy:     var(--local-navy, #0A0E1A);
       --navy2:    var(--local-navy2, #0F1629);

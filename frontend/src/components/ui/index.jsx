@@ -4,8 +4,7 @@ import clsx from 'clsx';
 
 /* ─── Shared design tokens injected once ─── */
 const TOKENS = `
-  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
-
+  
   :root {
     --ui-navy:     #0A0E1A;
     --ui-navy2:    #0F1629;

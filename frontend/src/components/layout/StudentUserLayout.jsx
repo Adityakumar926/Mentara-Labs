@@ -15,8 +15,7 @@ const NAV = [
 ];
 
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Quicksand:wght@600;700;800&display=swap');
-
+  
   .sl-root {
     display: flex; height: 100vh; overflow: hidden;
     background: #080C16;
@@ -327,7 +326,7 @@ export default function StudentUserLayout() {
         <header className="sl-mobile-header">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
-              <img src="/mentara-new.png" alt="Mentara Labs" className="w-full h-full object-contain" />
+              <img src="/mentara-new.png" alt="Mentara Labs Logo" width="32" height="32" className="w-full h-full object-contain" />
             </div>
             <div className="flex flex-col">
               <span className="font-['Outfit'] font-extrabold text-sm text-[var(--local-cream)] leading-tight">Mentara Labs</span>
@@ -335,12 +334,13 @@ export default function StudentUserLayout() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={toggleTheme}
-              className="p-1.5 rounded-full bg-[var(--color-surface-hover)] border border-[var(--color-surface-border)] text-[var(--local-muted)] hover:text-[var(--local-cream)] transition-colors"
+              className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full bg-[var(--color-surface-hover)] border border-[var(--color-surface-border)] text-[var(--local-muted)] hover:text-[var(--local-cream)] transition-colors"
               title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+              aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
             >
               {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
             </button>
@@ -348,10 +348,16 @@ export default function StudentUserLayout() {
             <NotificationBell variant="desktop" />
 
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-cyan-500 flex items-center justify-center text-white font-black text-xs border border-white/20 overflow-hidden">
-              {user?.avatar_url ? <img src={user.avatar_url} alt="" className="w-full h-full object-cover" /> : initial}
+              {user?.avatar_url ? <img src={user.avatar_url} alt="User Avatar" width="32" height="32" className="w-full h-full object-cover" /> : initial}
             </div>
 
-            <button onClick={handleLogout} className="p-1.5 text-[var(--local-muted)] hover:text-red-400 transition-colors" title="Log out">
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-[var(--local-muted)] hover:text-red-400 transition-colors"
+              title="Log out"
+              aria-label="Log out"
+            >
               <LogOut size={16} />
             </button>
           </div>
@@ -359,12 +365,12 @@ export default function StudentUserLayout() {
 
         {/* ── Collapsible Sidebar (Desktop only) ── */}
         <div className="sl-aside-wrapper">
-          <aside className="sl-aside">
+          <aside className="sl-aside" aria-label="Sidebar Navigation">
             {/* Logo */}
             <div className="sl-logo">
               <div className="sl-logo-left">
                 <div className="sl-logo-mark">
-                  <img src="/mentara-new.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  <img src="/mentara-new.png" alt="Mentara Labs" width="36" height="36" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 </div>
                 <div className="sl-logo-text-group">
                   <span className="sl-logo-text">Mentara Labs</span>
@@ -374,7 +380,7 @@ export default function StudentUserLayout() {
             </div>
 
             {/* Nav */}
-            <nav className="sl-nav">
+            <nav className="sl-nav" aria-label="Main Navigation">
               {NAV.map(({ to, icon: Icon, label }) => (
                 <NavLink
                   key={to}
@@ -395,6 +401,7 @@ export default function StudentUserLayout() {
                 onClick={toggleTheme}
                 className="sl-theme-btn"
                 title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+                aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
               >
                 {theme === 'light' ? <Moon size={14} /> : <Sun size={14} />}
                 <span className="sl-theme-text">{theme === 'light' ? 'Dark' : 'Light'}</span>
@@ -411,7 +418,7 @@ export default function StudentUserLayout() {
                 <span className="sl-premium-text">Premium Member</span>
               </div>
             ) : (
-              <button className="sl-upgrade" onClick={handleUpgradeClick}>
+              <button className="sl-upgrade" onClick={handleUpgradeClick} aria-label="Upgrade to VIP Premium">
                 <span className="sl-upgrade-icon">
                   <Sparkles size={16} />
                 </span>
@@ -427,7 +434,7 @@ export default function StudentUserLayout() {
               <div className="sl-user-row">
                 <div className="sl-avatar">
                   {user?.avatar_url ? (
-                    <img src={user.avatar_url} alt="" />
+                    <img src={user.avatar_url} alt="User Avatar" width="36" height="36" />
                   ) : (
                     initial
                   )}
@@ -436,7 +443,7 @@ export default function StudentUserLayout() {
                   <div className="sl-user-name">{user?.full_name}</div>
                   <div className="sl-user-email">{user?.email}</div>
                 </div>
-                <button className="sl-logout" onClick={handleLogout} title="Log out">
+                <button type="button" className="sl-logout" onClick={handleLogout} title="Log out" aria-label="Log out">
                   <LogOut size={15} />
                 </button>
               </div>

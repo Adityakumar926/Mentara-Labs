@@ -11,8 +11,7 @@ import toast from 'react-hot-toast';
 
 /* ─── Premium Modern CSS ─── */
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
-
+  
   .pr-root {
     --navy:     #0A0E1A;
     --navy2:    #0F1629;

@@ -352,8 +352,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
       <head>
         <title>Cambridge Primary Exam - ${selectedSubjectName}</title>
         <style>
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-          body { font-family: 'Inter', sans-serif; color: #0f172a; margin: 0; padding: 28px; background: #fff; }
+                    body { font-family: 'Inter', sans-serif; color: #0f172a; margin: 0; padding: 28px; background: #fff; }
           .header { text-align: center; border-bottom: 3px solid #0f172a; padding-bottom: 16px; margin-bottom: 24px; }
           .title { font-size: 22px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: #0f172a; margin: 0 0 6px 0; }
           .meta { font-size: 13px; font-weight: 600; color: #475569; display: flex; justify-content: center; gap: 20px; }

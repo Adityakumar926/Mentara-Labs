@@ -582,6 +582,8 @@ export default function VoiceTutor() {
 
         {/* GOGO Robot Circular Button (Shrinks & semi-fades when scrolled OR whiteboard open) */}
         <motion.button
+          type="button"
+          aria-label="Ask GOGO AI Voice Tutor"
           className="relative flex items-center justify-center rounded-full cursor-pointer pointer-events-auto group transition-all duration-300"
           animate={{
             scale: !isOpen && (isScrolled || isWhiteboardOpen) && !isHovered ? 0.75 : 1,
@@ -637,22 +639,29 @@ export default function VoiceTutor() {
               
               <div className="flex items-center gap-1.5">
                 <button
+                  type="button"
                   onClick={() => setShowSettings(!showSettings)}
                   className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
                   title="Voice Settings"
+                  aria-label="Voice Settings"
                 >
                   <Settings className="h-4.5 w-4.5" />
                 </button>
                 <button
+                  type="button"
                   onClick={clearChat}
                   className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
                   title="Clear Conversation"
+                  aria-label="Clear Conversation"
                 >
                   <RefreshCw className="h-4.5 w-4.5" />
                 </button>
                 <button
+                  type="button"
                   onClick={() => { setIsOpen(false); stopSpeaking(); }}
                   className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+                  title="Close GOGO Voice Tutor"
+                  aria-label="Close GOGO Voice Tutor"
                 >
                   <X className="h-4.5 w-4.5" />
                 </button>
@@ -832,9 +841,11 @@ export default function VoiceTutor() {
                     {/* Secondary Stop Speaking button */}
                     {status === 'speaking' ? (
                       <button
+                        type="button"
                         onClick={stopSpeaking}
                         className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all"
                         title="Stop Reading Aloud"
+                        aria-label="Stop Reading Aloud"
                       >
                         <Square size={16} />
                       </button>
@@ -844,7 +855,9 @@ export default function VoiceTutor() {
 
                     {/* Microphone Pulse button */}
                     <button
+                      type="button"
                       onClick={toggleListening}
+                      aria-label={isListening ? 'Stop listening to microphone' : 'Start microphone voice input'}
                       className={`relative flex h-16 w-16 items-center justify-center rounded-full text-white transition-all duration-300 ${
                         isListening
                           ? 'bg-red-500 shadow-[0_0_25px_rgba(239,68,68,0.5)]'
@@ -866,6 +879,7 @@ export default function VoiceTutor() {
 
                     {/* Volume Mute state toggle */}
                     <button
+                      type="button"
                       onClick={() => setIsMuted(!isMuted)}
                       className={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all ${
                         isMuted
@@ -873,6 +887,7 @@ export default function VoiceTutor() {
                           : 'bg-purple-500/10 border-purple-500/20 text-cyan-400 hover:bg-purple-500/20'
                       }`}
                       title={isMuted ? 'Unmute Audio' : 'Mute Audio'}
+                      aria-label={isMuted ? 'Unmute Audio' : 'Mute Audio'}
                     >
                       {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
                     </button>
@@ -895,6 +910,7 @@ export default function VoiceTutor() {
                       value={textInput}
                       onChange={(e) => setTextInput(e.target.value)}
                       placeholder="Or type your question here..."
+                      aria-label="Type your question for GOGO AI Tutor"
                       className="flex-1 bg-slate-900 border border-slate-700/80 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/60 focus:ring-1 focus:ring-cyan-400/40 transition-all"
                       disabled={status === 'thinking'}
                     />
@@ -903,6 +919,7 @@ export default function VoiceTutor() {
                       disabled={!textInput.trim() || status === 'thinking'}
                       className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-cyan-500 text-white disabled:opacity-40 disabled:cursor-not-allowed hover:brightness-110 transition-all flex-shrink-0"
                       title="Send Message"
+                      aria-label="Send Message"
                     >
                       <Send size={14} />
                     </button>

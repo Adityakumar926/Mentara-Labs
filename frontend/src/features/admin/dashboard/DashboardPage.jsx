@@ -15,8 +15,7 @@ import { useApi } from '@/hooks/useApi';
 import { adminApi } from '@/api/services';
 
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
-
+  
   .db-root {
     --navy:     #080C16;
     --navy2:    #0D1322;
