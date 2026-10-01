@@ -407,6 +407,95 @@ const CSS = `
       box-shadow: 0 0 22px rgba(0, 212, 255, 0.6);
     }
   }
+
+  /* Mobile Responsiveness for Student Dashboard */
+  @media (max-width: 767px) {
+    .sd-root {
+      gap: 1.25rem;
+    }
+    .sd-hero-banner {
+      flex-direction: column;
+      align-items: stretch;
+      padding: 1.25rem 1rem;
+      border-radius: 24px;
+      gap: 1.25rem;
+    }
+    .sd-hero-title {
+      font-size: 1.6rem;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+    .sd-hero-sub {
+      font-size: 0.85rem;
+      max-width: 100%;
+    }
+    .sd-hero-banner > div:last-child {
+      width: 150px !important;
+      height: 150px !important;
+      margin: 0 auto;
+    }
+    .sd-quest-card {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 20px;
+    }
+    .sd-grid-3 {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    .sd-subject-card {
+      padding: 1.25rem;
+      border-radius: 22px;
+      min-height: auto;
+    }
+    .sd-superstar-banner {
+      flex-direction: column;
+      text-align: center;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.25rem 1rem;
+      border-radius: 22px;
+    }
+    .sd-superstar-banner > div {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.75rem;
+    }
+    .sd-superstar-banner > div > div:first-child {
+      width: 90px !important;
+      height: 90px !important;
+      margin: 0 auto;
+    }
+    .sd-superstar-banner .sd-superstar-title {
+      font-size: 1.3rem !important;
+    }
+    .sd-superstar-banner .sd-superstar-sub {
+      font-size: 0.88rem !important;
+    }
+    .sd-tabs-bar {
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      padding: 0.25rem;
+      -webkit-overflow-scrolling: touch;
+    }
+    .sd-tab-btn {
+      min-width: 110px;
+      padding: 0.5rem 0.85rem;
+      font-size: 0.8rem;
+    }
+    .sd-resource-card {
+      padding: 0.85rem 1rem;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+    .sd-resource-card > div:last-child {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+    }
+  }
 `;
 
 const getSubjectStyle = (name) => {
@@ -1821,10 +1910,10 @@ export default function StudentDashboardPage() {
               />
             </div>
             <div>
-              <div style={{ fontSize: '1.65rem', fontWeight: 900, letterSpacing: '-0.02em', color: 'var(--cream)', lineHeight: 1.25, textShadow: '0 2px 10px rgba(245, 158, 11, 0.3)' }}>
+              <div className="sd-superstar-title" style={{ fontSize: '1.65rem', fontWeight: 900, letterSpacing: '-0.02em', color: 'var(--cream)', lineHeight: 1.25, textShadow: '0 2px 10px rgba(245, 158, 11, 0.3)' }}>
                 Keep going, superstar! ⭐
               </div>
-              <div style={{ fontSize: '1.05rem', color: 'rgba(255, 255, 255, 0.85)', marginTop: '0.4rem', fontWeight: 700, lineHeight: 1.4 }}>
+              <div className="sd-superstar-sub" style={{ fontSize: '1.05rem', color: 'rgba(255, 255, 255, 0.85)', marginTop: '0.4rem', fontWeight: 700, lineHeight: 1.4 }}>
                 Every lesson brings you one step closer to your dreams!
               </div>
             </div>

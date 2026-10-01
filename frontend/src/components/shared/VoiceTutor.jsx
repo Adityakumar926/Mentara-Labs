@@ -532,11 +532,23 @@ export default function VoiceTutor() {
           box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
           box-sizing: border-box !important;
         }
+
+        @media (max-width: 767px) {
+          .gogo-drawer-active-border, .gogo-drawer-idle-border {
+            width: calc(100vw - 1.5rem) !important;
+            max-width: 420px !important;
+            right: 0.75rem !important;
+            left: 0.75rem !important;
+            bottom: 4.5rem !important;
+            height: calc(100vh - 6rem) !important;
+            max-height: 520px !important;
+          }
+        }
       `}</style>
 
       {/* Unified Floating Gogo Chatbot Trigger (Outer container is click-through) */}
       <div 
-        className="fixed bottom-3 right-4 z-50 flex flex-col items-end pointer-events-none select-none transition-all duration-300"
+        className="fixed bottom-20 right-3 sm:bottom-3 sm:right-4 z-50 flex flex-col items-end pointer-events-none select-none transition-all duration-300"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >

@@ -202,6 +202,76 @@ const CSS = `
 
   /* Main Area */
   .sl-main { flex: 1; height: 100%; overflow-y: auto; position: relative; }
+
+  /* Mobile Responsive Overlay Layout */
+  @media (max-width: 767px) {
+    .sl-root {
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .sl-aside-wrapper {
+      display: none;
+    }
+    .sl-mobile-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      padding: 0 1rem;
+      background: var(--color-surface);
+      border-bottom: 1.5px solid var(--color-surface-border);
+      flex-shrink: 0;
+      z-index: 40;
+    }
+    .sl-mobile-bottom-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      height: 62px;
+      padding: 0 0.5rem;
+      background: var(--color-surface);
+      border-top: 1.5px solid var(--color-surface-border);
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 40;
+      backdrop-filter: blur(12px);
+    }
+    .sl-mobile-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      color: var(--local-muted);
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-decoration: none;
+      padding: 0.35rem 0.5rem;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+    }
+    .sl-mobile-nav-item.active {
+      color: #8B5CF6;
+    }
+    html.light .sl-mobile-nav-item.active, .light .sl-mobile-nav-item.active {
+      color: #7C3AED;
+    }
+    .sl-main {
+      padding-bottom: 4.5rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .sl-mobile-header {
+      display: none;
+    }
+    .sl-mobile-bottom-nav {
+      display: none;
+    }
+  }
 `;
 
 export default function StudentUserLayout() {
@@ -253,7 +323,41 @@ export default function StudentUserLayout() {
       <style>{CSS}</style>
       <div className="sl-root">
 
-        {/* ── Collapsible Sidebar ── */}
+        {/* ── Top Mobile Header (Mobile only) ── */}
+        <header className="sl-mobile-header">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+              <img src="/mentara-new.png" alt="Mentara Labs" className="w-full h-full object-contain" />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-['Outfit'] font-extrabold text-sm text-[var(--local-cream)] leading-tight">Mentara Labs</span>
+              <span className="text-[10px] font-bold text-[#06B6D4] leading-tight">Cambridge Primary</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="p-1.5 rounded-full bg-[var(--color-surface-hover)] border border-[var(--color-surface-border)] text-[var(--local-muted)] hover:text-[var(--local-cream)] transition-colors"
+              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+            >
+              {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+            </button>
+
+            <NotificationBell variant="desktop" />
+
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-cyan-500 flex items-center justify-center text-white font-black text-xs border border-white/20 overflow-hidden">
+              {user?.avatar_url ? <img src={user.avatar_url} alt="" className="w-full h-full object-cover" /> : initial}
+            </div>
+
+            <button onClick={handleLogout} className="p-1.5 text-[var(--local-muted)] hover:text-red-400 transition-colors" title="Log out">
+              <LogOut size={16} />
+            </button>
+          </div>
+        </header>
+
+        {/* ── Collapsible Sidebar (Desktop only) ── */}
         <div className="sl-aside-wrapper">
           <aside className="sl-aside">
             {/* Logo */}
@@ -344,6 +448,20 @@ export default function StudentUserLayout() {
         <main className="sl-main">
           <Outlet />
         </main>
+
+        {/* ── Bottom Mobile Navigation Bar (Mobile only) ── */}
+        <nav className="sl-mobile-bottom-nav">
+          {NAV.map(({ to, icon: Icon, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) => `sl-mobile-nav-item${isActive ? ' active' : ''}`}
+            >
+              <Icon size={20} />
+              <span>{label}</span>
+            </NavLink>
+          ))}
+        </nav>
 
         {/* Floating Voice Tutor */}
         <VoiceTutor />
