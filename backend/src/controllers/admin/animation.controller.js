@@ -77,8 +77,6 @@ exports.create = async (req, res) => {
     if (!title || !html_content)
       return res.status(400).json({ success: false, message: 'title and html_content are required' });
 
-    sanitizeHtml(html_content, res);
-
     const { rows } = await db.query(
       `INSERT INTO animations
        (title, description, html_content, thumbnail_url, subject_id, is_premium, created_by)
@@ -177,8 +175,6 @@ exports.upsert = async (req, res) => {
     if (!title || !html_content)
       return res.status(400).json({ success: false, message: 'title and html_content are required' });
 
-    if (sanitizeHtml(html_content, res)) return; // sanitizeHtml writes the error response and returns true
-
     const assignedTab = (target_tab === 'notes' || target_tab === 'study_adventure') ? 'notes' : 'simulators';
 
     let row;
@@ -215,19 +211,3 @@ exports.upsert = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
-// ─── Shared helper ────────────────────────────────────────────────────────────
-// Returns true (and writes response) if content is flagged; false if clean.
-function sanitizeHtml(html_content, res) {
-  const forbidden = ['eval(', 'document.cookie', 'window.location'];
-  for (const pattern of forbidden) {
-    if (html_content.includes(pattern)) {
-      res.status(400).json({
-        success: false,
-        message: `Potentially unsafe content detected: "${pattern}"`
-      });
-      return true;
-    }
-  }
-  return false;
-}
