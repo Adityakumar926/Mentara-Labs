@@ -575,14 +575,48 @@ const BLANK_CONTENT = {
 
 const parseHtmlContent = (fullHtml) => {
   if (!fullHtml) return { html: '', css: '', js: '', json: '' };
-  
+
+  const trimmed = fullHtml.trim();
+  const isFullDoc = trimmed.toLowerCase().startsWith('<!doctype') ||
+                    trimmed.toLowerCase().startsWith('<html') ||
+                    /<(html|head|body)\b/i.test(trimmed);
+
+  if (isFullDoc) {
+    // Extract JSON data if present
+    let json = '';
+    const jsonMatch = trimmed.match(/<script id="animation-data"[^>]*>([\s\S]*?)<\/script>/i);
+    if (jsonMatch) json = jsonMatch[1].trim();
+
+    // Extract all <style> blocks for display in the CSS editor tab
+    const styleMatches = trimmed.match(/<style[^>]*>([\s\S]*?)<\/style>/gi) || [];
+    const css = styleMatches.map(tag => {
+      const m = tag.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
+      return m ? m[1].trim() : '';
+    }).filter(Boolean).join('\n\n');
+
+    // Extract all inline <script> blocks for display in the JS editor tab
+    const scriptMatches = trimmed.match(/<script(?![^>]*\bsrc\b)[^>]*>([\s\S]*?)<\/script>/gi) || [];
+    const js = scriptMatches.map(tag => {
+      if (tag.includes('id="animation-data"') || tag.includes('window.ANIMATION_DATA')) return '';
+      const m = tag.match(/<script(?![^>]*\bsrc\b)[^>]*>([\s\S]*?)<\/script>/i);
+      return m ? m[1].trim() : '';
+    }).filter(Boolean).join('\n\n');
+
+    return {
+      html: trimmed, // Preserve the entire self-contained HTML document intact!
+      css,
+      js,
+      json
+    };
+  }
+
+  // Snippet mode (standard 4-part editor component)
   let json = '';
   const jsonMatch = fullHtml.match(/<script id="animation-data"[^>]*>([\s\S]*?)<\/script>/i);
   if (jsonMatch) {
     json = jsonMatch[1].trim();
   }
 
-  // Strip the JSON data script and the window.ANIMATION_DATA script from the html
   let cleanHtml = fullHtml
     .replace(/<script id="animation-data"[^>]*>([\s\S]*?)<\/script>/gi, '')
     .replace(/<script>\s*try\s*\{\s*window\.ANIMATION_DATA[\s\S]*?<\/script>/gi, '')
@@ -593,24 +627,19 @@ const parseHtmlContent = (fullHtml) => {
   if (styleMatch) {
     css = styleMatch[1].trim();
   }
-  // Strip style tags from cleanHtml
   cleanHtml = cleanHtml.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
 
-  // Parse custom inline JS (script tag without 'src' attribute)
   let js = '';
   const scriptRegex = /<script(?![^>]*\bsrc\b)[^>]*>([\s\S]*?)<\/script>/i;
   const scriptMatch = cleanHtml.match(scriptRegex);
   if (scriptMatch) {
     js = scriptMatch[1].trim();
   }
-  
-  // Strip ONLY the inline script tags (without src attribute) from cleanHtml
   cleanHtml = cleanHtml.replace(/<script(?![^>]*\bsrc\b)[^>]*>[\s\S]*?<\/script>/gi, '');
 
   let html = '';
   const bodyMatch = cleanHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
   if (bodyMatch) {
-    // Keep external script/link tags from outside the body (like <head>) and prepend them to the body content
     const headScripts = [];
     const headMatches = cleanHtml.match(/<(script\b[^>]*\bsrc\b|link\b[^>]*)[^>]*>([\s\S]*?<\/script>)?/gi) || [];
     headMatches.forEach(tag => {
@@ -654,6 +683,18 @@ ${js}
   </script>
 </body>
 </html>`;
+};
+
+const getEffectiveHtml = (form) => {
+  if (!form) return '';
+  const html = form.html_part?.trim() || '';
+  const isFullDoc = html.toLowerCase().startsWith('<!doctype') ||
+                    html.toLowerCase().startsWith('<html') ||
+                    /<(html|head|body)\b/i.test(html);
+  if (isFullDoc) {
+    return html;
+  }
+  return compileHtmlContent(form.html_part, form.css_part, form.js_part, form.json_part);
 };
 
 function SimulationFolderDropzone({ onParsed }) {
@@ -1065,12 +1106,7 @@ export default function CurriculumDetail() {
           await adminApi.updateContent(f.videoContentId, { title: f.title, is_premium: f.is_premium });
         }
       } else if (f.content_type === 'animation') {
-        // If html_part is already a full self-contained document (from folder upload),
-        // use it directly. Otherwise compile from parts.
-        const isFullDocument = f.html_part.trim().toLowerCase().startsWith('<!doctype') || f.html_part.trim().toLowerCase().startsWith('<html');
-        const compiledHtml = isFullDocument
-          ? f.html_part.trim()
-          : compileHtmlContent(f.html_part, f.css_part, f.js_part, f.json_part);
+        const compiledHtml = getEffectiveHtml(f);
 
         const isStudyAdventure = f.target_tab === 'notes' || f.target_tab === 'study_adventure';
         let finalHtml = compiledHtml;
@@ -1590,7 +1626,7 @@ export default function CurriculumDetail() {
                     type="button"
                     className="cd-anim-preview-btn" 
                     onClick={() => {
-                      const compiled = compileHtmlContent(contentForm.html_part, contentForm.css_part, contentForm.js_part, contentForm.json_part) || ANIM_PLACEHOLDER;
+                      const compiled = getEffectiveHtml(contentForm) || ANIM_PLACEHOLDER;
                       const blob = new Blob([compiled], { type: 'text/html' });
                       const url = URL.createObjectURL(blob);
                       window.open(url, '_blank');
@@ -1637,10 +1673,11 @@ export default function CurriculumDetail() {
                   {animTab === 'output' && (
                     <div style={{ borderRadius: '12px', overflow: 'hidden', background: '#fff', height: '320px', border: '1px solid rgba(255,255,255,0.1)' }}>
                       <iframe
-                        srcDoc={compileHtmlContent(contentForm.html_part, contentForm.css_part, contentForm.js_part, contentForm.json_part) || ANIM_PLACEHOLDER}
+                        srcDoc={getEffectiveHtml(contentForm) || ANIM_PLACEHOLDER}
                         title="Animation Preview"
                         style={{ width: '100%', height: '100%', border: 'none' }}
-                        sandbox="allow-scripts"
+                        sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                        allowFullScreen
                       />
                     </div>
                   )}
