@@ -71,6 +71,7 @@ router.put('/subjects/:subjectId/topics/reorder', topicCtrl.reorder);
 
 // ─── CONTENT ──────────────────────────────────────────────────────────────────
 router.get('/topics/:topicId/content', currCtrl.getSubjectContent);
+router.put('/topics/:topicId/content/reorder', currCtrl.reorderContent);
 
 // Animation-only generic add. upload().none() parses multipart field-only bodies
 // (no file expected) so Express doesn't crash when the frontend sends multipart.

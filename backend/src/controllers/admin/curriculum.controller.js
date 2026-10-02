@@ -730,3 +730,36 @@ exports.deleteContent = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+// ─── CONTENT — REORDER ───────────────────────────────────────────────────────
+// PUT /admin/topics/:topicId/content/reorder
+// Body: { order: [ { id: '...', order_index: 0 }, ... ] }
+
+exports.reorderContent = async (req, res) => {
+  const client = await db.pool.connect();
+  try {
+    const { order } = req.body;
+    const { topicId } = req.params;
+
+    if (!Array.isArray(order)) {
+      return res.status(400).json({ success: false, message: 'order must be an array' });
+    }
+
+    await client.query('BEGIN');
+    for (const item of order) {
+      if (item && item.id !== undefined && item.order_index !== undefined) {
+        await client.query(
+          'UPDATE content SET order_index = $1 WHERE id = $2 AND topic_id = $3',
+          [item.order_index, item.id, topicId]
+        );
+      }
+    }
+    await client.query('COMMIT');
+    res.json({ success: true, message: 'Content sequence updated successfully' });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ success: false, message: err.message });
+  } finally {
+    client.release();
+  }
+};

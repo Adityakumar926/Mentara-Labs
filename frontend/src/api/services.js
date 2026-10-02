@@ -51,6 +51,7 @@ export const adminApi = {
   addContent:        (topicId, data) => api.post(`/admin/topics/${topicId}/content`, data),
   updateContent:     (id, data)        => api.put(`/admin/content/${id}`, data),
   deleteContent:     (id)              => api.delete(`/admin/content/${id}`),
+  reorderContent:    (topicId, order)  => api.put(`/admin/topics/${topicId}/content/reorder`, { order }),
 
   // Content — Notes (PDF upload to Cloudinary)
   uploadNote:  (topicId, formData) => api.post(`/admin/topics/${topicId}/content/note`, formData),

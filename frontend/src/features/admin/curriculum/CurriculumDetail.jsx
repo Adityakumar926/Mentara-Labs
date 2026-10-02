@@ -17,6 +17,22 @@ import useAuthStore from '@/store/authStore';
 import clsx from 'clsx';
 import JSZip from 'jszip';
 import toast from 'react-hot-toast';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS as DndCSS } from '@dnd-kit/utilities';
 
 /* ─── CSS ─── */
 const CSS = `
@@ -220,9 +236,29 @@ const CSS = `
     display: flex; align-items: center; gap: 0.75rem;
     padding: 0.65rem 0.85rem; border-radius: 14px;
     background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
-    transition: border-color 0.2s, background 0.2s;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
   }
   .cd-content-item:hover { border-color: rgba(124,58,237,0.2); background: rgba(124,58,237,0.04); }
+  .cd-content-item.cd-dragging {
+    opacity: 0.85;
+    background: rgba(124,58,237,0.15);
+    border-color: rgba(124,58,237,0.4);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5), 0 0 15px rgba(124,58,237,0.2);
+  }
+  .cd-content-drag-handle {
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--muted); cursor: grab; opacity: 0.45;
+    transition: opacity 0.2s, color 0.2s;
+    padding: 2px;
+    touch-action: none;
+    flex-shrink: 0;
+  }
+  .cd-content-drag-handle:hover { opacity: 1; color: var(--lavender); }
+  .cd-content-drag-handle:active { cursor: grabbing; }
+  .cd-reorder-saving {
+    font-size: 0.68rem; color: var(--lavender);
+    font-weight: 500;
+  }
   .cd-content-icon {
     width: 28px; height: 28px; border-radius: 9px; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center; border: 1px solid;
@@ -1878,12 +1914,130 @@ function TopicNode({
   );
 }
 
+// ── Sortable Item for Drag & Drop ─────────────────────────────────────────────
+function SortableContentItem({ item, isTeacher, onEdit, onDelete }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id, disabled: isTeacher });
+
+  const style = {
+    transform: DndCSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : undefined,
+  };
+
+  const Icon = CONTENT_ICON[item.content_type] ?? FileText;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={clsx('cd-content-item', isDragging && 'cd-dragging')}
+    >
+      {!isTeacher && (
+        <span
+          className="cd-content-drag-handle"
+          {...attributes}
+          {...listeners}
+          title="Drag up or down to change sequence"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <GripVertical size={13} />
+        </span>
+      )}
+      <div className={`cd-content-icon ${item.content_type}`}><Icon size={12} /></div>
+      <p className="cd-content-title">{item.title}</p>
+      <span className={`cd-type-badge ${item.content_type}`}>{item.content_type}</span>
+      {item.destination && (
+        <span 
+          className="px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase border"
+          style={{
+            background: item.destination === 'shared' ? 'rgba(0,212,255,0.06)' : item.destination === 'student' ? 'rgba(124,58,237,0.06)' : 'rgba(245,158,11,0.06)',
+            borderColor: item.destination === 'shared' ? 'rgba(0,212,255,0.15)' : item.destination === 'student' ? 'rgba(124,58,237,0.2)' : 'rgba(245,158,11,0.2)',
+            color: item.destination === 'shared' ? 'var(--cyan)' : item.destination === 'student' ? 'var(--lavender)' : '#F59E0B',
+            fontSize: '8px',
+            fontWeight: 800,
+            letterSpacing: '0.04em'
+          }}
+        >
+          {item.destination}
+        </span>
+      )}
+      {item.content_type === 'animation' && (
+        <span 
+          className="px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase border"
+          style={{
+            background: (item.target_tab === 'notes' || item.target_tab === 'study_adventure' || item.html_content?.includes('target_tab=notes')) ? 'rgba(6,182,212,0.1)' : 'rgba(16,185,129,0.1)',
+            borderColor: (item.target_tab === 'notes' || item.target_tab === 'study_adventure' || item.html_content?.includes('target_tab=notes')) ? 'rgba(6,182,212,0.3)' : 'rgba(16,185,129,0.3)',
+            color: (item.target_tab === 'notes' || item.target_tab === 'study_adventure' || item.html_content?.includes('target_tab=notes')) ? 'var(--cyan)' : '#10B981',
+            fontSize: '8px',
+            fontWeight: 800,
+            letterSpacing: '0.04em'
+          }}
+        >
+          {(item.target_tab === 'notes' || item.target_tab === 'study_adventure' || item.html_content?.includes('target_tab=notes')) ? '📖 Study Adv' : '🎮 Play Sim'}
+        </span>
+      )}
+      {item.is_premium && <span className="cd-premium-tag" title="Premium"><Lock size={11} /></span>}
+      {!isTeacher && (
+        <>
+          <button onClick={() => onEdit(item)} className="cd-icon-btn edit" style={{ width: 26, height: 26 }} title="Edit"><Edit2 size={11} /></button>
+          <button onClick={() => onDelete(item.id)} className="cd-icon-btn delete" style={{ width: 26, height: 26 }} title="Delete"><Trash2 size={11} /></button>
+        </>
+      )}
+    </div>
+  );
+}
+
 // ── Sub-component: Content list inside expanded Topic ─────────────────────────
 function TopicContentPanel({ topicId, contentRefreshKey, onEditContent, onDeleteContent, isTeacher }) {
   const { data: content, loading } = useApi(
     () => adminApi.getSubjectContent(topicId), null, [topicId, contentRefreshKey]
   );
-  const items = content ?? [];
+  const [items, setItems] = useState([]);
+  const [savingOrder, setSavingOrder] = useState(false);
+
+  useEffect(() => {
+    if (content) {
+      setItems(content);
+    }
+  }, [content]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = useCallback(async (event) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = items.findIndex((c) => c.id === active.id);
+    const newIndex = items.findIndex((c) => c.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reordered = arrayMove(items, oldIndex, newIndex);
+    setItems(reordered);
+    setSavingOrder(true);
+
+    try {
+      const orderPayload = reordered.map((item, idx) => ({
+        id: item.id,
+        order_index: idx,
+      }));
+      await adminApi.reorderContent(topicId, orderPayload);
+    } catch (err) {
+      toast.error('Failed to update material sequence');
+      setItems(items); // Rollback
+    } finally {
+      setSavingOrder(false);
+    }
+  }, [items, topicId]);
 
   if (!loading && items.length === 0) {
     return null; // hide completely when empty to keep UI clean and compact
@@ -1891,59 +2045,32 @@ function TopicContentPanel({ topicId, contentRefreshKey, onEditContent, onDelete
 
   return (
     <div className="cd-panel" style={{ borderBottom: 'none' }}>
-      <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--lavender)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.25rem' }}>Topic Resources</span>
-      {loading ? (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
+        <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--lavender)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          Topic Resources {items.length > 0 && `(${items.length})`}
+        </span>
+        {savingOrder && (
+          <span className="cd-reorder-saving">⟳ Saving sequence…</span>
+        )}
+      </div>
+      {loading && items.length === 0 ? (
         <>{Array(2).fill(0).map((_, i) => <div key={i} className="cd-skel" style={{ height: 46 }} />)}</>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-          {items.map((c, i) => {
-            const Icon = CONTENT_ICON[c.content_type] ?? FileText;
-            return (
-              <div key={c.id} className="cd-content-item">
-                <div className={`cd-content-icon ${c.content_type}`}><Icon size={12} /></div>
-                <p className="cd-content-title">{c.title}</p>
-                <span className={`cd-type-badge ${c.content_type}`}>{c.content_type}</span>
-                {c.destination && (
-                  <span 
-                    className="px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase border"
-                    style={{
-                      background: c.destination === 'shared' ? 'rgba(0,212,255,0.06)' : c.destination === 'student' ? 'rgba(124,58,237,0.06)' : 'rgba(245,158,11,0.06)',
-                      borderColor: c.destination === 'shared' ? 'rgba(0,212,255,0.15)' : c.destination === 'student' ? 'rgba(124,58,237,0.2)' : 'rgba(245,158,11,0.2)',
-                      color: c.destination === 'shared' ? 'var(--cyan)' : c.destination === 'student' ? 'var(--lavender)' : '#F59E0B',
-                      fontSize: '8px',
-                      fontWeight: 800,
-                      letterSpacing: '0.04em'
-                    }}
-                  >
-                    {c.destination}
-                  </span>
-                )}
-                {c.content_type === 'animation' && (
-                  <span 
-                    className="px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase border"
-                    style={{
-                      background: (c.target_tab === 'notes' || c.target_tab === 'study_adventure' || c.html_content?.includes('target_tab=notes')) ? 'rgba(6,182,212,0.1)' : 'rgba(16,185,129,0.1)',
-                      borderColor: (c.target_tab === 'notes' || c.target_tab === 'study_adventure' || c.html_content?.includes('target_tab=notes')) ? 'rgba(6,182,212,0.3)' : 'rgba(16,185,129,0.3)',
-                      color: (c.target_tab === 'notes' || c.target_tab === 'study_adventure' || c.html_content?.includes('target_tab=notes')) ? 'var(--cyan)' : '#10B981',
-                      fontSize: '8px',
-                      fontWeight: 800,
-                      letterSpacing: '0.04em'
-                    }}
-                  >
-                    {(c.target_tab === 'notes' || c.target_tab === 'study_adventure' || c.html_content?.includes('target_tab=notes')) ? '📖 Study Adv' : '🎮 Play Sim'}
-                  </span>
-                )}
-                {c.is_premium && <span className="cd-premium-tag" title="Premium"><Lock size={11} /></span>}
-                {!isTeacher && (
-                  <>
-                    <button onClick={() => onEditContent(c)} className="cd-icon-btn edit" style={{ width: 26, height: 26 }}><Edit2 size={11} /></button>
-                    <button onClick={() => onDeleteContent(c.id)} className="cd-icon-btn delete" style={{ width: 26, height: 26 }}><Trash2 size={11} /></button>
-                  </>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={items.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              {items.map((c) => (
+                <SortableContentItem
+                  key={c.id}
+                  item={c}
+                  isTeacher={isTeacher}
+                  onEdit={onEditContent}
+                  onDelete={onDeleteContent}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       )}
     </div>
   );
