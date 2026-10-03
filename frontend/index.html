@@ -142,7 +142,33 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#020617;font-family:'Inter',system-ui,-apple-system,sans-serif;color:#F5F0E8;position:relative;overflow:hidden;">
+        <div style="position:absolute;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,0.2) 0%,rgba(0,212,255,0.06) 50%,transparent 70%);filter:blur(70px);pointer-events:none;top:50%;left:50%;transform:translate(-50%,-50%);"></div>
+        <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:1.25rem;text-align:center;">
+          <div style="position:relative;width:80px;height:80px;display:flex;align-items:center;justify-content:center;">
+            <div style="position:absolute;inset:-6px;border-radius:50%;border:2px solid transparent;border-top-color:#00D4FF;border-right-color:#7C3AED;border-bottom-color:rgba(124,58,237,0.2);animation:mentara-spin 1.2s cubic-bezier(0.5,0.1,0.5,0.9) infinite;"></div>
+            <div style="position:absolute;inset:-14px;border-radius:50%;border:1px solid rgba(0,212,255,0.15);animation:mentara-pulse 2s ease-in-out infinite;"></div>
+            <img src="/mentara-new.png" alt="Mentara Labs" style="width:54px;height:54px;object-fit:contain;filter:drop-shadow(0 0 20px rgba(124,58,237,0.6));" />
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;">
+            <span style="font-family:'Space Grotesk','Outfit',sans-serif;font-size:1.2rem;font-weight:700;letter-spacing:-0.02em;background:linear-gradient(135deg,#F5F0E8 0%,#C4B5FD 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Mentara Labs</span>
+            <div style="display:flex;align-items:center;gap:0.45rem;">
+              <span style="width:6px;height:6px;border-radius:50%;background:#00D4FF;box-shadow:0 0 8px #00D4FF;animation:mentara-pulse 1.4s ease-in-out infinite;"></span>
+              <span style="font-size:0.75rem;font-weight:500;color:rgba(245,240,232,0.55);letter-spacing:0.04em;">Loading interactive lab...</span>
+            </div>
+          </div>
+          <div style="width:140px;height:3px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden;position:relative;margin-top:0.25rem;">
+            <div style="position:absolute;height:100%;width:45%;background:linear-gradient(90deg,#7C3AED,#00D4FF);border-radius:999px;animation:mentara-bar 1.5s ease-in-out infinite;"></div>
+          </div>
+        </div>
+        <style>
+          @keyframes mentara-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+          @keyframes mentara-pulse { 0%, 100% { opacity: 0.3; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.15); } }
+          @keyframes mentara-bar { 0% { left: -45%; } 50% { left: 55%; width: 55%; } 100% { left: 100%; width: 45%; } }
+        </style>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

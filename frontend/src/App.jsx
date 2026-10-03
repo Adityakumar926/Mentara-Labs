@@ -12,8 +12,8 @@ import AuthLayout        from '@/components/layout/AuthLayout';
 // Guards
 import ProtectedRoute from '@/components/shared/ProtectedRoute';
 
-// Landing (Lazy)
-const LandingPage                   = lazy(() => import('@/features/landing/LandingPage'));
+// Landing (Eager root landing for instant loading, subpages lazy)
+import LandingPage from '@/features/landing/LandingPage';
 const PrivacyPolicyPage             = lazy(() => import('@/features/landing/PrivacyPolicyPage'));
 const TermsOfServicePage            = lazy(() => import('@/features/landing/TermsOfServicePage'));
 const PaymentSuccess                = lazy(() => import('@/features/payment/PaymentSuccess'));
@@ -62,23 +62,140 @@ const ClassroomDetail      = lazy(() => import('@/features/teacher/classrooms/Cl
 function PageLoader() {
   return (
     <div style={{
-      minHeight: '60vh',
+      minHeight: '100vh',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       flexDirection: 'column',
-      gap: '1rem',
-      color: '#94A3B8'
+      background: '#020617',
+      fontFamily: "'Inter', sans-serif",
+      position: 'relative',
+      overflow: 'hidden'
     }}>
+      {/* Ambient glow */}
       <div style={{
-        width: '40px',
-        height: '40px',
+        position: 'absolute',
+        width: '420px',
+        height: '420px',
         borderRadius: '50%',
-        border: '3px solid rgba(139, 92, 246, 0.2)',
-        borderTopColor: '#8B5CF6',
-        animation: 'spin 0.8s linear infinite'
+        background: 'radial-gradient(circle, rgba(124,58,237,0.2) 0%, rgba(0,212,255,0.06) 50%, transparent 70%)',
+        filter: 'blur(70px)',
+        pointerEvents: 'none',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
       }} />
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+
+      <div style={{
+        position: 'relative',
+        zIndex: 2,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '1.25rem',
+        textAlign: 'center',
+      }}>
+        {/* Glowing Logo with Orbital Ring */}
+        <div style={{
+          position: 'relative',
+          width: '80px',
+          height: '80px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <div style={{
+            position: 'absolute',
+            inset: '-6px',
+            borderRadius: '50%',
+            border: '2px solid transparent',
+            borderTopColor: '#00D4FF',
+            borderRightColor: '#7C3AED',
+            borderBottomColor: 'rgba(124,58,237,0.2)',
+            animation: 'mentara-spin 1.2s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite',
+          }} />
+          <div style={{
+            position: 'absolute',
+            inset: '-14px',
+            borderRadius: '50%',
+            border: '1px solid rgba(0, 212, 255, 0.15)',
+            animation: 'mentara-pulse 2s ease-in-out infinite',
+          }} />
+          <img
+            src="/mentara-new.png"
+            alt="Mentara Labs"
+            style={{
+              width: '54px',
+              height: '54px',
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 0 20px rgba(124,58,237,0.6))',
+            }}
+          />
+        </div>
+
+        {/* Text & Status */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem' }}>
+          <span style={{
+            fontFamily: "'Space Grotesk', 'Outfit', sans-serif",
+            fontSize: '1.2rem',
+            fontWeight: 700,
+            letterSpacing: '-0.02em',
+            background: 'linear-gradient(135deg, #F5F0E8 0%, #C4B5FD 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}>
+            Mentara Labs
+          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+            <span style={{
+              width: '6px',
+              height: '6px',
+              borderRadius: '50%',
+              background: '#00D4FF',
+              boxShadow: '0 0 8px #00D4FF',
+              animation: 'mentara-pulse 1.4s ease-in-out infinite',
+            }} />
+            <span style={{
+              fontSize: '0.75rem',
+              fontWeight: 500,
+              color: 'rgba(245, 240, 232, 0.55)',
+              letterSpacing: '0.04em',
+            }}>
+              Loading interactive lab...
+            </span>
+          </div>
+        </div>
+
+        {/* Shimmer loading bar */}
+        <div style={{
+          width: '140px',
+          height: '3px',
+          background: 'rgba(255, 255, 255, 0.08)',
+          borderRadius: '999px',
+          overflow: 'hidden',
+          position: 'relative',
+          marginTop: '0.25rem',
+        }}>
+          <div style={{
+            position: 'absolute',
+            height: '100%',
+            width: '45%',
+            background: 'linear-gradient(90deg, #7C3AED, #00D4FF)',
+            borderRadius: '999px',
+            animation: 'mentara-bar 1.5s ease-in-out infinite',
+          }} />
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes mentara-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes mentara-pulse { 0%, 100% { opacity: 0.3; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.15); } }
+        @keyframes mentara-bar {
+          0% { left: -45%; }
+          50% { left: 55%; width: 55%; }
+          100% { left: 100%; width: 45%; }
+        }
+      `}</style>
     </div>
   );
 }
