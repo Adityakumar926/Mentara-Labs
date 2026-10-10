@@ -163,18 +163,18 @@ export default function LaptopScrollShowcase() {
   return (
     <>
       {/* INTRO HEADER SECTION */}
-      <section className="relative bg-zinc-950 text-zinc-100">
+      <section className="relative bg-white text-slate-900 border-t border-slate-200/80">
         <div className="pt-16 pb-12 text-center max-w-4xl mx-auto px-6">
-          <span className="font-mono text-xs uppercase tracking-[0.25em] text-cyan-400 font-bold px-3.5 py-1.5 rounded-full border border-cyan-500/20 bg-cyan-500/10 inline-block mb-4 shadow-[0_0_20px_rgba(6,182,212,0.2)]">
+          <span className="font-mono text-xs uppercase tracking-[0.25em] text-cyan-600 font-bold px-3.5 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-50 inline-block mb-4 shadow-[0_0_20px_rgba(6,182,212,0.15)]">
             · PLATFORM HIGHLIGHTS
           </span>
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-white">
+          <h2 className="font-display font-doodle text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-slate-900">
             Everything You Need to{" "}
-            <span className="bg-gradient-to-r from-cyan-400 via-emerald-400 to-indigo-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 bg-clip-text text-transparent">
               Teach, Learn, Practice & Excel
             </span>
           </h2>
-          <p className="mt-4 text-zinc-400 text-base sm:text-lg leading-relaxed font-medium max-w-2xl mx-auto">
+          <p className="mt-4 text-slate-600 text-base sm:text-lg leading-relaxed font-medium max-w-2xl mx-auto">
             Mentara Labs brings the complete Cambridge Primary suite onto one smart,
             interactive platform built for both educators and students.
           </p>
@@ -185,10 +185,10 @@ export default function LaptopScrollShowcase() {
       <section
         ref={containerRef}
         id="features-showcase"
-        className="relative h-[550vh] bg-zinc-950 text-zinc-100 font-sans selection:bg-cyan-500/30"
+        className="relative h-[550vh] bg-[#F8FAFC] text-slate-900 font-sans selection:bg-cyan-500/20"
       >
-        {/* Background Grid */}
-        <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
+        {/* Ambient Subtle Grid */}
+        <div className="absolute inset-0 bg-grid opacity-10 pointer-events-none" />
 
         {/* STICKY VIEWPORT CONTAINER */}
         <div className="sticky top-0 h-screen overflow-hidden">
@@ -196,7 +196,7 @@ export default function LaptopScrollShowcase() {
 
             {/* Ambient Animated Glow */}
             <motion.div
-              className="absolute w-[640px] h-[440px] rounded-full blur-[150px] opacity-25 pointer-events-none transition-all duration-700"
+              className="absolute w-[640px] h-[440px] rounded-full blur-[150px] opacity-20 pointer-events-none transition-all duration-700"
               style={{
                 background: activeFeature.glowColor,
                 top: "28%",
@@ -309,9 +309,9 @@ export default function LaptopScrollShowcase() {
               {/* RIGHT COLUMN: ACTIVE FEATURE DETAILS (5 COLS) */}
               <div className="lg:col-span-5 flex flex-col justify-center">
                 {/* TOP SUBHEADER BADGE */}
-                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-white/10 bg-zinc-900/80 backdrop-blur-md w-fit mb-2 sm:mb-4 lg:mb-6 shadow-md">
-                  <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-cyan-400 animate-pulse" />
-                  <span className="font-mono text-[9.5px] sm:text-[11px] font-extrabold uppercase tracking-widest text-zinc-300">
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-slate-200 bg-white/90 backdrop-blur-md w-fit mb-2 sm:mb-4 lg:mb-6 shadow-sm">
+                  <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-cyan-500 animate-pulse" />
+                  <span className="font-mono text-[9.5px] sm:text-[11px] font-extrabold uppercase tracking-widest text-slate-700">
                     PLATFORM CAPABILITIES
                   </span>
                 </div>
@@ -324,8 +324,8 @@ export default function LaptopScrollShowcase() {
                       onClick={() => scrollToFeatureIndex(index)}
                       className={`h-2 sm:h-2.5 rounded-full transition-all duration-500 cursor-pointer ${
                         index === activeIndex
-                          ? `w-6 sm:w-10 bg-gradient-to-r ${feat.accent} shadow-[0_0_12px_currentColor]`
-                          : "w-2 sm:w-2.5 bg-zinc-800 hover:bg-zinc-700"
+                          ? `w-6 sm:w-10 bg-gradient-to-r ${feat.accent} shadow-[0_0_12px_rgba(6,182,212,0.4)]`
+                          : "w-2 sm:w-2.5 bg-slate-300 hover:bg-slate-400"
                       }`}
                       aria-label={`Jump to ${feat.title}`}
                     />
@@ -344,7 +344,7 @@ export default function LaptopScrollShowcase() {
                   >
                     {/* ACTIVE FEATURE NUMBER & BADGE */}
                     <div className="flex items-center gap-2 sm:gap-3">
-                      <span className="font-mono text-base sm:text-2xl font-black text-zinc-500 tracking-tighter">
+                      <span className="font-mono text-base sm:text-2xl font-black text-slate-400 tracking-tighter">
                         {activeFeature.number}
                       </span>
                       <span className={`px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[9px] sm:text-[11px] font-mono font-bold tracking-wider border uppercase ${activeFeature.badgeBg}`}>
@@ -353,23 +353,23 @@ export default function LaptopScrollShowcase() {
                     </div>
 
                     {/* FEATURE TITLE */}
-                    <h3 className="font-display font-black text-lg sm:text-3xl lg:text-5xl tracking-tight text-white leading-tight">
+                    <h3 className="font-display font-doodle font-black text-lg sm:text-3xl lg:text-5xl tracking-tight text-slate-900 leading-tight">
                       {activeFeature.title}
                     </h3>
 
                     {/* FEATURE DESCRIPTION */}
-                    <p className="text-zinc-400 text-xs sm:text-base lg:text-lg leading-relaxed font-normal max-w-xl">
+                    <p className="text-slate-600 text-xs sm:text-base lg:text-lg leading-relaxed font-normal max-w-xl">
                       {activeFeature.description}
                     </p>
 
                     {/* FEATURE HIGHLIGHT BULLETS */}
-                    <div className="pt-1 flex flex-col gap-1 sm:gap-2 text-xs sm:text-sm text-zinc-300 font-medium">
+                    <div className="pt-1 flex flex-col gap-1 sm:gap-2 text-xs sm:text-sm text-slate-700 font-medium">
                       {(activeFeature.highlights || [
                         "Real-time desktop & tablet responsiveness",
                         "Aligned with Cambridge Primary Framework"
                       ]).map((hl, hIdx) => (
                         <div key={hIdx} className="flex items-center gap-1.5 sm:gap-2">
-                          <CheckCircle2 className={`h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 ${hIdx === 0 ? "text-cyan-400" : "text-emerald-400"}`} />
+                          <CheckCircle2 className={`h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 ${hIdx === 0 ? "text-cyan-600" : "text-emerald-600"}`} />
                           <span className="text-[11px] sm:text-sm">{hl}</span>
                         </div>
                       ))}
@@ -378,7 +378,7 @@ export default function LaptopScrollShowcase() {
                 </AnimatePresence>
 
                 {/* QUICK SELECTOR PILL BUTTONS */}
-                <div className="mt-3 lg:mt-8 pt-3 lg:pt-6 border-t border-white/10 hidden sm:grid grid-cols-3 lg:grid-cols-4 gap-2">
+                <div className="mt-3 lg:mt-8 pt-3 lg:pt-6 border-t border-slate-200 hidden sm:grid grid-cols-3 lg:grid-cols-4 gap-2">
                   {FEATURES.map((f, i) => {
                     const isActive = i === activeIndex;
                     const FIcon = f.icon;
@@ -388,11 +388,11 @@ export default function LaptopScrollShowcase() {
                         onClick={() => scrollToFeatureIndex(i)}
                         className={`px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 sm:gap-2 transition-all duration-200 cursor-pointer border ${
                           isActive
-                            ? "bg-zinc-800 text-white border-white/20 shadow-md scale-[1.02]"
-                            : "bg-zinc-950/60 text-zinc-400 border-white/5 hover:bg-zinc-900 hover:text-zinc-200"
+                            ? "bg-slate-900 text-white border-slate-900 shadow-md scale-[1.02]"
+                            : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900"
                         }`}
                       >
-                        <FIcon className={`h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0 ${isActive ? "text-cyan-400" : "text-zinc-500"}`} />
+                        <FIcon className={`h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0 ${isActive ? "text-cyan-300" : "text-slate-400"}`} />
                         <span className="truncate">{f.title}</span>
                       </button>
                     );

@@ -5,7 +5,7 @@ import { motion, AnimatePresence, useScroll, useTransform, useSpring } from "fra
 import { studentApi } from "@/api/services";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { 
-  ArrowUpRight, Play, Timer, Atom, PenTool, Sparkles, ChevronRight, ChevronLeft,
+  ArrowUpRight, ArrowRight, Play, Timer, Atom, PenTool, Sparkles, ChevronRight, ChevronLeft,
   Globe, BookOpen, GraduationCap, Award, Library, Compass, X, Menu,
   Dna, Sigma, Code2, LineChart, Globe2, BookText, Check, Quote,
   Github, Twitter, Linkedin, Youtube, Star, BarChart3, Layers, FlaskConical,
@@ -29,61 +29,46 @@ export default function LandingPage() {
   return (
     <>
       <style>{`
+        .font-doodle {
+          font-family: 'Fredoka', 'Quicksand', 'Outfit', sans-serif;
+        }
         .font-display {
-          font-family: 'Outfit', 'Space Grotesk', sans-serif;
+          font-family: 'Fredoka', 'Outfit', sans-serif;
         }
         .font-mono-label {
           font-family: 'Space Grotesk', monospace;
         }
-        .bg-grid {
-          background-size: 30px 30px;
+        .bg-grid-light {
+          background-size: 36px 36px;
           background-image: 
-            linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+            linear-gradient(to right, rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
         }
         @keyframes blob {
           0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.05); }
-          66% { transform: translate(-20px, 20px) scale(0.95); }
+          33% { transform: translate(30px, -40px) scale(1.05); }
+          56% { transform: translate(-20px, 20px) scale(0.95); }
         }
         .animate-blob {
           animation: blob 12s infinite alternate ease-in-out;
         }
-        @keyframes ping-glow {
-          0% { transform: scale(0.8); opacity: 0.5; }
-          50% { transform: scale(1.1); opacity: 0.8; box-shadow: 0 0 12px currentColor; }
-          100% { transform: scale(0.8); opacity: 0.5; }
+        @keyframes float-slow {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-10px) rotate(2deg); }
         }
-        .animate-ping-glow {
-          animation: ping-glow 2.5s infinite ease-in-out;
+        .animate-float-slow {
+          animation: float-slow 6s ease-in-out infinite;
         }
-        @keyframes header-rgb {
-          0% { background-position: 0% 50%; }
-          100% { background-position: 100% 50%; }
+        @keyframes float-reverse {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(8px) rotate(-2deg); }
         }
-        .header-gradient-text {
-          background: linear-gradient(90deg, #22d3ee, #34d399, #a855f7, #22d3ee);
-          background-size: 300% 100%;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          animation: header-rgb 4s linear infinite;
-        }
-        @keyframes torch-move {
-          0%, 100% { transform: translateX(0px); }
-          50% { transform: translateX(70px); }
-        }
-        @keyframes shadow-scale {
-          0%, 100% { transform: scaleY(0.7) scaleX(1); opacity: 0.4; }
-          50% { transform: scaleY(1.9) scaleX(1.4); opacity: 0.95; }
-        }
-        @keyframes beam-stretch {
-          0%, 100% { transform: scaleX(1); }
-          50% { transform: scaleX(0.7) translateX(30px); }
+        .animate-float-reverse {
+          animation: float-reverse 7s ease-in-out infinite;
         }
       `}</style>
 
-      <main className="relative min-h-screen bg-zinc-950 text-zinc-100 font-sans">
+      <main className="relative min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-purple-100 selection:text-purple-900">
         <Header />
         <Hero />
         <FeaturesBento />
@@ -97,7 +82,7 @@ export default function LandingPage() {
   );
 }
 
-/* ── 1. HEADER ── */
+/* ── 1. HEADER (Airy White Theme) ── */
 function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
@@ -109,58 +94,73 @@ function Header() {
   }, []);
 
   const NAV_LINKS = [
-    { label: "Home", href: "#" },
-    { label: "Features", href: "#features" },
-    { label: "Pricing", href: "#pricing" },
-    { label: "Subjects", href: "#subjects" },
+    { label: "Products", href: "#features", hasDropdown: true },
+    { label: "For Teachers", href: "#subjects" },
+    { label: "For Schools", href: "#pricing" },
+    { label: "Resources", href: "#features" },
+    { label: "About", href: "#testimonials" },
   ];
 
   return (
     <header
       data-testid="site-header"
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-        scrolled ? "bg-zinc-950/90 backdrop-blur-xl border-b border-white/5 h-16" : "bg-transparent h-20"
+        scrolled ? "bg-white/90 backdrop-blur-xl border-b border-slate-200/80 shadow-[0_4px_20px_-4px_rgba(15,23,42,0.05)] h-16" : "bg-transparent h-20"
       } flex items-center`}
     >
-      <div className="max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-12 w-full flex items-center justify-between">
-        <a href="#" data-testid="brand-logo" className="flex items-center gap-2 sm:gap-3 group shrink-0">
-          <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-8 w-8 sm:h-11 sm:w-11 object-contain transition-transform duration-300 group-hover:scale-105" />
-          <span className="font-display font-bold text-lg sm:text-[26px] tracking-tight header-gradient-text whitespace-nowrap">Mentara Labs</span>
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 w-full flex items-center justify-between">
+        {/* Brand Logo with Official Mentara Labs Molecule Icon */}
+        <a href="#" data-testid="brand-logo" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
+          <img 
+            src="/mentara-new.png" 
+            alt="Mentara Labs Logo" 
+            className="h-8 w-auto sm:h-9 object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-sm" 
+          />
+          <span className="font-doodle font-bold text-xl sm:text-2xl tracking-tight text-slate-900 whitespace-nowrap">
+            Mentara Labs
+          </span>
         </a>
 
-        <nav className="hidden md:flex items-center gap-1.5">
+        {/* Desktop Nav Links */}
+        <nav className="hidden md:flex items-center gap-1.5 lg:gap-2">
           {NAV_LINKS.map((item) => (
             <a
               key={item.label}
               href={item.href}
-              data-testid={`nav-${item.label.toLowerCase()}`}
-              className="px-3.5 py-2 text-[13px] font-medium text-zinc-400 hover:text-white transition-colors rounded-md"
+              data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+              className="inline-flex items-center gap-1 px-3.5 py-2 text-[13.5px] font-semibold text-slate-600 hover:text-slate-950 transition-colors rounded-full hover:bg-slate-100/70"
             >
-              {item.label}
+              <span>{item.label}</span>
+              {item.hasDropdown && (
+                <ChevronRight className="h-3 w-3 rotate-90 opacity-60" />
+              )}
             </a>
           ))}
         </nav>
 
+        {/* Right CTA Button */}
         <div className="flex items-center gap-2 sm:gap-4">
           <Link
             to="/login"
             data-testid="header-signin"
-            className="hidden sm:inline text-[13px] font-semibold text-zinc-400 hover:text-white transition-colors"
+            className="hidden sm:inline text-[13.5px] font-semibold text-slate-600 hover:text-slate-950 transition-colors px-2"
           >
             Sign in
           </Link>
           <Link
             to="/register"
             data-testid="header-cta"
-            className="group inline-flex items-center gap-1 sm:gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-[13px] font-semibold text-zinc-950 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:shadow-[0_0_30px_rgba(34,211,238,0.45)] transition-shadow duration-300 whitespace-nowrap"
+            className="group inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-xs sm:text-[13px] font-bold text-white bg-gradient-to-r from-[#38BDF8] via-[#818CF8] to-[#C084FC] hover:shadow-[0_4px_25px_rgba(129,140,248,0.45)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 whitespace-nowrap shadow-md shadow-indigo-500/20"
           >
             <span>Get Started</span>
-            <ArrowUpRight className="h-3 w-3 sm:h-3.5 sm:w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </Link>
+
+          {/* Mobile Menu Toggle */}
           <button
             data-testid="mobile-menu-toggle"
             onClick={() => setOpen(!open)}
-            className="md:hidden p-1.5 text-zinc-300 hover:text-white transition-colors shrink-0"
+            className="md:hidden p-2 text-slate-700 hover:text-slate-950 transition-colors rounded-lg hover:bg-slate-100"
             aria-label="Toggle menu"
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -168,6 +168,7 @@ function Header() {
         </div>
       </div>
 
+      {/* Mobile Drawer */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -175,7 +176,7 @@ function Header() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             data-testid="mobile-nav"
-            className="absolute top-full inset-x-0 border-t border-white/5 bg-zinc-950/95 backdrop-blur-2xl py-4 shadow-xl md:hidden"
+            className="absolute top-full inset-x-0 border-t border-slate-200/80 bg-white/95 backdrop-blur-2xl py-4 shadow-xl md:hidden"
           >
             <div className="px-6 flex flex-col gap-1">
               {NAV_LINKS.map((item) => (
@@ -183,16 +184,16 @@ function Header() {
                   key={item.label}
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="py-2.5 text-sm text-zinc-300 hover:text-cyan-400 font-medium transition-colors"
+                  className="py-2.5 text-sm text-slate-700 hover:text-indigo-600 font-semibold transition-colors"
                 >
                   {item.label}
                 </a>
               ))}
-              <hr className="border-white/5 my-2" />
+              <hr className="border-slate-100 my-2" />
               <Link
                 to="/login"
                 onClick={() => setOpen(false)}
-                className="py-2.5 text-sm text-zinc-300 hover:text-cyan-400 font-medium transition-colors"
+                className="py-2.5 text-sm text-slate-700 hover:text-indigo-600 font-semibold transition-colors"
               >
                 Sign in
               </Link>
@@ -204,98 +205,274 @@ function Header() {
   );
 }
 
-/* ── 2. HERO (Matching User Screenshot media_1787852283925.png) ── */
+/* ── 2. HERO (Fresh White Theme Matching Reference UI Blueprint) ── */
 function Hero() {
   return (
-    <section data-testid="hero-section" className="relative pt-20 pb-12 sm:pt-28 sm:pb-16 lg:pt-32 lg:pb-20 overflow-hidden bg-zinc-950 min-h-[500px] sm:min-h-[580px] lg:min-h-[640px] flex items-center">
-      {/* Background Video - Darkened for High Contrast */}
-      <div className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
-        <video
-          src="/product_video_final_clean_v2.mp4"
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover object-center scale-[1.08] opacity-75"
-        >
-          <source src="/product_video_final_clean_v2.mp4" type="video/mp4" />
-        </video>
-        
-        {/* Darkening Gradient Mask Layer for High Text Legibility */}
-        <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/90 via-zinc-950/50 to-zinc-950/30 z-10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/60 via-transparent to-zinc-950/40 z-10" />
+    <section 
+      data-testid="hero-section" 
+      className="relative pt-24 pb-16 sm:pt-28 sm:pb-20 lg:pt-36 lg:pb-24 overflow-hidden bg-white min-h-[640px] lg:min-h-[760px] flex items-center"
+    >
+      {/* ── AMBIENT GLOWS & 3D FLOATING ELEMENTS ── */}
+      {/* Soft Top-Right Purple Glow */}
+      <div 
+        className="absolute top-[-10%] right-[-5%] w-[650px] h-[650px] rounded-full pointer-events-none z-0"
+        style={{
+          background: "radial-gradient(circle, rgba(192, 132, 252, 0.22) 0%, rgba(224, 231, 255, 0.12) 45%, transparent 70%)",
+        }}
+      />
+      {/* Soft Bottom-Left Cyan Glow */}
+      <div 
+        className="absolute bottom-[-15%] left-[-10%] w-[550px] h-[550px] rounded-full pointer-events-none z-0"
+        style={{
+          background: "radial-gradient(circle, rgba(56, 189, 248, 0.18) 0%, rgba(240, 249, 255, 0.1) 50%, transparent 70%)",
+        }}
+      />
+
+      {/* Decorative Floating Glossy Spheres (Matching Reference) */}
+      <div className="absolute top-[28%] left-[46%] hidden lg:block pointer-events-none z-10 animate-float-slow">
+        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-purple-600 via-indigo-500 to-sky-300 shadow-[0_10px_25px_rgba(147,51,234,0.35)]" />
+      </div>
+      <div className="absolute top-[16%] right-[6%] hidden lg:block pointer-events-none z-10 animate-float-reverse">
+        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-400/40 via-sky-300/30 to-white/60 backdrop-blur-md border border-white/80 shadow-[0_15px_30px_rgba(79,70,229,0.15)] rotate-12 flex items-center justify-center">
+          <Atom className="w-7 h-7 text-indigo-500/80" />
+        </div>
+      </div>
+      <div className="absolute top-[14%] right-[16%] hidden lg:block pointer-events-none z-10">
+        <Sparkles className="w-5 h-5 text-sky-400" />
       </div>
 
-      <div className="max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-12 relative z-20 w-full">
-        <div className="max-w-3xl">
-          {/* Single Unified Hero Banner */}
-          <div className="mb-4 sm:mb-6 inline-flex flex-wrap items-center gap-1.5 sm:gap-2.5 px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-2xl sm:rounded-full border border-cyan-500/35 bg-zinc-950/90 backdrop-blur-xl shadow-[0_0_25px_rgba(6,182,212,0.18)] transition-all hover:border-cyan-400/60" data-testid="hero-unified-banner">
-            <span className="relative flex h-2 w-2 shrink-0">
-              <span className="absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75 animate-ping" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400" />
-            </span>
-            <span className="font-mono-label text-[9.5px] sm:text-[10.5px] uppercase tracking-[0.12em] sm:tracking-[0.2em] font-extrabold text-cyan-300">
-              BUILT FOR CAMBRIDGE PRIMARY
-            </span>
-            <span className="text-zinc-500 font-bold hidden sm:inline">•</span>
-            <span className="font-mono-label text-[9.5px] sm:text-[10.5px] uppercase tracking-[0.12em] sm:tracking-[0.18em] font-bold text-zinc-200">
-              DESKTOP & TABLET FIRST
-            </span>
-            <span className="text-zinc-500 font-bold hidden sm:inline">•</span>
-            <span className="font-mono-label text-[9.5px] sm:text-[10.5px] uppercase tracking-[0.12em] sm:tracking-[0.16em] font-semibold text-emerald-400">
-              REDUCED MOBILE ADDICTION
-            </span>
-          </div>
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 relative z-20 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          
+          {/* ── LEFT COLUMN: Hero Headline & Value Props ── */}
+          <div className="lg:col-span-6 xl:col-span-6">
+            
+            {/* Pill Badge */}
+            <div className="mb-5 sm:mb-6 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-sky-200/80 bg-sky-50/80 shadow-sm" data-testid="hero-unified-banner">
+              <span className="h-2 w-2 rounded-full bg-sky-400 animate-pulse" />
+              <span className="font-mono-label text-[10.5px] uppercase tracking-[0.16em] font-bold text-sky-800">
+                BUILT FOR CAMBRIDGE PRIMARY
+              </span>
+            </div>
 
-          {/* Main Hero Heading with High-Contrast Punchy 4-Color Gradient */}
-          <h1 className="font-display font-black text-4xl sm:text-6xl lg:text-7xl leading-[1.02] sm:leading-[0.96] tracking-tighter">
-            <span className="bg-gradient-to-r from-cyan-300 via-violet-300 via-fuchsia-300 to-amber-200 bg-clip-text text-transparent drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
-              Everything you need to teach and learn{" "}
-            </span>
-            <span className="bg-gradient-to-r from-cyan-400 via-fuchsia-400 via-amber-300 to-emerald-400 bg-clip-text text-transparent drop-shadow-[0_0_35px_rgba(56,189,248,0.4)]">
-              Cambridge Primary.
-            </span>
-          </h1>
+            {/* Main Headline in Doodle Rounded Font */}
+            <h1 className="font-doodle text-4xl sm:text-5xl lg:text-[58px] xl:text-[64px] font-bold tracking-tight text-slate-900 leading-[1.12]">
+              Everything you need<br />
+              to teach and learn<br />
+              <span className="bg-gradient-to-r from-sky-400 via-indigo-500 to-purple-600 bg-clip-text text-transparent">
+                Cambridge Primary.
+              </span>
+            </h1>
 
-          {/* Body Subtext */}
-          <p className="mt-4 sm:mt-5 text-base sm:text-lg leading-relaxed text-zinc-300 max-w-2xl font-medium">
-            Mentara Labs equips Cambridge Primary students with interactive 3D simulations,
-            digital worksheets, and practical exam prep built to boost understanding and confidence.
-          </p>
+            {/* Subtitle Paragraph */}
+            <p className="mt-5 text-base sm:text-lg leading-relaxed text-slate-600 max-w-xl font-normal">
+              Interactive 3D simulations, digital worksheets and practical exam preparation — designed for curious learners.
+            </p>
 
-          {/* CTA Buttons */}
-          <div className="mt-5 sm:mt-6 flex flex-wrap items-center gap-3 sm:gap-4">
-            <Link
-              to="/register"
-              data-testid="hero-cta-primary"
-              className="group inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 font-semibold text-sm hover:shadow-[0_0_40px_rgba(34,211,238,0.45)] transition-shadow duration-300 w-full sm:w-auto"
-            >
-              Start Free Trial
-              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </Link>
-            <a
-              href="#features"
-              data-testid="hero-cta-secondary"
-              className="group inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full border border-white/15 bg-zinc-900/80 backdrop-blur-md text-zinc-200 font-medium text-sm hover:border-white/30 hover:bg-zinc-900 transition-all w-full sm:w-auto"
-            >
-              <Play className="h-3.5 w-3.5 fill-cyan-400 text-cyan-400" />
-              Explore Features
-            </a>
-          </div>
+            {/* CTA Buttons */}
+            <div className="mt-7 sm:mt-8 flex flex-wrap items-center gap-3.5 sm:gap-4">
+              <Link
+                to="/register"
+                data-testid="hero-cta-primary"
+                className="group inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-gradient-to-r from-sky-400 via-indigo-500 to-purple-600 text-white font-bold text-sm shadow-[0_10px_25px_rgba(99,102,241,0.3)] hover:shadow-[0_15px_35px_rgba(99,102,241,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+              >
+                <span>Explore MentP</span>
+                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </Link>
+              <a
+                href="#features"
+                data-testid="hero-cta-secondary"
+                className="group inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full border border-slate-200 bg-white text-slate-700 font-semibold text-sm hover:bg-slate-50 hover:border-slate-300 transition-all shadow-sm"
+              >
+                <div className="w-5 h-5 rounded-full bg-slate-900 flex items-center justify-center">
+                  <Play className="h-2.5 w-2.5 fill-white text-white ml-0.5" />
+                </div>
+                <span>Watch Video</span>
+              </a>
+            </div>
 
-          {/* Stats Row */}
-          <div className="mt-6 sm:mt-7 grid grid-cols-3 gap-3 sm:gap-6 max-w-md border-t border-white/10 pt-4">
-            {[
-              { stat: "100+", label: "Active learners" },
-              { stat: "98%", label: "Syllabus Pass Rate" },
-              { stat: "240+", label: "Interactive Labs" },
-            ].map((s) => (
-              <div key={s.label}>
-                <div className="font-display text-xl sm:text-2xl font-bold text-white">{s.stat}</div>
-                <div className="text-[10px] sm:text-xs text-zinc-400 font-medium mt-0.5">{s.label}</div>
+            {/* Micro Feature Highlights Row (Exact from Reference Image) */}
+            <div className="mt-10 pt-7 border-t border-slate-100 grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-4 sm:gap-6">
+              <div className="flex items-center gap-2.5 text-xs font-semibold text-slate-700">
+                <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shadow-xs">
+                  <Layers className="w-4 h-4" />
+                </div>
+                <span>Interactive<br className="hidden sm:block" /> Simulations</span>
               </div>
-            ))}
+              <div className="flex items-center gap-2.5 text-xs font-semibold text-slate-700">
+                <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shadow-xs">
+                  <BookOpen className="w-4 h-4" />
+                </div>
+                <span>Printable<br className="hidden sm:block" /> Worksheets</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs font-semibold text-slate-700">
+                <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shadow-xs">
+                  <BarChart3 className="w-4 h-4" />
+                </div>
+                <span>Progress<br className="hidden sm:block" /> Tracking</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs font-semibold text-slate-700">
+                <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-xs">
+                  <GraduationCap className="w-4 h-4" />
+                </div>
+                <span>For Students<br className="hidden sm:block" /> & Teachers</span>
+              </div>
+            </div>
           </div>
+
+          {/* ── RIGHT COLUMN: Interactive Angled 3D Tablet Dashboard (From Reference Image) ── */}
+          <div className="lg:col-span-6 xl:col-span-6 relative flex items-center justify-center">
+            
+            {/* Tablet Chassis */}
+            <div 
+              className="relative w-full max-w-[580px] rounded-[32px] bg-slate-900 p-3 sm:p-3.5 shadow-[0_30px_80px_-15px_rgba(79,70,229,0.22)] border-[3px] border-slate-800 transition-transform duration-500 hover:scale-[1.01]"
+              style={{
+                transform: "perspective(1200px) rotateY(-6deg) rotateX(4deg)",
+              }}
+            >
+              {/* Tablet Screen Surface */}
+              <div className="rounded-[22px] bg-white p-4 sm:p-5 flex flex-col gap-4 text-slate-800 select-none overflow-hidden">
+                
+                {/* Tablet App Top Bar */}
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 rounded-md bg-teal-400 flex items-center justify-center text-white">
+                      <Sparkles className="w-3 h-3" />
+                    </div>
+                    <span className="font-doodle font-bold text-sm tracking-tight text-slate-900">MentP</span>
+                  </div>
+                  
+                  {/* Subject Filter Pills */}
+                  <div className="flex items-center gap-1 sm:gap-1.5 text-[11px] font-semibold text-slate-500">
+                    <span className="px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 font-bold">Home</span>
+                    <span className="px-2 py-1 hover:text-slate-900">Maths</span>
+                    <span className="px-2 py-1 hover:text-slate-900">Science</span>
+                    <span className="px-2 py-1 hover:text-slate-900">English</span>
+                    <span className="px-2 py-1 hover:text-slate-900 hidden sm:inline">Global Perspectives</span>
+                  </div>
+
+                  <div className="w-6 h-6 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs text-slate-600 font-bold">
+                    A
+                  </div>
+                </div>
+
+                {/* Continue Learning Row */}
+                <div>
+                  <div className="flex items-center justify-between mb-2.5">
+                    <span className="font-doodle text-xs font-bold text-slate-900">Continue Learning</span>
+                    <a href="#subjects" className="text-[10px] font-bold text-slate-400 hover:text-indigo-600 flex items-center gap-0.5">
+                      View All <ArrowRight className="w-2.5 h-2.5" />
+                    </a>
+                  </div>
+
+                  {/* 3 Interactive Cards (Fractions, Forces, Angles) */}
+                  <div className="grid grid-cols-3 gap-2.5">
+                    
+                    {/* Card 1: Fractions */}
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 hover:border-indigo-200 hover:shadow-sm transition-all flex flex-col justify-between h-28">
+                      <div className="h-10 w-full rounded-lg bg-gradient-to-tr from-purple-200 via-pink-100 to-amber-100 flex items-center justify-center shadow-xs">
+                        <div className="w-6 h-6 rounded-full border-2 border-purple-500 border-t-pink-400 border-r-amber-400 rotate-45" />
+                      </div>
+                      <div>
+                        <div className="text-[10.5px] font-bold text-slate-800 leading-tight">Fractions</div>
+                        <div className="text-[9px] text-slate-400 flex items-center justify-between mt-0.5">
+                          <span>Maths · Year 4</span>
+                          <span className="text-slate-600 font-bold">→</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card 2: Forces and Motion */}
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 hover:border-indigo-200 hover:shadow-sm transition-all flex flex-col justify-between h-28">
+                      <div className="h-10 w-full rounded-lg bg-gradient-to-tr from-sky-200 via-indigo-100 to-purple-100 flex items-center justify-center shadow-xs">
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-sky-400 relative flex items-center justify-center shadow-inner">
+                          <div className="w-8 h-2 rounded-full border border-sky-200 rotate-[-20deg]" />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-[10.5px] font-bold text-slate-800 leading-tight">Forces and Motion</div>
+                        <div className="text-[9px] text-slate-400 flex items-center justify-between mt-0.5">
+                          <span>Science · Year 3</span>
+                          <span className="text-slate-600 font-bold">→</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card 3: Angles and Turns */}
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 hover:border-indigo-200 hover:shadow-sm transition-all flex flex-col justify-between h-28">
+                      <div className="h-10 w-full rounded-lg bg-gradient-to-tr from-teal-100 via-sky-100 to-indigo-100 flex items-center justify-center shadow-xs">
+                        <div className="w-6 h-3 rounded-t-full border-2 border-teal-500 bg-teal-100/50" />
+                      </div>
+                      <div>
+                        <div className="text-[10.5px] font-bold text-slate-800 leading-tight">Angles and Turns</div>
+                        <div className="text-[9px] text-slate-400 flex items-center justify-between mt-0.5">
+                          <span>Maths · Year 3</span>
+                          <span className="text-slate-600 font-bold">→</span>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                {/* My Progress Section */}
+                <div className="border-t border-slate-100 pt-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-doodle text-xs font-bold text-slate-900">My Progress</span>
+                    <span className="text-[9px] text-slate-400 font-semibold">This Week</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 p-2 rounded-lg bg-purple-50/70 border border-purple-100/80 flex items-center gap-2">
+                      <div className="w-4 h-4 rounded bg-purple-500 text-white flex items-center justify-center text-[9px] font-bold">M</div>
+                      <div className="flex-1">
+                        <div className="text-[9.5px] font-bold text-purple-900">Maths</div>
+                        <div className="text-[8.5px] text-purple-600 font-medium">8/10 completed</div>
+                      </div>
+                    </div>
+                    <div className="flex-1 p-2 rounded-lg bg-teal-50/70 border border-teal-100/80 flex items-center gap-2">
+                      <div className="w-4 h-4 rounded bg-teal-500 text-white flex items-center justify-center text-[9px] font-bold">S</div>
+                      <div className="flex-1">
+                        <div className="text-[9.5px] font-bold text-teal-900">Science</div>
+                        <div className="text-[8.5px] text-teal-600 font-medium">6/10 completed</div>
+                      </div>
+                    </div>
+                    <div className="flex-1 p-2 rounded-lg bg-pink-50/70 border border-pink-100/80 flex items-center gap-2 hidden sm:flex">
+                      <div className="w-4 h-4 rounded bg-pink-500 text-white flex items-center justify-center text-[9px] font-bold">E</div>
+                      <div className="flex-1">
+                        <div className="text-[9.5px] font-bold text-pink-900">English</div>
+                        <div className="text-[8.5px] text-pink-600 font-medium">4/10 completed</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* ── FLOATING 3D SIMULATIONS BADGE (Matching Bottom-Right Card in Reference) ── */}
+            <div 
+              className="absolute -bottom-6 sm:-bottom-8 -right-2 sm:-right-6 z-30 p-3.5 sm:p-4 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-100 shadow-[0_20px_45px_-5px_rgba(79,70,229,0.2)] flex items-center gap-3.5 animate-float-reverse"
+            >
+              <div>
+                <span className="text-[9.5px] font-mono-label font-bold uppercase tracking-wider text-slate-400 block">Feature</span>
+                <span className="font-doodle text-xs sm:text-sm font-bold text-slate-900 block leading-tight">3D Simulations</span>
+                <div className="mt-1.5 flex items-center gap-1.5 text-xs text-purple-600 font-bold">
+                  <div className="w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center">
+                    <Play className="w-2 h-2 fill-white text-white ml-0.5" />
+                  </div>
+                  <span>Play Lab</span>
+                </div>
+              </div>
+              
+              {/* Vibrant 3D Atom Icon */}
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-sky-400 via-indigo-500 to-purple-500 p-2 shadow-md shadow-indigo-500/20 flex items-center justify-center">
+                <Atom className="w-7 h-7 text-white animate-spin-slow" />
+              </div>
+            </div>
+
+          </div>
+
         </div>
       </div>
     </section>
@@ -369,17 +546,17 @@ function Card3DTilt({ children, hoverBorder = "hover:border-cyan-500/60 hover:sh
         style={{
           transformStyle: "preserve-3d",
           boxShadow: isHovered 
-            ? `${shadowPos.x}px ${shadowPos.y}px 50px rgba(0, 0, 0, 0.8), 0 0 35px ${accentGlow}`
-            : "0 15px 35px rgba(0, 0, 0, 0.5)",
+            ? `${shadowPos.x}px ${shadowPos.y}px 40px rgba(15, 23, 42, 0.12), 0 0 25px ${accentGlow}`
+            : "0 10px 30px rgba(15, 23, 42, 0.06)",
         }}
-        className={`relative flex flex-col justify-between h-full rounded-3xl border border-zinc-800/80 bg-zinc-950 overflow-hidden transition-colors duration-200 ${hoverBorder}`}
+        className={`relative flex flex-col justify-between h-full rounded-3xl border border-slate-200/80 bg-white overflow-hidden transition-colors duration-200 shadow-sm ${hoverBorder}`}
       >
         {/* Dynamic Specular Light Glare Reflection */}
         <div
           className="pointer-events-none absolute inset-0 z-30 transition-opacity duration-200 rounded-3xl"
           style={{
             opacity: glarePos.opacity,
-            background: `radial-gradient(circle at ${glarePos.x}% ${glarePos.y}%, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.1) 30%, transparent 70%)`,
+            background: `radial-gradient(circle at ${glarePos.x}% ${glarePos.y}%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.2) 30%, transparent 70%)`,
           }}
         />
 
@@ -388,7 +565,7 @@ function Card3DTilt({ children, hoverBorder = "hover:border-cyan-500/60 hover:sh
           className="pointer-events-none absolute inset-0 z-20 rounded-3xl transition-opacity duration-300"
           style={{
             opacity: isHovered ? 1 : 0,
-            border: "1px solid rgba(255, 255, 255, 0.18)",
+            border: "1px solid rgba(255, 255, 255, 0.5)",
           }}
         />
         
@@ -468,18 +645,18 @@ function FeaturesBento() {
       ref={sectionRef} 
       id="features" 
       data-testid="features-section" 
-      className="relative py-8 sm:py-10 lg:py-14 bg-zinc-950 border-t border-white/5 [perspective:1400px] overflow-hidden"
+      className="relative py-8 sm:py-10 lg:py-14 bg-white border-t border-slate-200/80 [perspective:1400px] overflow-hidden"
     >
       <div className="max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-12">
         {/* Section Heading */}
         <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-8 lg:mb-10">
-          <span className="font-mono-label text-[10px] sm:text-xs uppercase tracking-[0.2em] sm:tracking-[0.25em] text-cyan-400 font-bold px-3 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/10 inline-block mb-3">
+          <span className="font-mono-label text-[10px] sm:text-xs uppercase tracking-[0.2em] sm:tracking-[0.25em] text-cyan-600 font-bold px-3 py-1 rounded-full border border-cyan-500/20 bg-cyan-50 inline-block mb-3">
             · Platform Features
           </span>
-          <h2 className="font-display text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
-            Platform <span className="bg-gradient-to-r from-cyan-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">Features</span>
+          <h2 className="font-display font-doodle text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-slate-900">
+            Platform <span className="bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 bg-clip-text text-transparent">Features</span>
           </h2>
-          <p className="mt-2 sm:mt-3 text-zinc-400 text-sm sm:text-lg">
+          <p className="mt-2 sm:mt-3 text-slate-600 text-sm sm:text-lg">
             Everything students need for Cambridge Primary success, all in one connected environment.
           </p>
         </div>
@@ -488,30 +665,30 @@ function FeaturesBento() {
           
           {/* Card 1: 3D Science Simulations (Teal Header) */}
           <Card3DScrollArc index={0} scrollProgress={smoothProgress}>
-            <Card3DTilt hoverBorder="hover:border-emerald-500/50 hover:shadow-[0_20px_50px_rgba(52,211,153,0.25)]">
-              <div className="p-6 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 flex items-center justify-between">
-                <div className="h-12 w-12 rounded-2xl bg-zinc-950/80 border border-white/10 flex items-center justify-center shadow-lg" style={{ transform: "translateZ(30px)" }}>
-                  <Atom className="h-6 w-6 text-emerald-300" />
+            <Card3DTilt hoverBorder="hover:border-emerald-400 hover:shadow-[0_20px_40px_rgba(52,211,153,0.2)]">
+              <div className="p-6 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-between">
+                <div className="h-12 w-12 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-md" style={{ transform: "translateZ(30px)" }}>
+                  <Atom className="h-6 w-6 text-white" />
                 </div>
-                <span className="px-3.5 py-1 rounded-full bg-zinc-950/80 border border-emerald-400/30 text-emerald-300 font-mono-label text-xs font-bold" style={{ transform: "translateZ(30px)" }}>
+                <span className="px-3.5 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white font-mono-label text-xs font-bold" style={{ transform: "translateZ(30px)" }}>
                   Interactive Lab
                 </span>
               </div>
 
-              <div className="p-6 flex flex-col justify-between h-full">
+              <div className="p-6 flex flex-col justify-between h-full bg-white">
                 <div>
-                  <h3 className="font-display text-2xl font-bold text-white tracking-tight">
+                  <h3 className="font-display font-doodle text-2xl font-bold text-slate-900 tracking-tight">
                     3D Science<br />Simulations
                   </h3>
-                  <p className="mt-4 text-sm text-zinc-300 leading-relaxed font-normal">
+                  <p className="mt-4 text-sm text-slate-600 leading-relaxed font-normal">
                     Interactive 3D physics & optics labs (Light & Shadows, Reflection, Forces) with live slider controls and shadow math calculations.
                   </p>
                 </div>
 
-                <div className="mt-6 p-4 rounded-2xl border border-white/10 bg-zinc-900/90" style={{ transform: "translateZ(25px)" }}>
-                  <div className="flex items-center justify-between text-xs font-mono text-zinc-300 mb-2 font-semibold">
-                    <span>Torch: <strong className="text-cyan-400">{torchPos.toFixed(1)}m</strong></span>
-                    <span>Shadow: <strong className="text-emerald-400">{Math.round(torchPos * 18)}cm</strong></span>
+                <div className="mt-6 p-4 rounded-2xl border border-slate-200/80 bg-slate-50" style={{ transform: "translateZ(25px)" }}>
+                  <div className="flex items-center justify-between text-xs font-mono text-slate-700 mb-2 font-semibold">
+                    <span>Torch: <strong className="text-cyan-600">{torchPos.toFixed(1)}m</strong></span>
+                    <span>Shadow: <strong className="text-emerald-600">{Math.round(torchPos * 18)}cm</strong></span>
                   </div>
                   <input
                     type="range"
@@ -520,7 +697,7 @@ function FeaturesBento() {
                     step="0.1"
                     value={torchPos}
                     onChange={(e) => setTorchPos(parseFloat(e.target.value))}
-                    className="w-full accent-emerald-400 bg-zinc-800 h-1.5 rounded-lg cursor-pointer"
+                    className="w-full accent-emerald-500 bg-slate-200 h-1.5 rounded-lg cursor-pointer"
                   />
                 </div>
               </div>
@@ -529,36 +706,36 @@ function FeaturesBento() {
 
           {/* Card 2: Gogo AI Voice Agent (Purple Header) */}
           <Card3DScrollArc index={1} scrollProgress={smoothProgress}>
-            <Card3DTilt hoverBorder="hover:border-purple-500/50 hover:shadow-[0_20px_50px_rgba(168,85,247,0.25)]">
-              <div className="p-6 bg-gradient-to-r from-purple-600 via-indigo-500 to-purple-500 flex items-center justify-between">
-                <div className="h-12 w-12 rounded-2xl bg-zinc-950/80 border border-white/10 flex items-center justify-center shadow-lg" style={{ transform: "translateZ(30px)" }}>
-                  <Bot className="h-6 w-6 text-purple-300" />
+            <Card3DTilt hoverBorder="hover:border-purple-400 hover:shadow-[0_20px_40px_rgba(168,85,247,0.2)]">
+              <div className="p-6 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-500 flex items-center justify-between">
+                <div className="h-12 w-12 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-md" style={{ transform: "translateZ(30px)" }}>
+                  <Bot className="h-6 w-6 text-white" />
                 </div>
-                <span className="px-3.5 py-1 rounded-full bg-zinc-950/80 border border-purple-400/30 text-purple-300 font-mono-label text-xs font-bold" style={{ transform: "translateZ(30px)" }}>
+                <span className="px-3.5 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white font-mono-label text-xs font-bold" style={{ transform: "translateZ(30px)" }}>
                   Voice Tutor
                 </span>
               </div>
 
-              <div className="p-6 flex flex-col justify-between h-full">
+              <div className="p-6 flex flex-col justify-between h-full bg-white">
                 <div>
-                  <h3 className="font-display text-2xl font-bold text-white tracking-tight">
+                  <h3 className="font-display font-doodle text-2xl font-bold text-slate-900 tracking-tight">
                     Gogo AI Voice Agent
                   </h3>
-                  <p className="mt-4 text-sm text-zinc-300 leading-relaxed font-normal">
+                  <p className="mt-4 text-sm text-slate-600 leading-relaxed font-normal">
                     Real-time Socratic voice assistant guiding Cambridge Primary students step-by-step through science and math concepts.
                   </p>
                 </div>
 
-                <div className="mt-6 p-4 rounded-2xl border border-white/10 bg-zinc-900/90 flex items-center justify-between" style={{ transform: "translateZ(25px)" }}>
+                <div className="mt-6 p-4 rounded-2xl border border-slate-200/80 bg-slate-50 flex items-center justify-between" style={{ transform: "translateZ(25px)" }}>
                   <div className="flex items-center gap-2">
-                    <span className="h-2.5 w-2.5 rounded-full bg-purple-400 animate-pulse" />
-                    <span className="text-xs font-mono text-white font-semibold">Voice Active</span>
+                    <span className="h-2.5 w-2.5 rounded-full bg-purple-500 animate-pulse" />
+                    <span className="text-xs font-mono text-slate-700 font-semibold">Voice Active</span>
                   </div>
                   <div className="flex items-end gap-1 h-5">
                     {[12, 20, 16, 24, 14, 18].map((h, i) => (
                       <motion.span
                         key={i}
-                        className="w-1 bg-purple-400 rounded-full"
+                        className="w-1 bg-purple-500 rounded-full"
                         animate={{ height: [8, h, 8] }}
                         transition={{ repeat: Infinity, duration: 1, delay: i * 0.15 }}
                       />
@@ -571,29 +748,29 @@ function FeaturesBento() {
 
           {/* Card 3: Checkpoint Exams (Blue Header) */}
           <Card3DScrollArc index={2} scrollProgress={smoothProgress}>
-            <Card3DTilt hoverBorder="hover:border-sky-500/50 hover:shadow-[0_20px_50px_rgba(56,189,248,0.25)]">
+            <Card3DTilt hoverBorder="hover:border-sky-400 hover:shadow-[0_20px_40px_rgba(56,189,248,0.2)]">
               <div className="p-6 bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 flex items-center justify-between">
-                <div className="h-12 w-12 rounded-2xl bg-zinc-950/80 border border-white/10 flex items-center justify-center shadow-lg" style={{ transform: "translateZ(30px)" }}>
-                  <GraduationCap className="h-6 w-6 text-sky-300" />
+                <div className="h-12 w-12 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-md" style={{ transform: "translateZ(30px)" }}>
+                  <GraduationCap className="h-6 w-6 text-white" />
                 </div>
-                <span className="px-3.5 py-1 rounded-full bg-zinc-950/80 border border-sky-400/30 text-sky-300 font-mono-label text-xs font-bold" style={{ transform: "translateZ(30px)" }}>
+                <span className="px-3.5 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white font-mono-label text-xs font-bold" style={{ transform: "translateZ(30px)" }}>
                   Stage 1–5
                 </span>
               </div>
 
-              <div className="p-6 flex flex-col justify-between h-full">
+              <div className="p-6 flex flex-col justify-between h-full bg-white">
                 <div>
-                  <h3 className="font-display text-2xl font-bold text-white tracking-tight">
+                  <h3 className="font-display font-doodle text-2xl font-bold text-slate-900 tracking-tight">
                     Checkpoint Exams
                   </h3>
-                  <p className="mt-4 text-sm text-zinc-300 leading-relaxed font-normal">
+                  <p className="mt-4 text-sm text-slate-600 leading-relaxed font-normal">
                     Timed Cambridge Primary Checkpoint paper simulator with auto-graded MCQs and instant score breakdown.
                   </p>
                 </div>
 
-                <div className="mt-6 p-4 rounded-2xl border border-white/10 bg-zinc-900/90 flex items-center justify-between text-xs font-mono" style={{ transform: "translateZ(25px)" }}>
-                  <span className="text-zinc-300">Timer: <strong className="text-cyan-400">45:00</strong></span>
-                  <span className="text-emerald-400 font-bold">Auto-Graded</span>
+                <div className="mt-6 p-4 rounded-2xl border border-slate-200/80 bg-slate-50 flex items-center justify-between text-xs font-mono" style={{ transform: "translateZ(25px)" }}>
+                  <span className="text-slate-700">Timer: <strong className="text-cyan-600">45:00</strong></span>
+                  <span className="text-emerald-600 font-bold">Auto-Graded</span>
                 </div>
               </div>
             </Card3DTilt>
@@ -601,29 +778,29 @@ function FeaturesBento() {
 
           {/* Card 4: Digital Worksheets (Orange Header) */}
           <Card3DScrollArc index={3} scrollProgress={smoothProgress}>
-            <Card3DTilt hoverBorder="hover:border-amber-500/50 hover:shadow-[0_20px_50px_rgba(245,158,11,0.25)]">
+            <Card3DTilt hoverBorder="hover:border-amber-400 hover:shadow-[0_20px_40px_rgba(245,158,11,0.2)]">
               <div className="p-6 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 flex items-center justify-between">
-                <div className="h-12 w-12 rounded-2xl bg-zinc-950/80 border border-white/10 flex items-center justify-center shadow-lg" style={{ transform: "translateZ(30px)" }}>
-                  <PenTool className="h-6 w-6 text-amber-300" />
+                <div className="h-12 w-12 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-md" style={{ transform: "translateZ(30px)" }}>
+                  <PenTool className="h-6 w-6 text-white" />
                 </div>
-                <span className="px-3.5 py-1 rounded-full bg-zinc-950/80 border border-amber-400/30 text-amber-300 font-mono-label text-xs font-bold" style={{ transform: "translateZ(30px)" }}>
+                <span className="px-3.5 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white font-mono-label text-xs font-bold" style={{ transform: "translateZ(30px)" }}>
                   Digital Canvas
                 </span>
               </div>
 
-              <div className="p-6 flex flex-col justify-between h-full">
+              <div className="p-6 flex flex-col justify-between h-full bg-white">
                 <div>
-                  <h3 className="font-display text-2xl font-bold text-white tracking-tight">
+                  <h3 className="font-display font-doodle text-2xl font-bold text-slate-900 tracking-tight">
                     Digital Worksheets
                   </h3>
-                  <p className="mt-4 text-sm text-zinc-300 leading-relaxed font-normal">
+                  <p className="mt-4 text-sm text-slate-600 leading-relaxed font-normal">
                     On-screen drawing canvas tools for solving geometry problems, measuring angles, and labeling science diagrams.
                   </p>
                 </div>
 
-                <div className="mt-6 p-4 rounded-2xl border border-white/10 bg-zinc-900/90 flex items-center justify-between text-xs font-mono" style={{ transform: "translateZ(25px)" }}>
-                  <span className="text-zinc-300">Drawing Tool</span>
-                  <span className="text-amber-400 font-bold">Angle Mode: 45°</span>
+                <div className="mt-6 p-4 rounded-2xl border border-slate-200/80 bg-slate-50 flex items-center justify-between text-xs font-mono" style={{ transform: "translateZ(25px)" }}>
+                  <span className="text-slate-700">Drawing Tool</span>
+                  <span className="text-amber-600 font-bold">Angle Mode: 45°</span>
                 </div>
               </div>
             </Card3DTilt>
@@ -706,23 +883,23 @@ function LearningJourney() {
   ];
 
   return (
-    <section data-testid="journey-section" className="relative py-8 lg:py-10 bg-zinc-950 border-y border-white/5">
+    <section data-testid="journey-section" className="relative py-12 lg:py-16 bg-[#F8FAFC] border-y border-slate-200/80">
       <div className="max-w-[1480px] mx-auto px-6 lg:px-12 grid lg:grid-cols-12 gap-12">
         <div className="lg:col-span-4 lg:sticky lg:top-32 lg:self-start">
-          <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
+          <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-600 font-bold px-3 py-1 rounded-full border border-cyan-500/20 bg-cyan-50 inline-block mb-3">
             · Learning journey
           </span>
-          <h2 className="font-display text-4xl lg:text-5xl font-bold tracking-tighter mt-3 leading-[1.05] text-white">
+          <h2 className="font-display font-doodle text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tighter mt-3 leading-[1.05] text-slate-900">
             From first lesson to exam day — in four deliberate steps.
           </h2>
-          <p className="text-zinc-400 mt-5 leading-relaxed">
+          <p className="text-slate-600 mt-5 leading-relaxed">
             Our methodology is built on years of working with top-scoring Cambridge international students.
             No fluff, no filler.
           </p>
         </div>
 
         <div className="lg:col-span-8 relative">
-          <div className="absolute left-[19px] top-2 bottom-2 w-px bg-gradient-to-b from-cyan-500/40 via-emerald-500/30 to-transparent pointer-events-none" />
+          <div className="absolute left-[19px] top-2 bottom-2 w-px bg-gradient-to-b from-cyan-500/40 via-purple-500/30 to-transparent pointer-events-none" />
 
           <div className="space-y-8">
             {STEPS.map((s, i) => (
@@ -735,16 +912,16 @@ function LearningJourney() {
                 data-testid={`journey-step-${s.n}`}
                 className="relative pl-16 animate-section-reveal"
               >
-                <div className="absolute left-0 top-1 h-10 w-10 rounded-full border border-cyan-500/30 bg-zinc-950 grid place-items-center">
-                  <div className="h-2.5 w-2.5 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 animate-ping-glow" />
+                <div className="absolute left-0 top-1 h-10 w-10 rounded-full border border-cyan-500/40 bg-white shadow-sm grid place-items-center">
+                  <div className="h-2.5 w-2.5 rounded-full bg-gradient-to-br from-cyan-500 to-purple-600 animate-ping-glow" />
                 </div>
-                <div className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-zinc-500 font-bold">
+                <div className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-slate-500 font-bold">
                   Step {s.n}
                 </div>
-                <h3 className="font-display text-2xl lg:text-3xl font-bold tracking-tight text-white mt-1">
+                <h3 className="font-display font-doodle text-2xl lg:text-3xl font-bold tracking-tight text-slate-900 mt-1">
                   {s.title}
                 </h3>
-                <p className="text-zinc-400 mt-3 max-w-lg leading-relaxed">{s.body}</p>
+                <p className="text-slate-600 mt-3 max-w-lg leading-relaxed">{s.body}</p>
               </motion.div>
             ))}
           </div>
@@ -823,8 +1000,8 @@ function SubjectCard3DTilt({
         style={{
           transformStyle: "preserve-3d",
           boxShadow: isHovered
-            ? "0 25px 60px rgba(0, 0, 0, 0.9)"
-            : "0 15px 40px rgba(0, 0, 0, 0.7)",
+            ? "0 20px 40px rgba(15, 23, 42, 0.12)"
+            : "0 10px 25px rgba(15, 23, 42, 0.05)",
         }}
         className={`
           group
@@ -837,13 +1014,10 @@ function SubjectCard3DTilt({
           overflow-hidden
           rounded-[28px]
           border
-          border-white/20
-          bg-gradient-to-b
-          from-zinc-900/95
-          via-zinc-950
-          to-black
+          border-slate-200/90
+          bg-white
           p-6
-          backdrop-blur-2xl
+          shadow-sm
           transition-colors
           duration-300
           ${borderGlow}
@@ -854,7 +1028,7 @@ function SubjectCard3DTilt({
           className="pointer-events-none absolute inset-0 z-30 transition-opacity duration-200 rounded-[28px]"
           style={{
             opacity: glarePos.opacity,
-            background: `radial-gradient(circle at ${glarePos.x}% ${glarePos.y}%, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.05) 35%, transparent 70%)`,
+            background: `radial-gradient(circle at ${glarePos.x}% ${glarePos.y}%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.2) 35%, transparent 70%)`,
           }}
         />
 
@@ -862,7 +1036,7 @@ function SubjectCard3DTilt({
         <div
           className="pointer-events-none absolute inset-[1px] z-30 rounded-[27px]"
           style={{
-            border: "1px solid rgba(255, 255, 255, 0.12)",
+            border: "1px solid rgba(255, 255, 255, 0.6)",
           }}
         />
 
@@ -1026,16 +1200,16 @@ function SubjectsGrid() {
   ];
 
   return (
-    <section id="subjects" data-testid="subjects-section" className="relative py-12 lg:py-16 bg-zinc-950 border-t border-white/5">
+    <section id="subjects" data-testid="subjects-section" className="relative py-12 lg:py-16 bg-[#F8FAFC] border-t border-slate-200/80">
       <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
         {/* Section Header */}
         <div className="mb-10">
           <div className="max-w-xl">
-            <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400 font-bold px-3.5 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/10 inline-block mb-3 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+            <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-600 font-bold px-3.5 py-1 rounded-full border border-cyan-500/20 bg-cyan-50 inline-block mb-3 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
               · SUBJECTS
             </span>
-            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-white">
-              Syllabus Aligned <span className="bg-gradient-to-r from-cyan-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">Subjects</span>
+            <h2 className="font-display font-doodle text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-slate-900">
+              Syllabus Aligned <span className="bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 bg-clip-text text-transparent">Subjects</span>
             </h2>
           </div>
         </div>
@@ -1048,7 +1222,7 @@ function SubjectsGrid() {
                 <div className={`h-11 w-11 rounded-2xl border flex items-center justify-center backdrop-blur-md ${s.iconBoxBg}`}>
                   {s.icon}
                 </div>
-                <div className="h-9 w-9 rounded-full border border-white/20 bg-zinc-900/90 group-hover:bg-cyan-400 group-hover:text-zinc-950 group-hover:border-cyan-300 flex items-center justify-center text-white shadow-md transition-all duration-300">
+                <div className="h-9 w-9 rounded-full border border-slate-200 bg-slate-50 group-hover:bg-cyan-500 group-hover:text-white group-hover:border-cyan-500 flex items-center justify-center text-slate-700 shadow-sm transition-all duration-300">
                   <ArrowUpRight className="h-4 w-4 stroke-[2.5]" />
                 </div>
               </div>
@@ -1057,16 +1231,16 @@ function SubjectsGrid() {
                 {s.center3D}
               </div>
 
-              <div className="pt-2 border-t border-white/10">
-                <h3 className="font-display font-black text-2xl text-white tracking-tight leading-tight group-hover:text-cyan-300 transition-colors">
+              <div className="pt-2 border-t border-slate-100">
+                <h3 className="font-display font-doodle font-black text-2xl text-slate-900 tracking-tight leading-tight group-hover:text-cyan-600 transition-colors">
                   {s.name}
                 </h3>
-                <p className="text-zinc-400 text-xs font-medium mt-1.5 leading-relaxed tracking-normal line-clamp-2">
+                <p className="text-slate-600 text-xs font-medium mt-1.5 leading-relaxed tracking-normal line-clamp-2">
                   {s.subtitle}
                 </p>
                 <div className="mt-4 flex items-center justify-between">
-                  <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl backdrop-blur-md shadow-inner ${s.badgeStyle}`}>
-                    <BarChart3 className="h-3.5 w-3.5 text-cyan-400" />
+                  <div className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-slate-200/80 bg-slate-50 text-slate-700 shadow-inner`}>
+                    <BarChart3 className="h-3.5 w-3.5 text-cyan-500" />
                     <span className="font-mono text-xs font-extrabold tracking-wider">
                       {s.topics} Topics
                     </span>
@@ -1105,16 +1279,16 @@ function Testimonials() {
   ];
 
   return (
-    <section id="testimonials" data-testid="testimonials-section" className="relative py-12 lg:py-16 bg-zinc-950 border-y border-white/5">
+    <section id="testimonials" data-testid="testimonials-section" className="relative py-12 lg:py-16 bg-white border-y border-slate-200/80">
       <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
         
         {/* Section Header */}
         <div className="max-w-2xl mb-10">
-          <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400 font-bold px-3 py-1 rounded-full border border-cyan-500/20 bg-cyan-500/10 inline-block mb-3">
+          <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-600 font-bold px-3 py-1 rounded-full border border-cyan-500/20 bg-cyan-50 inline-block mb-3">
             · Student Stories
           </span>
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-white">
-            Results That Speak Louder Than <span className="bg-gradient-to-r from-cyan-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">Marketing Copy</span>
+          <h2 className="font-display font-doodle text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-slate-900">
+            Results That Speak Louder Than <span className="bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 bg-clip-text text-transparent">Marketing Copy</span>
           </h2>
         </div>
 
@@ -1124,7 +1298,7 @@ function Testimonials() {
             <div
               key={i}
               data-testid={`testimonial-${i}`}
-              className="group relative rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-2xl p-7 hover:border-cyan-500/40 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+              className="group relative rounded-2xl border border-slate-200/80 bg-slate-50/70 p-7 hover:border-cyan-400 hover:bg-white hover:shadow-[0_15px_30px_rgba(15,23,42,0.06)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
             >
               <div>
                 {/* 5-Star Rating */}
@@ -1135,21 +1309,21 @@ function Testimonials() {
                 </div>
 
                 {/* Quote */}
-                <p className="text-zinc-200 leading-relaxed text-[15px] font-medium">
+                <p className="text-slate-700 leading-relaxed text-[15px] font-medium">
                   "{t.quote}"
                 </p>
               </div>
 
               {/* Author Footer */}
-              <div className="mt-8 flex items-center gap-3.5 pt-5 border-t border-white/10">
-                <div className="relative h-11 w-11 rounded-full overflow-hidden border border-white/20 bg-zinc-900 shrink-0">
+              <div className="mt-8 flex items-center gap-3.5 pt-5 border-t border-slate-200/80">
+                <div className="relative h-11 w-11 rounded-full overflow-hidden border border-slate-200 bg-slate-100 shrink-0">
                   <img src={t.img} alt={t.name} className="h-full w-full object-cover" />
                 </div>
                 <div>
-                  <div className="font-display font-bold text-sm text-white group-hover:text-cyan-300 transition-colors">
+                  <div className="font-display font-doodle font-bold text-sm text-slate-900 group-hover:text-cyan-600 transition-colors">
                     {t.name}
                   </div>
-                  <div className="font-mono-label text-[11px] text-zinc-400 font-semibold mt-0.5">
+                  <div className="font-mono-label text-[11px] text-slate-500 font-semibold mt-0.5">
                     {t.role}
                   </div>
                 </div>
@@ -1274,19 +1448,19 @@ function Pricing() {
   ];
 
   return (
-    <section id="pricing" data-testid="pricing-section" className="relative pt-4 pb-8 bg-zinc-950/20">
+    <section id="pricing" data-testid="pricing-section" className="relative pt-6 pb-14 bg-white border-t border-slate-200/80">
       <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
-        <div className="max-w-2xl mb-6">
-          <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-emerald-400">
+        <div className="max-w-2xl mb-8">
+          <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-emerald-600 font-bold px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-50 inline-block mb-3">
             · Pricing
           </span>
-          <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tighter mt-3 leading-[1.05] text-white">
+          <h2 className="font-display font-doodle text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tighter mt-1 leading-[1.05] text-slate-900">
             Premium learning,{" "}
-            <span className="bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 bg-clip-text text-transparent">
               honestly priced.
             </span>
           </h2>
-          <p className="text-zinc-400 mt-5 text-lg">No hidden fees. Built for learners and teachers alike.</p>
+          <p className="text-slate-600 mt-3 text-lg font-medium">No hidden fees. Built for learners and teachers alike.</p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6 sm:gap-6 items-stretch">
@@ -1294,17 +1468,17 @@ function Pricing() {
             <div
               key={p.id}
               data-testid={`plan-${p.id}`}
-              className={`relative rounded-3xl border p-5 sm:p-6 backdrop-blur-2xl transition-all duration-300 flex flex-col justify-between ${
+              className={`relative rounded-3xl border p-6 sm:p-7 backdrop-blur-2xl transition-all duration-300 flex flex-col justify-between ${
                 p.highlight
-                  ? "border-cyan-500/50 bg-gradient-to-br from-cyan-500/[0.08] via-zinc-900/60 to-emerald-500/[0.08] shadow-[0_0_50px_-15px_rgba(34,211,238,0.35)]"
+                  ? "border-cyan-400 bg-gradient-to-b from-cyan-50/50 via-white to-purple-50/30 shadow-[0_20px_45px_rgba(6,182,212,0.15)] ring-2 ring-cyan-500/20"
                   : p.id === "teacher"
-                  ? "border-violet-500/30 bg-gradient-to-br from-violet-500/[0.06] via-zinc-900/60 to-purple-500/[0.05] hover:border-violet-400/40"
-                  : "border-white/10 bg-white/[0.02] hover:border-white/20"
+                  ? "border-violet-200 bg-white shadow-md hover:border-violet-300"
+                  : "border-slate-200/80 bg-white shadow-sm hover:border-slate-300"
               }`}
             >
               {/* Badge */}
               {p.badge && (
-                <div className="absolute -top-3.5 left-6 px-3.5 py-1 rounded-full text-[9.5px] font-mono-label uppercase tracking-[0.2em] bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 font-black shadow-md">
+                <div className="absolute -top-3.5 left-6 px-3.5 py-1 rounded-full text-[9.5px] font-mono-label uppercase tracking-[0.2em] bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 text-white font-black shadow-md">
                   {p.badge}
                 </div>
               )}
@@ -1313,7 +1487,7 @@ function Pricing() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                   <span className={`font-mono-label text-xs uppercase tracking-[0.24em] font-black ${
-                    p.highlight ? "text-cyan-400" : p.id === "teacher" ? "text-violet-400" : "text-zinc-400"
+                    p.highlight ? "text-cyan-600" : p.id === "teacher" ? "text-violet-600" : "text-slate-500"
                   }`}>
                     {p.name}
                   </span>
@@ -1325,28 +1499,28 @@ function Pricing() {
                   <div className="h-5 flex items-center gap-2">
                     {p.originalPrice ? (
                       <>
-                        <span className="text-xs line-through text-zinc-500 font-semibold">{p.originalPrice}</span>
-                        <span className="text-[9.5px] font-bold px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase tracking-wider">
+                        <span className="text-xs line-through text-slate-400 font-semibold">{p.originalPrice}</span>
+                        <span className="text-[9.5px] font-bold px-2 py-0.5 rounded bg-rose-50 text-rose-600 border border-rose-200 uppercase tracking-wider">
                           {p.discountBadge}
                         </span>
                       </>
                     ) : (
-                      <span className="text-[10.5px] text-zinc-500 font-mono-label uppercase tracking-wider font-bold">Standard Access</span>
+                      <span className="text-[10.5px] text-slate-400 font-mono-label uppercase tracking-wider font-bold">Standard Access</span>
                     )}
                   </div>
 
                   {/* Main Price display */}
                   <div className="flex items-baseline gap-2">
-                    <span className={`font-display text-4xl sm:text-5xl font-black tracking-tight ${
+                    <span className={`font-display font-doodle text-4xl sm:text-5xl font-black tracking-tight ${
                       p.highlight
-                        ? "bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(52,211,153,0.2)]"
+                        ? "bg-gradient-to-r from-cyan-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent"
                         : p.id === "teacher"
-                        ? "bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent"
-                        : "text-white"
+                        ? "text-violet-700"
+                        : "text-slate-900"
                     }`}>
                       {p.price}
                     </span>
-                    <span className="text-xs text-zinc-400 font-semibold">{p.sub}</span>
+                    <span className="text-xs text-slate-500 font-semibold">{p.sub}</span>
                   </div>
 
                   {/* Savings pill row */}
@@ -1354,13 +1528,13 @@ function Pricing() {
                     {p.savingsAmount ? (
                       <div className={`text-[11px] font-semibold flex items-center gap-1 rounded-full py-0.5 px-2.5 border ${
                         p.highlight
-                          ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
-                          : "text-violet-400 bg-violet-500/10 border-violet-500/20"
+                          ? "text-emerald-700 bg-emerald-50 border-emerald-200"
+                          : "text-violet-700 bg-violet-50 border-violet-200"
                       }`}>
                         <span>🎉 You save {p.savingsAmount} instantly</span>
                       </div>
                     ) : (
-                      <div className="text-[11px] font-semibold text-zinc-400 rounded-full py-0.5 px-2.5 border border-white/5 bg-white/[0.02]">
+                      <div className="text-[11px] font-semibold text-slate-500 rounded-full py-0.5 px-2.5 border border-slate-200 bg-slate-50">
                         ✓ Free forever
                       </div>
                     )}
@@ -1368,23 +1542,23 @@ function Pricing() {
                 </div>
 
                 {/* Description */}
-                <p className="text-xs sm:text-sm text-zinc-400 mt-3 leading-relaxed min-h-[36px]">{p.description}</p>
+                <p className="text-xs sm:text-sm text-slate-600 mt-3 leading-relaxed min-h-[36px]">{p.description}</p>
 
                 {/* Divider */}
                 <div className={`my-3.5 h-px w-full ${
-                  p.highlight ? "bg-cyan-500/20" : p.id === "teacher" ? "bg-violet-500/20" : "bg-white/10"
+                  p.highlight ? "bg-cyan-200" : p.id === "teacher" ? "bg-violet-200" : "bg-slate-100"
                 }`} />
 
                 {/* Features Checklist */}
                 <ul className="space-y-2.5 pb-2">
                   {p.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-200">
+                    <li key={f} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700">
                       <div className={`h-4 w-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
                         p.highlight 
-                          ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/30" 
+                          ? "bg-cyan-100 text-cyan-700 border border-cyan-300" 
                           : p.id === "teacher" 
-                          ? "bg-purple-500/10 text-violet-400 border border-purple-500/30"
-                          : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                          ? "bg-purple-100 text-violet-700 border border-purple-300"
+                          : "bg-emerald-100 text-emerald-700 border border-emerald-300"
                       }`}>
                         <Check className="h-2.5 w-2.5 stroke-[3]" />
                       </div>
@@ -1395,16 +1569,16 @@ function Pricing() {
               </div>
 
               {/* Bottom Pinned CTA Button */}
-              <div className="pt-3 border-t border-white/5 mt-auto">
+              <div className="pt-3 border-t border-slate-100 mt-auto">
                 <Link
                   to="/register"
                   data-testid={`plan-cta-${p.id}`}
                   className={`inline-flex w-full items-center justify-center gap-2 px-5 py-3 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 ${
                     p.highlight
-                      ? "bg-gradient-to-r from-cyan-400 to-emerald-400 text-zinc-950 hover:shadow-[0_0_35px_rgba(34,211,238,0.5)] hover:scale-[1.01]"
+                      ? "bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 text-white shadow-md hover:shadow-[0_10px_25px_rgba(99,102,241,0.35)] hover:scale-[1.01]"
                       : p.id === "teacher"
-                      ? "bg-gradient-to-r from-violet-500/30 to-purple-500/30 border border-violet-500/50 text-violet-200 hover:bg-violet-500/40 hover:border-violet-400/80 hover:text-white"
-                      : "border border-white/20 text-white bg-white/[0.03] hover:bg-white/[0.08] hover:border-white/40"
+                      ? "bg-violet-50 border border-violet-300 text-violet-700 hover:bg-violet-600 hover:text-white"
+                      : "border border-slate-300 text-slate-700 bg-white hover:bg-slate-50"
                   }`}
                 >
                   {p.cta}
@@ -1449,13 +1623,13 @@ function FAQ() {
   ];
 
   return (
-    <section id="faq" data-testid="faq-section" className="relative py-12 lg:py-14 bg-zinc-950 border-t border-white/5">
+    <section id="faq" data-testid="faq-section" className="relative py-12 lg:py-16 bg-[#F8FAFC] border-t border-slate-200/80">
       <div className="max-w-4xl mx-auto px-6 lg:px-8">
         <div className="text-center mb-14">
-          <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-400">
+          <span className="font-mono-label text-[10px] uppercase tracking-[0.24em] text-cyan-600 font-bold px-3 py-1 rounded-full border border-cyan-500/20 bg-cyan-50 inline-block mb-3">
             · Frequently asked
           </span>
-          <h2 className="font-display text-4xl sm:text-5xl font-bold tracking-tighter mt-3 leading-[1.05] text-white">
+          <h2 className="font-display font-doodle text-4xl sm:text-5xl font-bold tracking-tighter mt-1 leading-[1.05] text-slate-900">
             Questions, answered.
           </h2>
         </div>
@@ -1475,17 +1649,17 @@ function FAQItem({ q, a, i }) {
   return (
     <div
       data-testid={`faq-item-${i}`}
-      className="border border-white/10 bg-white/[0.02] backdrop-blur-md rounded-xl px-5 hover:border-cyan-500/30 transition-colors"
+      className="border border-slate-200/90 bg-white shadow-sm rounded-xl px-5 hover:border-cyan-400 transition-colors"
     >
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between text-left font-display font-semibold text-base text-white py-5"
+        className="w-full flex items-center justify-between text-left font-display font-doodle font-semibold text-base text-slate-900 py-5"
       >
         <span>{q}</span>
-        <ChevronRight className={`h-4 w-4 text-cyan-400 transition-transform duration-200 ${open ? "rotate-90" : ""}`} />
+        <ChevronRight className={`h-4 w-4 text-cyan-500 transition-transform duration-200 ${open ? "rotate-90" : ""}`} />
       </button>
       {open && (
-        <div className="text-zinc-400 leading-relaxed text-[14.5px] pb-5">
+        <div className="text-slate-600 leading-relaxed text-[14.5px] pb-5">
           {a}
         </div>
       )}
@@ -1505,9 +1679,9 @@ function Footer() {
 
   return (
     <>
-      <footer data-testid="site-footer" className="relative pt-8 pb-6 bg-black border-t border-white/5 overflow-hidden">
+      <footer data-testid="site-footer" className="relative pt-12 pb-8 bg-white border-t border-slate-200 overflow-hidden">
         {/* Glow */}
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[60%] bg-gradient-to-r from-cyan-500/10 via-cyan-500/5 to-emerald-500/10 blur-3xl pointer-events-none" />
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 h-64 w-[60%] bg-gradient-to-r from-cyan-500/10 via-purple-500/5 to-emerald-500/10 blur-3xl pointer-events-none" />
 
         <div className="max-w-[1480px] mx-auto px-6 lg:px-12 relative">
           {/* Links grid */}
@@ -1515,9 +1689,9 @@ function Footer() {
             <div className="lg:col-span-4">
               <div className="flex items-center gap-3 mb-5">
                 <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-9 w-9 object-contain" />
-                <span className="font-display font-bold text-[18px] tracking-tight header-gradient-text">Mentara Labs</span>
+                <span className="font-display font-doodle font-bold text-[20px] tracking-tight header-gradient-text">Mentara Labs</span>
               </div>
-              <p className="text-sm text-zinc-400 leading-relaxed max-w-sm font-medium">
+              <p className="text-sm text-slate-600 leading-relaxed max-w-sm font-medium">
                 Interactive 3D labs, practice worksheets, and Cambridge Primary tools crafted to help every student learn with joy and confidence.
               </p>
               <div className="flex items-center gap-3 mt-6">
@@ -1527,7 +1701,7 @@ function Footer() {
                     href="#"
                     data-testid={`social-${i}`}
                     aria-label="social"
-                    className="h-9 w-9 rounded-full border border-white/10 grid place-items-center text-zinc-500 hover:text-cyan-400 hover:border-cyan-500/40 transition-all"
+                    className="h-9 w-9 rounded-full border border-slate-200 bg-slate-50 grid place-items-center text-slate-500 hover:text-cyan-600 hover:border-cyan-400 hover:bg-white shadow-sm transition-all"
                   >
                     <Icon className="h-4 w-4" />
                   </a>
@@ -1538,13 +1712,13 @@ function Footer() {
             <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-8">
               {COLS.map((c) => (
                 <div key={c.title}>
-                  <div className="font-mono-label text-[10px] uppercase tracking-[0.22em] text-zinc-500 mb-4 font-bold">
+                  <div className="font-mono-label text-[10px] uppercase tracking-[0.22em] text-slate-400 mb-4 font-bold">
                     {c.title}
                   </div>
                   <ul className="space-y-2.5">
                     {c.links.map((l) => (
                       <li key={l}>
-                        <a href="#" className="text-sm text-zinc-300 hover:text-cyan-400 transition-colors font-semibold">
+                        <a href="#" className="text-sm text-slate-700 hover:text-cyan-600 transition-colors font-semibold">
                           {l}
                         </a>
                       </li>
@@ -1555,14 +1729,14 @@ function Footer() {
             </div>
           </div>
 
-          <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="font-mono-label text-[10px] uppercase tracking-[0.22em] text-zinc-600 font-bold">
+          <div className="pt-8 border-t border-slate-200/80 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="font-mono-label text-[10px] uppercase tracking-[0.22em] text-slate-500 font-bold">
               © 2026 Mentara Labs · All rights reserved
             </div>
-            <div className="flex items-center gap-5 text-[12px] text-zinc-500 font-semibold">
-              <button onClick={() => setActiveModal("privacy")} className="hover:text-zinc-300 transition-colors">Privacy Policy</button>
-              <button onClick={() => setActiveModal("terms")} className="hover:text-zinc-300 transition-colors">Terms of Service</button>
-              <button onClick={() => setActiveModal("cookies")} className="hover:text-zinc-300 transition-colors">Cookie Policy</button>
+            <div className="flex items-center gap-5 text-[12px] text-slate-500 font-semibold">
+              <button onClick={() => setActiveModal("privacy")} className="hover:text-slate-800 transition-colors">Privacy Policy</button>
+              <button onClick={() => setActiveModal("terms")} className="hover:text-slate-800 transition-colors">Terms of Service</button>
+              <button onClick={() => setActiveModal("cookies")} className="hover:text-slate-800 transition-colors">Cookie Policy</button>
             </div>
           </div>
         </div>
