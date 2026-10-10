@@ -121,25 +121,31 @@ export default function LaptopScrollShowcase() {
     offset: ["start start", "end end"]
   });
 
-  // Smooth subtle horizontal drift on scroll (stays 100% straight and upright)
+  // Anchored upright positioning for seamless scroll stability
   const rawLaptopX = useTransform(
     scrollYProgress,
-    [0, 0.33, 0.66, 1],
-    [-16, 16, -12, 0]
+    [0, 1],
+    [0, 0]
   );
   const laptopX = useSpring(rawLaptopX, {
-    stiffness: 65,
-    damping: 20,
+    stiffness: 80,
+    damping: 25,
   });
 
   // Dynamic glare shift across glass screen
   const rawGlareX = useTransform(scrollYProgress, [0, 1], [-30, 30]);
   const glareX = useSpring(rawGlareX, { stiffness: 50, damping: 25 });
 
-  // Dynamic scroll index tracking
+  // Dynamic scroll index tracking with generous entrance buffer for Slide 01
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    const total = FEATURES.length;
-    const idx = Math.min(total - 1, Math.round(latest * (total - 1)));
+    let idx = 0;
+    if (latest < 0.18) idx = 0;
+    else if (latest < 0.36) idx = 1;
+    else if (latest < 0.54) idx = 2;
+    else if (latest < 0.72) idx = 3;
+    else if (latest < 0.88) idx = 4;
+    else idx = 5;
+
     if (idx !== activeIndex) {
       setActiveIndex(idx);
     }
@@ -153,7 +159,8 @@ export default function LaptopScrollShowcase() {
     const sectionTop = containerRef.current.getBoundingClientRect().top + window.scrollY;
     const sectionHeight = containerRef.current.offsetHeight;
     const maxScroll = sectionHeight - window.innerHeight;
-    const progress = index / (FEATURES.length - 1);
+    const targets = [0, 0.25, 0.43, 0.61, 0.79, 0.98];
+    const progress = targets[index] ?? (index / (FEATURES.length - 1));
     window.scrollTo({
       top: sectionTop + maxScroll * progress,
       behavior: "smooth"
@@ -192,7 +199,7 @@ export default function LaptopScrollShowcase() {
 
         {/* STICKY VIEWPORT CONTAINER */}
         <div className="sticky top-0 h-screen overflow-hidden">
-          <div className="relative h-full w-full flex items-center justify-center">
+          <div className="relative h-full w-full flex items-center justify-center pt-16 sm:pt-20">
 
             {/* Ambient Animated Glow */}
             <motion.div
@@ -211,8 +218,20 @@ export default function LaptopScrollShowcase() {
               <div className="lg:col-span-7 flex flex-col items-center justify-center relative">
                 <motion.div
                   style={{ x: laptopX }}
-                  className="w-full max-w-[320px] xs:max-w-[420px] sm:max-w-[580px] lg:max-w-[740px] relative select-none"
+                  className="w-full max-w-[272px] xs:max-w-[335px] sm:max-w-[397px] md:max-w-[442px] lg:max-w-[515px] xl:max-w-[572px] relative select-none mt-6 sm:mt-8 lg:mt-10"
                 >
+                  {/* 3D CHARACTER HOLDING LAPTOP */}
+                  <img
+                    src="/cheerful_boy_peeking.png"
+                    alt="Cheerful Boy Holding Laptop"
+                    className="absolute top-0 w-[88%] max-w-none pointer-events-none select-none z-30"
+                    style={{
+                      right: "-14%",
+                      transform: "translateY(-51.7%)",
+                    }}
+                    loading="eager"
+                  />
+
                   {/* LAPTOP SCREEN / LID (100% STRAIGHT & FRONT-FACING) */}
                   <div className="relative w-full aspect-[16/10] bg-zinc-900 rounded-t-[14px] sm:rounded-t-[22px] p-1.5 sm:p-3 shadow-[0_20px_60px_rgba(0,0,0,0.9)] border border-zinc-700/80 border-b-0 overflow-hidden ring-1 ring-white/10 z-20">
                     
@@ -307,7 +326,7 @@ export default function LaptopScrollShowcase() {
               </div>
 
               {/* RIGHT COLUMN: ACTIVE FEATURE DETAILS (5 COLS) */}
-              <div className="lg:col-span-5 flex flex-col justify-center">
+              <div className="lg:col-span-5 flex flex-col justify-center -translate-y-2 sm:-translate-y-3">
                 {/* TOP SUBHEADER BADGE */}
                 <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-slate-200 bg-white/90 backdrop-blur-md w-fit mb-2 sm:mb-4 lg:mb-6 shadow-sm">
                   <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-cyan-500 animate-pulse" />

@@ -1806,7 +1806,7 @@ function Pricing() {
   ];
 
   return (
-    <section id="pricing" data-testid="pricing-section" className="relative pt-8 pb-16 bg-[#F4F6FC] border-t border-slate-200/50">
+    <section id="pricing" data-testid="pricing-section" className="relative -mt-12 sm:-mt-16 lg:-mt-20 z-20 pt-8 pb-16 bg-[#F4F6FC] border-t border-slate-200/50">
       <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
         <div className="max-w-2xl mb-10">
           <span className="font-mono-label text-[10.5px] uppercase tracking-[0.24em] text-emerald-700 font-semibold px-4 py-1.5 rounded-full neu-pill bg-[#FAFBFD] border border-white/90 inline-block mb-3.5">
