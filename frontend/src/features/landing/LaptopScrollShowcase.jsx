@@ -163,18 +163,18 @@ export default function LaptopScrollShowcase() {
   return (
     <>
       {/* INTRO HEADER SECTION */}
-      <section className="relative bg-white text-slate-900 border-t border-slate-200/80">
+      <section className="relative bg-[#F4F6FC] text-slate-800 border-t border-slate-200/50">
         <div className="pt-16 pb-12 text-center max-w-4xl mx-auto px-6">
-          <span className="font-mono text-xs uppercase tracking-[0.25em] text-cyan-600 font-bold px-3.5 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-50 inline-block mb-4 shadow-[0_0_20px_rgba(6,182,212,0.15)]">
+          <span className="font-mono text-[10.5px] uppercase tracking-[0.24em] text-cyan-700 font-semibold px-4 py-1.5 rounded-full border border-white/90 bg-[#FAFBFD] inline-block mb-4 shadow-[4px_6px_14px_rgba(200,212,236,0.35),-4px_-4px_12px_rgba(255,255,255,0.9)]">
             · PLATFORM HIGHLIGHTS
           </span>
-          <h2 className="font-display font-doodle text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-slate-900">
+          <h2 className="font-display font-doodle text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-tight text-slate-800">
             Everything You Need to{" "}
-            <span className="bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-cyan-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
               Teach, Learn, Practice & Excel
             </span>
           </h2>
-          <p className="mt-4 text-slate-600 text-base sm:text-lg leading-relaxed font-medium max-w-2xl mx-auto">
+          <p className="mt-4 text-slate-600 text-base leading-relaxed font-normal max-w-2xl mx-auto">
             Mentara Labs brings the complete Cambridge Primary suite onto one smart,
             interactive platform built for both educators and students.
           </p>
@@ -185,7 +185,7 @@ export default function LaptopScrollShowcase() {
       <section
         ref={containerRef}
         id="features-showcase"
-        className="relative h-[550vh] bg-[#F8FAFC] text-slate-900 font-sans selection:bg-cyan-500/20"
+        className="relative h-[550vh] bg-[#F4F6FC] text-slate-800 font-sans selection:bg-purple-100"
       >
         {/* Ambient Subtle Grid */}
         <div className="absolute inset-0 bg-grid opacity-10 pointer-events-none" />
