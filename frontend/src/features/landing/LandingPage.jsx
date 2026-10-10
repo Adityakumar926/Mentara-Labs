@@ -548,11 +548,11 @@ function Hero() {
           alt="Mentara Hero Clay Robot Reading Illustration"
           className="w-full h-full object-cover object-bottom"
         />
-        {/* Soft Airy White/Glass overlay to ensure clear readability of text, badge, and buttons on the left */}
+        {/* Crisp background view with minimal localized fade behind the text for readability */}
         <div 
           className="absolute inset-0" 
           style={{
-            background: "linear-gradient(to right, rgba(255, 255, 255, 0.93) 0%, rgba(255, 255, 255, 0.8) 38%, rgba(255, 255, 255, 0.15) 75%, transparent 100%)",
+            background: "linear-gradient(to right, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.4) 30%, transparent 60%)",
           }}
         />
       </div>
