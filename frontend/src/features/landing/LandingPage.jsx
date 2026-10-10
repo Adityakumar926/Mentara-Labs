@@ -539,26 +539,23 @@ function Hero() {
   return (
     <section 
       data-testid="hero-section" 
-      className="relative pt-24 pb-16 sm:pt-28 sm:pb-20 lg:pt-36 lg:pb-24 overflow-hidden min-h-[640px] lg:min-h-[760px] flex items-center"
-      style={{
-        background: "linear-gradient(180deg, #F0F4FC 0%, #F5F3FD 50%, #F4F6FC 100%)",
-      }}
+      className="relative pt-16 pb-12 sm:pt-20 sm:pb-16 lg:pt-24 lg:pb-16 overflow-hidden flex items-center min-h-[640px] lg:min-h-[720px] bg-[#FAF9F6]"
     >
-      {/* ── AMBIENT SOFT PASTEL NEUMORPHIC BACKDROPS ── */}
-      {/* Soft Top-Right Lilac Ambient */}
-      <div 
-        className="absolute top-[-10%] right-[-5%] w-[680px] h-[680px] rounded-full pointer-events-none z-0"
-        style={{
-          background: "radial-gradient(circle, rgba(221, 214, 254, 0.4) 0%, rgba(243, 232, 255, 0.15) 50%, transparent 70%)",
-        }}
-      />
-      {/* Soft Bottom-Left Baby Blue Ambient */}
-      <div 
-        className="absolute bottom-[-15%] left-[-10%] w-[600px] h-[600px] rounded-full pointer-events-none z-0"
-        style={{
-          background: "radial-gradient(circle, rgba(186, 230, 253, 0.35) 0%, rgba(224, 242, 254, 0.15) 50%, transparent 70%)",
-        }}
-      />
+      {/* ── HERO ARTWORK: Complete uncropped fit with cute reading robot ── */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden flex items-end justify-center">
+        <img
+          src="/hero-robot-clay-bg.jpg"
+          alt="Mentara Hero Clay Robot Reading Illustration"
+          className="w-full h-full object-cover object-bottom"
+        />
+        {/* Soft Airy White/Glass overlay to ensure clear readability of text, badge, and buttons on the left */}
+        <div 
+          className="absolute inset-0" 
+          style={{
+            background: "linear-gradient(to right, rgba(255, 255, 255, 0.93) 0%, rgba(255, 255, 255, 0.8) 38%, rgba(255, 255, 255, 0.15) 75%, transparent 100%)",
+          }}
+        />
+      </div>
 
 
 
