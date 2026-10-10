@@ -109,126 +109,427 @@ export default function LandingPage() {
   );
 }
 
-/* ── 1. HEADER (Soft Pastel Airy White Theme) ── */
+/* ── 1. HEADER (Neumorphic Floating Pill Navbar with Molecule Dissolve Effect) ── */
 function Header() {
-  const [scrolled, setScrolled] = useState(false);
+  const [activeTab, setActiveTab] = useState("Features");
   const [open, setOpen] = useState(false);
+  const [isDissolved, setIsDissolved] = useState(false);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const pillRef = useRef(null);
+  const canvasRef = useRef(null);
+  const particlesRef = useRef([]);
+  const animFrameRef = useRef(null);
+  const lastScrolledRef = useRef(false);
 
   const NAV_LINKS = [
-    { label: "Products", href: "#features", hasDropdown: true },
-    { label: "For Teachers", href: "#subjects" },
-    { label: "For Schools", href: "#pricing" },
-    { label: "Resources", href: "#features" },
-    { label: "About", href: "#testimonials" },
+    { label: "Features", href: "#features" },
+    { label: "Price", href: "#pricing" },
+    { label: "Subject", href: "#subjects" },
+    { label: "Review", href: "#testimonials" },
   ];
 
+  // Molecular Disintegration Animation on Scroll Down
+  const triggerDisintegration = () => {
+    const pill = pillRef.current;
+    const canvas = canvasRef.current;
+    if (!pill || !canvas) return;
+
+    const rect = pill.getBoundingClientRect();
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const pillCenterX = rect.left + rect.width / 2;
+    const pillCenterY = rect.top + rect.height / 2;
+
+    const newParticles = [];
+    const count = 190; // Density of small molecule dots
+
+    for (let i = 0; i < count; i++) {
+      const x = rect.left + 12 + Math.random() * (rect.width - 24);
+      const y = rect.top + 4 + Math.random() * (rect.height - 8);
+
+      const dx = x - pillCenterX;
+      const dy = y - pillCenterY;
+      const angle = Math.atan2(dy, dx) + (Math.random() - 0.5) * 1.2;
+      const speed = Math.random() * 3.6 + 1.2;
+
+      newParticles.push({
+        x,
+        y,
+        vx: Math.cos(angle) * speed * (0.8 + Math.random() * 0.6),
+        vy: Math.sin(angle) * speed * 0.6 - Math.random() * 1.6, // gentle upward molecular drift
+        size: Math.random() * 2.8 + 1.2, // fine molecule dots (1.2px - 4px)
+        alpha: 1.0,
+        decay: Math.random() * 0.018 + 0.012, // dissolves over ~50-80 frames
+        wobble: Math.random() * Math.PI * 2,
+        wobbleSpeed: (Math.random() - 0.5) * 0.16,
+        color: [
+          "rgba(255, 255, 255,",   // pure white
+          "rgba(244, 246, 252,",   // ceramic pearl
+          "rgba(56, 189, 248,",    // cyan atom
+          "rgba(147, 197, 253,",   // light sky blue
+          "rgba(99, 102, 241,",    // brand indigo
+          "rgba(30, 41, 59,",      // subtle text dust
+        ][Math.floor(Math.random() * 6)],
+      });
+    }
+
+    particlesRef.current = newParticles;
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+
+    const render = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let alive = false;
+      const particles = particlesRef.current;
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        if (p.alpha <= 0) continue;
+
+        p.wobble += p.wobbleSpeed;
+        p.x += p.vx + Math.sin(p.wobble) * 0.6;
+        p.y += p.vy;
+        p.vx *= 0.965;
+        p.vy *= 0.965;
+        p.vy -= 0.025; // upward evaporation
+        p.alpha -= p.decay;
+
+        if (p.alpha > 0) {
+          alive = true;
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size * Math.max(0.2, p.alpha), 0, Math.PI * 2);
+          ctx.fillStyle = `${p.color} ${Math.max(0, p.alpha)})`;
+          ctx.shadowColor = "rgba(56, 189, 248, 0.45)";
+          ctx.shadowBlur = 5;
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      if (alive) {
+        animFrameRef.current = requestAnimationFrame(render);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    };
+
+    animFrameRef.current = requestAnimationFrame(render);
+  };
+
+  // Re-assembling Convergence Animation on Scroll Up (Exact Reverse Molecule Effect)
+  const triggerReassemble = () => {
+    const pill = pillRef.current;
+    const canvas = canvasRef.current;
+    if (!pill || !canvas) return;
+
+    const rect = pill.getBoundingClientRect();
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const pillCenterX = rect.left + rect.width / 2;
+    const pillCenterY = rect.top + rect.height / 2;
+
+    const newParticles = [];
+    const count = 190; // Matching 190 molecule density
+
+    for (let i = 0; i < count; i++) {
+      // Final target point on the pill capsule
+      const targetX = rect.left + 12 + Math.random() * (rect.width - 24);
+      const targetY = rect.top + 4 + Math.random() * (rect.height - 8);
+
+      // Starting point scattered out in the air (the reverse of evaporation)
+      const dx = targetX - pillCenterX;
+      const dy = targetY - pillCenterY;
+      const angle = Math.atan2(dy, dx) + (Math.random() - 0.5) * 1.2;
+      const dist = Math.random() * 85 + 40;
+
+      const startX = targetX + Math.cos(angle) * dist;
+      const startY = targetY + Math.sin(angle) * dist - (Math.random() * 35 + 10);
+
+      newParticles.push({
+        x: startX,
+        y: startY,
+        startX,
+        startY,
+        targetX,
+        targetY,
+        progress: 0,
+        speed: Math.random() * 0.035 + 0.025, // converges in ~35 frames (~500ms)
+        size: Math.random() * 2.8 + 1.2,
+        alpha: 0,
+        color: [
+          "rgba(255, 255, 255,",
+          "rgba(244, 246, 252,",
+          "rgba(56, 189, 248,",
+          "rgba(147, 197, 253,",
+          "rgba(99, 102, 241,",
+          "rgba(30, 41, 59,",
+        ][Math.floor(Math.random() * 6)],
+      });
+    }
+
+    particlesRef.current = newParticles;
+    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+
+    const render = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let alive = false;
+      const particles = particlesRef.current;
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        if (p.progress >= 1) continue;
+
+        p.progress = Math.min(1, p.progress + p.speed);
+
+        // Smooth cubic ease-out convergence curve
+        const t = p.progress;
+        const ease = 1 - Math.pow(1 - t, 3);
+
+        p.x = p.startX + (p.targetX - p.startX) * ease;
+        p.y = p.startY + (p.targetY - p.startY) * ease;
+
+        // Fades in, stays bright, then snaps seamlessly into the solid pill
+        if (t < 0.25) {
+          p.alpha = t / 0.25;
+        } else if (t > 0.85) {
+          p.alpha = (1 - t) / 0.15;
+        } else {
+          p.alpha = 1.0;
+        }
+
+        if (p.progress < 1) {
+          alive = true;
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = `${p.color} ${Math.max(0, p.alpha)})`;
+          ctx.shadowColor = "rgba(56, 189, 248, 0.5)";
+          ctx.shadowBlur = 5;
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      if (alive) {
+        animFrameRef.current = requestAnimationFrame(render);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    };
+
+    animFrameRef.current = requestAnimationFrame(render);
+  };
+
+  // Scroll listener: Dissolve on scroll down, Reassemble on scroll up
+  useEffect(() => {
+    let lastY = window.scrollY;
+
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      const delta = currentY - lastY;
+
+      // 1. At very top of page: always ensure visible
+      if (currentY < 35) {
+        if (lastScrolledRef.current) {
+          lastScrolledRef.current = false;
+          setIsDissolved(false);
+          triggerReassemble();
+        }
+      }
+      // 2. Scrolling down past 60px: dissolve into molecules
+      else if (delta > 8 && currentY > 60) {
+        if (!lastScrolledRef.current) {
+          lastScrolledRef.current = true;
+          setIsDissolved(true);
+          triggerDisintegration();
+        }
+      }
+      // 3. Scrolling up: reassemble with reverse molecular effect
+      else if (delta < -8) {
+        if (lastScrolledRef.current) {
+          lastScrolledRef.current = false;
+          setIsDissolved(false);
+          triggerReassemble();
+        }
+      }
+
+      lastY = currentY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    };
+  }, []);
+
   return (
-    <header
-      data-testid="site-header"
-      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-        scrolled ? "bg-white/85 backdrop-blur-xl border-b border-slate-200/60 shadow-[0_4px_20px_-6px_rgba(148,163,184,0.1)] h-16" : "bg-transparent h-20"
-      } flex items-center`}
-    >
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 w-full flex items-center justify-between">
-        {/* Brand Logo with Official Mentara Labs Molecule Icon */}
-        <a href="#" data-testid="brand-logo" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
-          <img 
-            src="/mentara-new.png" 
-            alt="Mentara Labs Logo" 
-            className="h-8 w-auto sm:h-9 object-contain transition-transform duration-300 group-hover:scale-105 opacity-95" 
+    <>
+      {/* Particle Canvas Layer for Molecule Disintegration */}
+      <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-[60]" />
+
+      {/* Top-Left Brand Logo (Clean text and logo, no border or background) */}
+      <div className="fixed top-4 sm:top-5 left-4 sm:left-8 lg:left-12 z-50 pointer-events-none">
+        <a
+          href="#"
+          data-testid="brand-logo"
+          className="pointer-events-auto inline-flex items-center gap-2.5"
+        >
+          <img
+            src="/mentara-new.png"
+            alt="Mentara Labs Logo"
+            className="h-7 w-7 sm:h-8 sm:w-8 object-contain"
           />
-          <span className="font-doodle font-bold text-xl sm:text-2xl tracking-tight text-slate-800 whitespace-nowrap">
+          <span className="font-display font-doodle font-bold text-lg sm:text-xl tracking-tight text-slate-800 whitespace-nowrap">
             Mentara Labs
           </span>
         </a>
-
-        {/* Desktop Nav Links */}
-        <nav className="hidden md:flex items-center gap-1.5 lg:gap-2">
-          {NAV_LINKS.map((item) => (
-            <a
-              key={item.label}
-              href={item.href}
-              data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-              className="inline-flex items-center gap-1 px-3.5 py-2 text-[13.5px] font-medium text-slate-600 hover:text-slate-800 transition-colors rounded-full hover:bg-slate-100/60"
-            >
-              <span>{item.label}</span>
-              {item.hasDropdown && (
-                <ChevronRight className="h-3 w-3 rotate-90 opacity-50" />
-              )}
-            </a>
-          ))}
-        </nav>
-
-        {/* Right CTA Button */}
-        <div className="flex items-center gap-2 sm:gap-4">
-          <Link
-            to="/login"
-            data-testid="header-signin"
-            className="hidden sm:inline text-[13.5px] font-medium text-slate-600 hover:text-slate-800 transition-colors px-2"
-          >
-            Sign in
-          </Link>
-          <Link
-            to="/register"
-            data-testid="header-cta"
-            className="group inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-xs sm:text-[13px] font-semibold text-white bg-gradient-to-r from-sky-400/90 via-indigo-400/90 to-purple-400/90 hover:from-sky-400 hover:via-indigo-400 hover:to-purple-400 hover:shadow-[0_4px_20px_rgba(165,180,252,0.35)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 whitespace-nowrap shadow-sm shadow-indigo-300/30"
-          >
-            <span>Get Started</span>
-            <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </Link>
-
-          {/* Mobile Menu Toggle */}
-          <button
-            data-testid="mobile-menu-toggle"
-            onClick={() => setOpen(!open)}
-            className="md:hidden p-2 text-slate-700 hover:text-slate-950 transition-colors rounded-lg hover:bg-slate-100"
-            aria-label="Toggle menu"
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
-        </div>
       </div>
 
-      {/* Mobile Drawer */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            data-testid="mobile-nav"
-            className="absolute top-full inset-x-0 border-t border-slate-200/80 bg-white/95 backdrop-blur-2xl py-4 shadow-xl md:hidden"
-          >
-            <div className="px-6 flex flex-col gap-1">
-              {NAV_LINKS.map((item) => (
+      {/* Floating Center Navbar */}
+      <header className="fixed top-4 sm:top-5 inset-x-0 z-50 flex justify-center pointer-events-none px-4">
+        {/* Floating Neumorphic Capsule Bar with Smooth Disappearing Effect */}
+        <div
+          ref={pillRef}
+          data-testid="site-header"
+          className={`pointer-events-auto flex items-center justify-between gap-2 sm:gap-3 md:gap-5 px-2.5 sm:px-3 py-1.5 rounded-full select-none backdrop-blur-2xl transition-all duration-500 shadow-md ${
+            isDissolved
+              ? "opacity-0 scale-95 -translate-y-3 blur-[6px] pointer-events-none"
+              : "opacity-100 scale-100 translate-y-0 blur-0 pointer-events-auto"
+          }`}
+          style={{
+            backgroundColor: "rgba(244, 245, 249, 0.94)",
+            border: "1px solid rgba(255, 255, 255, 0.9)",
+            boxShadow:
+              "0 14px 38px -4px rgba(15, 23, 42, 0.08), 0 4px 12px rgba(15, 23, 42, 0.03), inset 0 1px 1px rgba(255, 255, 255, 1)",
+          }}
+        >
+          {/* Navigation Links (Starts directly with Home, About...) */}
+          <nav className="hidden md:flex items-center gap-1">
+            {NAV_LINKS.map((item) => {
+              const isActive = activeTab === item.label;
+              return (
                 <a
                   key={item.label}
                   href={item.href}
-                  onClick={() => setOpen(false)}
-                  className="py-2.5 text-sm text-slate-700 hover:text-indigo-600 font-semibold transition-colors"
+                  onClick={() => setActiveTab(item.label)}
+                  data-testid={`nav-${item.label.toLowerCase()}`}
+                  className={`relative px-3 sm:px-4 py-1 text-xs sm:text-[13px] transition-all duration-200 rounded-full ${
+                    isActive
+                      ? "font-semibold text-slate-800"
+                      : "font-medium text-slate-500 hover:text-slate-800 hover:bg-black/[0.02]"
+                  }`}
                 >
-                  {item.label}
+                  {/* Active Soft Elevated Pill Indicator */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeNavPill"
+                      className="absolute inset-0 rounded-full bg-white border border-white/80 shadow-[0_4px_14px_rgba(15,23,42,0.07),0_1px_3px_rgba(15,23,42,0.04)]"
+                      transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                    />
+                  )}
+                  <span className="relative z-10">{item.label}</span>
                 </a>
-              ))}
-              <hr className="border-slate-100 my-2" />
-              <Link
-                to="/login"
-                onClick={() => setOpen(false)}
-                className="py-2.5 text-sm text-slate-700 hover:text-indigo-600 font-semibold transition-colors"
-              >
-                Sign in
-              </Link>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </header>
+              );
+            })}
+          </nav>
+
+          {/* Right Action / Sign In */}
+          <div className="flex items-center gap-1.5">
+            <Link
+              to="/login"
+              data-testid="header-signin"
+              className="hidden lg:inline-flex px-2.5 py-1 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors"
+            >
+              Sign in
+            </Link>
+            <Link
+              to="/register"
+              data-testid="header-cta"
+              className="hidden sm:inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-sm transition-all"
+            >
+              <span>Get Started</span>
+              <ArrowUpRight className="h-3 w-3" />
+            </Link>
+
+            {/* Mobile Menu Toggle Button */}
+            <button
+              data-testid="mobile-menu-toggle"
+              onClick={() => setOpen(!open)}
+              className="md:hidden p-1.5 text-slate-600 hover:text-slate-900 transition-colors shrink-0"
+              aria-label="Toggle menu"
+            >
+              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Nav Dropdown */}
+        <AnimatePresence>
+          {open && !isDissolved && (
+            <motion.div
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              data-testid="mobile-nav"
+              className="pointer-events-auto absolute top-full mt-3 w-[92vw] max-w-sm rounded-3xl p-4 shadow-2xl backdrop-blur-2xl border border-white/80 md:hidden"
+              style={{
+                backgroundColor: "rgba(244, 245, 249, 0.97)",
+                boxShadow: "0 20px 45px -8px rgba(15, 23, 42, 0.15)",
+              }}
+            >
+              <div className="flex flex-col gap-1.5">
+                {NAV_LINKS.map((item) => {
+                  const isActive = activeTab === item.label;
+                  return (
+                    <a
+                      key={item.label}
+                      href={item.href}
+                      onClick={() => {
+                        setActiveTab(item.label);
+                        setOpen(false);
+                      }}
+                      className={`px-4 py-2.5 rounded-2xl text-sm transition-all ${
+                        isActive
+                          ? "bg-white font-semibold text-slate-900 shadow-sm"
+                          : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                      }`}
+                    >
+                      {item.label}
+                    </a>
+                  );
+                })}
+                <hr className="border-slate-200/80 my-1.5" />
+                <div className="flex items-center gap-2 pt-1">
+                  <Link
+                    to="/login"
+                    onClick={() => setOpen(false)}
+                    className="flex-1 text-center py-2 text-sm font-semibold text-slate-700 hover:text-slate-900"
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setOpen(false)}
+                    className="flex-1 text-center py-2 rounded-xl text-sm font-bold text-white bg-slate-900 hover:bg-slate-800"
+                  >
+                    Get Started
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
+    </>
   );
 }
 
@@ -258,37 +559,12 @@ function Hero() {
         }}
       />
 
-      {/* Decorative Playful 3D Clay Spheres & Badges */}
-      <div className="absolute top-[26%] left-[46%] hidden lg:block pointer-events-none z-10 animate-float-slow">
-        {/* Soft 3D Clay Sphere with specular highlight & bottom shadow */}
-        <div 
-          className="w-10 h-10 rounded-full"
-          style={{
-            background: "radial-gradient(circle at 35% 30%, #FFFFFF 0%, #C4B5FD 45%, #8B5CF6 100%)",
-            boxShadow: "0 10px 20px rgba(139, 92, 246, 0.28), inset -2px -4px 6px rgba(109, 40, 217, 0.4), inset 2px 2px 4px rgba(255, 255, 255, 0.8)",
-          }}
-        />
-      </div>
-      <div className="absolute top-[16%] right-[6%] hidden lg:block pointer-events-none z-10 animate-float-reverse">
-        {/* Soft 3D Clay Atom Tile */}
-        <div 
-          className="w-14 h-14 rounded-2xl flex items-center justify-center rotate-12"
-          style={{
-            background: "linear-gradient(145deg, #FFFFFF, #EEF2FF)",
-            boxShadow: "8px 10px 24px rgba(199, 210, 254, 0.5), -6px -6px 16px rgba(255, 255, 255, 0.9), inset 1px 1px 2px rgba(255, 255, 255, 1)",
-          }}
-        >
-          <Atom className="w-7 h-7 text-[#818CF8]" />
-        </div>
-      </div>
-      <div className="absolute top-[14%] right-[16%] hidden lg:block pointer-events-none z-10">
-        <Sparkles className="w-5 h-5 text-sky-400" />
-      </div>
+
 
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 relative z-20 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           
-          {/* ── LEFT COLUMN: Hero Headline & Value Props ── */}
+          {/* ── LEFT COLUMN: Hero Headline & Value Props (Remains in exact position) ── */}
           <div className="lg:col-span-6 xl:col-span-6">
             
             {/* Soft Neumorphic Pill Badge */}
@@ -407,289 +683,8 @@ function Hero() {
             </div>
           </div>
 
-          {/* ── RIGHT COLUMN: Pastel Neumorphic Clay Tablet Dashboard Mockup ── */}
-          <div className="lg:col-span-6 xl:col-span-6 relative flex items-center justify-center">
-            
-            {/* Tablet Chassis - Soft Neumorphic Extruded Clay Body */}
-            <div 
-              className="relative w-full max-w-[580px] rounded-[36px] p-4 sm:p-4.5 transition-transform duration-500 hover:scale-[1.01]"
-              style={{
-                transform: "perspective(1200px) rotateY(-6deg) rotateX(4deg)",
-                background: "linear-gradient(145deg, #FFFFFF, #E8EEF8)",
-                boxShadow: "16px 20px 45px rgba(180, 195, 225, 0.45), -12px -12px 35px rgba(255, 255, 255, 0.95)",
-                border: "2px solid rgba(255, 255, 255, 0.8)",
-              }}
-            >
-              {/* Tablet Screen Surface with soft inner bevel */}
-              <div 
-                className="rounded-[26px] bg-[#FAFBFD] p-4 sm:p-5 flex flex-col gap-4 text-slate-800 select-none overflow-hidden"
-                style={{
-                  boxShadow: "inset 2px 2px 6px rgba(180, 195, 225, 0.25), inset -2px -2px 6px rgba(255, 255, 255, 0.8)",
-                }}
-              >
-                
-                {/* Tablet App Top Bar */}
-                <div className="flex items-center justify-between border-b border-slate-200/50 pb-3">
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="w-6 h-6 rounded-lg flex items-center justify-center text-white"
-                      style={{
-                        background: "linear-gradient(135deg, #2DD4BF, #0D9488)",
-                        boxShadow: "0 4px 8px rgba(13, 148, 136, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.6)",
-                      }}
-                    >
-                      <Sparkles className="w-3.5 h-3.5" />
-                    </div>
-                    <span className="font-doodle font-bold text-sm tracking-tight text-slate-800">MentP</span>
-                  </div>
-                  
-                  {/* Subject Filter Pills */}
-                  <div className="flex items-center gap-1 sm:gap-1.5 text-[11px] font-medium text-slate-500">
-                    <span className="px-2.5 py-0.5 rounded-full bg-white neu-pill text-indigo-700 font-semibold border border-white">Home</span>
-                    <span className="px-2 py-0.5 hover:text-slate-800">Maths</span>
-                    <span className="px-2 py-0.5 hover:text-slate-800">Science</span>
-                    <span className="px-2 py-0.5 hover:text-slate-800">English</span>
-                    <span className="px-2 py-0.5 hover:text-slate-800 hidden sm:inline">Global Perspectives</span>
-                  </div>
-
-                  <div 
-                    className="w-6 h-6 rounded-full flex items-center justify-center text-xs text-indigo-600 font-bold"
-                    style={{
-                      background: "linear-gradient(135deg, #FFFFFF, #EEF2FF)",
-                      boxShadow: "2px 2px 6px rgba(199, 210, 254, 0.4), -2px -2px 6px rgba(255, 255, 255, 0.9)",
-                    }}
-                  >
-                    A
-                  </div>
-                </div>
-
-                {/* Continue Learning Row */}
-                <div>
-                  <div className="flex items-center justify-between mb-2.5">
-                    <span className="font-doodle text-xs font-bold text-slate-800">Continue Learning</span>
-                    <a href="#subjects" className="text-[10px] font-semibold text-slate-400 hover:text-indigo-600 flex items-center gap-0.5">
-                      View All <ArrowRight className="w-2.5 h-2.5" />
-                    </a>
-                  </div>
-
-                  {/* 3 Interactive Clay Cards (Fractions, Forces, Angles) */}
-                  <div className="grid grid-cols-3 gap-2.5">
-                    
-                    {/* Card 1: Fractions */}
-                    <div 
-                      className="p-2.5 rounded-2xl flex flex-col justify-between h-28 transition-all hover:-translate-y-0.5"
-                      style={{
-                        background: "linear-gradient(145deg, #FFFFFF, #FAF5FF)",
-                        boxShadow: "4px 6px 14px rgba(216, 180, 254, 0.25), -3px -3px 10px rgba(255, 255, 255, 0.9)",
-                        border: "1px solid rgba(255, 255, 255, 0.9)",
-                      }}
-                    >
-                      <div 
-                        className="h-10 w-full rounded-xl flex items-center justify-center"
-                        style={{
-                          background: "radial-gradient(circle at 35% 35%, #FFFFFF, #F3E8FF)",
-                          boxShadow: "inset 2px 2px 4px rgba(216, 180, 254, 0.3), inset -2px -2px 4px rgba(255, 255, 255, 0.9)",
-                        }}
-                      >
-                        {/* 3D Clay Donut/Pie */}
-                        <div 
-                          className="w-6 h-6 rounded-full border-3 border-purple-400 border-t-pink-400 border-r-amber-300 rotate-45"
-                          style={{
-                            boxShadow: "0 2px 6px rgba(168, 85, 247, 0.25)",
-                          }}
-                        />
-                      </div>
-                      <div>
-                        <div className="text-[10.5px] font-semibold text-slate-800 leading-tight">Fractions</div>
-                        <div className="text-[9px] text-slate-400 flex items-center justify-between mt-0.5">
-                          <span>Maths · Year 4</span>
-                          <span className="text-purple-600 font-bold">→</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Card 2: Forces and Motion */}
-                    <div 
-                      className="p-2.5 rounded-2xl flex flex-col justify-between h-28 transition-all hover:-translate-y-0.5"
-                      style={{
-                        background: "linear-gradient(145deg, #FFFFFF, #F0F9FF)",
-                        boxShadow: "4px 6px 14px rgba(186, 230, 253, 0.25), -3px -3px 10px rgba(255, 255, 255, 0.9)",
-                        border: "1px solid rgba(255, 255, 255, 0.9)",
-                      }}
-                    >
-                      <div 
-                        className="h-10 w-full rounded-xl flex items-center justify-center"
-                        style={{
-                          background: "radial-gradient(circle at 35% 35%, #FFFFFF, #E0F2FE)",
-                          boxShadow: "inset 2px 2px 4px rgba(186, 230, 253, 0.3), inset -2px -2px 4px rgba(255, 255, 255, 0.9)",
-                        }}
-                      >
-                        {/* 3D Clay Planet Sphere with Ring */}
-                        <div 
-                          className="w-6 h-6 rounded-full relative flex items-center justify-center"
-                          style={{
-                            background: "radial-gradient(circle at 35% 30%, #93C5FD, #4F46E5)",
-                            boxShadow: "0 3px 8px rgba(79, 70, 229, 0.3), inset 1px 1px 2px rgba(255, 255, 255, 0.7)",
-                          }}
-                        >
-                          <div className="w-8 h-2 rounded-full border border-sky-100 rotate-[-20deg]" />
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-[10.5px] font-semibold text-slate-800 leading-tight">Forces and Motion</div>
-                        <div className="text-[9px] text-slate-400 flex items-center justify-between mt-0.5">
-                          <span>Science · Year 3</span>
-                          <span className="text-indigo-600 font-bold">→</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Card 3: Angles and Turns */}
-                    <div 
-                      className="p-2.5 rounded-2xl flex flex-col justify-between h-28 transition-all hover:-translate-y-0.5"
-                      style={{
-                        background: "linear-gradient(145deg, #FFFFFF, #F0FDFA)",
-                        boxShadow: "4px 6px 14px rgba(153, 246, 228, 0.25), -3px -3px 10px rgba(255, 255, 255, 0.9)",
-                        border: "1px solid rgba(255, 255, 255, 0.9)",
-                      }}
-                    >
-                      <div 
-                        className="h-10 w-full rounded-xl flex items-center justify-center"
-                        style={{
-                          background: "radial-gradient(circle at 35% 35%, #FFFFFF, #CCFBF1)",
-                          boxShadow: "inset 2px 2px 4px rgba(153, 246, 228, 0.3), inset -2px -2px 4px rgba(255, 255, 255, 0.9)",
-                        }}
-                      >
-                        {/* 3D Clay Protractor Semi-Circle */}
-                        <div 
-                          className="w-6 h-3 rounded-t-full border-2 border-teal-400 bg-teal-200/50"
-                          style={{
-                            boxShadow: "0 2px 6px rgba(20, 184, 166, 0.25)",
-                          }}
-                        />
-                      </div>
-                      <div>
-                        <div className="text-[10.5px] font-semibold text-slate-800 leading-tight">Angles and Turns</div>
-                        <div className="text-[9px] text-slate-400 flex items-center justify-between mt-0.5">
-                          <span>Maths · Year 3</span>
-                          <span className="text-teal-600 font-bold">→</span>
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-
-                {/* My Progress Section */}
-                <div className="border-t border-slate-200/50 pt-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-doodle text-xs font-bold text-slate-800">My Progress</span>
-                    <span className="text-[9px] text-slate-400 font-medium">This Week</span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="flex-1 p-2 rounded-xl flex items-center gap-2"
-                      style={{
-                        background: "linear-gradient(135deg, #FFFFFF, #F5F3FF)",
-                        boxShadow: "3px 4px 10px rgba(216, 180, 254, 0.2), -2px -2px 6px rgba(255, 255, 255, 0.9)",
-                      }}
-                    >
-                      <div 
-                        className="w-4 h-4 rounded-full text-white flex items-center justify-center text-[9px] font-bold"
-                        style={{
-                          background: "radial-gradient(circle at 35% 30%, #C084FC, #7C3AED)",
-                          boxShadow: "0 2px 4px rgba(124, 58, 237, 0.3)",
-                        }}
-                      >M</div>
-                      <div className="flex-1">
-                        <div className="text-[9.5px] font-semibold text-purple-900">Maths</div>
-                        <div className="text-[8.5px] text-purple-600 font-normal">8/10 done</div>
-                      </div>
-                    </div>
-                    <div 
-                      className="flex-1 p-2 rounded-xl flex items-center gap-2"
-                      style={{
-                        background: "linear-gradient(135deg, #FFFFFF, #F0FDFA)",
-                        boxShadow: "3px 4px 10px rgba(153, 246, 228, 0.2), -2px -2px 6px rgba(255, 255, 255, 0.9)",
-                      }}
-                    >
-                      <div 
-                        className="w-4 h-4 rounded-full text-white flex items-center justify-center text-[9px] font-bold"
-                        style={{
-                          background: "radial-gradient(circle at 35% 30%, #5EEAD4, #0D9488)",
-                          boxShadow: "0 2px 4px rgba(13, 148, 136, 0.3)",
-                        }}
-                      >S</div>
-                      <div className="flex-1">
-                        <div className="text-[9.5px] font-semibold text-teal-900">Science</div>
-                        <div className="text-[8.5px] text-teal-600 font-normal">6/10 done</div>
-                      </div>
-                    </div>
-                    <div 
-                      className="flex-1 p-2 rounded-xl hidden sm:flex items-center gap-2"
-                      style={{
-                        background: "linear-gradient(135deg, #FFFFFF, #FDF2F8)",
-                        boxShadow: "3px 4px 10px rgba(251, 207, 232, 0.2), -2px -2px 6px rgba(255, 255, 255, 0.9)",
-                      }}
-                    >
-                      <div 
-                        className="w-4 h-4 rounded-full text-white flex items-center justify-center text-[9px] font-bold"
-                        style={{
-                          background: "radial-gradient(circle at 35% 30%, #F472B6, #BE185D)",
-                          boxShadow: "0 2px 4px rgba(190, 24, 93, 0.3)",
-                        }}
-                      >E</div>
-                      <div className="flex-1">
-                        <div className="text-[9.5px] font-semibold text-pink-900">English</div>
-                        <div className="text-[8.5px] text-pink-600 font-normal">4/10 done</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-
-            {/* ── FLOATING 3D CLAY SIMULATIONS BADGE ── */}
-            <div 
-              className="absolute -bottom-6 sm:-bottom-8 -right-2 sm:-right-6 z-30 p-3.5 sm:p-4 rounded-2xl flex items-center gap-3.5 animate-float-reverse"
-              style={{
-                background: "linear-gradient(145deg, #FFFFFF, #F8FAFD)",
-                boxShadow: "10px 14px 32px rgba(190, 205, 235, 0.4), -6px -6px 18px rgba(255, 255, 255, 0.95)",
-                border: "1.5px solid rgba(255, 255, 255, 0.9)",
-              }}
-            >
-              <div>
-                <span className="text-[9.5px] font-mono-label font-medium uppercase tracking-wider text-slate-400 block">Feature</span>
-                <span className="font-doodle text-xs sm:text-sm font-bold text-slate-800 block leading-tight">3D Simulations</span>
-                <div className="mt-1.5 flex items-center gap-1.5 text-xs text-purple-600 font-semibold">
-                  <div 
-                    className="w-4 h-4 rounded-full flex items-center justify-center"
-                    style={{
-                      background: "radial-gradient(circle at 35% 30%, #C084FC, #7C3AED)",
-                      boxShadow: "0 2px 4px rgba(124, 58, 237, 0.3)",
-                    }}
-                  >
-                    <Play className="w-2 h-2 fill-white text-white ml-0.5" />
-                  </div>
-                  <span>Play Lab</span>
-                </div>
-              </div>
-              
-              {/* Playful 3D Clay Atom Icon with glossy radial gradient */}
-              <div 
-                className="w-12 h-12 rounded-2xl flex items-center justify-center"
-                style={{
-                  background: "radial-gradient(circle at 35% 30%, #93C5FD 0%, #818CF8 50%, #C084FC 100%)",
-                  boxShadow: "0 6px 16px rgba(129, 140, 248, 0.35), inset 1px 1px 3px rgba(255, 255, 255, 0.7), inset -2px -2px 4px rgba(79, 70, 229, 0.3)",
-                }}
-              >
-                <Atom className="w-6 h-6 text-white animate-spin-slow" />
-              </div>
-            </div>
-
-          </div>
+          {/* ── RIGHT COLUMN: Kept Empty as Requested ── */}
+          <div className="lg:col-span-6 xl:col-span-6" />
 
         </div>
       </div>
