@@ -111,7 +111,7 @@ export default function LandingPage() {
 
 /* ── 1. HEADER (Neumorphic Floating Pill Navbar with Molecule Dissolve Effect) ── */
 function Header() {
-  const [activeTab, setActiveTab] = useState("Features");
+  const [activeTab, setActiveTab] = useState("Home");
   const [open, setOpen] = useState(false);
   const [isDissolved, setIsDissolved] = useState(false);
 
@@ -122,6 +122,7 @@ function Header() {
   const lastScrolledRef = useRef(false);
 
   const NAV_LINKS = [
+    { label: "Home", href: "#" },
     { label: "Features", href: "#features" },
     { label: "Price", href: "#pricing" },
     { label: "Subject", href: "#subjects" },
