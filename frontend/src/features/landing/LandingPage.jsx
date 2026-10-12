@@ -541,20 +541,47 @@ function Hero() {
       data-testid="hero-section" 
       className="relative pt-16 pb-12 sm:pt-20 sm:pb-16 lg:pt-24 lg:pb-16 overflow-hidden flex items-center min-h-[640px] lg:min-h-[720px] bg-[#FAF9F6]"
     >
-      {/* ── HERO ARTWORK: Complete uncropped fit with cute reading robot ── */}
+      {/* ── HERO ARTWORK: Complete uncropped fit with cute reading robot in blue sky landscape ── */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden flex items-end justify-center">
-        <img
-          src="/hero-robot-clay-bg.jpg"
-          alt="Mentara Hero Clay Robot Reading Illustration"
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
           className="w-full h-full object-cover object-bottom"
-        />
+        >
+          <source src="/hero-background-video.mp4" type="video/mp4" />
+        </video>
         {/* Crisp background view with minimal localized fade behind the text for readability */}
         <div 
           className="absolute inset-0" 
           style={{
-            background: "linear-gradient(to right, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.4) 30%, transparent 60%)",
+            background: "linear-gradient(to right, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.35) 30%, transparent 60%)",
           }}
         />
+
+        {/* Seamless Bottom Gradient Fade into #F4F6FC Platform Section */}
+        <div 
+          className="absolute inset-x-0 bottom-0 h-32 sm:h-44 pointer-events-none" 
+          style={{
+            background: "linear-gradient(to bottom, transparent 0%, rgba(244, 246, 252, 0.4) 40%, rgba(244, 246, 252, 0.85) 75%, #F4F6FC 100%)",
+          }}
+        />
+
+        {/* Soft Organic Clay Wave Transition Divider */}
+        <div className="absolute inset-x-0 bottom-0 pointer-events-none z-10 leading-none">
+          <svg
+            className="w-full h-8 sm:h-14 lg:h-20 block text-[#F4F6FC]"
+            viewBox="0 0 1440 120"
+            fill="none"
+            preserveAspectRatio="none"
+          >
+            <path
+              d="M0,32 C240,95 480,120 720,80 C960,40 1200,95 1440,48 L1440,120 L0,120 Z"
+              fill="currentColor"
+            />
+          </svg>
+        </div>
       </div>
 
 
@@ -855,7 +882,7 @@ function FeaturesBento() {
       ref={sectionRef} 
       id="features" 
       data-testid="features-section" 
-      className="relative py-10 sm:py-14 lg:py-20 bg-[#F4F6FC] border-t border-slate-200/50 [perspective:1400px] overflow-hidden"
+      className="relative pt-8 pb-10 sm:py-14 lg:py-20 bg-[#F4F6FC] [perspective:1400px] overflow-hidden"
     >
       <div className="max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-12">
         {/* Section Heading */}
