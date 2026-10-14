@@ -86,12 +86,25 @@ export default function LandingPage() {
         .animate-float-slow {
           animation: float-slow 6s ease-in-out infinite;
         }
-        @keyframes float-reverse {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(8px) rotate(-2deg); }
+        @keyframes logo-gradient-shift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
         }
-        .animate-float-reverse {
-          animation: float-reverse 7s ease-in-out infinite;
+        .animate-live-logo-gradient {
+          background: linear-gradient(
+            120deg,
+            #8b5cf6 0%,
+            #6366f1 22%,
+            #38bdf8 50%,
+            #06b6d4 75%,
+            #a855f7 100%
+          );
+          background-size: 250% 250%;
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: logo-gradient-shift 4.5s ease-in-out infinite;
         }
       `}</style>
 
@@ -389,7 +402,7 @@ function Header() {
             alt="Mentara Labs Logo"
             className="h-7 w-7 sm:h-8 sm:w-8 object-contain"
           />
-          <span className="font-display font-doodle font-bold text-lg sm:text-xl tracking-tight text-slate-800 whitespace-nowrap">
+          <span className="font-display font-doodle font-bold text-lg sm:text-xl tracking-tight whitespace-nowrap animate-live-logo-gradient">
             Mentara Labs
           </span>
         </a>
@@ -2100,7 +2113,7 @@ function Footer() {
             <div className="lg:col-span-4">
               <div className="flex items-center gap-3 mb-5">
                 <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-9 w-9 object-contain" />
-                <span className="font-display font-doodle font-bold text-[20px] tracking-tight bg-gradient-to-r from-cyan-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">Mentara Labs</span>
+                <span className="font-display font-doodle font-bold text-[20px] tracking-tight animate-live-logo-gradient">Mentara Labs</span>
               </div>
               <p className="text-sm text-slate-600 leading-relaxed max-w-sm font-normal">
                 Interactive 3D labs, practice worksheets, and Cambridge Primary tools crafted to help every student learn with joy and confidence.
