@@ -168,11 +168,35 @@ export default function LaptopScrollShowcase() {
   };
 
   return (
-    <>
+    <div className="relative">
+      {/* ── BACKGROUND IMAGE (img_3): Platform Highlights / Laptop Showcase ── */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        <img
+          src="/img_3.png"
+          alt="Platform Highlights Background"
+          className="w-full h-full object-cover object-top opacity-90"
+          style={{
+            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 3%, black 10%, black 90%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 3%, black 10%, black 90%, transparent 100%)",
+          }}
+        />
+        {/* Subtle, soft natural top blend (reduced whiteness) */}
+        <div 
+          className="absolute inset-x-0 top-0 h-32 sm:h-44 pointer-events-none z-10"
+          style={{
+            backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)",
+            maskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.2) 70%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.2) 70%, transparent 100%)",
+            background: "linear-gradient(to bottom, rgba(244, 246, 252, 0.3) 0%, rgba(244, 246, 252, 0.12) 50%, transparent 100%)",
+          }}
+        />
+      </div>
+
       {/* INTRO HEADER SECTION */}
-      <section className="relative bg-[#F4F6FC] text-slate-800 border-t border-slate-200/50">
+      <section className="relative text-slate-800 border-t border-slate-200/50 z-10">
         <div className="pt-16 pb-12 text-center max-w-4xl mx-auto px-6">
-          <span className="font-mono text-[10.5px] uppercase tracking-[0.24em] text-cyan-700 font-semibold px-4 py-1.5 rounded-full border border-white/90 bg-[#FAFBFD] inline-block mb-4 shadow-[4px_6px_14px_rgba(200,212,236,0.35),-4px_-4px_12px_rgba(255,255,255,0.9)]">
+          <span className="font-mono text-[10.5px] uppercase tracking-[0.24em] text-cyan-700 font-semibold px-4 py-1.5 rounded-full border border-white/90 bg-[#FAFBFD]/90 inline-block mb-4 shadow-[4px_6px_14px_rgba(200,212,236,0.35),-4px_-4px_12px_rgba(255,255,255,0.9)] backdrop-blur-sm">
             · PLATFORM HIGHLIGHTS
           </span>
           <h2 className="font-display font-doodle text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-tight text-slate-800">
@@ -192,7 +216,7 @@ export default function LaptopScrollShowcase() {
       <section
         ref={containerRef}
         id="features-showcase"
-        className="relative h-[550vh] bg-[#F4F6FC] text-slate-800 font-sans selection:bg-purple-100"
+        className="relative h-[550vh] text-slate-800 font-sans selection:bg-purple-100 z-10"
       >
         {/* Ambient Subtle Grid */}
         <div className="absolute inset-0 bg-grid opacity-10 pointer-events-none" />
@@ -423,6 +447,6 @@ export default function LaptopScrollShowcase() {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }

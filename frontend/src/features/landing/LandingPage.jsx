@@ -550,8 +550,8 @@ function Hero() {
           playsInline
           className="w-full h-full object-cover object-bottom"
           style={{
-            maskImage: "linear-gradient(to bottom, black 0%, black 80%, rgba(0,0,0,0.4) 93%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 80%, rgba(0,0,0,0.4) 93%, transparent 100%)",
+            maskImage: "linear-gradient(to bottom, black 0%, black 90%, rgba(0,0,0,0.6) 96%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 90%, rgba(0,0,0,0.6) 96%, transparent 100%)",
           }}
         >
           <source src="/v1.mp4" type="video/mp4" />
@@ -564,15 +564,15 @@ function Hero() {
           }}
         />
 
-        {/* Seamless Soft Atmospheric Blend at Bottom of Hero */}
+        {/* Subtle, soft natural blend at bottom of Hero (reduced whiteness) */}
         <div 
-          className="absolute inset-x-0 bottom-0 h-48 sm:h-72 pointer-events-none z-10"
+          className="absolute inset-x-0 bottom-0 h-32 sm:h-44 pointer-events-none z-10"
           style={{
-            backdropFilter: "blur(24px)",
-            WebkitBackdropFilter: "blur(24px)",
-            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 30%, black 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 30%, black 100%)",
-            background: "linear-gradient(to bottom, transparent 0%, rgba(240, 248, 252, 0.35) 50%, rgba(235, 246, 250, 0.7) 100%)",
+            backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)",
+            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.2) 30%, black 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.2) 30%, black 100%)",
+            background: "linear-gradient(to bottom, transparent 0%, rgba(240, 248, 252, 0.12) 50%, rgba(235, 246, 250, 0.28) 100%)",
           }}
         />
       </div>
@@ -877,42 +877,38 @@ function FeaturesBento() {
       data-testid="features-section" 
       className="relative pt-8 pb-10 sm:py-14 lg:py-20 bg-[#FAF9F6] [perspective:1400px] overflow-hidden"
     >
-      {/* ── BACKGROUND VIDEO V2: Platform Features Section ── */}
+      {/* ── BACKGROUND IMAGE (img_2): Platform Features Section ── */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
+        <img
+          src="/img_2.png"
+          alt="Platform Features Background"
           className="w-full h-full object-cover object-center"
           style={{
-            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 7%, black 20%, black 78%, rgba(0,0,0,0.5) 90%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 7%, black 20%, black 78%, rgba(0,0,0,0.5) 90%, transparent 100%)",
+            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 4%, black 10%, black 86%, rgba(0,0,0,0.4) 95%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 4%, black 10%, black 86%, rgba(0,0,0,0.4) 95%, transparent 100%)",
           }}
-        >
-          <source src="/v2.mp4" type="video/mp4" />
-        </video>
-        {/* Seamless Soft Atmospheric Blend at Top of Features */}
+        />
+        {/* Subtle, soft natural blend at top of Features (reduced whiteness) */}
         <div 
-          className="absolute inset-x-0 top-0 h-48 sm:h-72 pointer-events-none z-10"
+          className="absolute inset-x-0 top-0 h-32 sm:h-44 pointer-events-none z-10"
           style={{
-            backdropFilter: "blur(24px)",
-            WebkitBackdropFilter: "blur(24px)",
-            maskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.3) 70%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.3) 70%, transparent 100%)",
-            background: "linear-gradient(to bottom, rgba(235, 246, 250, 0.7) 0%, rgba(240, 248, 252, 0.35) 50%, transparent 100%)",
+            backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)",
+            maskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.2) 70%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.2) 70%, transparent 100%)",
+            background: "linear-gradient(to bottom, rgba(235, 246, 250, 0.28) 0%, rgba(240, 248, 252, 0.12) 50%, transparent 100%)",
           }}
         />
 
-        {/* Seamless Soft Gradient Blur & White Melt at Bottom of Features (v2) */}
+        {/* Subtle, soft natural blend at bottom of Features (reduced whiteness) */}
         <div 
-          className="absolute inset-x-0 bottom-0 h-48 sm:h-72 pointer-events-none z-10"
+          className="absolute inset-x-0 bottom-0 h-32 sm:h-44 pointer-events-none z-10"
           style={{
-            backdropFilter: "blur(24px)",
-            WebkitBackdropFilter: "blur(24px)",
-            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 30%, black 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.3) 30%, black 100%)",
-            background: "linear-gradient(to bottom, transparent 0%, rgba(244, 246, 252, 0.4) 45%, rgba(244, 246, 252, 0.9) 85%, #F4F6FC 100%)",
+            backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)",
+            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.2) 30%, black 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.2) 30%, black 100%)",
+            background: "linear-gradient(to bottom, transparent 0%, rgba(244, 246, 252, 0.12) 50%, rgba(244, 246, 252, 0.3) 100%)",
           }}
         />
       </div>
