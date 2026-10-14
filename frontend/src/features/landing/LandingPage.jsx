@@ -8,7 +8,7 @@ import {
   ArrowUpRight, ArrowRight, Play, Timer, Atom, PenTool, Sparkles, ChevronRight, ChevronLeft,
   Globe, BookOpen, GraduationCap, Award, Library, Compass, X, Menu,
   Dna, Sigma, Code2, LineChart, Globe2, BookText, Check, Quote,
-  Github, Twitter, Linkedin, Youtube, Star, BarChart3, Layers, FlaskConical,
+  Instagram, Linkedin, Youtube, Star, BarChart3, Layers, FlaskConical,
   Presentation, Zap, Navigation, Brain, Search, Mic, Bot, MessageSquare, ShieldCheck
 } from "lucide-react";
 
@@ -2084,8 +2084,8 @@ function Footer() {
   const COLS = [
     { title: "Platform", links: ["Simulations", "Worksheets", "Auto Exams", "Analytics"] },
     { title: "Curriculum", links: ["Cambridge Primary Science", "Cambridge Primary Math", "Cambridge Primary English", "Cambridge Global Perspectives"] },
-    { title: "Company", links: ["About", "Educators", "Careers", "Press"] },
-    { title: "Resources", links: ["Blog", "Help center", "Status", "Changelog"] },
+    { title: "Company", links: ["About", "Educators", "Careers"] },
+    { title: "Resources", links: ["Blog", "Help center"] },
   ];
 
   return (
@@ -2106,12 +2106,18 @@ function Footer() {
                 Interactive 3D labs, practice worksheets, and Cambridge Primary tools crafted to help every student learn with joy and confidence.
               </p>
               <div className="flex items-center gap-3 mt-6">
-                {[Twitter, Linkedin, Youtube, Github].map((Icon, i) => (
+                {[
+                  { icon: Instagram, href: "https://www.instagram.com/mentaralabsmentp/?hl=en", label: "Instagram" },
+                  { icon: Linkedin, href: "#", label: "LinkedIn" },
+                  { icon: Youtube, href: "#", label: "YouTube" },
+                ].map(({ icon: Icon, href, label }, i) => (
                   <a
                     key={i}
-                    href="#"
+                    href={href}
+                    target={href !== "#" ? "_blank" : undefined}
+                    rel={href !== "#" ? "noopener noreferrer" : undefined}
                     data-testid={`social-${i}`}
-                    aria-label="social"
+                    aria-label={label}
                     className="h-9 w-9 rounded-full border border-white neu-pill bg-[#FAFBFD] grid place-items-center text-slate-500 hover:text-cyan-700 hover:border-cyan-200 transition-all"
                   >
                     <Icon className="h-4 w-4" />
