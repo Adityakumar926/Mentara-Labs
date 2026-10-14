@@ -777,25 +777,17 @@ function Card3DTilt({ children, hoverBorder = "hover:border-cyan-300", accentGlo
         style={{
           transformStyle: "preserve-3d",
           boxShadow: isHovered 
-            ? `${shadowPos.x}px ${shadowPos.y}px 32px rgba(195, 207, 230, 0.5), -10px -10px 24px rgba(255, 255, 255, 0.95), 0 0 20px ${accentGlow}`
-            : "8px 12px 28px rgba(200, 212, 236, 0.35), -8px -8px 24px rgba(255, 255, 255, 0.95)",
+            ? `${shadowPos.x}px ${shadowPos.y}px 28px rgba(15, 23, 42, 0.12), 0 0 16px ${accentGlow}`
+            : "0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04)",
         }}
-        className={`relative flex flex-col justify-between h-full rounded-[26px] border border-white/80 bg-gradient-to-b from-white to-[#F8FAFD] overflow-hidden transition-colors duration-200 ${hoverBorder}`}
+        className={`relative flex flex-col justify-between h-full rounded-[26px] border border-slate-200/80 bg-white overflow-hidden transition-colors duration-200 ${hoverBorder}`}
       >
         {/* Dynamic Specular Light Glare Reflection */}
         <div
           className="pointer-events-none absolute inset-0 z-30 transition-opacity duration-200 rounded-[26px]"
           style={{
-            opacity: glarePos.opacity,
-            background: `radial-gradient(circle at ${glarePos.x}% ${glarePos.y}%, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.25) 30%, transparent 70%)`,
-          }}
-        />
-
-        {/* Clay Bevel Inner Highlight */}
-        <div 
-          className="pointer-events-none absolute inset-0 z-20 rounded-[26px]"
-          style={{
-            boxShadow: "inset 0 2px 3px rgba(255, 255, 255, 0.9), inset 0 -2px 3px rgba(203, 213, 225, 0.25)",
+            opacity: glarePos.opacity * 0.4,
+            background: `radial-gradient(circle at ${glarePos.x}% ${glarePos.y}%, rgba(255, 255, 255, 0.4) 0%, transparent 60%)`,
           }}
         />
         
