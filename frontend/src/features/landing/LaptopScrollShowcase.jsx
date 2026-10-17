@@ -136,14 +136,14 @@ export default function LaptopScrollShowcase() {
   const rawGlareX = useTransform(scrollYProgress, [0, 1], [-30, 30]);
   const glareX = useSpring(rawGlareX, { stiffness: 50, damping: 25 });
 
-  // Dynamic scroll index tracking with generous entrance buffer for Slide 01
+  // Dynamic scroll index tracking with generous entrance & exit buffers
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     let idx = 0;
-    if (latest < 0.18) idx = 0;
-    else if (latest < 0.36) idx = 1;
-    else if (latest < 0.54) idx = 2;
-    else if (latest < 0.72) idx = 3;
-    else if (latest < 0.88) idx = 4;
+    if (latest < 0.15) idx = 0;
+    else if (latest < 0.30) idx = 1;
+    else if (latest < 0.45) idx = 2;
+    else if (latest < 0.60) idx = 3;
+    else if (latest < 0.76) idx = 4;
     else idx = 5;
 
     if (idx !== activeIndex) {
@@ -159,7 +159,7 @@ export default function LaptopScrollShowcase() {
     const sectionTop = containerRef.current.getBoundingClientRect().top + window.scrollY;
     const sectionHeight = containerRef.current.offsetHeight;
     const maxScroll = sectionHeight - window.innerHeight;
-    const targets = [0, 0.25, 0.43, 0.61, 0.79, 0.98];
+    const targets = [0, 0.18, 0.33, 0.48, 0.63, 0.82];
     const progress = targets[index] ?? (index / (FEATURES.length - 1));
     window.scrollTo({
       top: sectionTop + maxScroll * progress,
@@ -168,21 +168,21 @@ export default function LaptopScrollShowcase() {
   };
 
   return (
-    <div className="relative">
-      {/* ── BACKGROUND IMAGE (img_3): Platform Highlights / Laptop Showcase ── */}
-      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+    <div className="relative bg-[#F4F6FC]">
+      {/* ── STATIC FULL-SCREEN BACKGROUND LAYER (img_3): Never zooms or scrolls, stays 100% static in the viewport ── */}
+      <div className="sticky top-0 h-screen w-full -mb-[100vh] pointer-events-none z-0 overflow-hidden">
         <img
           src="/img_3.png"
-          alt="Platform Highlights Background"
-          className="w-full h-full object-cover object-top opacity-90"
+          alt="Platform Highlights Static Background"
+          className="w-full h-full object-fill object-center"
           style={{
-            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 3%, black 10%, black 90%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 3%, black 10%, black 90%, transparent 100%)",
+            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 4%, black 12%, black 92%, rgba(0,0,0,0.5) 98%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 4%, black 12%, black 92%, rgba(0,0,0,0.5) 98%, transparent 100%)",
           }}
         />
-        {/* Subtle, soft natural top blend (reduced whiteness) */}
+        {/* Subtle top blend transition */}
         <div 
-          className="absolute inset-x-0 top-0 h-32 sm:h-44 pointer-events-none z-10"
+          className="absolute inset-x-0 top-0 h-28 sm:h-36 pointer-events-none z-10"
           style={{
             backdropFilter: "blur(10px)",
             WebkitBackdropFilter: "blur(10px)",
@@ -195,7 +195,7 @@ export default function LaptopScrollShowcase() {
 
       {/* INTRO HEADER SECTION */}
       <section className="relative text-slate-800 border-t border-slate-200/50 z-10">
-        <div className="pt-16 pb-12 text-center max-w-4xl mx-auto px-6">
+        <div className="pt-14 pb-4 sm:pt-16 sm:pb-6 text-center max-w-4xl mx-auto px-6">
           <span className="font-mono text-[10.5px] uppercase tracking-[0.24em] text-cyan-700 font-semibold px-4 py-1.5 rounded-full border border-white/90 bg-[#FAFBFD]/90 inline-block mb-4 shadow-[4px_6px_14px_rgba(200,212,236,0.35),-4px_-4px_12px_rgba(255,255,255,0.9)] backdrop-blur-sm">
             · PLATFORM HIGHLIGHTS
           </span>
@@ -218,12 +218,9 @@ export default function LaptopScrollShowcase() {
         id="features-showcase"
         className="relative h-[550vh] text-slate-800 font-sans selection:bg-purple-100 z-10"
       >
-        {/* Ambient Subtle Grid */}
-        <div className="absolute inset-0 bg-grid opacity-10 pointer-events-none" />
-
         {/* STICKY VIEWPORT CONTAINER */}
-        <div className="sticky top-0 h-screen overflow-hidden">
-          <div className="relative h-full w-full flex items-center justify-center pt-16 sm:pt-20">
+        <div className="sticky top-0 h-screen w-full overflow-hidden">
+          <div className="relative h-full w-full flex items-center justify-center py-4 sm:py-6 z-10">
 
             {/* Ambient Animated Glow */}
             <motion.div
@@ -236,123 +233,135 @@ export default function LaptopScrollShowcase() {
             />
 
             {/* MAIN DUAL-COLUMN LAYOUT */}
-            <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 w-full grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-8 lg:gap-12 items-center relative z-10">
+            <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 w-full grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-5 lg:gap-10 xl:gap-12 items-center relative z-10">
 
               {/* LEFT COLUMN: REALISTIC FRONT-FACING LAPTOP (7 COLS) */}
-              <div className="lg:col-span-7 flex flex-col items-center justify-center relative">
+              <div className="lg:col-span-7 flex flex-col items-center justify-center relative w-full">
+                {/* 
+                  Full-size laptop wrapper with height-safe cap:
+                  - Preserves the full 515px (lg) / 572px (xl) laptop size on standard & large screens,
+                    and smoothly scales with `76vh`/`78vh` only when the browser window height is very short.
+                  - Uses an inner `w-full aspect-[100/36]` spacer matching the true protrusion of `/cheerful_boy_peeking.png`
+                    (`88% width * 0.80 image ratio * 51.7% = 36.4%` of laptop width).
+                */}
                 <motion.div
                   style={{ x: laptopX }}
-                  className="w-full max-w-[272px] xs:max-w-[335px] sm:max-w-[397px] md:max-w-[442px] lg:max-w-[515px] xl:max-w-[572px] relative select-none mt-6 sm:mt-8 lg:mt-10"
+                  className="w-full max-w-[min(86vw,340px,46vh)] sm:max-w-[min(88vw,420px,52vh)] md:max-w-[min(90vw,460px,58vh)] lg:max-w-[min(100%,515px,76vh)] xl:max-w-[min(100%,572px,78vh)] relative select-none mx-auto"
                 >
-                  {/* 3D CHARACTER HOLDING LAPTOP */}
-                  <img
-                    src="/cheerful_boy_peeking.png"
-                    alt="Cheerful Boy Holding Laptop"
-                    className="absolute top-0 w-[88%] max-w-none pointer-events-none select-none z-30"
-                    style={{
-                      right: "-14%",
-                      transform: "translateY(-51.7%)",
-                    }}
-                    loading="eager"
-                  />
+                  {/* Exact top space for the 3D character peeking above the lid (36% of THIS laptop's width) */}
+                  <div className="w-full aspect-[100/36] pointer-events-none" aria-hidden="true" />
 
-                  {/* LAPTOP SCREEN / LID (100% STRAIGHT & FRONT-FACING) */}
-                  <div className="relative w-full aspect-[16/10] bg-zinc-900 rounded-t-[14px] sm:rounded-t-[22px] p-1.5 sm:p-3 shadow-[0_20px_60px_rgba(0,0,0,0.9)] border border-zinc-700/80 border-b-0 overflow-hidden ring-1 ring-white/10 z-20">
-                    
-                    {/* REALISTIC WEBCAM & BEZEL NOTCH */}
-                    <div className="absolute top-0 inset-x-0 flex justify-center z-30 pointer-events-none">
-                      <div className="bg-zinc-950 px-3.5 py-1 rounded-b-lg border-b border-x border-zinc-800/80 flex items-center gap-1.5 shadow-sm">
-                        <div className="w-1.5 h-1.5 rounded-full bg-zinc-800 ring-1 ring-zinc-700/60" />
-                        <div className="w-1 h-1 rounded-full bg-emerald-500/90 animate-pulse" />
-                      </div>
-                    </div>
+                  <div className="relative w-full">
+                    {/* 3D CHARACTER HOLDING LAPTOP */}
+                    <img
+                      src="/cheerful_boy_peeking.png"
+                      alt="Cheerful Boy Holding Laptop"
+                      className="absolute top-0 w-[88%] max-w-none pointer-events-none select-none z-30"
+                      style={{
+                        right: "-14%",
+                        transform: "translateY(-51.7%)",
+                      }}
+                      loading="eager"
+                    />
 
-                    {/* MOCK BROWSER HEADER BAR INSIDE DISPLAY */}
-                    <div className="h-7 w-full bg-zinc-950/95 backdrop-blur-md border-b border-white/10 px-3 flex items-center justify-between z-20 relative text-[11px] font-mono text-zinc-400 rounded-t-lg">
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block" />
-                        <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block" />
-                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block" />
+                    {/* LAPTOP SCREEN / LID (100% STRAIGHT & FRONT-FACING) */}
+                    <div className="relative w-full aspect-[16/10] bg-zinc-900 rounded-t-[14px] sm:rounded-t-[20px] p-1.5 sm:p-2.5 xl:p-3 shadow-[0_20px_60px_rgba(0,0,0,0.9)] border border-zinc-700/80 border-b-0 overflow-hidden ring-1 ring-white/10 z-20">
+                      
+                      {/* REALISTIC WEBCAM & BEZEL NOTCH */}
+                      <div className="absolute top-0 inset-x-0 flex justify-center z-30 pointer-events-none">
+                        <div className="bg-zinc-950 px-3.5 py-1 rounded-b-lg border-b border-x border-zinc-800/80 flex items-center gap-1.5 shadow-sm">
+                          <div className="w-1.5 h-1.5 rounded-full bg-zinc-800 ring-1 ring-zinc-700/60" />
+                          <div className="w-1 h-1 rounded-full bg-emerald-500/90 animate-pulse" />
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 bg-zinc-900/90 px-3 py-0.5 rounded-full border border-white/5 text-[10.5px] text-zinc-300 font-medium">
-                        <span className="text-cyan-400 font-bold">https://</span>
-                        <span>mentara.app/feature/{activeFeature.id}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-zinc-500">
-                        <Sparkles className="h-3 w-3 text-cyan-400" />
-                        <span className="hidden sm:inline text-[10px] uppercase font-bold text-zinc-400">PLATFORM</span>
-                      </div>
-                    </div>
 
-                    {/* SCREEN CONTENT VIEWPORT */}
-                    <div className="relative w-full h-[calc(100%-28px)] bg-zinc-950 overflow-hidden rounded-b-sm">
-                      {/* DYNAMIC SPECULAR GLASS REFLECTION */}
-                      <motion.div
-                        style={{ x: glareX }}
-                        className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-white/[0.07] pointer-events-none z-20"
-                      />
+                      {/* MOCK BROWSER HEADER BAR INSIDE DISPLAY */}
+                      <div className="h-6 sm:h-7 w-full bg-zinc-950/95 backdrop-blur-md border-b border-white/10 px-3 flex items-center justify-between z-20 relative text-[11px] font-mono text-zinc-400 rounded-t-lg">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block" />
+                          <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block" />
+                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block" />
+                        </div>
+                        <div className="flex items-center gap-2 bg-zinc-900/90 px-3 py-0.5 rounded-full border border-white/5 text-[10px] sm:text-[10.5px] text-zinc-300 font-medium">
+                          <span className="text-cyan-400 font-bold">https://</span>
+                          <span>mentara.app/feature/{activeFeature.id}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-zinc-500">
+                          <Sparkles className="h-3 w-3 text-cyan-400" />
+                          <span className="hidden sm:inline text-[10px] uppercase font-bold text-zinc-400">PLATFORM</span>
+                        </div>
+                      </div>
 
-                      {/* PRE-RENDERED STACKED IMAGES LAYER FOR INSTANT ZERO-LAG SWITCHING */}
-                      {FEATURES.map((feat, index) => {
-                        const isActive = index === activeIndex;
-                        return (
-                          <motion.div
-                            key={feat.id}
-                            initial={false}
-                            animate={{
-                              opacity: isActive ? 1 : 0,
-                              scale: isActive ? 1 : 1.02,
-                              filter: isActive ? "blur(0px)" : "blur(4px)",
-                            }}
-                            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                            className="absolute inset-0 w-full h-full flex items-center justify-center bg-zinc-950 pointer-events-none"
-                            style={{ zIndex: isActive ? 10 : 1 }}
-                          >
-                            <img
-                              src={feat.image}
-                              alt={feat.title}
-                              className="w-full h-full object-cover object-top select-none"
-                              loading="eager"
-                              onError={(e) => {
-                                e.target.style.display = "none";
-                                if (e.target.nextSibling) {
-                                  e.target.nextSibling.style.display = "flex";
-                                }
+                      {/* SCREEN CONTENT VIEWPORT */}
+                      <div className="relative w-full h-[calc(100%-24px)] sm:h-[calc(100%-28px)] bg-zinc-950 overflow-hidden rounded-b-sm">
+                        {/* DYNAMIC SPECULAR GLASS REFLECTION */}
+                        <motion.div
+                          style={{ x: glareX }}
+                          className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-white/[0.07] pointer-events-none z-20"
+                        />
+
+                        {/* PRE-RENDERED STACKED IMAGES LAYER FOR INSTANT ZERO-LAG SWITCHING */}
+                        {FEATURES.map((feat, index) => {
+                          const isActive = index === activeIndex;
+                          return (
+                            <motion.div
+                              key={feat.id}
+                              initial={false}
+                              animate={{
+                                opacity: isActive ? 1 : 0,
+                                scale: isActive ? 1 : 1.02,
+                                filter: isActive ? "blur(0px)" : "blur(4px)",
                               }}
-                            />
-                            
-                            {/* Fallback Display Card */}
-                            <div className="hidden absolute inset-0 flex-col items-center justify-center p-8 text-center bg-gradient-to-b from-zinc-900 to-zinc-950">
-                              <div className={`p-4 rounded-2xl bg-gradient-to-r ${feat.accent} mb-4 shadow-xl`}>
-                                <IconComponent className="h-10 w-10 text-white" />
+                              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                              className="absolute inset-0 w-full h-full flex items-center justify-center bg-zinc-950 pointer-events-none"
+                              style={{ zIndex: isActive ? 10 : 1 }}
+                            >
+                              <img
+                                src={feat.image}
+                                alt={feat.title}
+                                className="w-full h-full object-cover object-top select-none"
+                                loading="eager"
+                                onError={(e) => {
+                                  e.target.style.display = "none";
+                                  if (e.target.nextSibling) {
+                                    e.target.nextSibling.style.display = "flex";
+                                  }
+                                }}
+                              />
+                              
+                              {/* Fallback Display Card */}
+                              <div className="hidden absolute inset-0 flex-col items-center justify-center p-8 text-center bg-gradient-to-b from-zinc-900 to-zinc-950">
+                                <div className={`p-4 rounded-2xl bg-gradient-to-r ${feat.accent} mb-4 shadow-xl`}>
+                                  <IconComponent className="h-10 w-10 text-white" />
+                                </div>
+                                <h4 className="text-xl font-bold text-white mb-2">{feat.title}</h4>
+                                <p className="text-sm text-zinc-400 max-w-md">{feat.description}</p>
                               </div>
-                              <h4 className="text-xl font-bold text-white mb-2">{feat.title}</h4>
-                              <p className="text-sm text-zinc-400 max-w-md">{feat.description}</p>
-                            </div>
-                          </motion.div>
-                        );
-                      })}
+                            </motion.div>
+                          );
+                        })}
+                      </div>
                     </div>
+
+                    {/* HINGE BAR */}
+                    <div className="w-[99%] mx-auto h-1.5 bg-gradient-to-r from-zinc-900 via-zinc-700 to-zinc-900 border-t border-zinc-800" />
+
+                    {/* REALISTIC LAPTOP BOTTOM BASE CHASSIS */}
+                    <div className="relative w-[105%] -ml-[2.5%] h-3 sm:h-4 bg-gradient-to-b from-zinc-700 via-zinc-800 to-zinc-900 rounded-b-[14px] sm:rounded-b-[18px] border-t border-zinc-500/40 shadow-[0_15px_35px_rgba(0,0,0,0.9)] flex items-start justify-center">
+                      {/* THUMB NOTCH OPENING CUTOUT */}
+                      <div className="w-16 sm:w-20 h-1 sm:h-1.5 bg-zinc-950/90 rounded-b-md border-b border-x border-zinc-600/30" />
+                    </div>
+
+                    {/* UNDERGLOW REFLECTION */}
+                    <div className="w-[92%] mx-auto h-3 bg-cyan-500/20 blur-lg rounded-full -mt-1 opacity-70 pointer-events-none" />
                   </div>
-
-                  {/* HINGE BAR */}
-                  <div className="w-[99%] mx-auto h-1.5 bg-gradient-to-r from-zinc-900 via-zinc-700 to-zinc-900 border-t border-zinc-800" />
-
-                  {/* REALISTIC LAPTOP BOTTOM BASE CHASSIS */}
-                  <div className="relative w-[105%] -ml-[2.5%] h-3.5 sm:h-4.5 bg-gradient-to-b from-zinc-700 via-zinc-800 to-zinc-900 rounded-b-[14px] sm:rounded-b-[18px] border-t border-zinc-500/40 shadow-[0_15px_35px_rgba(0,0,0,0.9)] flex items-start justify-center">
-                    {/* THUMB NOTCH OPENING CUTOUT */}
-                    <div className="w-16 sm:w-20 h-1 sm:h-1.5 bg-zinc-950/90 rounded-b-md border-b border-x border-zinc-600/30" />
-                  </div>
-
-                  {/* UNDERGLOW REFLECTION */}
-                  <div className="w-[92%] mx-auto h-3 bg-cyan-500/20 blur-lg rounded-full -mt-1 opacity-70 pointer-events-none" />
                 </motion.div>
               </div>
 
               {/* RIGHT COLUMN: ACTIVE FEATURE DETAILS (5 COLS) */}
-              <div className="lg:col-span-5 flex flex-col justify-center -translate-y-2 sm:-translate-y-3">
+              <div className="lg:col-span-5 flex flex-col justify-center">
                 {/* TOP SUBHEADER BADGE */}
-                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-slate-200 bg-white/90 backdrop-blur-md w-fit mb-2 sm:mb-4 lg:mb-6 shadow-sm">
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full border border-slate-200 bg-white/90 backdrop-blur-md w-fit mb-1.5 sm:mb-2.5 xl:mb-4 shadow-sm">
                   <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-cyan-500 animate-pulse" />
                   <span className="font-mono text-[9.5px] sm:text-[11px] font-extrabold uppercase tracking-widest text-slate-700">
                     PLATFORM CAPABILITIES
@@ -360,7 +369,7 @@ export default function LaptopScrollShowcase() {
                 </div>
 
                 {/* FEATURE PROGRESS STEP INDICATORS */}
-                <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-6 lg:mb-8">
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3 xl:mb-5">
                   {FEATURES.map((feat, index) => (
                     <button
                       key={feat.id}
@@ -383,11 +392,11 @@ export default function LaptopScrollShowcase() {
                     animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                     exit={{ opacity: 0, y: -12, filter: "blur(3px)" }}
                     transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
-                    className="space-y-1.5 sm:space-y-4"
+                    className="space-y-1 sm:space-y-2 xl:space-y-3"
                   >
                     {/* ACTIVE FEATURE NUMBER & BADGE */}
                     <div className="flex items-center gap-2 sm:gap-3">
-                      <span className="font-mono text-base sm:text-2xl font-black text-slate-400 tracking-tighter">
+                      <span className="font-mono text-base sm:text-xl xl:text-2xl font-black text-slate-400 tracking-tighter">
                         {activeFeature.number}
                       </span>
                       <span className={`px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[9px] sm:text-[11px] font-mono font-bold tracking-wider border uppercase ${activeFeature.badgeBg}`}>
@@ -396,24 +405,24 @@ export default function LaptopScrollShowcase() {
                     </div>
 
                     {/* FEATURE TITLE */}
-                    <h3 className="font-display font-doodle font-black text-lg sm:text-3xl lg:text-5xl tracking-tight text-slate-900 leading-tight">
+                    <h3 className="font-display font-doodle font-black text-lg sm:text-2xl lg:text-[clamp(1.5rem,3vh+0.5rem,2.65rem)] tracking-tight text-slate-900 leading-tight">
                       {activeFeature.title}
                     </h3>
 
                     {/* FEATURE DESCRIPTION */}
-                    <p className="text-slate-600 text-xs sm:text-base lg:text-lg leading-relaxed font-normal max-w-xl">
+                    <p className="text-slate-600 text-xs sm:text-sm lg:text-[clamp(0.825rem,1.3vh+0.28rem,1.025rem)] leading-relaxed font-normal max-w-xl">
                       {activeFeature.description}
                     </p>
 
                     {/* FEATURE HIGHLIGHT BULLETS */}
-                    <div className="pt-1 flex flex-col gap-1 sm:gap-2 text-xs sm:text-sm text-slate-700 font-medium">
+                    <div className="pt-0.5 flex flex-col gap-1 sm:gap-1.5 text-xs sm:text-sm text-slate-700 font-medium">
                       {(activeFeature.highlights || [
                         "Real-time desktop & tablet responsiveness",
                         "Aligned with Cambridge Primary Framework"
                       ]).map((hl, hIdx) => (
                         <div key={hIdx} className="flex items-center gap-1.5 sm:gap-2">
                           <CheckCircle2 className={`h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 ${hIdx === 0 ? "text-cyan-600" : "text-emerald-600"}`} />
-                          <span className="text-[11px] sm:text-sm">{hl}</span>
+                          <span className="text-[11px] sm:text-[13px] xl:text-sm">{hl}</span>
                         </div>
                       ))}
                     </div>
@@ -421,7 +430,7 @@ export default function LaptopScrollShowcase() {
                 </AnimatePresence>
 
                 {/* QUICK SELECTOR PILL BUTTONS */}
-                <div className="mt-3 lg:mt-8 pt-3 lg:pt-6 border-t border-slate-200 hidden sm:grid grid-cols-3 lg:grid-cols-4 gap-2">
+                <div className="mt-2.5 lg:mt-3.5 xl:mt-5 pt-2.5 lg:pt-3.5 xl:pt-5 border-t border-slate-200 hidden sm:grid grid-cols-3 gap-1.5 sm:gap-2">
                   {FEATURES.map((f, i) => {
                     const isActive = i === activeIndex;
                     const FIcon = f.icon;
@@ -429,7 +438,7 @@ export default function LaptopScrollShowcase() {
                       <button
                         key={f.id}
                         onClick={() => scrollToFeatureIndex(i)}
-                        className={`px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 sm:gap-2 transition-all duration-200 cursor-pointer border ${
+                        className={`px-2.5 py-1.5 sm:px-3 sm:py-1.5 xl:py-2 rounded-xl text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 sm:gap-2 transition-all duration-200 cursor-pointer border ${
                           isActive
                             ? "bg-slate-900 text-white border-slate-900 shadow-md scale-[1.02]"
                             : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900"
