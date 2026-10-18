@@ -626,7 +626,7 @@ function Hero() {
 
             {/* Subtitle Paragraph */}
             <p className="mt-5 text-base sm:text-lg leading-relaxed text-slate-600/90 max-w-xl font-normal">
-              Interactive 3D simulations, digital worksheets and practical exam preparation designed for curious learners.
+              Interactive Virtual Labs, digital worksheets and practical exam preparation designed for curious learners.
             </p>
 
             {/* CTA Buttons (Clay Button + Neumorphic Secondary) */}
