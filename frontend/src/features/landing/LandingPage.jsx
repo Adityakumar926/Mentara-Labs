@@ -657,7 +657,7 @@ function Hero() {
                 >
                   <Play className="h-2.5 w-2.5 fill-white text-white ml-0.5" />
                 </div>
-                <span>Watch Video</span>
+                <span>Explore Features</span>
               </a>
             </div>
 
