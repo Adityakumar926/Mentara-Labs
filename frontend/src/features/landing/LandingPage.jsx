@@ -934,7 +934,7 @@ function FeaturesBento() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch [transform-style:preserve-3d]">
           
-          {/* Card 1: 3D Science Simulations (Teal Header) */}
+          {/* Card 1: Interactive Models & Animations (Teal Header) */}
           <Card3DScrollArc index={0} scrollProgress={smoothProgress}>
             <Card3DTilt hoverBorder="hover:border-emerald-200">
               <div 
@@ -962,27 +962,27 @@ function FeaturesBento() {
                     boxShadow: "0 2px 6px rgba(16, 185, 129, 0.15)",
                   }}
                 >
-                  Interactive Lab
+                  Interactive Models
                 </span>
               </div>
 
               <div className="p-6 flex flex-col justify-between h-full bg-white/95">
                 <div>
                   <h3 className="font-display font-doodle text-2xl font-bold text-slate-800 tracking-tight">
-                    3D Science<br />Simulations
+                    Interactive Models & Animations
                   </h3>
                   <p className="mt-3.5 text-sm text-slate-600 leading-relaxed font-normal">
-                    Interactive 3D physics & optics labs (Light & Shadows, Reflection, Forces) with live slider controls and shadow math calculations.
+                    Bring Cambridge concepts to life with interactive models and engaging animations that help students visualise complex ideas, explore how things work, and understand concepts through clear, visual explanations.
                   </p>
                 </div>
 
                 <div 
-                  className="mt-6 p-4 rounded-2xl neu-inset bg-[#F8FAFD] border border-white" 
+                  className="mt-6 p-4 rounded-2xl neu-inset bg-[#F8FAFD] border border-white flex flex-col gap-2" 
                   style={{ transform: "translateZ(25px)" }}
                 >
-                  <div className="flex items-center justify-between text-xs font-mono text-slate-700 mb-2 font-medium">
-                    <span>Torch: <strong className="text-cyan-700">{torchPos.toFixed(1)}m</strong></span>
-                    <span>Shadow: <strong className="text-emerald-700">{Math.round(torchPos * 18)}cm</strong></span>
+                  <div className="flex items-center justify-between text-xs font-mono text-slate-700 font-medium">
+                    <span>Model: <strong className="text-cyan-700">Optics & Light</strong></span>
+                    <span>Live Simulation: <strong className="text-emerald-700">{Math.round(torchPos * 50)}%</strong></span>
                   </div>
                   <input
                     type="range"
@@ -993,6 +993,9 @@ function FeaturesBento() {
                     onChange={(e) => setTorchPos(parseFloat(e.target.value))}
                     className="w-full accent-emerald-500 bg-slate-200 h-1.5 rounded-lg cursor-pointer"
                   />
+                  <div className="text-[10px] font-mono text-slate-500 text-center tracking-tight border-t border-slate-200/60 pt-1.5">
+                    Cambridge-Aligned · Interactive Models · Animated Learning
+                  </div>
                 </div>
               </div>
             </Card3DTilt>
@@ -1063,7 +1066,7 @@ function FeaturesBento() {
             </Card3DTilt>
           </Card3DScrollArc>
 
-          {/* Card 3: Checkpoint Exams (Blue Header) */}
+          {/* Card 3: Lesson Slide Decks (Blue Header) */}
           <Card3DScrollArc index={2} scrollProgress={smoothProgress}>
             <Card3DTilt hoverBorder="hover:border-sky-200">
               <div 
@@ -1081,7 +1084,7 @@ function FeaturesBento() {
                     boxShadow: "0 6px 14px rgba(37, 99, 235, 0.2), inset 1px 1px 2px #FFFFFF",
                   }}
                 >
-                  <GraduationCap className="h-6 w-6 text-sky-700" />
+                  <Presentation className="h-6 w-6 text-sky-700" />
                 </div>
                 <span 
                   className="px-3.5 py-1 rounded-full text-sky-800 font-mono-label text-xs font-bold" 
@@ -1091,26 +1094,31 @@ function FeaturesBento() {
                     boxShadow: "0 2px 6px rgba(37, 99, 235, 0.15)",
                   }}
                 >
-                  Stage 1–5
+                  Slide Decks
                 </span>
               </div>
 
               <div className="p-6 flex flex-col justify-between h-full bg-white/95">
                 <div>
                   <h3 className="font-display font-doodle text-2xl font-bold text-slate-800 tracking-tight">
-                    Checkpoint Exams
+                    Lesson Slide Decks
                   </h3>
                   <p className="mt-3.5 text-sm text-slate-600 leading-relaxed font-normal">
-                    Timed Cambridge Primary Checkpoint paper simulator with auto-graded MCQs and instant score breakdown.
+                    Ready-to-use presentations for every chapter, designed to make teaching easier and learning more engaging. Each presentation includes clear explanations, classroom activities, and questions to check students’ understanding.
                   </p>
                 </div>
 
                 <div 
-                  className="mt-6 p-4 rounded-2xl neu-inset bg-[#F8FAFD] border border-white flex items-center justify-between text-xs font-mono" 
+                  className="mt-6 p-4 rounded-2xl neu-inset bg-[#F8FAFD] border border-white flex flex-col gap-1.5" 
                   style={{ transform: "translateZ(25px)" }}
                 >
-                  <span className="text-slate-700">Timer: <strong className="text-sky-700">45:00</strong></span>
-                  <span className="text-emerald-700 font-semibold">Auto-Graded</span>
+                  <div className="flex items-center justify-between text-xs font-mono">
+                    <span className="text-slate-700">Format: <strong className="text-sky-700">Ready PPTs</strong></span>
+                    <span className="text-emerald-700 font-semibold">Teacher Guidance</span>
+                  </div>
+                  <div className="text-[10px] font-mono text-slate-500 text-center tracking-tight border-t border-slate-200/60 pt-1.5">
+                    Chapter-wise PPTs · Teacher Guidance · Classroom Activities
+                  </div>
                 </div>
               </div>
             </Card3DTilt>

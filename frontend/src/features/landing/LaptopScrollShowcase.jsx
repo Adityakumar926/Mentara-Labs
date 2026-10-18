@@ -18,7 +18,7 @@ const FEATURES = [
     badgeBg: "bg-cyan-500/10 text-cyan-400 border-cyan-500/30",
     icon: Atom,
     highlights: [
-      "Interactive lessons & 3D science simulations",
+      "Interactive models & engaging animations",
       "Aligned with Cambridge Primary Stage 1 to 6"
     ]
   },
