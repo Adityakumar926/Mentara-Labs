@@ -1666,15 +1666,15 @@ function Testimonials() {
   const TESTIMONIAL_DATA = [
     {
       quote: "The Platform is really intractive and as a teacher from this platform i am able to make classrooms also.",
-      name: "Aanya Sharma",
-      role: "Teacher",
+      name: "Shruti Mishra",
+      role: "Cambridge science teacher, ALLENHOUSE PUBLIC SCHOOL",
       img: "/aanya_sharma.png",
     },
     {
       quote: "The mock test was really helpful and i personaly like the simulations provided in this platform.",
-      name: "Mahesh Prasad",
+      name: "Abhinandan Srivastava",
       role: "Parent",
-      img: "/mahesh_prasad.png",
+      img: "/abhinandan_srivastava.png",
     },
     {
       quote: "I really like Mentara Labs It makes learning fun and easy. The games and simulations help me understand things better. I enjoy using it for my studies! 😊",
