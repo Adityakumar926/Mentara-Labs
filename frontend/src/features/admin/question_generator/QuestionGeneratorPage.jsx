@@ -371,8 +371,8 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
 
         <div class="header">
           <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 6px;">
-            <img src="${window.location.origin}/mentara-new.png" alt="Mentara Labs Logo" style="height: 36px; width: 36px; object-fit: contain;" />
-            <span style="font-size: 24px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;">MENTARA LABS</span>
+            <img src="${window.location.origin}/mentara-new.png" alt="Mentara Learning Logo" style="height: 36px; width: 36px; object-fit: contain;" />
+            <span style="font-size: 24px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px;">MENTARA LEARNING</span>
           </div>
           <div style="font-size: 13px; font-weight: 700; color: #0284c7; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 14px;">CAMBRIDGE PRIMARY ASSESSMENT</div>
           <div class="meta">
@@ -444,7 +444,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
           image_url: capturedImageUrl || q.image_url || null,
           options: q.options || [],
           correct_answer: q.correct_answer || (Array.isArray(q.options) ? q.options[0] : 'A'),
-          explanation: q.explanation || 'Step-by-step reasoning verified by Mentera Labs AI.'
+          explanation: q.explanation || 'Step-by-step reasoning verified by Mentara Learning AI.'
         });
       }
 

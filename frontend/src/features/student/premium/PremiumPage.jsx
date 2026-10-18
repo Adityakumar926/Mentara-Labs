@@ -277,7 +277,7 @@ export default function PremiumPage() {
           localStorage.setItem('user', JSON.stringify(updatedUser));
           useAuthStore.setState({ user: updatedUser });
         }
-        toast.success('Congratulations! Mentara Labs Premium is now active.');
+        toast.success('Congratulations! Mentara Learning Premium is now active.');
       },
     });
   };

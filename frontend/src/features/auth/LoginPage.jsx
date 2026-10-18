@@ -649,8 +649,8 @@ export default function LoginPage() {
         <aside className="auth-panel">
           <div className="auth-panel-grid" />
           <Link to="/" className="panel-logo" style={{ gap: '12px' }}>
-            <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-11 w-11 object-contain" />
-            <span className="panel-logo-text">Mentara Labs</span>
+            <img src="/mentara-new.png" alt="Mentara Learning Logo" className="h-11 w-11 object-contain" />
+            <span className="panel-logo-text">Mentara Learning</span>
           </Link>
 
           <div className="panel-mid">
@@ -696,7 +696,7 @@ export default function LoginPage() {
 
           <div style={{ position: 'relative', zIndex: 2 }}>
             <span style={{ fontSize: '0.75rem', fontFamily: 'Space Grotesk, monospace', color: '#6b7280', letterSpacing: '0.04em' }}>
-              © 2026 Mentara Labs · Cambridge Primary Practice
+              © 2026 Mentara Learning · Cambridge Primary Practice
             </span>
           </div>
         </aside>
@@ -706,8 +706,8 @@ export default function LoginPage() {
           <div className="auth-form-box">
             {/* Mobile-only logo */}
             <div className="md-hidden" style={{ gap: '12px' }}>
-              <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-10 w-10 object-contain" />
-              <span className="panel-logo-text">Mentara Labs</span>
+              <img src="/mentara-new.png" alt="Mentara Learning Logo" className="h-10 w-10 object-contain" />
+              <span className="panel-logo-text">Mentara Learning</span>
             </div>
 
             <div className="form-eyebrow">Welcome back</div>

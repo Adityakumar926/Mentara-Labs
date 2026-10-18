@@ -206,7 +206,7 @@ export default function LaptopScrollShowcase() {
             </span>
           </h2>
           <p className="mt-4 text-slate-600 text-base leading-relaxed font-normal max-w-2xl mx-auto">
-            Mentara Labs brings the complete Cambridge Primary suite onto one smart,
+            Mentara Learning brings the complete Cambridge Primary suite onto one smart,
             interactive platform built for both educators and students.
           </p>
         </div>

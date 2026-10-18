@@ -261,7 +261,7 @@ export default function CertificatesPage() {
             format: 'a4'
           });
           pdf.addImage(dataUrl, 'PNG', 0, 0, 841.89, 595.28, undefined, 'FAST');
-          pdf.save(`MentaraLabs-Certificate-${pdfCert.certificate_id}.pdf`);
+          pdf.save(`MentaraLearning-Certificate-${pdfCert.certificate_id}.pdf`);
           setPdfCert(null);
           toast.success('Certificate downloaded successfully!');
         })
@@ -302,7 +302,7 @@ export default function CertificatesPage() {
               </div>
               <h1 className="cert-hero-title">Issued Certificates</h1>
               <p className="cert-hero-sub">
-                Monitor, verify, and export all academic completion certificates earned by students on Mentara Labs.
+                Monitor, verify, and export all academic completion certificates earned by students on Mentara Learning.
               </p>
             </div>
           </div>

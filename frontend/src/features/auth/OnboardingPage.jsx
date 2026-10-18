@@ -53,7 +53,7 @@ export default function OnboardingPage() {
     setSubmitting(true);
     try {
       await onboard({ curriculum_id: selectedCurriculum.id, class_id: selectedClass.id });
-      toast.success('Welcome to Mentara Labs! 🎉');
+      toast.success('Welcome to Mentara Learning! 🎉');
       navigate('/courses');
     } catch (err) {
       toast.error(err.message || 'Failed to complete setup');
@@ -313,7 +313,7 @@ export default function OnboardingPage() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.65rem', marginBottom: '1.75rem' }}>
             <img
               src="/mentara-new.png"
-              alt="Mentara Labs"
+              alt="Mentara Learning"
               style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 8, flexShrink: 0 }}
             />
             <span style={{
@@ -325,7 +325,7 @@ export default function OnboardingPage() {
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
               letterSpacing: '-0.02em',
-            }}>Mentara Labs</span>
+            }}>Mentara Learning</span>
           </div>
 
           {/* Step indicator */}

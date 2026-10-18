@@ -71,7 +71,7 @@ export default function PublicCertificateVerification() {
             <div className="flex flex-col gap-3 items-center justify-center">
               <Link to="/">
                 <Button variant="primary" className="flex items-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600">
-                  <ArrowLeft size={16} /> Go to Mentara Labs
+                  <ArrowLeft size={16} /> Go to Mentara Learning
                 </Button>
               </Link>
             </div>
@@ -88,7 +88,7 @@ export default function PublicCertificateVerification() {
               </span>
               <h1 className="text-3xl font-extrabold text-white tracking-tight mt-4 mb-2">Certificate Verified</h1>
               <p className="text-sm text-zinc-400 max-w-sm mx-auto mb-6">
-                This certificate is authentic and officially issued by Mentara Labs.
+                This certificate is authentic and officially issued by Mentara Learning.
               </p>
               
               <div className="grid grid-cols-2 gap-4 text-left border-t border-white/5 pt-6 mt-6 text-sm">
@@ -141,7 +141,7 @@ export default function PublicCertificateVerification() {
 
       {/* Footer */}
       <footer className="text-center text-xs text-zinc-600 mt-12">
-        © {new Date().getFullYear()} Mentara Labs. All rights reserved. Secure cryptographic verification enabled.
+        © {new Date().getFullYear()} Mentara Learning. All rights reserved. Secure cryptographic verification enabled.
       </footer>
     </div>
   );

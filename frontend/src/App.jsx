@@ -123,7 +123,7 @@ function PageLoader() {
           }} />
           <img
             src="/mentara-new.png"
-            alt="Mentara Labs"
+            alt="Mentara Learning"
             style={{
               width: '54px',
               height: '54px',
@@ -144,7 +144,7 @@ function PageLoader() {
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
           }}>
-            Mentara Labs
+            Mentara Learning
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
             <span style={{

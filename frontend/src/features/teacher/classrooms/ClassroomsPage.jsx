@@ -96,7 +96,7 @@ export default function ClassroomsPage() {
               padding: '0.3rem 0.85rem', borderRadius: 50, fontSize: '0.72rem', fontWeight: 700,
               color: '#06B6D4', textTransform: 'uppercase', marginBottom: '0.75rem'
             }}>
-              <Users size={14} /> Mentara Labs • Virtual Batch Manager
+              <Users size={14} /> Mentara Learning • Virtual Batch Manager
             </div>
             <h1 style={{ fontSize: '1.85rem', fontWeight: 800, color: '#fff', margin: '0 0 0.5rem 0' }}>
               My Virtual Classrooms

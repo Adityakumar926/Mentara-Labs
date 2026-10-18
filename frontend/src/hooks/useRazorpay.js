@@ -43,7 +43,7 @@ const useRazorpay = () => {
         key: RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: order.currency,
-        name: 'Mentara Labs',
+        name: 'Mentara Learning',
         description: order.planLabel,
         image: 'https://www.mentp.com/mentara-new.png',
         order_id: order.id,

@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 
 export default function SEOHead({
-  title = 'Mentara Labs | Cambridge Primary Questions Stage 1–5 | Interactive Learning Platform',
-  description = 'Mentara Labs (mentp.com) is an interactive Cambridge Primary learning platform offering stage 1 to 5 questions, worksheets, simulations, and checkpoint assessments.',
-  keywords = 'Mentara Labs, Cambridge Primary questions, stage 1 to 5, Cambridge checkpoint, worksheets, 3D simulations',
+  title = 'Mentara Learning | Cambridge Primary Questions Stage 1–5 | Interactive Learning Platform',
+  description = 'Mentara Learning (mentp.com) is an interactive Cambridge Primary learning platform offering stage 1 to 5 questions, worksheets, simulations, and checkpoint assessments.',
+  keywords = 'Mentara Learning, Cambridge Primary questions, stage 1 to 5, Cambridge checkpoint, worksheets, 3D simulations',
   canonical = '/',
   image = 'https://www.mentp.com/mentara-new.png',
   type = 'website',
@@ -36,7 +36,7 @@ export default function SEOHead({
     setMetaTag('property', 'og:url', canonicalUrl);
     setMetaTag('property', 'og:image', image);
     setMetaTag('property', 'og:type', type);
-    setMetaTag('property', 'og:site_name', 'Mentara Labs');
+    setMetaTag('property', 'og:site_name', 'Mentara Learning');
 
     // Twitter Card
     setMetaTag('name', 'twitter:card', 'summary_large_image');

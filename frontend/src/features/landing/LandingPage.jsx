@@ -399,11 +399,11 @@ function Header() {
         >
           <img
             src="/mentara-new.png"
-            alt="Mentara Labs Logo"
+            alt="Mentara Learning Logo"
             className="h-7 w-7 sm:h-8 sm:w-8 object-contain"
           />
           <span className="font-display font-doodle font-bold text-lg sm:text-xl tracking-tight whitespace-nowrap animate-live-logo-gradient">
-            Mentara Labs
+            Mentara Learning
           </span>
         </a>
       </div>
@@ -1668,7 +1668,7 @@ function Testimonials() {
       quote: "The Platform is really intractive and as a teacher from this platform i am able to make classrooms also.",
       name: "Shruti Mishra",
       role: "Cambridge science teacher, ALLENHOUSE PUBLIC SCHOOL",
-      img: "/aanya_sharma.png",
+      img: "/shruti_mishra.png",
     },
     {
       quote: "The mock test was really helpful and i personaly like the simulations provided in this platform.",
@@ -1677,7 +1677,7 @@ function Testimonials() {
       img: "/abhinandan_srivastava.png",
     },
     {
-      quote: "I really like Mentara Labs It makes learning fun and easy. The games and simulations help me understand things better. I enjoy using it for my studies! 😊",
+      quote: "I really like Mentara Learning It makes learning fun and easy. The games and simulations help me understand things better. I enjoy using it for my studies! 😊",
       name: "Janvi Singh",
       role: "Stage 5 Student",
       img: "/janvi_singh.png",
@@ -2112,8 +2112,8 @@ function Footer() {
           <div className="grid lg:grid-cols-12 gap-10 pb-8">
             <div className="lg:col-span-4">
               <div className="flex items-center gap-3 mb-5">
-                <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-9 w-9 object-contain" />
-                <span className="font-display font-doodle font-bold text-[20px] tracking-tight animate-live-logo-gradient">Mentara Labs</span>
+                <img src="/mentara-new.png" alt="Mentara Learning Logo" className="h-9 w-9 object-contain" />
+                <span className="font-display font-doodle font-bold text-[20px] tracking-tight animate-live-logo-gradient">Mentara Learning</span>
               </div>
               <p className="text-sm text-slate-600 leading-relaxed max-w-sm font-normal">
                 Interactive 3D labs, practice worksheets, and Cambridge Primary tools crafted to help every student learn with joy and confidence.
@@ -2161,7 +2161,7 @@ function Footer() {
 
           <div className="pt-8 border-t border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="font-mono-label text-[10px] uppercase tracking-[0.22em] text-slate-400 font-semibold">
-              © 2026 Mentara Labs · All rights reserved
+              © 2026 Mentara Learning · All rights reserved
             </div>
             <div className="flex items-center gap-5 text-[12px] text-slate-500 font-medium">
               <button onClick={() => setActiveModal("privacy")} className="hover:text-slate-800 transition-colors">Privacy Policy</button>
@@ -2233,7 +2233,7 @@ function CookieBanner({ onOpenPolicy }) {
             </button>
           </div>
           <p className="text-xs text-zinc-400 leading-relaxed font-medium">
-            Mentara Labs uses essential cookies to preserve your login session, progress, and preferences across Cambridge Primary modules.
+            Mentara Learning uses essential cookies to preserve your login session, progress, and preferences across Cambridge Primary modules.
           </p>
           <div className="flex items-center gap-3 pt-1">
             <button
@@ -2264,7 +2264,7 @@ function LegalModal({ type, onClose }) {
       updated: "Last updated: August 2026",
       text: (
         <div className="space-y-4 text-sm text-zinc-300 leading-relaxed">
-          <p>At Mentara Labs, we take student and user data privacy very seriously. This Privacy Policy explains how we collect, use, and safeguard information when you use our platform.</p>
+          <p>At Mentara Learning, we take student and user data privacy very seriously. This Privacy Policy explains how we collect, use, and safeguard information when you use our platform.</p>
           <h4 className="font-bold text-white text-base">1. Student Data Protection</h4>
           <p>We strictly adhere to student data protection standards. We do not sell student data, show targeted ads, or share personal information with unauthorized third parties.</p>
           <h4 className="font-bold text-white text-base">2. Information We Collect</h4>
@@ -2279,13 +2279,13 @@ function LegalModal({ type, onClose }) {
       updated: "Last updated: August 2026",
       text: (
         <div className="space-y-4 text-sm text-zinc-300 leading-relaxed">
-          <p>By accessing or using Mentara Labs, you agree to comply with and be bound by the following terms and conditions of use.</p>
+          <p>By accessing or using Mentara Learning, you agree to comply with and be bound by the following terms and conditions of use.</p>
           <h4 className="font-bold text-white text-base">1. Platform Usage & License</h4>
-          <p>Mentara Labs grants subscribed students, parents, and teachers a non-exclusive, non-transferable license to access interactive labs, drawing worksheets, and practice resources.</p>
+          <p>Mentara Learning grants subscribed students, parents, and teachers a non-exclusive, non-transferable license to access interactive labs, drawing worksheets, and practice resources.</p>
           <h4 className="font-bold text-white text-base">2. Account Responsibility</h4>
           <p>Users are responsible for maintaining the confidentiality of their account credentials and for all activities that occur under their account.</p>
           <h4 className="font-bold text-white text-base">3. Intellectual Property</h4>
-          <p>All interactive 3D simulations, Cambridge Primary practice worksheets, and platform software are the exclusive intellectual property of Mentara Labs.</p>
+          <p>All interactive 3D simulations, Cambridge Primary practice worksheets, and platform software are the exclusive intellectual property of Mentara Learning.</p>
         </div>
       )
     },
@@ -2294,7 +2294,7 @@ function LegalModal({ type, onClose }) {
       updated: "Last updated: August 2026",
       text: (
         <div className="space-y-4 text-sm text-zinc-300 leading-relaxed">
-          <p>Mentara Labs uses essential cookies and browser local storage to provide a seamless learning experience.</p>
+          <p>Mentara Learning uses essential cookies and browser local storage to provide a seamless learning experience.</p>
           <h4 className="font-bold text-white text-base">1. Essential Cookies</h4>
           <p>Necessary for user authentication, session security, and preserving your active learning state across interactive modules.</p>
           <h4 className="font-bold text-white text-base">2. Performance & Preference Cookies</h4>
@@ -2439,7 +2439,7 @@ function ProductDetails() {
             Everything You Need to <span className="bg-gradient-to-r from-cyan-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">Teach, Learn, Practice & Excel</span>
           </h2>
           <p className="text-zinc-400 mt-4 text-sm sm:text-base max-w-xl mx-auto">
-            Mentara Labs brings the complete Cambridge Primary suite onto one smart, interactive platform built for both educators and students.
+            Mentara Learning brings the complete Cambridge Primary suite onto one smart, interactive platform built for both educators and students.
           </p>
         </div>
 

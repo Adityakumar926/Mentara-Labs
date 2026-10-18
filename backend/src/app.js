@@ -58,7 +58,7 @@ app.get('/robots.txt', (req, res) => {
 });
 
 // Root & Health check
-app.get('/', (req, res) => res.json({ name: 'Mentara Labs API', status: 'online' }));
+app.get('/', (req, res) => res.json({ name: 'Mentara Learning API', status: 'online' }));
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 // Exam scheduler — auto-starts and auto-ends exams, auto-submits attempts

@@ -146,7 +146,7 @@ export default function CertificateCard({ studentName, examName, certificateId, 
     year: 'numeric'
   });
 
-  const certDesc = description || `For successfully completing the exam assessment "${examName}" on Mentara Labs and demonstrating outstanding commitment to academic excellence.`;
+  const certDesc = description || `For successfully completing the exam assessment "${examName}" on Mentara Learning and demonstrating outstanding commitment to academic excellence.`;
   const logoUrl = window.location.origin + '/mentara-new.png';
 
   return (
@@ -375,8 +375,8 @@ export default function CertificateCard({ studentName, examName, certificateId, 
 
           <header className="cert-header">
             <div className="cert-brand">
-              <img className="cert-logo" src={logoUrl} alt="Mentara Labs Logo" />
-              <span className="cert-brand-name">Mentara Labs</span>
+              <img className="cert-logo" src={logoUrl} alt="Mentara Learning Logo" />
+              <span className="cert-brand-name">Mentara Learning</span>
             </div>
           </header>
 
@@ -414,7 +414,7 @@ export default function CertificateCard({ studentName, examName, certificateId, 
 
             <div className="cert-footer-block">
               <div className="cert-footer-value" style={{ fontFamily: 'Cinzel, serif', fontStyle: 'italic', paddingBottom: '8px', color: '#1e1b4b', fontWeight: 'bold' }}>
-                Mentara Labs
+                Mentara Learning
               </div>
               <div className="cert-footer-line"></div>
               <div className="cert-footer-label">Authorized Signatory</div>

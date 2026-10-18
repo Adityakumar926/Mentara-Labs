@@ -8,7 +8,7 @@ export default function PrivacyPolicyPage() {
         
         {/* Navigation */}
         <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#38bdf8', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600, marginBottom: '2rem' }}>
-          <ArrowLeft size={16} /> Back to Mentara Labs
+          <ArrowLeft size={16} /> Back to Mentara Learning
         </Link>
 
         {/* Header */}
@@ -20,7 +20,7 @@ export default function PrivacyPolicyPage() {
             <h1 style={{ fontSize: '2rem', fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: '#ffffff', margin: 0 }}>Privacy Policy</h1>
           </div>
           <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.95rem', margin: 0 }}>
-            Last Updated: September 12, 2026 • Mentara Labs Educational Platform
+            Last Updated: September 12, 2026 • Mentara Learning Educational Platform
           </p>
         </div>
 
@@ -32,7 +32,7 @@ export default function PrivacyPolicyPage() {
               <Eye size={18} /> 1. Information We Collect
             </h2>
             <p>
-              When you sign up or log in to Mentara Labs using email registration or Google Sign-In, we collect basic profile information necessary to provide educational service:
+              When you sign up or log in to Mentara Learning using email registration or Google Sign-In, we collect basic profile information necessary to provide educational service:
             </p>
             <ul style={{ paddingLeft: '1.5rem', marginTop: '0.5rem' }}>
               <li><strong>Account Identifiers:</strong> Your full name, email address, and profile picture (avatar).</li>
@@ -45,7 +45,7 @@ export default function PrivacyPolicyPage() {
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#38bdf8', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.75rem' }}>
               <Server size={18} /> 2. How We Use Your Information
             </h2>
-            <p>Mentara Labs uses collected data strictly for educational and service operations:</p>
+            <p>Mentara Learning uses collected data strictly for educational and service operations:</p>
             <ul style={{ paddingLeft: '1.5rem', marginTop: '0.5rem' }}>
               <li>Authenticating user sessions and granting access to teacher and student dashboards.</li>
               <li>Managing virtual classrooms, student invitations, and seat allocations.</li>
@@ -53,7 +53,7 @@ export default function PrivacyPolicyPage() {
               <li>Sending essential account notifications and invitation updates.</li>
             </ul>
             <p style={{ marginTop: '0.75rem', color: '#93c5fd' }}>
-              <strong>Zero Data Selling:</strong> Mentara Labs does not sell, rent, or trade personal information to any third parties or advertisers.
+              <strong>Zero Data Selling:</strong> Mentara Learning does not sell, rent, or trade personal information to any third parties or advertisers.
             </p>
           </section>
 
@@ -71,7 +71,7 @@ export default function PrivacyPolicyPage() {
               <Mail size={18} /> 4. Contact Us
             </h2>
             <p>
-              If you have any questions or privacy inquiries regarding Mentara Labs, please contact our support team at:
+              If you have any questions or privacy inquiries regarding Mentara Learning, please contact our support team at:
             </p>
             <p style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(56, 189, 248, 0.2)', padding: '1rem 1.25rem', borderRadius: '12px', color: '#38bdf8', fontWeight: 600, width: 'fit-content' }}>
               ✉️ adityakum.9430@gmail.com
@@ -82,7 +82,7 @@ export default function PrivacyPolicyPage() {
 
         {/* Footer */}
         <div style={{ marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(59, 130, 246, 0.15)', textAlign: 'center', fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.4)' }}>
-          © 2026 Mentara Labs. All rights reserved. • <Link to="/terms" style={{ color: '#38bdf8', textDecoration: 'none' }}>Terms of Service</Link>
+          © 2026 Mentara Learning. All rights reserved. • <Link to="/terms" style={{ color: '#38bdf8', textDecoration: 'none' }}>Terms of Service</Link>
         </div>
 
       </div>

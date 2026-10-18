@@ -1270,7 +1270,7 @@ export default function StudentDashboardPage() {
   return (
     <PageWrapper className="p-6">
       <SEOHead
-        title="Student Learning Dashboard | Cambridge Primary | Mentara Labs"
+        title="Student Learning Dashboard | Cambridge Primary | Mentara Learning"
         description="Interactive Cambridge Primary learning dashboard with Stage 1-5 questions, worksheets, 3D simulations and mock checkpoint assessments."
         canonical="/student/dashboard"
       />

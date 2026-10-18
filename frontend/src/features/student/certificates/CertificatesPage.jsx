@@ -69,7 +69,7 @@ export default function StudentCertificatesPage() {
           });
           // A4 dimensions: 841.89 pt x 595.28 pt
           pdf.addImage(dataUrl, 'PNG', 0, 0, 841.89, 595.28, undefined, 'FAST');
-          pdf.save(`MentaraLabs-Certificate-${pdfCert.certificate_id}.pdf`);
+          pdf.save(`MentaraLearning-Certificate-${pdfCert.certificate_id}.pdf`);
           setPdfCert(null);
         })
         .catch((err) => {

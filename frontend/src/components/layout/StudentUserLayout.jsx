@@ -330,10 +330,10 @@ export default function StudentUserLayout() {
         <header className="sl-mobile-header">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
-              <img src="/mentara-new.png" alt="Mentara Labs Logo" width="32" height="32" className="w-full h-full object-contain" />
+              <img src="/mentara-new.png" alt="Mentara Learning Logo" width="32" height="32" className="w-full h-full object-contain" />
             </div>
             <div className="flex flex-col">
-              <span className="font-['Outfit'] font-extrabold text-sm text-[var(--local-cream)] leading-tight">Mentara Labs</span>
+              <span className="font-['Outfit'] font-extrabold text-sm text-[var(--local-cream)] leading-tight">Mentara Learning</span>
               <span className="text-[10px] font-bold text-[#06B6D4] leading-tight">Cambridge Primary</span>
             </div>
           </div>
@@ -374,10 +374,10 @@ export default function StudentUserLayout() {
             <div className="sl-logo">
               <div className="sl-logo-left">
                 <div className="sl-logo-mark">
-                  <img src="/mentara-new.png" alt="Mentara Labs" width="36" height="36" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  <img src="/mentara-new.png" alt="Mentara Learning" width="36" height="36" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 </div>
                 <div className="sl-logo-text-group">
-                  <span className="sl-logo-text">Mentara Labs</span>
+                  <span className="sl-logo-text">Mentara Learning</span>
                   <span className="sl-logo-subtext">Cambridge Primary</span>
                 </div>
               </div>

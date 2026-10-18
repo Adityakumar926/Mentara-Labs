@@ -493,7 +493,7 @@ export default function StudentLayout() {
                 <div className="sl-logo-mark">
                   <img src="/mentara-new.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
                 </div>
-                <span className="sl-logo-text">Mentara Labs</span>
+                <span className="sl-logo-text">Mentara Learning</span>
               </div>
               <div className="sl-logo-actions">
                 <button

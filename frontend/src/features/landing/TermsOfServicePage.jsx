@@ -8,7 +8,7 @@ export default function TermsOfServicePage() {
         
         {/* Navigation */}
         <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#38bdf8', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 600, marginBottom: '2rem' }}>
-          <ArrowLeft size={16} /> Back to Mentara Labs
+          <ArrowLeft size={16} /> Back to Mentara Learning
         </Link>
 
         {/* Header */}
@@ -20,7 +20,7 @@ export default function TermsOfServicePage() {
             <h1 style={{ fontSize: '2rem', fontWeight: 800, fontFamily: 'Outfit, sans-serif', color: '#ffffff', margin: 0 }}>Terms of Service</h1>
           </div>
           <p style={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.95rem', margin: 0 }}>
-            Last Updated: September 12, 2026 • Mentara Labs Educational Platform
+            Last Updated: September 12, 2026 • Mentara Learning Educational Platform
           </p>
         </div>
 
@@ -32,7 +32,7 @@ export default function TermsOfServicePage() {
               <CheckCircle size={18} /> 1. Acceptance of Terms
             </h2>
             <p>
-              By accessing or using Mentara Labs, you agree to comply with these Terms of Service. Mentara Labs provides educational curriculum practice, mock exams, and virtual classroom tools for students and teachers.
+              By accessing or using Mentara Learning, you agree to comply with these Terms of Service. Mentara Learning provides educational curriculum practice, mock exams, and virtual classroom tools for students and teachers.
             </p>
           </section>
 
@@ -61,7 +61,7 @@ export default function TermsOfServicePage() {
 
         {/* Footer */}
         <div style={{ marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(59, 130, 246, 0.15)', textAlign: 'center', fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.4)' }}>
-          © 2026 Mentara Labs. All rights reserved. • <Link to="/privacy" style={{ color: '#38bdf8', textDecoration: 'none' }}>Privacy Policy</Link>
+          © 2026 Mentara Learning. All rights reserved. • <Link to="/privacy" style={{ color: '#38bdf8', textDecoration: 'none' }}>Privacy Policy</Link>
         </div>
 
       </div>
