@@ -2,55 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
-
-const inputBase = (hasError) => ({
-  width: '100%',
-  background: 'rgba(15, 23, 42, 0.65)',
-  border: `1px solid ${hasError ? 'rgba(248,113,113,0.5)' : 'rgba(59, 130, 246, 0.15)'}`,
-  borderRadius: '12px',
-  padding: '0.8rem 1.1rem',
-  color: '#ffffff',
-  fontSize: '0.95rem',
-  outline: 'none',
-  fontFamily: 'Inter, sans-serif',
-  boxSizing: 'border-box',
-  transition: 'border-color 0.2s, box-shadow 0.2s',
-});
-
-import { BookOpen, GraduationCap, Users, Star } from 'lucide-react';
-
-const InteractiveHeadline = () => {
-  const line1Words = ["Every", "exam", "starts"];
-  const line2Words = [
-    { text: "with", highlight: false },
-    { text: "showing", highlight: true },
-    { text: "up.", highlight: true }
-  ];
-
-  const renderWord = (word, isHighlight = false, wordKey = "") => (
-    <span key={wordKey} className={`hl-word ${isHighlight ? "hl-word-gradient" : ""}`}>
-      {word.split("").map((char, charIdx) => (
-        <span
-          key={charIdx}
-          className={`hl-char ${isHighlight ? "hl-char-gradient" : ""}`}
-        >
-          {char}
-        </span>
-      ))}
-    </span>
-  );
-
-  return (
-    <h2 className="panel-headline" aria-label="Every exam starts with showing up.">
-      <span className="hl-line">
-        {line1Words.map((w, i) => renderWord(w, false, `l1-${i}`))}
-      </span>
-      <span className="hl-line">
-        {line2Words.map((item, i) => renderWord(item.text, item.highlight, `l2-${i}`))}
-      </span>
-    </h2>
-  );
-};
+import Auth3DSurfer from '@/components/auth/Auth3DSurfer';
+import { BookOpen, GraduationCap, Users, Star, Compass } from 'lucide-react';
 
 export default function RegisterPage() {
   const { loginWithGoogle, loading } = useAuthStore();
@@ -148,290 +101,355 @@ export default function RegisterPage() {
   return (
     <>
       <style>{`
-                .auth-shell {
-          height: 100vh;
-          max-height: 100vh;
-          overflow: hidden;
+        /* Master Layout */
+        .auth-shell {
+          min-height: 100vh;
+          width: 100vw;
           display: grid;
-          grid-template-columns: 1fr 1fr;
-          background: #020617;
-          font-family: 'Inter', sans-serif;
+          grid-template-columns: 1.08fr 1fr;
+          background: #FAF9F6;
+          font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+          overflow-x: hidden;
+          color: #0f172a;
         }
+
+        /* ---------------- LEFT PANEL (Sky Blue Brand Stage) ---------------- */
         .auth-panel {
           position: relative;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          padding: 3.5rem;
-          height: 100vh;
+          padding: 2.75rem 3.25rem;
+          min-height: 100vh;
           box-sizing: border-box;
           overflow: hidden;
-          background-color: #020617;
-          background-image: 
-            linear-gradient(135deg, rgba(2, 6, 23, 0.72) 0%, rgba(2, 6, 23, 0.58) 50%, rgba(2, 6, 23, 0.8) 100%),
-            url('/cambridge-bg.webp');
-          background-size: cover;
-          background-position: center right;
-          background-repeat: no-repeat;
-          border-right: 1px solid rgba(59, 130, 246, 0.15);
+          background: linear-gradient(135deg, #edf6fd 0%, #cce7f9 32%, #b5ddf7 68%, #9dd4f4 100%);
+          border-right: 1px solid rgba(255, 255, 255, 0.55);
         }
-        .auth-panel-grid {
+
+        /* Subtle organic depth overlays on the blue */
+        .auth-panel-sunbeam {
           position: absolute;
           inset: 0;
-          z-index: 1;
-          background-size: 32px 32px;
-          background-image: 
-            linear-gradient(to right, rgba(59, 130, 246, 0.03) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
-          mask-image: radial-gradient(ellipse at center, black 40%, transparent 80%);
-          opacity: 0.4;
+          background: radial-gradient(ellipse at 15% 15%, rgba(255, 255, 255, 0.75) 0%, transparent 60%);
           pointer-events: none;
+          z-index: 1;
         }
-        @keyframes sdrift {
-          from { transform: translate(0, 0); }
-          to { transform: translate(30px, 20px); }
+
+        .auth-panel-mesh {
+          position: absolute;
+          inset: 0;
+          background-image: 
+            radial-gradient(circle at 10% 90%, rgba(255,255,255,0.3) 0%, transparent 40%),
+            linear-gradient(to right, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+          background-size: 100% 100%, 36px 36px, 36px 36px;
+          opacity: 0.6;
+          pointer-events: none;
+          z-index: 1;
         }
+
+        /* Left Header */
+        .panel-header {
+          position: relative;
+          z-index: 10;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
         .panel-logo {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 12px;
           text-decoration: none;
-          position: relative;
-          z-index: 2;
         }
+
+        @keyframes logo-gradient-shift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
         .panel-logo-text {
-          font-family: 'Outfit', sans-serif;
-          font-size: 1.65rem;
-          font-weight: 800;
+          font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+          font-size: 1.55rem;
+          font-weight: 850;
           letter-spacing: -0.02em;
-          background: linear-gradient(90deg, #60a5fa, #38bdf8, #818cf8, #60a5fa);
-          background-size: 300% 100%;
+          background: linear-gradient(
+            120deg,
+            #4f46e5 0%,
+            #7c3aed 22%,
+            #0284c7 48%,
+            #06b6d4 72%,
+            #6366f1 100%
+          );
+          background-size: 250% 250%;
           -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
           background-clip: text;
-          animation: rgb-glow 4s linear infinite;
-        }
-        .panel-mid {
-          position: relative;
-          z-index: 2;
-        }
-        .panel-tag {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          background: rgba(37, 99, 235, 0.1);
-          border: 1px solid rgba(59, 130, 246, 0.28);
-          border-radius: 50px;
-          padding: 5px 14px;
-          font-size: 0.72rem;
-          font-weight: 600;
-          color: #60a5fa;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          margin-bottom: 1.5rem;
-        }
-        .panel-tag-dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: #38bdf8;
-          box-shadow: 0 0 8px #38bdf8;
-          animation: pdot 2s ease infinite;
-        }
-        @keyframes pdot {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.3; }
-        }
-        @keyframes textGlowShimmer {
-          0% {
-            background-position: 0% 50%;
-            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.3));
-          }
-          50% {
-            background-position: 100% 50%;
-            filter: drop-shadow(0 0 22px rgba(56, 189, 248, 0.65));
-          }
-          100% {
-            background-position: 0% 50%;
-            filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.3));
-          }
-        }
-        .panel-headline {
-          font-family: 'Outfit', sans-serif;
-          font-size: 2.5rem;
-          font-weight: 900;
-          line-height: 1.15;
-          letter-spacing: -0.03em;
-          color: #ffffff;
-          margin-bottom: 1.25rem;
-          user-select: none;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-          text-rendering: optimizeLegibility;
-        }
-        .hl-line {
-          display: flex;
-          flex-wrap: wrap;
-          align-items: center;
-          gap: 0.32em;
-        }
-        .hl-word {
-          display: inline-flex;
-          align-items: center;
-          white-space: nowrap;
-        }
-        .hl-char {
+          -webkit-text-fill-color: transparent;
+          animation: logo-gradient-shift 4.5s ease-in-out infinite;
           display: inline-block;
-          cursor: pointer;
-          transform: translate3d(0, 0, 0);
-          transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.4), color 0.2s ease, text-shadow 0.2s ease;
-          will-change: transform;
-          -webkit-font-smoothing: antialiased;
-          backface-visibility: hidden;
-          text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+          filter: drop-shadow(0 2px 8px rgba(79, 70, 229, 0.15));
         }
-        .hl-char:hover {
-          transform: translate3d(0, -8px, 0);
-          color: #60a5fa;
-          text-shadow: 0 4px 16px rgba(56, 189, 248, 0.6), 0 1px 0 #1e3a8a, 0 2px 0 #1d4ed8;
-          z-index: 5;
-          position: relative;
-        }
-        .hl-char-gradient {
-          background: linear-gradient(135deg, #60a5fa 0%, #38bdf8 50%, #93c5fd 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.4), filter 0.2s ease;
-        }
-        .hl-char-gradient:hover {
-          transform: translate3d(0, -10px, 0);
-          filter: drop-shadow(0 4px 16px rgba(56, 189, 248, 0.9));
-          z-index: 5;
-          position: relative;
-        }
-        .panel-sub {
-          color: #94a3b8;
-          font-size: 0.95rem;
-          line-height: 1.65;
-          max-width: 360px;
-        }
-        .panel-stats {
-          display: flex;
+
+        .panel-tag-pill {
+          display: inline-flex;
           align-items: center;
-          gap: 1.5rem;
-          margin-top: 2.75rem;
-          border-top: 1px solid rgba(59, 130, 246, 0.12);
-          padding-top: 2rem;
+          gap: 6px;
+          padding: 6px 14px;
+          border-radius: 999px;
+          background: rgba(255, 255, 255, 0.65);
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.8);
+          font-size: 0.75rem;
+          font-weight: 700;
+          color: #034b75;
+          letter-spacing: 0.04em;
+          box-shadow: 0 2px 10px rgba(10, 80, 120, 0.06);
         }
-        .ps-item {
-          display: flex;
-          align-items: center;
-          gap: 10px;
+
+        .panel-tag-dot {
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          background: #0284c7;
+          box-shadow: 0 0 8px #0284c7;
         }
-        .ps-icon-box {
-          width: 42px;
-          height: 42px;
-          border-radius: 14px;
+
+        /* Dedicated 3D Stage - Zero Overlap with text or cards */
+        .panel-3d-stage {
+          position: relative;
+          z-index: 5;
+          flex: 1;
+          min-height: 400px;
+          width: 100%;
           display: flex;
           align-items: center;
           justify-content: center;
+          margin: 0;
+        }
+
+        
+        /* ── BOTTOM STATS ROW & COPYRIGHT (MATCHING SCREENSHOT) ── */
+        .panel-footer-content {
+          position: relative;
+          z-index: 10;
+          margin-top: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 1.1rem;
+          padding-top: 0.5rem;
+        }
+
+        .panel-stats-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+        }
+
+        .ps-card {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .ps-icon {
+          width: 44px;
+          height: 44px;
+          border-radius: 14px;
+          background: rgba(255, 255, 255, 0.45);
+          backdrop-filter: blur(12px);
+          border: 1.5px solid rgba(255, 255, 255, 0.7);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #034b75;
+          box-shadow: 0 4px 12px rgba(4, 47, 74, 0.04);
           flex-shrink: 0;
         }
-        .ps-icon-cyan {
-          background: rgba(14, 165, 233, 0.08);
-          border: 1px solid rgba(56, 189, 248, 0.25);
-          box-shadow: 0 0 18px rgba(56, 189, 248, 0.12);
-          color: #38bdf8;
-        }
-        .ps-icon-purple {
-          background: rgba(99, 102, 241, 0.08);
-          border: 1px solid rgba(129, 140, 248, 0.25);
-          box-shadow: 0 0 18px rgba(99, 102, 241, 0.12);
-          color: #a5b4fc;
-        }
+
         .ps-num {
           font-family: 'Outfit', sans-serif;
           font-size: 1.35rem;
-          font-weight: 800;
-          color: #ffffff;
+          font-weight: 850;
+          color: #05263f;
           line-height: 1.1;
+          letter-spacing: -0.02em;
         }
+
         .ps-label {
-          font-size: 0.72rem;
-          color: #94a3b8;
-          margin-top: 2px;
-          font-weight: 500;
+          font-size: 0.75rem;
+          color: #0c3e60;
+          font-weight: 600;
           white-space: nowrap;
         }
+
+        .panel-copyright {
+          font-size: 0.78rem;
+          font-family: 'Inter', sans-serif;
+          color: #1a567c;
+          letter-spacing: 0.01em;
+          font-weight: 500;
+        }
+
+/* ---------------- RIGHT FORM SIDE (Light Theme) ---------------- */
         .auth-form-side {
+          position: relative;
           display: flex;
-          flex-direction: column;
-          justify-content: center;
           align-items: center;
-          padding: 3rem 2rem;
-          height: 100vh;
-          box-sizing: border-box;
+          justify-content: center;
+          padding: 3rem 2.5rem;
+          background: #FAF9F6;
           overflow-y: auto;
-          background: radial-gradient(circle at 88% 85%, rgba(30, 58, 138, 0.14) 0%, transparent 60%), #020617;
         }
+
+        .auth-form-side::before {
+          content: '';
+          position: absolute;
+          top: -10%;
+          right: -10%;
+          width: 480px;
+          height: 480px;
+          background: radial-gradient(circle, rgba(120, 222, 251, 0.18) 0%, transparent 70%);
+          border-radius: 50%;
+          pointer-events: none;
+        }
+
+        .auth-form-side::after {
+          content: '';
+          position: absolute;
+          bottom: -10%;
+          left: -10%;
+          width: 420px;
+          height: 420px;
+          background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+          border-radius: 50%;
+          pointer-events: none;
+        }
+
         .auth-form-box {
+          position: relative;
+          z-index: 10;
           width: 100%;
-          max-width: 400px;
+          max-width: 440px;
         }
+
         .form-eyebrow {
-          font-family: 'Space Grotesk', sans-serif;
+          display: inline-block;
           font-size: 0.75rem;
           font-weight: 700;
-          letter-spacing: 0.15em;
           text-transform: uppercase;
-          color: #38bdf8;
-          margin-bottom: 0.75rem;
+          letter-spacing: 0.08em;
+          color: #0284c7;
+          margin-bottom: 0.35rem;
         }
+
         .form-title {
           font-family: 'Outfit', sans-serif;
-          font-size: 2.25rem;
-          font-weight: 950;
+          font-size: 2.15rem;
+          font-weight: 800;
           letter-spacing: -0.03em;
-          color: #ffffff;
-          margin-bottom: 0.5rem;
+          color: #0f172a;
+          margin: 0 0 0.4rem 0;
         }
+
         .form-sub {
-          font-size: 0.95rem;
-          color: #94a3b8;
-          margin-bottom: 2.25rem;
-          font-weight: 500;
+          font-size: 0.92rem;
+          color: #64748b;
+          margin: 0 0 1.75rem 0;
+          line-height: 1.45;
         }
-        .auth-divider {
-          height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.15), transparent);
-          margin: 2rem 0;
+
+        /* Role Cards in Light Theme */
+        .role-cards-container {
+          display: flex;
+          gap: 1rem;
+          margin-bottom: 1.75rem;
         }
-        .auth-input:focus {
-          border-color: rgba(56, 189, 248, 0.6) !important;
-          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18), 0 0 20px rgba(59, 130, 246, 0.12) !important;
-        }
-        .auth-input::placeholder {
-          color: rgba(255, 255, 255, 0.25);
-        }
-        .auth-footer-link {
+
+        .role-card {
+          flex: 1;
+          padding: 1.25rem 1rem;
+          border-radius: 16px;
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.5rem;
           text-align: center;
-          font-size: 0.875rem;
-          color: #94a3b8;
-          margin-top: 1.5rem;
-          font-weight: 500;
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          background: #ffffff;
+          border: 2px solid #e2e8f0;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+          user-select: none;
         }
-        .auth-footer-link a {
-          color: #38bdf8;
-          font-weight: 600;
-          text-decoration: none;
-          transition: color 0.2s;
+
+        .role-card:hover {
+          border-color: #cbd5e1;
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
         }
-        .auth-footer-link a:hover {
-          color: #60a5fa;
+
+        .role-card.selected-student {
+          border-color: #0284c7;
+          background: rgba(120, 222, 251, 0.12);
+          box-shadow: 0 8px 24px rgba(2, 132, 199, 0.14);
+          transform: translateY(-2px);
         }
-        .md-hidden { display: none; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
-        /* ── RGB rotating border on Google button ── */
+
+        .role-card.selected-teacher {
+          border-color: #6366f1;
+          background: rgba(99, 102, 241, 0.08);
+          box-shadow: 0 8px 24px rgba(99, 102, 241, 0.14);
+          transform: translateY(-2px);
+        }
+
+        .role-icon-box {
+          width: 44px;
+          height: 44px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #f1f5f9;
+          transition: all 0.2s ease;
+        }
+
+        .role-title {
+          font-weight: 700;
+          font-size: 0.96rem;
+          color: #0f172a;
+        }
+
+        .role-desc {
+          font-size: 0.74rem;
+          color: #64748b;
+          line-height: 1.35;
+        }
+
+        .role-badge-student {
+          font-size: 0.68rem;
+          font-weight: 800;
+          color: #0284c7;
+          background: rgba(2, 132, 199, 0.12);
+          padding: 0.2rem 0.55rem;
+          border-radius: 6px;
+          margin-top: 4px;
+        }
+
+        .role-badge-teacher {
+          font-size: 0.68rem;
+          font-weight: 800;
+          color: #6366f1;
+          background: rgba(99, 102, 241, 0.12);
+          padding: 0.2rem 0.55rem;
+          border-radius: 6px;
+          margin-top: 4px;
+        }
+
+        /* ── RGB rotating border lighting effect on Google button ── */
         @property --rgb-angle {
           syntax: '<angle>';
           initial-value: 0deg;
@@ -442,100 +460,129 @@ export default function RegisterPage() {
         }
         .google-btn-wrapper {
           position: relative;
-          padding: 2px;
-          border-radius: 50px;
+          padding: 2.2px;
+          border-radius: 999px;
           background: conic-gradient(
             from var(--rgb-angle),
-            #22d3ee, #a855f7, #f43f5e, #fbbf24, #34d399, #22d3ee
+            #22d3ee, #818cf8, #c084fc, #f43f5e, #fbbf24, #34d399, #22d3ee
           );
           animation: rgb-spin 3s linear infinite;
           display: flex;
           justify-content: center;
           align-items: center;
-          width: 382px;
-          max-width: 100%;
+          width: 100%;
           height: 48px;
           margin: 1.25rem auto 0 auto;
           box-sizing: border-box;
-          overflow: hidden;
           cursor: pointer;
+          transition: transform 0.2s ease;
+        }
+        .google-btn-wrapper:hover {
+          transform: translateY(-1px);
         }
         .google-btn-wrapper::before {
           content: '';
           position: absolute;
-          inset: -5px;
-          border-radius: 54px;
+          inset: -4px;
+          border-radius: 999px;
           background: conic-gradient(
             from var(--rgb-angle),
-            rgba(34,211,238,0.3), rgba(168,85,247,0.3), rgba(244,63,94,0.3),
-            rgba(251,191,36,0.3), rgba(52,211,153,0.3), rgba(34,211,238,0.3)
+            rgba(34,211,238,0.5), rgba(129,140,248,0.5), rgba(192,132,252,0.5),
+            rgba(244,63,94,0.45), rgba(251,191,36,0.45), rgba(52,211,153,0.45), rgba(34,211,238,0.5)
           );
           filter: blur(10px);
-          z-index: -1;
+          z-index: 0;
           animation: rgb-spin 3s linear infinite;
+          pointer-events: none;
         }
         .custom-google-btn {
+          position: relative;
+          z-index: 1;
           width: 100%;
           height: 100%;
-          background: #09090b;
-          border-radius: 50px;
+          background: #ffffff;
+          border-radius: 999px;
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 12px;
-          color: #ffffff;
+          color: #0f172a;
           font-family: 'Outfit', sans-serif;
           font-weight: 600;
           font-size: 0.95rem;
           pointer-events: none;
           box-sizing: border-box;
         }
-        .real-google-btn-overlay {
-          position: absolute;
-          inset: 0;
-          opacity: 1;
-          z-index: 10;
-          cursor: pointer;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-        .real-google-btn-overlay > div {
-          width: 100% !important;
-          height: 100% !important;
+
+        .auth-divider {
+          height: 1px;
+          background: #e2e8f0;
+          margin: 1.75rem 0;
         }
 
-        @media (max-width: 768px) {
-          .auth-shell { grid-template-columns: 1fr; }
-          .auth-panel { display: none; }
-          .auth-form-side { padding: 2rem 1.25rem; }
-          .md-hidden { display: flex; }
+        .auth-footer-link {
+          text-align: center;
+          font-size: 0.88rem;
+          color: #64748b;
+          margin: 0;
         }
-        @media (max-width: 440px) {
-          .google-btn-wrapper {
-            transform: scale(0.88);
-            margin-top: 0.75rem;
+
+        .auth-footer-link a {
+          color: #0284c7;
+          font-weight: 650;
+          text-decoration: none;
+          transition: color 0.15s;
+        }
+
+        .auth-footer-link a:hover {
+          color: #0369a1;
+          text-decoration: underline;
+        }
+
+        .md-hidden {
+          display: none;
+        }
+
+        @media (max-width: 960px) {
+          .auth-shell {
+            grid-template-columns: 1fr;
+          }
+          .auth-panel {
+            display: none;
+          }
+          .auth-form-side {
+            padding: 2.5rem 1.5rem;
+          }
+          .md-hidden {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
           }
         }
       `}</style>
 
       <div className="auth-shell">
 
-        {/* LEFT — brand panel */}
+        {/* LEFT — Sky Blue Brand Panel with Surfer 3D */}
         <aside className="auth-panel">
-          <div className="auth-panel-grid" />
-          <Link to="/" className="panel-logo" style={{ gap: '12px' }}>
-            <img src="/mentara-new.png" alt="Mentara Learning Logo" className="h-11 w-11 object-contain" />
-            <span className="panel-logo-text">Mentara Learning</span>
-          </Link>
+          <div className="auth-panel-sunbeam" />
+          <div className="auth-panel-mesh" />
+          <div className="panel-header">
+            <Link to="/" className="panel-logo">
+              <img src="/mentara-new.png" alt="Mentara Learning Logo" className="h-10 w-10 object-contain" />
+              <span className="panel-logo-text">Mentara Learning</span>
+            </Link>
+          </div>
 
-          <div className="panel-mid">
-            <div className="panel-tag"><span className="panel-tag-dot" />Intelligent Learning</div>
-            <InteractiveHeadline />
-            <p className="panel-sub">Structured courses, adaptive mock exams, and a streak system built to make consistency your competitive edge.</p>
-            <div className="panel-stats">
-              <div className="ps-item">
-                <div className="ps-icon-box ps-icon-cyan">
+          <div className="panel-3d-stage">
+            <Auth3DSurfer />
+          </div>
+
+          <div className="panel-footer-content">
+            <div className="panel-stats-row">
+              <div className="ps-card">
+                <div className="ps-icon">
                   <Users className="w-5 h-5" />
                 </div>
                 <div>
@@ -544,8 +591,8 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <div className="ps-item">
-                <div className="ps-icon-box ps-icon-purple">
+              <div className="ps-card">
+                <div className="ps-icon">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
                     <circle cx="9" cy="12" r="1" fill="currentColor" />
@@ -558,8 +605,8 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <div className="ps-item">
-                <div className="ps-icon-box ps-icon-cyan">
+              <div className="ps-card">
+                <div className="ps-icon">
                   <Star className="w-5 h-5" />
                 </div>
                 <div>
@@ -568,103 +615,77 @@ export default function RegisterPage() {
                 </div>
               </div>
             </div>
+
+            <div className="panel-copyright">
+              © 2026 Mentara Learning · Cambridge Primary Practice
+            </div>
           </div>
 
-          <div style={{ position: 'relative', zIndex: 2 }}>
-            <span style={{ fontSize: '0.75rem', fontFamily: 'Space Grotesk, monospace', color: '#6b7280', letterSpacing: '0.04em' }}>
-              © 2026 Mentara Learning · Cambridge Primary Practice
-            </span>
-          </div>
         </aside>
 
-        {/* RIGHT — form */}
+        {/* RIGHT — Light Theme Auth Form */}
         <main className="auth-form-side">
-          <div className="auth-form-box" style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}>
+          <div className="auth-form-box">
             {/* Mobile-only logo */}
-            <div className="md-hidden" style={{ alignSelf: 'center', gap: '12px' }}>
-              <img src="/mentara-new.png" alt="Mentara Learning Logo" className="h-10 w-10 object-contain" />
-              <span className="panel-logo-text" style={{ fontFamily: 'Outfit, sans-serif' }}>Mentara Learning</span>
+            <div className="md-hidden">
+              <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
+                <img src="/mentara-new.png" alt="Mentara Learning Logo" className="h-9 w-9 object-contain" />
+                <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.45rem', fontWeight: 800, color: '#0f172a' }}>
+                  Mentara
+                </span>
+              </Link>
             </div>
 
-            <div className="form-eyebrow">Create Account</div>
-            <h1 className="form-title">Sign up</h1>
-            <p className="form-sub" style={{ marginBottom: '1.5rem' }}>Select your role to register your account.</p>
+            <div className="form-eyebrow">Get Started Free</div>
+            <h1 className="form-title">Create Account</h1>
+            <p className="form-sub">Select your role to start your learning journey.</p>
 
-            {/* Role selector */}
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.75rem' }}>
+            {/* Role selector cards */}
+            <div className="role-cards-container">
               <div
                 onClick={() => setSelectedRole('student')}
-                style={{
-                  flex: 1,
-                  padding: '1.25rem 1rem',
-                  borderRadius: '16px',
-                  border: `2px solid ${selectedRole === 'student' ? 'rgba(56,189,248,0.85)' : 'rgba(59,130,246,0.12)'}`,
-                  background: selectedRole === 'student' ? 'rgba(14,165,233,0.12)' : 'rgba(15,23,42,0.4)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  textAlign: 'center',
-                  transition: 'all 0.2s ease',
-                  boxShadow: selectedRole === 'student' ? '0 0 24px rgba(14,165,233,0.25)' : 'none'
-                }}
+                className={`role-card ${selectedRole === 'student' ? 'selected-student' : ''}`}
               >
-                <div style={{
-                  width: '40px', height: '40px', borderRadius: '12px',
-                  background: selectedRole === 'student' ? 'rgba(14,165,233,0.22)' : 'rgba(59,130,246,0.06)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  border: `1px solid ${selectedRole === 'student' ? 'rgba(56,189,248,0.4)' : 'transparent'}`
-                }}>
-                  <BookOpen size={20} style={{ color: selectedRole === 'student' ? '#38bdf8' : 'rgba(255,255,255,0.5)' }} />
+                <div 
+                  className="role-icon-box"
+                  style={{
+                    background: selectedRole === 'student' ? 'rgba(2, 132, 199, 0.15)' : '#f1f5f9',
+                    color: selectedRole === 'student' ? '#0284c7' : '#64748b'
+                  }}
+                >
+                  <BookOpen size={22} />
                 </div>
-                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#ffffff' }}>I am a Student</div>
-                <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', lineHeight: 1.25 }}>Access primary tools, animations & worksheets</div>
+                <div className="role-title">I am a Student</div>
+                <div className="role-desc">Primary tools, 3D animations & worksheets</div>
                 {selectedRole === 'student' && (
-                  <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#38bdf8', background: 'rgba(56,189,248,0.15)', padding: '0.15rem 0.5rem', borderRadius: '6px', marginTop: '4px' }}>
-                    ✓ Selected
-                  </span>
+                  <span className="role-badge-student">✓ Selected</span>
                 )}
               </div>
 
               <div
                 onClick={() => setSelectedRole('teacher')}
-                style={{
-                  flex: 1,
-                  padding: '1.25rem 1rem',
-                  borderRadius: '16px',
-                  border: `2px solid ${selectedRole === 'teacher' ? 'rgba(129,140,248,0.85)' : 'rgba(59,130,246,0.12)'}`,
-                  background: selectedRole === 'teacher' ? 'rgba(99,102,241,0.12)' : 'rgba(15,23,42,0.4)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  textAlign: 'center',
-                  transition: 'all 0.2s ease',
-                  boxShadow: selectedRole === 'teacher' ? '0 0 24px rgba(99,102,241,0.25)' : 'none'
-                }}
+                className={`role-card ${selectedRole === 'teacher' ? 'selected-teacher' : ''}`}
               >
-                <div style={{
-                  width: '40px', height: '40px', borderRadius: '12px',
-                  background: selectedRole === 'teacher' ? 'rgba(99,102,241,0.22)' : 'rgba(59,130,246,0.06)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  border: `1px solid ${selectedRole === 'teacher' ? 'rgba(129,140,248,0.4)' : 'transparent'}`
-                }}>
-                  <GraduationCap size={20} style={{ color: selectedRole === 'teacher' ? '#a5b4fc' : 'rgba(255,255,255,0.5)' }} />
+                <div 
+                  className="role-icon-box"
+                  style={{
+                    background: selectedRole === 'teacher' ? 'rgba(99, 102, 241, 0.15)' : '#f1f5f9',
+                    color: selectedRole === 'teacher' ? '#6366f1' : '#64748b'
+                  }}
+                >
+                  <GraduationCap size={22} />
                 </div>
-                <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#ffffff' }}>I am a Teacher</div>
-                <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', lineHeight: 1.25 }}>Teach with interactive controls, whiteboard & tools</div>
+                <div className="role-title">I am a Teacher</div>
+                <div className="role-desc">Interactive tools, whiteboard & curriculum</div>
                 {selectedRole === 'teacher' && (
-                  <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#a5b4fc', background: 'rgba(99,102,241,0.15)', padding: '0.15rem 0.5rem', borderRadius: '6px', marginTop: '4px' }}>
-                    ✓ Selected
-                  </span>
+                  <span className="role-badge-teacher">✓ Selected</span>
                 )}
               </div>
             </div>
 
+            {/* Google Signup Action: ONLY shown once role is selected */}
             {selectedRole ? (
-              <div className="google-btn-wrapper" onClick={triggerGoogleLogin} style={{ cursor: 'pointer' }}>
+              <div className="google-btn-wrapper" onClick={triggerGoogleLogin}>
                 <div className="custom-google-btn">
                   <svg width="20" height="20" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -679,11 +700,11 @@ export default function RegisterPage() {
               <div style={{
                 padding: '0.85rem 1rem',
                 borderRadius: '12px',
-                background: 'rgba(15, 23, 42, 0.5)',
-                border: '1px dashed rgba(59, 130, 246, 0.25)',
-                color: '#94a3b8',
+                background: 'rgba(241, 245, 249, 0.65)',
+                border: '1.5px dashed #cbd5e1',
+                color: '#64748b',
                 textAlign: 'center',
-                fontSize: '0.85rem',
+                fontSize: '0.86rem',
                 fontWeight: 500,
                 marginTop: '0.25rem'
               }}>
@@ -691,8 +712,8 @@ export default function RegisterPage() {
               </div>
             )}
 
-            <div className="auth-divider" style={{ margin: '2rem 0' }} />
-            <p className="auth-footer-link" style={{ marginTop: 0 }}>
+            <div className="auth-divider" />
+            <p className="auth-footer-link">
               Already have an account? <Link to="/login">Sign in</Link>
             </p>
           </div>
