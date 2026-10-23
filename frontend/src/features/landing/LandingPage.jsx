@@ -402,14 +402,14 @@ function Header() {
             alt="Mentara Learning Logo"
             className="h-7 w-7 sm:h-8 sm:w-8 object-contain"
           />
-          <span className="font-display font-doodle font-bold text-lg sm:text-xl tracking-tight whitespace-nowrap animate-live-logo-gradient">
+          <span className="font-display font-doodle font-bold text-base sm:text-xl tracking-tight whitespace-nowrap animate-live-logo-gradient">
             Mentara Learning
           </span>
         </a>
       </div>
 
       {/* Floating Center Navbar */}
-      <header className="fixed top-4 sm:top-5 inset-x-0 z-50 flex justify-center pointer-events-none px-4">
+      <header className="fixed top-4 sm:top-5 inset-x-0 z-50 flex justify-end md:justify-center pointer-events-none px-4 sm:px-8 lg:px-12">
         {/* Floating Neumorphic Capsule Bar with Smooth Disappearing Effect */}
         <div
           ref={pillRef}
@@ -494,7 +494,7 @@ function Header() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
               data-testid="mobile-nav"
-              className="pointer-events-auto absolute top-full mt-3 w-[92vw] max-w-sm rounded-3xl p-4 shadow-2xl backdrop-blur-2xl border border-white/80 md:hidden"
+              className="pointer-events-auto absolute top-full right-4 sm:right-8 lg:right-12 mt-3 w-[calc(100vw-2rem)] max-w-sm rounded-3xl p-4 shadow-2xl backdrop-blur-2xl border border-white/80 md:hidden"
               style={{
                 backgroundColor: "rgba(244, 245, 249, 0.97)",
                 boxShadow: "0 20px 45px -8px rgba(15, 23, 42, 0.15)",
@@ -600,19 +600,33 @@ function Hero() {
             
             {/* Soft Neumorphic Pill Badge */}
             <div 
-              className="mb-5 sm:mb-6 inline-flex items-center whitespace-nowrap gap-1.5 sm:gap-2 px-3.5 py-1.5 rounded-full neu-pill border border-white/80 bg-white/90" 
+              className="mb-5 sm:mb-6 inline-flex flex-wrap items-center gap-x-2 gap-y-1.5 px-3 sm:px-3.5 py-1.5 rounded-2xl sm:rounded-full neu-pill border border-white/80 bg-white/90 max-w-full shadow-sm" 
               data-testid="hero-unified-banner"
             >
-              <span 
-                className="h-2.5 w-2.5 rounded-full shrink-0"
-                style={{
-                  background: "radial-gradient(circle at 30% 30%, #FFFFFF, #38BDF8)",
-                  boxShadow: "0 2px 4px rgba(56, 189, 248, 0.4)",
-                }}
-              />
-              <span className="font-mono-label text-[8.5px] sm:text-[9.5px] uppercase tracking-[0.08em] font-semibold text-slate-700">
-                BUILT FOR CAMBRIDGE PRIMARY</span><span className="text-slate-400 font-bold">•</span><span className="font-mono-label text-[8.5px] sm:text-[9.5px] uppercase tracking-[0.08em] font-semibold text-slate-700">DESKTOP & TABLET FIRST</span><span className="text-slate-400 font-bold">•</span><span className="font-mono-label text-[8.5px] sm:text-[9.5px] uppercase tracking-[0.08em] font-bold text-emerald-600">REDUCED MOBILE ADDICTION
-              </span>
+              <div className="inline-flex items-center gap-1.5 shrink-0">
+                <span 
+                  className="h-2.5 w-2.5 rounded-full shrink-0"
+                  style={{
+                    background: "radial-gradient(circle at 30% 30%, #FFFFFF, #38BDF8)",
+                    boxShadow: "0 2px 4px rgba(56, 189, 248, 0.4)",
+                  }}
+                />
+                <span className="font-mono-label text-[8.5px] sm:text-[9.5px] uppercase tracking-[0.08em] font-semibold text-slate-700 whitespace-nowrap">
+                  BUILT FOR CAMBRIDGE PRIMARY
+                </span>
+              </div>
+
+              <span className="hidden sm:inline text-slate-400 font-bold">•</span>
+
+              <div className="inline-flex items-center gap-1.5 shrink-0">
+                <span className="font-mono-label text-[8px] sm:text-[9.5px] uppercase tracking-[0.08em] font-semibold text-slate-700 whitespace-nowrap">
+                  DESKTOP & TABLET FIRST
+                </span>
+                <span className="text-slate-400 font-bold">•</span>
+                <span className="font-mono-label text-[8px] sm:text-[9.5px] uppercase tracking-[0.08em] font-bold text-emerald-600 whitespace-nowrap">
+                  REDUCED MOBILE ADDICTION
+                </span>
+              </div>
             </div>
 
             {/* Main Headline in Doodle Rounded Font */}
