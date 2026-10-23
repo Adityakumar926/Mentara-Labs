@@ -698,23 +698,23 @@ export default function LoginPage() {
               <div
                 style={{
                   marginBottom: '1.25rem',
-                  padding: '0.85rem 1rem',
-                  borderRadius: '16px',
+                  padding: '0.6rem 0.75rem',
+                  borderRadius: '14px',
                   background: '#ffffff',
                   border: '1.5px solid #e2e8f0',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '12px',
+                  gap: '8px',
                   boxShadow: '0 2px 10px rgba(0, 0, 0, 0.03)',
                   transition: 'all 0.2s ease',
                   position: 'relative'
                 }}
               >
-                {/* Avatar */}
+                {/* Avatar (compact 32px, positioned flush left) */}
                 <div
                   style={{
-                    width: '42px',
-                    height: '42px',
+                    width: '32px',
+                    height: '32px',
                     borderRadius: '50%',
                     background: 'linear-gradient(135deg, #0284c7, #2563eb)',
                     display: 'flex',
@@ -722,51 +722,51 @@ export default function LoginPage() {
                     justifyContent: 'center',
                     fontFamily: 'Outfit, sans-serif',
                     fontWeight: 800,
-                    fontSize: '1rem',
+                    fontSize: '0.85rem',
                     color: '#ffffff',
-                    boxShadow: '0 3px 10px rgba(37, 99, 235, 0.22)',
+                    boxShadow: '0 2px 8px rgba(37, 99, 235, 0.2)',
                     flexShrink: 0
                   }}
                 >
                   {savedAccount.name ? savedAccount.name[0].toUpperCase() : (savedAccount.email ? savedAccount.email[0].toUpperCase() : 'U')}
                 </div>
 
-                {/* Info (Truncated if long, no overflow or wrapping) */}
+                {/* Info (Maximized horizontal space so full name displays clearly) */}
                 <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
-                  <div style={{ fontSize: '0.65rem', fontFamily: 'Space Grotesk, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#0284c7', fontWeight: 700, lineHeight: 1 }}>
+                  <div style={{ fontSize: '0.6rem', fontFamily: 'Space Grotesk, sans-serif', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#0284c7', fontWeight: 700, lineHeight: 1, whiteSpace: 'nowrap' }}>
                     Saved Account
                   </div>
-                  <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#0f172a', lineHeight: 1.25, marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', lineHeight: 1.25, marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {savedAccount.name || savedAccount.email}
                   </div>
-                  <div style={{ fontSize: '0.72rem', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '1px' }}>
+                  <div style={{ fontSize: '0.68rem', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '1px' }}>
                     {savedAccount.email}
                   </div>
                 </div>
 
-                {/* Actions (Guaranteed single line, never squished on mobile) */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                {/* Actions (Compact continue button + dismiss, providing max breathing room for name) */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
                   <button
                     type="button"
                     onClick={() => setForm((prev) => ({ ...prev, email: savedAccount.email }))}
                     style={{
-                      padding: '0.42rem 0.85rem',
+                      padding: '0.28rem 0.55rem',
                       borderRadius: '999px',
                       background: '#f0f9ff',
                       border: '1px solid #bae6fd',
                       color: '#0284c7',
-                      fontSize: '0.75rem',
+                      fontSize: '0.72rem',
                       fontWeight: 700,
                       cursor: 'pointer',
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '4px',
+                      gap: '3px',
                       whiteSpace: 'nowrap',
                       transition: 'all 0.15s ease'
                     }}
                   >
                     <span>Continue</span>
-                    <span style={{ fontSize: '0.85rem', lineHeight: 1 }}>→</span>
+                    <span style={{ fontSize: '0.8rem', lineHeight: 1 }}>→</span>
                   </button>
 
                   <button
@@ -777,8 +777,8 @@ export default function LoginPage() {
                       setSavedAccount(null);
                     }}
                     style={{
-                      width: '24px',
-                      height: '24px',
+                      width: '20px',
+                      height: '20px',
                       borderRadius: '50%',
                       background: 'transparent',
                       border: 'none',
@@ -787,7 +787,7 @@ export default function LoginPage() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '0.75rem',
+                      fontSize: '0.68rem',
                       transition: 'all 0.15s ease'
                     }}
                   >
