@@ -600,18 +600,18 @@ function Hero() {
             
             {/* Soft Neumorphic Pill Badge */}
             <div 
-              className="mb-5 sm:mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full neu-pill border border-white/80 bg-white/90" 
+              className="mb-5 sm:mb-6 inline-flex items-center whitespace-nowrap gap-1.5 sm:gap-2 px-3.5 py-1.5 rounded-full neu-pill border border-white/80 bg-white/90" 
               data-testid="hero-unified-banner"
             >
               <span 
-                className="h-2.5 w-2.5 rounded-full"
+                className="h-2.5 w-2.5 rounded-full shrink-0"
                 style={{
                   background: "radial-gradient(circle at 30% 30%, #FFFFFF, #38BDF8)",
                   boxShadow: "0 2px 4px rgba(56, 189, 248, 0.4)",
                 }}
               />
-              <span className="font-mono-label text-[10.5px] uppercase tracking-[0.16em] font-semibold text-slate-700">
-                BUILT FOR CAMBRIDGE PRIMARY
+              <span className="font-mono-label text-[8.5px] sm:text-[9.5px] uppercase tracking-[0.08em] font-semibold text-slate-700">
+                BUILT FOR CAMBRIDGE PRIMARY</span><span className="text-slate-400 font-bold">•</span><span className="font-mono-label text-[8.5px] sm:text-[9.5px] uppercase tracking-[0.08em] font-semibold text-slate-700">DESKTOP & TABLET FIRST</span><span className="text-slate-400 font-bold">•</span><span className="font-mono-label text-[8.5px] sm:text-[9.5px] uppercase tracking-[0.08em] font-bold text-emerald-600">REDUCED MOBILE ADDICTION
               </span>
             </div>
 
