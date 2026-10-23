@@ -695,72 +695,103 @@ export default function LoginPage() {
             <p className="form-sub">Enter your credentials to continue learning.</p>
 
             {savedAccount && (
-              <div style={{
-                marginBottom: '1.25rem',
-                padding: '0.85rem 1.1rem',
-                borderRadius: '16px',
-                background: '#ffffff',
-                border: '1.5px solid #e2e8f0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                boxShadow: '0 4px 16px rgba(0, 0, 0, 0.03)'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{
-                    width: '40px', height: '40px', borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #38bdf8, #2563eb)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '0.95rem', color: '#ffffff',
-                    boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)'
-                  }}>
-                    {savedAccount.name ? savedAccount.name[0].toUpperCase() : (savedAccount.email ? savedAccount.email[0].toUpperCase() : 'U')}
+              <div
+                style={{
+                  marginBottom: '1.25rem',
+                  padding: '0.85rem 1rem',
+                  borderRadius: '16px',
+                  background: '#ffffff',
+                  border: '1.5px solid #e2e8f0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.03)',
+                  transition: 'all 0.2s ease',
+                  position: 'relative'
+                }}
+              >
+                {/* Avatar */}
+                <div
+                  style={{
+                    width: '42px',
+                    height: '42px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #0284c7, #2563eb)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontFamily: 'Outfit, sans-serif',
+                    fontWeight: 800,
+                    fontSize: '1rem',
+                    color: '#ffffff',
+                    boxShadow: '0 3px 10px rgba(37, 99, 235, 0.22)',
+                    flexShrink: 0
+                  }}
+                >
+                  {savedAccount.name ? savedAccount.name[0].toUpperCase() : (savedAccount.email ? savedAccount.email[0].toUpperCase() : 'U')}
+                </div>
+
+                {/* Info (Truncated if long, no overflow or wrapping) */}
+                <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+                  <div style={{ fontSize: '0.65rem', fontFamily: 'Space Grotesk, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#0284c7', fontWeight: 700, lineHeight: 1 }}>
+                    Saved Account
                   </div>
-                  <div>
-                    <div style={{ fontSize: '0.68rem', fontFamily: 'Space Grotesk, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#0284c7', fontWeight: 700 }}>Saved Account</div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', lineHeight: 1.2 }}>{savedAccount.name || savedAccount.email}</div>
-                    <div style={{ fontSize: '0.72rem', color: '#64748b' }}>{savedAccount.email}</div>
+                  <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#0f172a', lineHeight: 1.25, marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {savedAccount.name || savedAccount.email}
+                  </div>
+                  <div style={{ fontSize: '0.72rem', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '1px' }}>
+                    {savedAccount.email}
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+
+                {/* Actions (Guaranteed single line, never squished on mobile) */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                   <button
                     type="button"
                     onClick={() => setForm((prev) => ({ ...prev, email: savedAccount.email }))}
                     style={{
-                      padding: '0.4rem 0.9rem',
-                      borderRadius: '50px',
+                      padding: '0.42rem 0.85rem',
+                      borderRadius: '999px',
                       background: '#f0f9ff',
                       border: '1px solid #bae6fd',
                       color: '#0284c7',
                       fontSize: '0.75rem',
                       fontWeight: 700,
                       cursor: 'pointer',
-                      transition: 'all 0.2s'
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      whiteSpace: 'nowrap',
+                      transition: 'all 0.15s ease'
                     }}
                   >
-                    Continue →
+                    <span>Continue</span>
+                    <span style={{ fontSize: '0.85rem', lineHeight: 1 }}>→</span>
                   </button>
+
                   <button
                     type="button"
+                    aria-label="Remove saved account"
                     onClick={() => {
-                      localStorage.removeItem('mentara_saved_account');
+                      localStorage.removeItem("mentara_saved_account");
                       setSavedAccount(null);
                     }}
                     style={{
+                      width: '24px',
+                      height: '24px',
+                      borderRadius: '50%',
                       background: 'transparent',
                       border: 'none',
                       color: '#94a3b8',
                       cursor: 'pointer',
-                      padding: '4px',
                       display: 'flex',
                       alignItems: 'center',
-                      borderRadius: '6px',
-                      transition: 'color 0.2s'
+                      justifyContent: 'center',
+                      fontSize: '0.75rem',
+                      transition: 'all 0.15s ease'
                     }}
-                    title="Dismiss saved account"
-                    aria-label="Dismiss saved account"
                   >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    ✕
                   </button>
                 </div>
               </div>
