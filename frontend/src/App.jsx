@@ -67,19 +67,20 @@ function PageLoader() {
       alignItems: 'center',
       justifyContent: 'center',
       flexDirection: 'column',
-      background: '#020617',
-      fontFamily: "'Inter', sans-serif",
+      background: 'linear-gradient(135deg, #edf6fd 0%, #cce7f9 32%, #b5ddf7 68%, #9dd4f4 100%)',
+      fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif",
       position: 'relative',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      color: '#072740',
     }}>
       {/* Ambient glow */}
       <div style={{
         position: 'absolute',
-        width: '420px',
-        height: '420px',
+        width: '480px',
+        height: '480px',
         borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(124,58,237,0.2) 0%, rgba(0,212,255,0.06) 50%, transparent 70%)',
-        filter: 'blur(70px)',
+        background: 'radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(181,221,247,0.3) 50%, transparent 70%)',
+        filter: 'blur(60px)',
         pointerEvents: 'none',
         top: '50%',
         left: '50%',
@@ -109,16 +110,16 @@ function PageLoader() {
             inset: '-6px',
             borderRadius: '50%',
             border: '2px solid transparent',
-            borderTopColor: '#00D4FF',
-            borderRightColor: '#7C3AED',
-            borderBottomColor: 'rgba(124,58,237,0.2)',
+            borderTopColor: '#0284c7',
+            borderRightColor: '#7c3aed',
+            borderBottomColor: 'rgba(2,132,199,0.2)',
             animation: 'mentara-spin 1.2s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite',
           }} />
           <div style={{
             position: 'absolute',
             inset: '-14px',
             borderRadius: '50%',
-            border: '1px solid rgba(0, 212, 255, 0.15)',
+            border: '1px solid rgba(2, 132, 199, 0.2)',
             animation: 'mentara-pulse 2s ease-in-out infinite',
           }} />
           <img
@@ -128,7 +129,7 @@ function PageLoader() {
               width: '54px',
               height: '54px',
               objectFit: 'contain',
-              filter: 'drop-shadow(0 0 20px rgba(124,58,237,0.6))',
+              filter: 'drop-shadow(0 4px 16px rgba(2, 132, 199, 0.25))',
             }}
           />
         </div>
@@ -136,30 +137,28 @@ function PageLoader() {
         {/* Text & Status */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem' }}>
           <span style={{
-            fontFamily: "'Space Grotesk', 'Outfit', sans-serif",
-            fontSize: '1.2rem',
-            fontWeight: 700,
+            fontFamily: "'Outfit', 'Space Grotesk', sans-serif",
+            fontSize: '1.35rem',
+            fontWeight: 800,
             letterSpacing: '-0.02em',
-            background: 'linear-gradient(135deg, #F5F0E8 0%, #C4B5FD 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
+            color: '#072740',
           }}>
             Mentara Learning
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
             <span style={{
-              width: '6px',
-              height: '6px',
+              width: '7px',
+              height: '7px',
               borderRadius: '50%',
-              background: '#00D4FF',
-              boxShadow: '0 0 8px #00D4FF',
+              background: '#0284c7',
+              boxShadow: '0 0 8px #0284c7',
               animation: 'mentara-pulse 1.4s ease-in-out infinite',
             }} />
             <span style={{
-              fontSize: '0.75rem',
-              fontWeight: 500,
-              color: 'rgba(245, 240, 232, 0.55)',
-              letterSpacing: '0.04em',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              color: '#1e4f6d',
+              letterSpacing: '0.02em',
             }}>
               Loading interactive lab...
             </span>
@@ -169,8 +168,8 @@ function PageLoader() {
         {/* Shimmer loading bar */}
         <div style={{
           width: '140px',
-          height: '3px',
-          background: 'rgba(255, 255, 255, 0.08)',
+          height: '3.5px',
+          background: 'rgba(2, 132, 199, 0.15)',
           borderRadius: '999px',
           overflow: 'hidden',
           position: 'relative',
@@ -180,7 +179,7 @@ function PageLoader() {
             position: 'absolute',
             height: '100%',
             width: '45%',
-            background: 'linear-gradient(90deg, #7C3AED, #00D4FF)',
+            background: 'linear-gradient(90deg, #7c3aed, #0284c7)',
             borderRadius: '999px',
             animation: 'mentara-bar 1.5s ease-in-out infinite',
           }} />
@@ -189,7 +188,7 @@ function PageLoader() {
 
       <style>{`
         @keyframes mentara-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes mentara-pulse { 0%, 100% { opacity: 0.3; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.15); } }
+        @keyframes mentara-pulse { 0%, 100% { opacity: 0.4; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.1); } }
         @keyframes mentara-bar {
           0% { left: -45%; }
           50% { left: 55%; width: 55%; }
