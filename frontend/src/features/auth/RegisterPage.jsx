@@ -626,13 +626,11 @@ export default function RegisterPage() {
         {/* RIGHT — Light Theme Auth Form */}
         <main className="auth-form-side">
           <div className="auth-form-box">
-            {/* Mobile-only logo */}
+            {/* Mobile-only brand logo with live color effect */}
             <div className="md-hidden">
               <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-                <img src="/mentara-new.png" alt="Mentara Learning Logo" className="h-9 w-9 object-contain" />
-                <span style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.45rem', fontWeight: 800, color: '#0f172a' }}>
-                  Mentara
-                </span>
+                <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-9 w-9 object-contain" />
+                <span className="panel-logo-text">Mentara Labs</span>
               </Link>
             </div>
 

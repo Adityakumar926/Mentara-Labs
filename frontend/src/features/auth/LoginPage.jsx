@@ -682,10 +682,12 @@ export default function LoginPage() {
         {/* RIGHT — Form in Clean Light Theme */}
         <main className="auth-form-side">
           <div className="auth-form-box">
-            {/* Mobile-only logo */}
-            <div className="md-hidden" style={{ gap: '12px' }}>
-              <img src="/mentara-new.png" alt="Mentara Learning Logo" className="h-10 w-10 object-contain" />
-              <span className="panel-logo-text">Mentara Learning</span>
+            {/* Mobile-only brand logo with live color effect */}
+            <div className="md-hidden">
+              <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
+                <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-9 w-9 object-contain" />
+                <span className="panel-logo-text">Mentara Labs</span>
+              </Link>
             </div>
 
             <div className="form-eyebrow">Welcome back</div>
