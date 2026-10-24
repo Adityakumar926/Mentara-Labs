@@ -115,12 +115,14 @@ export default function RegisterPage() {
 
         /* ---------------- LEFT PANEL (Sky Blue Brand Stage) ---------------- */
         .auth-panel {
-          position: relative;
+          position: sticky;
+          top: 0;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
-          padding: 2.75rem 3.25rem;
-          min-height: 100vh;
+          padding: 2.25rem 3rem;
+          height: 100vh;
+          min-height: 540px;
           box-sizing: border-box;
           overflow: hidden;
           background: linear-gradient(135deg, #edf6fd 0%, #cce7f9 32%, #b5ddf7 68%, #9dd4f4 100%);
@@ -221,8 +223,8 @@ export default function RegisterPage() {
         .panel-3d-stage {
           position: relative;
           z-index: 5;
-          flex: 1;
-          min-height: 400px;
+          flex: 1 1 0%;
+          min-height: 260px;
           width: 100%;
           display: flex;
           align-items: center;
@@ -541,6 +543,18 @@ export default function RegisterPage() {
 
         .md-hidden {
           display: none;
+        }
+
+        @media (max-height: 820px) {
+          .auth-panel {
+            padding: 1.5rem 2.25rem;
+          }
+          .auth-form-side {
+            padding: 1.75rem 2rem;
+          }
+          .panel-footer-content {
+            gap: 0.75rem;
+          }
         }
 
         @media (max-width: 960px) {

@@ -21,26 +21,29 @@ export default function Auth3DSurfer() {
     // 1. Scene setup
     scene = new THREE.Scene();
 
-    // Helper function: dynamically fit camera so model is as large as possible without cutting off
+    // Track measured model bounds (defaults match cartoon_surfer.glb until loaded)
+    const modelBounds = {
+      halfHeight: 0.5,
+      maxRadius: 0.67,
+    };
+
+    // Helper function: dynamically fit camera so model is as large as possible without cutting off on any aspect ratio
     const fitCamera = (w, h) => {
-      if (!camera || !renderer) return;
+      if (!camera || !renderer || w <= 0 || h <= 0) return;
       const aspect = w / h;
       camera.aspect = aspect;
 
-      // Model measurements:
-      // Height: ~0.98, Max horizontal rotating diameter: ~1.34
-      const modelHeight = 1.0;
-      const modelDiameter = 1.34;
-      const safetyPadding = 1.14; // Clean margin so outstretched hand and surfboard never clip
-
+      const safetyPadding = 1.1; // Clean breathing room around top/bottom/sides
       const fovRad = (camera.fov * Math.PI) / 180;
       const halfFovTan = Math.tan(fovRad / 2);
 
-      const distV = (modelHeight * safetyPadding) / (2 * halfFovTan);
-      const distH = (modelDiameter * safetyPadding) / (2 * halfFovTan * aspect);
+      // Account for front-most 3D depth (+Z radius of the circular island base)
+      // so perspective foreshortening never clips the bottom of the base on wide/short screens
+      const distV = modelBounds.maxRadius + (modelBounds.halfHeight * safetyPadding) / halfFovTan;
+      const distH = modelBounds.maxRadius + (modelBounds.maxRadius * safetyPadding) / (halfFovTan * aspect);
       const dist = Math.max(distV, distH);
 
-      camera.position.set(0, 0.02, dist);
+      camera.position.set(0, 0, dist);
       camera.lookAt(0, 0, 0);
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
@@ -89,9 +92,13 @@ export default function Auth3DSurfer() {
     const handleModelSuccess = (gltf) => {
       const model = gltf.scene;
 
-      // Auto-center model at origin (0, 0, 0)
+      // Auto-center model at origin (0, 0, 0) and record exact bounds
       const box = new THREE.Box3().setFromObject(model);
       const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+
+      modelBounds.halfHeight = Math.max(size.y / 2, 0.45);
+      modelBounds.maxRadius = Math.max(Math.hypot(size.x / 2, size.z / 2), 0.6);
 
       model.position.x = -center.x;
       model.position.y = -center.y;
@@ -232,7 +239,7 @@ export default function Auth3DSurfer() {
   }, []);
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center">
+    <div className="absolute inset-0 w-full h-full flex items-center justify-center">
       {/* 3D WebGL Canvas */}
       <div 
         ref={containerRef} 
