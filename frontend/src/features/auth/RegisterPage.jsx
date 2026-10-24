@@ -141,11 +141,7 @@ export default function RegisterPage() {
         .auth-panel-mesh {
           position: absolute;
           inset: 0;
-          background-image: 
-            radial-gradient(circle at 10% 90%, rgba(255,255,255,0.3) 0%, transparent 40%),
-            linear-gradient(to right, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
-          background-size: 100% 100%, 36px 36px, 36px 36px;
+          background-image: radial-gradient(circle at 10% 90%, rgba(255,255,255,0.35) 0%, transparent 45%);
           opacity: 0.6;
           pointer-events: none;
           z-index: 1;
@@ -296,39 +292,19 @@ export default function RegisterPage() {
           font-weight: 500;
         }
 
-/* ---------------- RIGHT FORM SIDE (Light Theme) ---------------- */
+/* ---------------- RIGHT FORM SIDE (Smooth Light Blue + Warm Cream Gradient) ---------------- */
         .auth-form-side {
           position: relative;
           display: flex;
           align-items: center;
           justify-content: center;
           padding: 3rem 2.5rem;
-          background: #FAF9F6;
+          background:
+            radial-gradient(ellipse 85% 60% at 92% 10%, rgba(154, 215, 250, 0.5) 0%, transparent 65%),
+            radial-gradient(ellipse 85% 65% at 10% 92%, rgba(249, 232, 194, 0.62) 0%, transparent 65%),
+            linear-gradient(145deg, #dff0fc 0%, #ebf6fe 35%, #fdf8ec 70%, #f8efda 100%);
+          overflow: hidden;
           overflow-y: auto;
-        }
-
-        .auth-form-side::before {
-          content: '';
-          position: absolute;
-          top: -10%;
-          right: -10%;
-          width: 480px;
-          height: 480px;
-          background: radial-gradient(circle, rgba(120, 222, 251, 0.18) 0%, transparent 70%);
-          border-radius: 50%;
-          pointer-events: none;
-        }
-
-        .auth-form-side::after {
-          content: '';
-          position: absolute;
-          bottom: -10%;
-          left: -10%;
-          width: 420px;
-          height: 420px;
-          background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
-          border-radius: 50%;
-          pointer-events: none;
         }
 
         .auth-form-box {
@@ -359,7 +335,7 @@ export default function RegisterPage() {
 
         .form-sub {
           font-size: 0.92rem;
-          color: #64748b;
+          color: #475569;
           margin: 0 0 1.75rem 0;
           line-height: 1.45;
         }
@@ -382,22 +358,24 @@ export default function RegisterPage() {
           gap: 0.5rem;
           text-align: center;
           transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-          background: #ffffff;
-          border: 2px solid #e2e8f0;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+          background: rgba(255, 255, 255, 0.82);
+          backdrop-filter: blur(12px);
+          border: 1.5px solid rgba(255, 255, 255, 0.95);
+          box-shadow: 0 6px 20px rgba(12, 74, 110, 0.05);
           user-select: none;
         }
 
         .role-card:hover {
-          border-color: #cbd5e1;
+          border-color: #bae6fd;
+          background: rgba(255, 255, 255, 0.94);
           transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+          box-shadow: 0 10px 24px rgba(12, 74, 110, 0.09);
         }
 
         .role-card.selected-student {
           border-color: #0284c7;
-          background: rgba(120, 222, 251, 0.12);
-          box-shadow: 0 8px 24px rgba(2, 132, 199, 0.14);
+          background: rgba(224, 242, 254, 0.78);
+          box-shadow: 0 8px 24px rgba(2, 132, 199, 0.16);
           transform: translateY(-2px);
         }
 
@@ -637,14 +615,14 @@ export default function RegisterPage() {
 
         </aside>
 
-        {/* RIGHT — Light Theme Auth Form */}
+        {/* RIGHT — Smooth Light Blue + Warm Cream Gradient Auth Form */}
         <main className="auth-form-side">
           <div className="auth-form-box">
             {/* Mobile-only brand logo with live color effect */}
             <div className="md-hidden">
               <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-                <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-9 w-9 object-contain" />
-                <span className="panel-logo-text">Mentara Labs</span>
+                <img src="/mentara-new.png" alt="Mentara Learning Logo" className="h-9 w-9 object-contain" />
+                <span className="panel-logo-text">Mentara Learning</span>
               </Link>
             </div>
 

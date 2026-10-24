@@ -235,11 +235,7 @@ export default function LoginPage() {
         .auth-panel-mesh {
           position: absolute;
           inset: 0;
-          background-image: 
-            radial-gradient(circle at 10% 90%, rgba(255,255,255,0.3) 0%, transparent 40%),
-            linear-gradient(to right, rgba(255, 255, 255, 0.12) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
-          background-size: 100% 100%, 36px 36px, 36px 36px;
+          background-image: radial-gradient(circle at 10% 90%, rgba(255,255,255,0.35) 0%, transparent 45%);
           opacity: 0.6;
           pointer-events: none;
           z-index: 1;
@@ -363,39 +359,19 @@ export default function LoginPage() {
           font-weight: 500;
         }
 
-        /* ---------------- RIGHT FORM SIDE (Clean Light Theme) ---------------- */
+        /* ---------------- RIGHT FORM SIDE (Smooth Light Blue + Warm Cream Gradient) ---------------- */
         .auth-form-side {
           position: relative;
           display: flex;
           align-items: center;
           justify-content: center;
           padding: 3rem 2.5rem;
-          background: #FAF9F6;
+          background:
+            radial-gradient(ellipse 85% 60% at 92% 10%, rgba(154, 215, 250, 0.5) 0%, transparent 65%),
+            radial-gradient(ellipse 85% 65% at 10% 92%, rgba(249, 232, 194, 0.62) 0%, transparent 65%),
+            linear-gradient(145deg, #dff0fc 0%, #ebf6fe 35%, #fdf8ec 70%, #f8efda 100%);
+          overflow: hidden;
           overflow-y: auto;
-        }
-
-        .auth-form-side::before {
-          content: '';
-          position: absolute;
-          top: -10%;
-          right: -10%;
-          width: 480px;
-          height: 480px;
-          background: radial-gradient(circle, rgba(120, 222, 251, 0.18) 0%, transparent 70%);
-          border-radius: 50%;
-          pointer-events: none;
-        }
-
-        .auth-form-side::after {
-          content: '';
-          position: absolute;
-          bottom: -10%;
-          left: -10%;
-          width: 420px;
-          height: 420px;
-          background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
-          border-radius: 50%;
-          pointer-events: none;
         }
 
         .auth-form-box {
@@ -426,7 +402,7 @@ export default function LoginPage() {
 
         .form-sub {
           font-size: 0.92rem;
-          color: #64748b;
+          color: #475569;
           margin: 0 0 1.75rem 0;
           line-height: 1.45;
         }
@@ -693,7 +669,7 @@ export default function LoginPage() {
 
         </aside>
 
-        {/* RIGHT — Form in Clean Light Theme */}
+        {/* RIGHT — Smooth Light Blue + Warm Cream Gradient Auth Form */}
         <main className="auth-form-side">
           <div className="auth-form-box">
             {/* Mobile-only brand logo with live color effect */}
