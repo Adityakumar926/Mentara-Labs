@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { FileText, Clock, ChevronRight, Radio, PlayCircle, AlertCircle, CalendarClock, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageWrapper, Badge, Skeleton, EmptyState } from '@/components/ui';
-import { useApi } from '@/hooks/useApi';
+import { useApi, useProgressiveItems } from '@/hooks/useApi';
 import { studentApi } from '@/api/services';
 import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
@@ -112,6 +112,8 @@ const CSS = `
     cursor: pointer;
     font-family: 'Inter', sans-serif;
     position: relative;
+    isolation: isolate;
+    z-index: 1;
     transition: color 0.2s;
     white-space: nowrap;
   }
@@ -122,7 +124,7 @@ const CSS = `
     background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(124, 58, 237, 0.15));
     border: 1px solid rgba(34, 211, 238, 0.3);
     box-shadow: 0 0 24px rgba(34,211,238,0.25);
-    z-index: -1;
+    z-index: 0;
   }
 
   /* ── EXAM GRID ── */
@@ -396,6 +398,46 @@ const CSS = `
   }
 
   /* ── Light Mode Overrides ── */
+  .light .exams-header {
+    background: linear-gradient(135deg, #F0F9FF 0%, #EEF2FF 60%, #FFFFFF 100%);
+    border-color: #E2E8F0;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+  }
+  .light .exams-eyebrow {
+    background: #E0F2FE;
+    border-color: #BAE6FD;
+    color: #0284C7;
+  }
+  .light .exams-page-title {
+    background: none !important;
+    -webkit-text-fill-color: #0F172A !important;
+    color: #0F172A !important;
+  }
+  .light .exams-page-sub {
+    color: #475569 !important;
+  }
+  .light .exams-eval-banner {
+    background: linear-gradient(135deg, #FFFBEB 0%, #F5F3FF 100%) !important;
+    border: 1.5px solid #FDE68A !important;
+    box-shadow: 0 2px 10px rgba(245, 158, 11, 0.06) !important;
+  }
+  .light .exams-eval-banner-icon {
+    background: #FEF3C7 !important;
+    border: 1px solid #FDE68A !important;
+  }
+  .light .exams-eval-banner-text {
+    color: #1E293B !important;
+  }
+  .light .exams-eval-banner-strong {
+    color: #B45309 !important;
+  }
+  .light .exams-tab-strip {
+    background: #F1F5F9;
+    border-color: #E2E8F0;
+  }
+  .light .exams-tab-btn {
+    color: #475569;
+  }
   .light .exams-tab-btn.active {
     color: #FFFFFF !important;
   }
@@ -407,9 +449,10 @@ const CSS = `
   .light .exams-filters-row {
     background: #FFFFFF;
     border-color: #E2E8F0;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
   }
   .light .exams-filter-select {
-    background: #F1F5F9;
+    background: #F8FAFC;
     border-color: #CBD5E1;
     color: #0F172A;
   }
@@ -431,24 +474,97 @@ const CSS = `
     color: #FFFFFF !important;
     background: linear-gradient(135deg, #0891B2 0%, #4F46E5 100%) !important;
   }
+  .light .alert-banner-live {
+    background: #F0F9FF !important;
+    border: 1px solid #BAE6FD !important;
+  }
+  .light .alert-banner-live p {
+    color: #0369A1 !important;
+    font-weight: 500;
+  }
+  .light .alert-banner-live svg {
+    color: #0284C7 !important;
+  }
+  .light .alert-banner-live .alert-banner-strong {
+    color: #0C4A6E !important;
+    font-weight: 800;
+  }
+  .light .alert-banner-scheduled {
+    background: #F5F3FF !important;
+    border: 1px solid #DDD6FE !important;
+  }
+  .light .alert-banner-scheduled p {
+    color: #5B21B6 !important;
+    font-weight: 500;
+  }
+  .light .alert-banner-scheduled svg {
+    color: #6D28D9 !important;
+  }
   .light .exam-card {
-    background: #F3F4FD;
-    border-color: #D2D6FF;
+    background: #FFFFFF;
+    border-color: #E2E8F0;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
   }
   .light .exam-card:hover {
-    border-color: #B2B9FF;
-    background: #EBEFFF;
-    box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.08);
+    border-color: #C7D2FE;
+    background: #F8FAFF;
+    box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.1);
   }
   .light .exam-card-title {
     color: #0F172A;
   }
-  .light .exam-card-foot {
-    border-top: 1px solid #D2D6FF !important;
+  .light .exam-card-meta {
+    color: #4F46E5;
   }
-  .light .exams-header {
-    background: linear-gradient(135deg, rgba(34, 211, 238, 0.12) 0%, rgba(124, 58, 237, 0.18) 60%, rgba(248, 250, 252, 0.8) 100%);
-    border-color: #D2D6FF;
+  .light .exam-card-foot {
+    border-top: 1px solid #E2E8F0 !important;
+    color: #475569;
+  }
+  .light .ep-status-live {
+    background: #DCFCE7 !important;
+    border-color: #86EFAC !important;
+    color: #15803D !important;
+    box-shadow: none !important;
+  }
+  .light .ep-status-scheduled {
+    background: #E0F2FE !important;
+    border-color: #BAE6FD !important;
+    color: #0369A1 !important;
+  }
+  .light .exam-attempt-btn {
+    background: #EFF6FF;
+    border-color: #BFDBFE;
+    color: #1D4ED8;
+  }
+  .light .exam-attempt-btn:hover {
+    background: #DBEAFE;
+    border-color: #60A5FA;
+    box-shadow: none;
+  }
+  .light .exam-show-ans-btn {
+    background: #F0F9FF !important;
+    border-color: #BAE6FD !important;
+    color: #0369A1 !important;
+  }
+  .light .exam-retake-btn {
+    background: #F5F3FF !important;
+    border-color: #DDD6FE !important;
+    color: #5B21B6 !important;
+  }
+  .light .history-stat-card {
+    background: #FFFFFF;
+    border-color: #E2E8F0;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  }
+  .light .exams-empty {
+    background: #FFFFFF;
+    border-color: #E2E8F0;
+  }
+  .light .exams-empty-title {
+    color: #0F172A;
+  }
+  .light .exams-empty-sub {
+    color: #64748B;
   }
 `;
 
@@ -485,11 +601,11 @@ function ExamsEmpty({ icon: Icon, title, description }) {
   );
 }
 
-function AlertBanner({ color, bg, border, icon: Icon, children }) {
+function AlertBanner({ color, bg, border, icon: Icon, variant = 'live', children }) {
   return (
-    <div className="alert-banner" style={{ background: bg, border: `1px solid ${border}` }}>
-      <Icon size={14} color={color} style={{ flexShrink: 0, marginTop: 2 }} />
-      <p style={{ color, lineHeight: 1.65 }}>{children}</p>
+    <div className={clsx('alert-banner', `alert-banner-${variant}`)} style={{ background: bg, border: `1px solid ${border}` }}>
+      <Icon size={15} color={color} style={{ flexShrink: 0, marginTop: 2 }} />
+      <p style={{ color, lineHeight: 1.65, margin: 0 }}>{children}</p>
     </div>
   );
 }
@@ -536,6 +652,7 @@ function LiveExamCard({ exam, idx }) {
             <Link
               to={`/exams/${exam.id}/result`}
               onClick={(e) => e.stopPropagation()}
+              className="exam-show-ans-btn"
               style={{
                 padding: '0.3rem 0.65rem',
                 borderRadius: '8px',
@@ -552,6 +669,7 @@ function LiveExamCard({ exam, idx }) {
             <Link
               to={`/exams/${exam.id}/take?retake=true`}
               onClick={(e) => e.stopPropagation()}
+              className="exam-retake-btn"
               style={{
                 padding: '0.3rem 0.65rem',
                 borderRadius: '8px',
@@ -584,9 +702,9 @@ function LiveExamCard({ exam, idx }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: idx * 0.07, duration: 0.25 }}
+      initial={{ opacity: 0, y: 12, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.22, ease: 'easeOut' }}
     >
       {locked ? (
         <div onClick={handleClick} style={{ cursor: 'pointer' }}>{inner}</div>
@@ -597,7 +715,7 @@ function LiveExamCard({ exam, idx }) {
   );
 }
 
-function ScheduledExamCard({ exam, idx }) {
+function ScheduledExamCard({ exam }) {
   const { user } = useAuthStore();
   const isTeacher = user?.role === 'teacher' || user?.role === 'admin';
   const locked = exam.is_premium && !user?.is_premium && !isTeacher;
@@ -634,9 +752,9 @@ function ScheduledExamCard({ exam, idx }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: idx * 0.07, duration: 0.25 }}
+      initial={{ opacity: 0, y: 12, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.22, ease: 'easeOut' }}
     >
       {isTeacher ? (
         <Link to={`/exams/${exam.id}/take`} style={{ textDecoration: 'none' }}>{cardContent}</Link>
@@ -648,6 +766,22 @@ function ScheduledExamCard({ exam, idx }) {
 }
 
 function LiveTab({ exams, loading, isFiltered }) {
+  const {
+    visibleItems: visibleExams,
+    hasMore,
+    isStreaming,
+    sentinelRef,
+    loadMore,
+    totalCount,
+    visibleCount,
+  } = useProgressiveItems(exams, {
+    initialCount: 1,
+    step: 1,
+    intervalMs: 55,
+    batchSize: 18,
+    resetKey: `live-${exams.length}`,
+  });
+
   if (loading) return <ExamSkeleton />;
   if (!exams.length) {
     if (isFiltered) {
@@ -657,18 +791,53 @@ function LiveTab({ exams, loading, isFiltered }) {
   }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <AlertBanner color="var(--cyan)" bg="rgba(0, 212, 255, 0.06)" border="rgba(0, 212, 255, 0.25)" icon={Clock}>
-        <strong style={{ color: '#ffffff', marginRight: '6px' }}>Assessment Guidelines:</strong>
+      <AlertBanner variant="live" color="var(--cyan)" bg="rgba(0, 212, 255, 0.06)" border="rgba(0, 212, 255, 0.25)" icon={Clock}>
+        <strong className="alert-banner-strong" style={{ color: '#ffffff', marginRight: '6px' }}>Assessment Guidelines:</strong>
         Live exams feature real-time timer tracking. Please ensure a stable internet connection before starting your test attempt.
       </AlertBanner>
       <div className="exams-grid">
-        {exams.map((exam, idx) => <LiveExamCard key={exam.id} exam={exam} idx={idx} />)}
+        {visibleExams.map((exam, idx) => <LiveExamCard key={exam.id} exam={exam} idx={idx} />)}
+        {isStreaming && (
+          <div className="exam-card" style={{ minHeight: 145, opacity: 0.55, pointerEvents: 'none' }}>
+            <div className="exam-skel-line" style={{ width: '65%', height: 14 }} />
+            <div className="exam-skel-line" style={{ width: '40%', height: 11, marginTop: 10 }} />
+            <div className="exam-skel-line" style={{ width: '100%', height: 26, marginTop: 'auto' }} />
+          </div>
+        )}
       </div>
+      {hasMore && (
+        <div ref={sentinelRef} style={{ display: 'flex', justifyContent: 'center', padding: '1rem 0' }}>
+          <button
+            type="button"
+            onClick={loadMore}
+            className="attempt-filter-btn"
+            style={{ fontSize: '0.75rem' }}
+          >
+            Showing {visibleCount} of {totalCount} • Load more
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
 function ScheduledTab({ exams, loading, isFiltered }) {
+  const {
+    visibleItems: visibleExams,
+    hasMore,
+    isStreaming,
+    sentinelRef,
+    loadMore,
+    totalCount,
+    visibleCount,
+  } = useProgressiveItems(exams, {
+    initialCount: 1,
+    step: 1,
+    intervalMs: 55,
+    batchSize: 18,
+    resetKey: `scheduled-${exams.length}`,
+  });
+
   if (loading) return <ExamSkeleton />;
   if (!exams.length) {
     if (isFiltered) {
@@ -678,12 +847,31 @@ function ScheduledTab({ exams, loading, isFiltered }) {
   }
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <AlertBanner color="var(--violet-l)" bg="rgba(124,58,237,0.06)" border="rgba(124,58,237,0.2)" icon={AlertCircle}>
+      <AlertBanner variant="scheduled" color="var(--violet-l)" bg="rgba(124,58,237,0.06)" border="rgba(124,58,237,0.2)" icon={AlertCircle}>
         These exams are scheduled by your batch admins. They'll go live automatically at the scheduled time.
       </AlertBanner>
       <div className="exams-grid">
-        {exams.map((exam, idx) => <ScheduledExamCard key={exam.id} exam={exam} idx={idx} />)}
+        {visibleExams.map((exam, idx) => <ScheduledExamCard key={exam.id} exam={exam} idx={idx} />)}
+        {isStreaming && (
+          <div className="exam-card" style={{ minHeight: 145, opacity: 0.55, pointerEvents: 'none' }}>
+            <div className="exam-skel-line" style={{ width: '65%', height: 14 }} />
+            <div className="exam-skel-line" style={{ width: '40%', height: 11, marginTop: 10 }} />
+            <div className="exam-skel-line" style={{ width: '100%', height: 26, marginTop: 'auto' }} />
+          </div>
+        )}
       </div>
+      {hasMore && (
+        <div ref={sentinelRef} style={{ display: 'flex', justifyContent: 'center', padding: '1rem 0' }}>
+          <button
+            type="button"
+            onClick={loadMore}
+            className="attempt-filter-btn"
+            style={{ fontSize: '0.75rem' }}
+          >
+            Showing {visibleCount} of {totalCount} • Load more
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -710,6 +898,22 @@ function AnimatedNumber({ value }) {
 
 function HistoryTab({ history, loading, isFiltered }) {
   const historyList = Array.isArray(history) ? history : (history?.data ?? []);
+  const {
+    visibleItems: visibleHistory,
+    hasMore,
+    isStreaming,
+    sentinelRef,
+    loadMore,
+    totalCount,
+    visibleCount,
+  } = useProgressiveItems(historyList, {
+    initialCount: 1,
+    step: 1,
+    intervalMs: 55,
+    batchSize: 18,
+    resetKey: `history-${historyList.length}`,
+  });
+
   const passed   = historyList.filter((r) => r.passed).length;
   const avgScore = historyList.length
     ? (historyList.reduce((a, r) => a + parseFloat(r.percentage || 0), 0) / historyList.length).toFixed(1)
@@ -747,91 +951,114 @@ function HistoryTab({ history, loading, isFiltered }) {
           <ExamsEmpty icon={FileText} title="No exams taken yet" description="When your batch has live exams, they'll appear here after you attempt them." />
         )
       ) : (
-        <div className="exams-grid">
-          {historyList.map((r, idx) => {
-            const pct       = r.percentage != null ? Math.round(r.percentage) : null;
-            const pctColor  = r.is_structure_only ? 'var(--violet-l)' : r.passed ? 'var(--green)' : 'var(--red)';
-            const pctBg     = r.is_structure_only ? 'rgba(124,58,237,0.12)' : r.passed ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)';
-            const scoreText = r.is_structure_only ? 'Prc' : pct != null ? `${pct}%` : '—';
-            return (
-              <motion.div
-                key={r.submission_id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.05 }}
-              >
-                <Link to={`/exams/${r.exam_id}/result`} style={{ textDecoration: 'none' }}>
-                  <div className="exam-card">
-                    <div className="exam-card-strip exam-strip-history" />
-                    <div className="exam-card-glow" />
+        <>
+          <div className="exams-grid">
+            {visibleHistory.map((r) => {
+              const pct       = r.percentage != null ? Math.round(r.percentage) : null;
+              const pctColor  = r.is_structure_only ? 'var(--violet-l)' : r.passed ? 'var(--green)' : 'var(--red)';
+              const pctBg     = r.is_structure_only ? 'rgba(124,58,237,0.12)' : r.passed ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)';
+              const scoreText = r.is_structure_only ? 'Prc' : pct != null ? `${pct}%` : '—';
+              return (
+                <motion.div
+                  key={r.submission_id}
+                  initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.22, ease: 'easeOut' }}
+                >
+                  <Link to={`/exams/${r.exam_id}/result`} style={{ textDecoration: 'none' }}>
+                    <div className="exam-card">
+                      <div className="exam-card-strip exam-strip-history" />
+                      <div className="exam-card-glow" />
 
-                    <div className="exam-card-head">
-                      <p className="exam-card-title">{r.title}</p>
-                      <div className="score-circle" style={{ background: pctBg, color: pctColor, border: `1px solid ${pctColor}` }}>
-                        {scoreText}
+                      <div className="exam-card-head">
+                        <p className="exam-card-title">{r.title}</p>
+                        <div className="score-circle" style={{ background: pctBg, color: pctColor, border: `1px solid ${pctColor}` }}>
+                          {scoreText}
+                        </div>
                       </div>
-                    </div>
 
-                    {(r.subject_name || r.topic_name) && (
-                      <div className="exam-card-meta">
-                        <span>
-                          {r.subject_name}
-                          {r.topic_name && ` • ${r.topic_name}`}
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="exam-card-foot" style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
-                      <span><Clock size={11} style={{ color: 'var(--cyan)' }} />{fmt(r.submitted_at)}</span>
-                      {r.is_structure_only ? (
-                        <span>Practice</span>
-                      ) : (
-                        <span>{r.score}/{r.total_marks ?? '-'} marks</span>
+                      {(r.subject_name || r.topic_name) && (
+                        <div className="exam-card-meta">
+                          <span>
+                            {r.subject_name}
+                            {r.topic_name && ` • ${r.topic_name}`}
+                          </span>
+                        </div>
                       )}
-                      {r.rank && !r.is_structure_only && <span style={{ color: 'var(--amber)' }}>Rank #{r.rank}</span>}
-                      
-                      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                        <Link 
-                          to={`/exams/${r.exam_id}/result`} 
-                          onClick={(e) => e.stopPropagation()}
-                          style={{
-                            padding: '0.3rem 0.65rem',
-                            borderRadius: '8px',
-                            background: 'rgba(34, 211, 238, 0.1)',
-                            border: '1px solid rgba(34, 211, 238, 0.3)',
-                            color: '#22d3ee',
-                            fontSize: '0.68rem',
-                            fontWeight: 700,
-                            textDecoration: 'none'
-                          }}
-                        >
-                          📑 Show Answer
-                        </Link>
 
-                        <Link 
-                          to={`/exams/${r.exam_id}/take?retake=true`} 
-                          onClick={(e) => e.stopPropagation()}
-                          style={{
-                            padding: '0.3rem 0.65rem',
-                            borderRadius: '8px',
-                            background: 'rgba(124, 58, 237, 0.15)',
-                            border: '1px solid rgba(167, 139, 250, 0.3)',
-                            color: '#a78bfa',
-                            fontSize: '0.68rem',
-                            fontWeight: 700,
-                            textDecoration: 'none'
-                          }}
-                        >
-                          🔄 Appear Again
-                        </Link>
+                      <div className="exam-card-foot" style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
+                        <span><Clock size={11} style={{ color: 'var(--cyan)' }} />{fmt(r.submitted_at)}</span>
+                        {r.is_structure_only ? (
+                          <span>Practice</span>
+                        ) : (
+                          <span>{r.score}/{r.total_marks ?? '-'} marks</span>
+                        )}
+                        {r.rank && !r.is_structure_only && <span style={{ color: 'var(--amber)' }}>Rank #{r.rank}</span>}
+                        
+                        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                          <Link 
+                            to={`/exams/${r.exam_id}/result`} 
+                            onClick={(e) => e.stopPropagation()}
+                            className="exam-show-ans-btn"
+                            style={{
+                              padding: '0.3rem 0.65rem',
+                              borderRadius: '8px',
+                              background: 'rgba(34, 211, 238, 0.1)',
+                              border: '1px solid rgba(34, 211, 238, 0.3)',
+                              color: '#22d3ee',
+                              fontSize: '0.68rem',
+                              fontWeight: 700,
+                              textDecoration: 'none'
+                            }}
+                          >
+                            📑 Show Answer
+                          </Link>
+
+                          <Link 
+                            to={`/exams/${r.exam_id}/take?retake=true`} 
+                            onClick={(e) => e.stopPropagation()}
+                            className="exam-retake-btn"
+                            style={{
+                              padding: '0.3rem 0.65rem',
+                              borderRadius: '8px',
+                              background: 'rgba(124, 58, 237, 0.15)',
+                              border: '1px solid rgba(167, 139, 250, 0.3)',
+                              color: '#a78bfa',
+                              fontSize: '0.68rem',
+                              fontWeight: 700,
+                              textDecoration: 'none'
+                            }}
+                          >
+                            🔄 Appear Again
+                          </Link>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
-              </motion.div>
-            );
-          })}
-        </div>
+                  </Link>
+                </motion.div>
+              );
+            })}
+            {isStreaming && (
+              <div className="exam-card" style={{ minHeight: 145, opacity: 0.55, pointerEvents: 'none' }}>
+                <div className="exam-skel-line" style={{ width: '65%', height: 14 }} />
+                <div className="exam-skel-line" style={{ width: '40%', height: 11, marginTop: 10 }} />
+                <div className="exam-skel-line" style={{ width: '100%', height: 26, marginTop: 'auto' }} />
+              </div>
+            )}
+          </div>
+          {hasMore && (
+            <div ref={sentinelRef} style={{ display: 'flex', justifyContent: 'center', padding: '1rem 0' }}>
+              <button
+                type="button"
+                onClick={loadMore}
+                className="attempt-filter-btn"
+                style={{ fontSize: '0.75rem' }}
+              >
+                Showing {visibleCount} of {totalCount} • Load more
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
@@ -859,19 +1086,36 @@ export default function StudentExamsPage() {
   const { data: scheduledRes, loading: scheduledLoading } = useApi(studentApi.getScheduledExams);
   const { data: history,      loading: historyLoading   } = useApi(studentApi.getAllResults);
 
-  // Fetch subjects from the enrolled curriculum
-  const { data: curriculumSubjectsRes } = useApi(
-    () => curriculumId ? studentApi.getCurriculumSubjects(curriculumId) : Promise.resolve(null),
-    null,
-    [curriculumId]
-  );
-  const curriculumSubjects = Array.isArray(curriculumSubjectsRes) ? curriculumSubjectsRes : (curriculumSubjectsRes?.data ?? []);
+  // Reuse cached hierarchy from HierarchySidebar instead of firing N+1 subject topic calls
+  const { data: hierarchyRes } = useApi(studentApi.getHierarchy);
+  const hierarchyList = Array.isArray(hierarchyRes) ? hierarchyRes : (hierarchyRes?.data ?? []);
+
+  // Extract curriculum subjects & topics directly from cached hierarchy
+  const { curriculumSubjects, allTopics } = useMemo(() => {
+    const subjects = [];
+    const topics = [];
+    hierarchyList.forEach(curr => {
+      if (curriculumId && curr.id !== curriculumId) return;
+      (curr.classes || []).forEach(cls => {
+        (cls.subjects || []).forEach(sub => {
+          subjects.push({ id: sub.id, name: sub.name, class_id: cls.id });
+          (sub.topics || []).forEach(top => {
+            topics.push({ id: top.id, name: top.name, subject_id: sub.id, parent_topic_id: null });
+            (top.subtopics || []).forEach(subtop => {
+              topics.push({ id: subtop.id, name: subtop.name, subject_id: sub.id, parent_topic_id: top.id });
+            });
+          });
+        });
+      });
+    });
+    return { curriculumSubjects: subjects, allTopics: topics };
+  }, [hierarchyList, curriculumId]);
 
   const liveList      = Array.isArray(liveRes) ? liveRes : (liveRes?.data ?? []);
   const scheduledList = Array.isArray(scheduledRes) ? scheduledRes : (scheduledRes?.data ?? []);
   const historyList   = Array.isArray(history) ? history : (history?.data ?? []);
 
-  // Find selected subject's ID to fetch its topics
+  // Find selected subject's ID to filter its topics
   const selectedSubjectObj = useMemo(() => {
     if (selectedSubject === 'all') return null;
     const fromCurr = curriculumSubjects.find(s => s.name === selectedSubject);
@@ -882,39 +1126,10 @@ export default function StudentExamsPage() {
     return null;
   }, [selectedSubject, curriculumSubjects, liveList, scheduledList, historyList]);
 
-  // Fetch topics for the selected subject
-  const { data: subjectTopicsRes } = useApi(
-    () => selectedSubjectObj?.id ? studentApi.getSubjectTopics(selectedSubjectObj.id) : Promise.resolve(null),
-    null,
-    [selectedSubjectObj?.id]
-  );
-  const subjectTopics = Array.isArray(subjectTopicsRes) ? subjectTopicsRes : (subjectTopicsRes?.data ?? []);
-
-  // Fetch topics for all subjects in parallel when no subject is selected (for "All Subjects" option)
-  const curriculumSubjectsIds = curriculumSubjects.map(s => s.id).join(',');
-  const { data: allTopicsRes } = useApi(
-    async () => {
-      if (!curriculumSubjects || curriculumSubjects.length === 0) return [];
-      try {
-        const arrays = await Promise.all(
-          curriculumSubjects.map(s => 
-            studentApi.getSubjectTopics(s.id)
-              .then(res => {
-                const list = Array.isArray(res) ? res : (res?.data ?? []);
-                return Array.isArray(list) ? list : [];
-              })
-              .catch(() => [])
-          )
-        );
-        return arrays.flat();
-      } catch (e) {
-        return [];
-      }
-    },
-    null,
-    [curriculumSubjectsIds]
-  );
-  const allTopics = Array.isArray(allTopicsRes) ? allTopicsRes : [];
+  const subjectTopics = useMemo(() => {
+    if (!selectedSubjectObj?.id) return [];
+    return allTopics.filter(t => t.subject_id === selectedSubjectObj.id);
+  }, [allTopics, selectedSubjectObj]);
 
   // Get unique subjects
   const uniqueSubjects = useMemo(() => {
@@ -1053,6 +1268,7 @@ export default function StudentExamsPage() {
 
         {/* Evaluation Notice Banner */}
         <motion.div
+          className="exams-eval-banner"
           initial={{ opacity: 0, y: -6 }}
           animate={{ opacity: 1, y: 0 }}
           style={{
@@ -1067,21 +1283,24 @@ export default function StudentExamsPage() {
             boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
           }}
         >
-          <div style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '12px',
-            background: 'rgba(245, 158, 11, 0.2)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.25rem',
-            flexShrink: 0
-          }}>
+          <div
+            className="exams-eval-banner-icon"
+            style={{
+              width: '38px',
+              height: '38px',
+              borderRadius: '12px',
+              background: 'rgba(245, 158, 11, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.25rem',
+              flexShrink: 0
+            }}
+          >
             📝
           </div>
-          <div style={{ fontSize: '0.86rem', fontWeight: 600, color: 'var(--cream)', lineHeight: 1.5 }}>
-            <strong style={{ color: '#FBBF24', fontWeight: 800 }}>Note:</strong> No robots marking here! 🤖 Your answers go to your teacher, because reasoning matters just as much as the final answer.
+          <div className="exams-eval-banner-text" style={{ fontSize: '0.86rem', fontWeight: 600, color: 'var(--cream)', lineHeight: 1.5 }}>
+            <strong className="exams-eval-banner-strong" style={{ color: '#FBBF24', fontWeight: 800 }}>Note:</strong> No robots marking here! 🤖 Your answers go to your teacher, because reasoning matters just as much as the final answer.
           </div>
         </motion.div>
 

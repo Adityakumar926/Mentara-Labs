@@ -551,88 +551,87 @@ exports.getExploreContents = async (req, res) => {
       return res.json({ success: true, data: { subjects: [], contents: [], exams: [] } });
     }
     const isPremium = req.user.is_premium;
-
-    // 1. Get all subjects
-    const { rows: subjects } = await db.query(
-      `SELECT s.*, 
-              cl.name AS class_name,
-              cl.curriculum_id,
-              curr.name AS curriculum_name
-       FROM subjects s
-       JOIN classes cl ON cl.id = s.class_id
-       JOIN curriculums curr ON curr.id = cl.curriculum_id
-       WHERE ($2::boolean = true OR s.class_id = $1)
-       ORDER BY s.order_index`,
-      [req.user.class_id || null, isTeacher]
-    );
-
     const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
-    const { rows: contents } = await db.query(
-      `SELECT c.id,
-              c.title,
-              c.content_type,
-              c.order_index,
-              c.is_premium,
-              c.topic_id,
-              t.name AS topic_name,
-              s.id AS subject_id,
-              s.name AS subject_name,
-              s.class_id,
-              cl.curriculum_id,
-              CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.file_url          END AS file_url,
-              CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.mux_playback_id   END AS mux_playback_id,
-              CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.animation_id      END AS animation_id,
-              COALESCE(c.target_tab, a.target_tab, 'simulators') AS target_tab,
-              CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE a.html_content      END AS html_content,
-              up.completed AS is_completed
-       FROM content c
-       JOIN topics t ON t.id = c.topic_id
-       JOIN subjects s ON s.id = t.subject_id
-       JOIN classes cl ON cl.id = s.class_id
-       LEFT JOIN animations a ON a.id = c.animation_id
-       LEFT JOIN user_progress up ON up.content_id = c.id AND up.user_id = $3
-       WHERE ($5::boolean = true OR s.class_id = $1) AND c.destination IN ('shared', $4)
-       ORDER BY s.order_index, t.order_index, c.order_index`,
-      [req.user.class_id || null, isPremium, req.user.id, destination, isTeacher]
-    );
 
-    // 3. Get all live and scheduled exams
-    const { rows: exams } = await db.query(
-      `SELECT e.id,
-              e.title,
-              e.description,
-              e.duration_minutes,
-              e.total_marks,
-              e.passing_marks,
-              e.is_premium,
-              e.status,
-              e.scheduled_at,
-              e.ends_at,
-              e.subject_id,
-              e.topic_id,
-              s.name AS subject_name,
-              s.class_id,
-              cl.curriculum_id,
-              t.name AS topic_name,
-              es.status AS submission_status,
-              es.id AS submission_id
-       FROM exams e
-       JOIN subjects s ON s.id = e.subject_id
-       JOIN classes cl ON cl.id = s.class_id
-       LEFT JOIN topics t ON t.id = e.topic_id
-       LEFT JOIN exam_submissions es ON es.exam_id = e.id AND es.student_id = $2
-       WHERE ($3::boolean = true OR s.class_id = $1)
-         AND e.status IN ('live', 'scheduled', 'ended', 'draft')
-       ORDER BY e.created_at DESC`,
-      [req.user.class_id || null, req.user.id, isTeacher]
-    );
+    // Run all 3 queries in parallel and exclude heavy a.html_content from the list payload
+    // (individual animation HTML is fetched on-demand via /student/animations/:id)
+    const [subjectsRes, contentsRes, examsRes] = await Promise.all([
+      db.query(
+        `SELECT s.*, 
+                cl.name AS class_name,
+                cl.curriculum_id,
+                curr.name AS curriculum_name
+         FROM subjects s
+         JOIN classes cl ON cl.id = s.class_id
+         JOIN curriculums curr ON curr.id = cl.curriculum_id
+         WHERE ($2::boolean = true OR s.class_id = $1)
+         ORDER BY s.order_index`,
+        [req.user.class_id || null, isTeacher]
+      ),
+      db.query(
+        `SELECT c.id,
+                c.title,
+                c.content_type,
+                c.order_index,
+                c.is_premium,
+                c.topic_id,
+                t.name AS topic_name,
+                s.id AS subject_id,
+                s.name AS subject_name,
+                s.class_id,
+                cl.curriculum_id,
+                CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.file_url          END AS file_url,
+                CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.mux_playback_id   END AS mux_playback_id,
+                CASE WHEN c.is_premium AND $2 = false THEN NULL ELSE c.animation_id      END AS animation_id,
+                COALESCE(c.target_tab, a.target_tab, 'simulators') AS target_tab,
+                up.completed AS is_completed
+         FROM content c
+         JOIN topics t ON t.id = c.topic_id
+         JOIN subjects s ON s.id = t.subject_id
+         JOIN classes cl ON cl.id = s.class_id
+         LEFT JOIN animations a ON a.id = c.animation_id
+         LEFT JOIN user_progress up ON up.content_id = c.id AND up.user_id = $3
+         WHERE ($5::boolean = true OR s.class_id = $1) AND c.destination IN ('shared', $4)
+         ORDER BY s.order_index, t.order_index, c.order_index`,
+        [req.user.class_id || null, isPremium, req.user.id, destination, isTeacher]
+      ),
+      db.query(
+        `SELECT e.id,
+                e.title,
+                e.description,
+                e.duration_minutes,
+                e.total_marks,
+                e.passing_marks,
+                e.is_premium,
+                e.status,
+                e.scheduled_at,
+                e.ends_at,
+                e.subject_id,
+                e.topic_id,
+                s.name AS subject_name,
+                s.class_id,
+                cl.curriculum_id,
+                t.name AS topic_name,
+                es.status AS submission_status,
+                es.id AS submission_id
+         FROM exams e
+         JOIN subjects s ON s.id = e.subject_id
+         JOIN classes cl ON cl.id = s.class_id
+         LEFT JOIN topics t ON t.id = e.topic_id
+         LEFT JOIN exam_submissions es ON es.exam_id = e.id AND es.student_id = $2
+         WHERE ($3::boolean = true OR s.class_id = $1)
+           AND e.status IN ('live', 'scheduled', 'ended', 'draft')
+         ORDER BY e.created_at DESC`,
+        [req.user.class_id || null, req.user.id, isTeacher]
+      ),
+    ]);
 
     res.json({
       success: true,
       data: {
-        subjects,
-        contents,
-        exams
+        subjects: subjectsRes.rows,
+        contents: contentsRes.rows,
+        exams: examsRes.rows,
       }
     });
   } catch (err) {
@@ -712,101 +711,125 @@ exports.getScheduledExams = async (req, res) => {
   }
 };
 
+// Short-lived in-memory cache for hierarchy (keyed by destination)
+const hierarchyCache = new Map();
+const HIERARCHY_TTL_MS = 45 * 1000;
+
 // GET /student/hierarchy — full nested curriculum structure (Curriculums -> Classes (Stage 1 to N) -> Subjects -> Topics)
 exports.getCurriculumHierarchy = async (req, res) => {
   try {
     const destination = req.user.role === 'teacher' ? 'teacher' : 'student';
+    const cached = hierarchyCache.get(destination);
+    if (cached && Date.now() - cached.ts < HIERARCHY_TTL_MS) {
+      return res.json({ success: true, data: cached.data });
+    }
 
-    const { rows } = await db.query(
-      `SELECT
-         c.id AS id,
-         c.name AS name,
-         c.description AS description,
-         (
-           SELECT COALESCE(json_agg(
-             json_build_object(
-               'id', cl.id,
-               'name', cl.name,
-               'description', cl.description,
-               'order_index', cl.order_index,
-               'curriculum_id', c.id,
-               'curriculum_name', c.name,
-               'subjects', (
-                 SELECT COALESCE(json_agg(
-                   json_build_object(
-                     'id', s.id,
-                     'name', s.name,
-                     'description', s.description,
-                     'order_index', s.order_index,
-                     'topic_count', (SELECT COUNT(*)::int FROM topics t WHERE t.subject_id = s.id),
-                     'topics', (
-                       SELECT COALESCE(json_agg(
-                         json_build_object(
-                           'id', t.id,
-                           'name', t.name,
-                           'description', t.description,
-                           'order_index', t.order_index,
-                           'resource_count', (
-                             (SELECT COUNT(*)::int FROM content cnt WHERE cnt.topic_id = t.id AND cnt.destination IN ('shared', $1)) +
-                             (SELECT COUNT(*)::int FROM content cnt JOIN topics sub ON sub.id = cnt.topic_id WHERE sub.parent_topic_id = t.id AND cnt.destination IN ('shared', $1))
-                           ),
-                           'exam_count', (
-                             (SELECT COUNT(*)::int FROM exams e WHERE (
-                               e.topic_id = t.id 
-                               OR e.topic_id IN (SELECT id FROM topics WHERE parent_topic_id = t.id)
-                               OR e.topic_id IN (SELECT id FROM topics WHERE LOWER(name) = LOWER(t.name))
-                             ) AND e.status IN ('live', 'scheduled', 'ended', 'draft'))
-                           ),
-                           'children', (
-                             SELECT COALESCE(json_agg(
-                               json_build_object(
-                                 'id', sub.id,
-                                 'name', sub.name,
-                                 'description', sub.description,
-                                 'order_index', sub.order_index,
-                                 'resource_count', (SELECT COUNT(*)::int FROM content cnt WHERE cnt.topic_id = sub.id AND cnt.destination IN ('shared', $1)),
-                                 'exam_count', (SELECT COUNT(*)::int FROM exams e WHERE (
-                                   e.topic_id = sub.id 
-                                   OR e.topic_id IN (SELECT id FROM topics WHERE LOWER(name) = LOWER(sub.name))
-                                 ) AND e.status IN ('live', 'scheduled', 'ended', 'draft'))
-                               ) ORDER BY sub.order_index, sub.created_at ASC
-                             ), '[]'::json)
-                             FROM topics sub WHERE sub.parent_topic_id = t.id
-                           ),
-                           'subtopics', (
-                             SELECT COALESCE(json_agg(
-                               json_build_object(
-                                 'id', sub.id,
-                                 'name', sub.name,
-                                 'description', sub.description,
-                                 'order_index', sub.order_index,
-                                 'resource_count', (SELECT COUNT(*)::int FROM content cnt WHERE cnt.topic_id = sub.id AND cnt.destination IN ('shared', $1)),
-                                 'exam_count', (SELECT COUNT(*)::int FROM exams e WHERE (
-                                   e.topic_id = sub.id 
-                                   OR e.topic_id IN (SELECT id FROM topics WHERE LOWER(name) = LOWER(sub.name))
-                                 ) AND e.status IN ('live', 'scheduled', 'ended', 'draft'))
-                               ) ORDER BY sub.order_index, sub.created_at ASC
-                             ), '[]'::json)
-                             FROM topics sub WHERE sub.parent_topic_id = t.id
-                           )
-                         ) ORDER BY t.order_index, t.created_at ASC
-                       ), '[]'::json)
-                       FROM topics t WHERE t.subject_id = s.id AND t.parent_topic_id IS NULL
-                     )
-                   ) ORDER BY s.order_index, s.name ASC
-                 ), '[]'::json)
-                 FROM subjects s WHERE s.class_id = cl.id
-               )
-             ) ORDER BY cl.order_index ASC, cl.name ASC
-           ), '[]'::json)
-           FROM classes cl WHERE cl.curriculum_id = c.id
-         ) AS classes
-       FROM curriculums c
-       WHERE c.is_active = true
-       ORDER BY c.created_at ASC`,
-      [destination]
-    );
+    // Run flat queries in parallel instead of hundreds of nested correlated subqueries
+    const [currRes, classRes, subjRes, topicRes, contentCountsRes, examCountsRes] = await Promise.all([
+      db.query(
+        `SELECT id, name, description FROM curriculums WHERE is_active = true ORDER BY created_at ASC`
+      ),
+      db.query(
+        `SELECT id, name, description, order_index, curriculum_id FROM classes ORDER BY order_index ASC, name ASC`
+      ),
+      db.query(
+        `SELECT id, name, description, order_index, class_id FROM subjects ORDER BY order_index ASC, name ASC`
+      ),
+      db.query(
+        `SELECT id, name, description, order_index, subject_id, parent_topic_id FROM topics ORDER BY order_index ASC, created_at ASC`
+      ),
+      db.query(
+        `SELECT topic_id, COUNT(*)::int AS cnt FROM content WHERE destination IN ('shared', $1) GROUP BY topic_id`,
+        [destination]
+      ),
+      db.query(
+        `SELECT topic_id, COUNT(*)::int AS cnt FROM exams WHERE status IN ('live', 'scheduled', 'ended', 'draft') AND topic_id IS NOT NULL GROUP BY topic_id`
+      ),
+    ]);
 
+    const contentCountMap = new Map();
+    for (const r of contentCountsRes.rows) contentCountMap.set(r.topic_id, r.cnt);
+
+    const examCountMap = new Map();
+    for (const r of examCountsRes.rows) examCountMap.set(r.topic_id, r.cnt);
+
+    // Group subtopics by parent_topic_id and root topics by subject_id
+    const subtopicsByParent = new Map();
+    const rootTopicsBySubject = new Map();
+    const totalTopicsBySubject = new Map();
+
+    for (const t of topicRes.rows) {
+      totalTopicsBySubject.set(t.subject_id, (totalTopicsBySubject.get(t.subject_id) || 0) + 1);
+      if (t.parent_topic_id) {
+        if (!subtopicsByParent.has(t.parent_topic_id)) subtopicsByParent.set(t.parent_topic_id, []);
+        subtopicsByParent.get(t.parent_topic_id).push({
+          id: t.id,
+          name: t.name,
+          description: t.description,
+          order_index: t.order_index,
+          resource_count: contentCountMap.get(t.id) || 0,
+          exam_count: examCountMap.get(t.id) || 0,
+        });
+      } else {
+        if (!rootTopicsBySubject.has(t.subject_id)) rootTopicsBySubject.set(t.subject_id, []);
+        rootTopicsBySubject.get(t.subject_id).push(t);
+      }
+    }
+
+    const subjectsByClass = new Map();
+    for (const s of subjRes.rows) {
+      const rootTopics = (rootTopicsBySubject.get(s.id) || []).map((t) => {
+        const subs = subtopicsByParent.get(t.id) || [];
+        const subResCount = subs.reduce((acc, sub) => acc + (sub.resource_count || 0), 0);
+        const subExamCount = subs.reduce((acc, sub) => acc + (sub.exam_count || 0), 0);
+        return {
+          id: t.id,
+          name: t.name,
+          description: t.description,
+          order_index: t.order_index,
+          resource_count: (contentCountMap.get(t.id) || 0) + subResCount,
+          exam_count: (examCountMap.get(t.id) || 0) + subExamCount,
+          children: subs,
+          subtopics: subs,
+        };
+      });
+
+      if (!subjectsByClass.has(s.class_id)) subjectsByClass.set(s.class_id, []);
+      subjectsByClass.get(s.class_id).push({
+        id: s.id,
+        name: s.name,
+        description: s.description,
+        order_index: s.order_index,
+        topic_count: totalTopicsBySubject.get(s.id) || 0,
+        topics: rootTopics,
+      });
+    }
+
+    const currNameMap = new Map();
+    for (const c of currRes.rows) currNameMap.set(c.id, c.name);
+
+    const classesByCurr = new Map();
+    for (const cl of classRes.rows) {
+      if (!classesByCurr.has(cl.curriculum_id)) classesByCurr.set(cl.curriculum_id, []);
+      classesByCurr.get(cl.curriculum_id).push({
+        id: cl.id,
+        name: cl.name,
+        description: cl.description,
+        order_index: cl.order_index,
+        curriculum_id: cl.curriculum_id,
+        curriculum_name: currNameMap.get(cl.curriculum_id) || '',
+        subjects: subjectsByClass.get(cl.id) || [],
+      });
+    }
+
+    const rows = currRes.rows.map((c) => ({
+      id: c.id,
+      name: c.name,
+      description: c.description,
+      classes: classesByCurr.get(c.id) || [],
+    }));
+
+    hierarchyCache.set(destination, { ts: Date.now(), data: rows });
     res.json({ success: true, data: rows });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

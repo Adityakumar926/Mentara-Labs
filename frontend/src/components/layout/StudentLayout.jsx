@@ -1,410 +1,455 @@
 import { useEffect, useState, useRef } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { BookOpen, FileText, User, LogOut, Compass, HelpCircle, ChevronRight, Sparkles, Sun, Moon, PenTool, Eraser, RotateCcw, Maximize2, Minimize2, Square, Triangle, Circle, Minus, Ruler, Download, Undo, Redo, Trash2, Grid, Zap, Users } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Outlet, NavLink, Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Home, GraduationCap, BookOpen, FileText, User, LogOut, Compass, HelpCircle,
+  ChevronRight, ChevronDown, Sparkles, Sun, Moon, PenTool, Eraser, RotateCcw,
+  Maximize2, Minimize2, Square, Triangle, Circle, Minus, Ruler, Download,
+  Undo, Redo, Trash2, Grid, Zap, Users, Search, Bookmark
+} from 'lucide-react';
 import useAuthStore from '@/store/authStore';
 import NotificationBell from '@/components/shared/NotificationBell';
 import VoiceTutor from '@/components/shared/VoiceTutor';
+import { SidebarTeacherIllustration } from '@/features/teacher/courses/TeacherDashboardIllustrations';
 
-const NAV = [
-  { to: '/courses',            icon: BookOpen,   label: 'Courses'   },
-  { to: '/classrooms',         icon: Users,      label: 'Classrooms'},
-  { to: '/explore',            icon: Compass,    label: 'Explore'   },
-  { to: '/question-generator', icon: Sparkles,   label: 'Generator' },
-  { to: '/exams',              icon: FileText,   label: 'Exams'     },
-  { to: '/questions',          icon: HelpCircle, label: 'Questions' },
-  { to: '/profile',            icon: User,       label: 'Profile'   },
+const STAGE_NAV = [
+  { stageKey: 'Stage 1', num: 1, label: 'Stage 1', color: '#FB7185', bg: '#FFE4E6' },
+  { stageKey: 'Stage 2', num: 2, label: 'Stage 2', color: '#F59E0B', bg: '#FEF3C7' },
+  { stageKey: 'Stage 3', num: 3, label: 'Stage 3', color: '#10B981', bg: '#D1FAE5' },
+  { stageKey: 'Stage 4', num: 4, label: 'Stage 4', color: '#3B82F6', bg: '#DBEAFE' },
+  { stageKey: 'Stage 5', num: 5, label: 'Stage 5', color: '#8B5CF6', bg: '#EDE9FE' },
+];
+
+const SECONDARY_NAV = [
+  { to: '/classrooms',         icon: Users,      label: 'My Classrooms'   },
+  { to: '/question-generator', icon: Sparkles,   label: 'Generator'       },
+  { to: '/exams',              icon: FileText,   label: 'Exams & Quizzes' },
+  { to: '/questions',          icon: HelpCircle, label: 'Question Bank'   },
+  { to: '/explore',            icon: Compass,    label: 'Explore'         },
+  { to: '/profile',            icon: User,       label: 'My Profile'      },
+];
+
+const MOBILE_NAV = [
+  { to: '/courses',            icon: Home,       label: 'Dashboard'  },
+  { to: '/classrooms',         icon: Users,      label: 'Classrooms' },
+  { to: '/explore',            icon: Compass,    label: 'Resources'  },
+  { to: '/question-generator', icon: Sparkles,   label: 'Generator'  },
+  { to: '/exams',              icon: FileText,   label: 'Exams'      },
+  { to: '/profile',            icon: User,       label: 'Profile'    },
 ];
 
 const CSS = `
-  
   .sl-root {
-    display: flex; height: 100vh; overflow: hidden;
-    background: #09090b;
-    font-family: 'Inter', sans-serif;
-    --color-navy: #09090b;
-    --color-surface: #0f0f13;
-    --color-surface-card: rgba(255, 255, 255, 0.015);
-    --color-surface-border: rgba(255, 255, 255, 0.06);
-    --color-surface-hover: rgba(255, 255, 255, 0.035);
-    --local-navy: #09090b;
-    --local-navy2: #0f0f13;
-    --local-card-bg: rgba(255, 255, 255, 0.015);
-    --local-card-bdr: rgba(255, 255, 255, 0.06);
-    --local-cream: #f4f4f5;
-    --local-muted: #71717a;
-    --color-text-primary: #f4f4f5;
-    --color-text-secondary: #a1a1aa;
-    --color-text-muted: #71717a;
-    --local-lavender: #C4B5FD;
-  }
-
-  html.light .sl-root, .light .sl-root {
-    background: #F8FAFC;
-    --color-navy: #F8FAFC;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    background: #F4F7FB;
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    color: #0F172A;
+    --color-navy: #F4F7FB;
     --color-surface: #FFFFFF;
     --color-surface-card: #FFFFFF;
-    --color-surface-border: #CBD5E1;
-    --color-surface-hover: #E2E8F0;
-    --local-navy: #F8FAFC;
+    --color-surface-border: #E2E8F0;
+    --color-surface-hover: #F1F5F9;
+    --local-navy: #F4F7FB;
     --local-navy2: #F1F5F9;
     --local-card-bg: #FFFFFF;
-    --local-card-bdr: #94A3B8;
+    --local-card-bdr: #E2E8F0;
     --local-cream: #0F172A;
-    --local-muted: #334155;
+    --local-muted: #64748B;
     --color-text-primary: #0F172A;
     --color-text-secondary: #334155;
-    --color-text-muted: #475569;
-    --local-lavender: #4F46E5;
+    --color-text-muted: #64748B;
+    --local-lavender: #2563EB;
   }
 
-  /* Global image protection: prevent drag-and-drop copies and direct pointer interactions */
+  /* Global image protection */
   .sl-root img {
     -webkit-user-drag: none;
-    -khtml-user-drag: none;
-    -moz-user-drag: none;
-    -o-user-drag: none;
     user-drag: none;
     user-select: none;
     -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
     pointer-events: none;
   }
 
-  /* ── SIDEBAR (desktop) ── */
+  /* ── SIDEBAR (Fixed Light Theme Desktop Sidebar matching Reference) ── */
   .sl-aside-wrapper {
-    width: 56px;
+    width: 244px;
     flex-shrink: 0;
     position: relative;
-    z-index: 50;
+    z-index: 40;
     height: 100vh;
   }
-  @media (max-width: 767px) { .sl-aside-wrapper { display: none; } }
+  @media (max-width: 1023px) {
+    .sl-aside-wrapper { display: none; }
+  }
 
   .sl-aside {
-    width: 56px;
+    width: 244px;
     height: 100vh;
     display: flex;
     flex-direction: column;
-    background: var(--color-surface);
-    border-right: 1px solid var(--local-card-bdr);
-    position: absolute;
-    top: 0; left: 0; bottom: 0;
+    background: #FFFFFF;
+    border-right: 1px solid #E8EEF5;
+    box-shadow: 4px 0 24px rgba(15, 23, 42, 0.025);
     overflow: hidden;
-    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s ease, background 0.3s ease;
-    z-index: 50;
-  }
-  .sl-aside:hover {
-    width: 220px;
-    box-shadow: 12px 0 36px rgba(0, 0, 0, 0.5);
-  }
-  .light .sl-aside:hover {
-    box-shadow: 12px 0 36px rgba(0, 0, 0, 0.12);
   }
 
-  .sl-aside::before {
-    content: '';
-    position: absolute;
-    width: 260px; height: 260px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(34,211,238,0.08) 0%, transparent 70%);
-    top: -70px; left: -70px; pointer-events: none;
-    animation: sl-blob 11s ease-in-out infinite alternate;
-  }
-  .light .sl-aside::before {
-    background: radial-gradient(circle, rgba(124,58,237,0.13) 0%, transparent 70%);
-  }
-  .sl-aside::after {
-    content: '';
-    position: absolute;
-    width: 180px; height: 180px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(52,211,153,0.06) 0%, transparent 70%);
-    bottom: 80px; right: -50px; pointer-events: none;
-    animation: sl-blob 14s ease-in-out infinite alternate-reverse;
-  }
-  .light .sl-aside::after {
-    background: radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%);
-  }
-  @keyframes sl-blob { from{transform:translate(0,0)} to{transform:translate(14px,-10px)} }
-
-  /* Logo */
+  /* Brand Header */
   .sl-logo {
-    display: flex; align-items: center; justify-content: space-between; gap: 0.7rem;
-    padding: 1.1rem 0.85rem;
-    border-bottom: 1px solid var(--local-card-bdr);
-    position: relative; z-index: 1; flex-shrink: 0;
-    overflow: hidden;
-    min-height: 58px;
-  }
-  .sl-logo-left { display: flex; align-items: center; gap: 0.7rem; min-width: 0; flex-shrink: 0; }
-  .sl-logo-mark {
-    width: 30px; height: 30px;
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 1.15rem 1.25rem;
+    border-bottom: 1px solid #F1F5F9;
+    text-decoration: none;
     flex-shrink: 0;
   }
-  .sl-logo-text {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.92rem; font-weight: 700;
-    background: linear-gradient(90deg, #22d3ee, #34d399, #a855f7, #22d3ee);
-    background-size: 300% 100%;
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    animation: sl-logo-rgb 4s linear infinite;
-    white-space: nowrap;
-    opacity: 0;
-    transition: opacity 0.18s ease 0s;
-    pointer-events: none;
+  .sl-logo-mark {
+    width: 34px;
+    height: 34px;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 0;
   }
-  .sl-aside:hover .sl-logo-text {
-    opacity: 1;
-    transition: opacity 0.2s ease 0.1s;
+  .sl-logo-copy {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
   }
-  @keyframes sl-logo-rgb {
+  @keyframes sl-logo-gradient-shift {
     0% { background-position: 0% 50%; }
-    100% { background-position: 100% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .sl-logo-title {
+    font-family: 'Fredoka', 'Quicksand', 'Outfit', 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.14rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    background: linear-gradient(
+      120deg,
+      #8b5cf6 0%,
+      #6366f1 22%,
+      #38bdf8 50%,
+      #06b6d4 75%,
+      #a855f7 100%
+    );
+    background-size: 250% 250%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: sl-logo-gradient-shift 4.5s ease-in-out infinite;
+  }
+  .sl-logo-sub {
+    font-size: 0.66rem;
+    font-weight: 600;
+    color: #64748B;
+    letter-spacing: 0.02em;
+    margin-top: 2px;
   }
 
-  /* Nav */
+  /* Sidebar Scrollable Nav */
   .sl-nav {
-    flex: 1; padding: 0.7rem 0.45rem;
-    display: flex; flex-direction: column; gap: 0.2rem;
-    overflow-y: auto; overflow-x: hidden; position: relative; z-index: 1;
+    flex: 1;
+    padding: 0.75rem 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
-  .sl-nav::-webkit-scrollbar { width: 0; }
+  .sl-nav::-webkit-scrollbar { width: 4px; }
+  .sl-nav::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 4px; }
 
   .sl-nav-item {
-    display: flex; align-items: center; gap: 0.7rem;
-    padding: 0.62rem 0.8rem; border-radius: 14px;
-    font-size: 0.8rem; font-weight: 700;
-    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.58rem 0.85rem;
+    border-radius: 12px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: #334155;
     text-decoration: none;
-    transition: color 0.2s, background 0.2s;
-    position: relative; overflow: hidden;
-    border: 2px solid transparent;
-    white-space: nowrap;
+    transition: all 0.18s ease;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
   }
   .sl-nav-item:hover {
-    color: var(--color-text-primary);
-    background: var(--color-surface-hover);
-    border-color: var(--color-surface-border);
+    background: #F1F5F9;
+    color: #0F172A;
   }
   .sl-nav-item.active {
-    color: #22d3ee;
-    background: rgba(34, 211, 238, 0.08);
-    border-color: rgba(34, 211, 238, 0.2);
+    background: #E8F3FF;
+    color: #1D4ED8;
+    font-weight: 700;
   }
-  .light .sl-nav-item.active {
-    color: var(--color-text-primary);
-    background: rgba(79, 70, 229, 0.08);
-    border-color: rgba(79, 70, 229, 0.2);
+  .sl-nav-icon {
+    color: #475569;
+    flex-shrink: 0;
+    transition: color 0.18s ease;
   }
-  .sl-nav-item.active::before {
-    content: '';
-    position: absolute; left: 0; top: 20%; bottom: 20%;
-    width: 3.5px; border-radius: 0 3px 3px 0;
-    background: linear-gradient(180deg, #22d3ee, #34d399);
-    box-shadow: 0 0 10px rgba(34, 211, 238, 0.7);
+  .sl-nav-item.active .sl-nav-icon {
+    color: #2563EB;
   }
-  .light .sl-nav-item.active::before {
-    background: linear-gradient(180deg, #7C3AED, #00D4FF);
-    box-shadow: 0 0 8px rgba(124,58,237,0.8);
+
+  /* Stage Number Pill in Sidebar */
+  .sl-stage-pill {
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   }
-  .sl-nav-icon { color: var(--color-text-muted); transition: color 0.2s; flex-shrink: 0; }
-  .sl-nav-item:hover .sl-nav-icon { color: var(--color-text-secondary); }
-  .sl-nav-item.active .sl-nav-icon { color: #22d3ee; }
-  .light .sl-nav-item.active .sl-nav-icon { color: var(--local-lavender); }
-  .sl-nav-label {
+
+  .sl-nav-divider {
+    height: 1px;
+    background: #EEF2F6;
+    margin: 0.45rem 0.4rem;
+    flex-shrink: 0;
+  }
+
+  .sl-sidebar-bottom {
+    padding: 0.5rem 0.85rem 0.85rem;
+    flex-shrink: 0;
+  }
+
+  /* ── RIGHT CONTENT COLUMN (TOPBAR + MAIN) ── */
+  .sl-content-col {
     flex: 1;
-    opacity: 0;
-    transform: translateX(-4px);
-    transition: opacity 0.15s ease 0s, transform 0.15s ease 0s;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* Top Header Bar */
+  .sl-topbar {
+    height: 68px;
+    background: #FFFFFF;
+    border-bottom: 1px solid #E8EEF5;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-shrink: 0;
+    z-index: 30;
+  }
+  @media (max-width: 767px) {
+    .sl-topbar { padding: 0 1rem; height: 60px; }
+  }
+
+  .sl-topbar-search {
+    position: relative;
+    flex: 1;
+    max-width: 480px;
+  }
+  .sl-topbar-search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #38BDF8;
     pointer-events: none;
   }
-  .sl-aside:hover .sl-nav-label {
-    opacity: 1;
-    transform: translateX(0);
-    transition: opacity 0.2s ease 0.1s, transform 0.2s ease 0.1s;
+  .sl-topbar-search-input {
+    width: 100%;
+    padding: 0.62rem 1rem 0.62rem 2.65rem;
+    border-radius: 999px;
+    border: 1px solid #E2E8F0;
+    background: #F4F7FB;
+    color: #0F172A;
+    font-size: 0.84rem;
+    font-weight: 500;
+    outline: none;
+    transition: all 0.2s ease;
+    font-family: inherit;
   }
-  .sl-nav-chevron {
-    opacity: 0; color: var(--color-text-muted);
-    transition: opacity 0.2s, transform 0.2s;
+  .sl-topbar-search-input::placeholder {
+    color: #94A3B8;
   }
-  .sl-nav-item:hover .sl-nav-chevron { opacity: 1; transform: translateX(2px); }
-
-  /* Premium badge */
-  .sl-premium {
-    margin: 0 0.45rem 0.6rem;
-    padding: 0.55rem 0.8rem; border-radius: 14px;
-    background: rgba(245,158,11,0.08);
-    border: 2px solid var(--local-amber);
-    display: flex; align-items: center; gap: 0.5rem;
-    position: relative; z-index: 1;
-    overflow: hidden;
-  }
-  .sl-premium-star { font-size: 0.8rem; flex-shrink: 0; }
-  .sl-premium-text {
-    font-size: 0.72rem; font-weight: 800; color: var(--local-amber); letter-spacing: 0.02em;
-    white-space: nowrap;
-    opacity: 0;
-    transition: opacity 0.18s ease 0s;
-  }
-  .sl-aside:hover .sl-premium-text {
-    opacity: 1;
-    transition: opacity 0.2s ease 0.1s;
+  .sl-topbar-search-input:focus {
+    background: #FFFFFF;
+    border-color: #38BDF8;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
   }
 
-  /* Upgrade to premium button (non-premium users) */
-  .sl-upgrade {
-    margin: 0 0.45rem 0.6rem;
-    padding: 0.6rem 0.8rem; border-radius: 16px;
-    background: rgba(245,158,11,0.05);
-    border: 2px solid var(--local-amber);
-    display: flex; align-items: center; gap: 0.55rem;
-    position: relative; z-index: 1; overflow: hidden;
+  .sl-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex-shrink: 0;
+  }
+
+  .sl-profile-wrap {
+    position: relative;
+  }
+  .sl-profile-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.35rem 0.7rem 0.35rem 0.4rem;
+    border-radius: 999px;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
     cursor: pointer;
-    font-family: 'Inter', sans-serif;
-    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    transition: all 0.18s ease;
+    font-family: inherit;
   }
-  .sl-upgrade:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(245,158,11,0.18);
-    border-color: var(--violet);
+  .sl-profile-btn:hover {
+    background: #F1F5F9;
+    border-color: #CBD5E1;
   }
-  .sl-upgrade:active { transform: translateY(0); }
-  .sl-upgrade::before {
-    content: '';
-    position: absolute; top: 0; left: -60%; width: 40%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);
-    animation: sl-shimmer 3.2s ease-in-out infinite;
-  }
-  @keyframes sl-shimmer { 0%,100% { left: -60%; } 50% { left: 120%; } }
-  .sl-upgrade-icon {
-    width: 22px; height: 22px; border-radius: 7px; flex-shrink: 0;
-    background: linear-gradient(135deg, #F59E0B, #7C3AED);
-    display: flex; align-items: center; justify-content: center;
-    color: #fff;
-  }
-  .sl-upgrade-copy {
-    display: flex; flex-direction: column; align-items: flex-start; text-align: left; min-width: 0;
-    opacity: 0;
-    transition: opacity 0.18s ease 0s;
-  }
-  .sl-aside:hover .sl-upgrade-copy {
-    opacity: 1;
-    transition: opacity 0.2s ease 0.1s;
-  }
-  .sl-upgrade-title { font-size: 0.72rem; font-weight: 800; color: var(--local-amber); letter-spacing: 0.01em; white-space: nowrap; }
-  .sl-upgrade-sub { font-size: 0.6rem; color: var(--color-text-secondary); font-weight: 700; white-space: nowrap; }
-
-  /* User footer */
-  .sl-footer {
-    padding: 0.5rem 0.45rem;
-    border-top: 1px solid var(--local-card-bdr);
-    position: relative; z-index: 1; flex-shrink: 0;
-  }
-  .sl-user-row {
-    display: flex; align-items: center; gap: 0.6rem;
-    padding: 0.55rem 0.6rem; border-radius: 14px;
-    background: var(--local-card-bg);
-    border: 1px solid var(--local-card-bdr);
-    transition: background 0.2s, border-color 0.2s;
+  .sl-profile-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #38BDF8 0%, #2563EB 100%);
+    color: #FFFFFF;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
+    flex-shrink: 0;
   }
-  .sl-user-row:hover { background: var(--color-surface-hover); border-color: var(--local-card-bdr); }
-  .sl-avatar {
-    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
-    background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(0,212,255,0.2));
-    border: 1.5px solid rgba(124,58,237,0.35);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.72rem; font-weight: 700; color: #C4B5FD;
+  .sl-profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .sl-profile-name {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: #1E293B;
+    max-width: 140px;
+    white-space: nowrap;
     overflow: hidden;
-  }
-  .sl-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-  .sl-user-info {
-    flex: 1; min-width: 0;
-    opacity: 0;
-    transition: opacity 0.18s ease 0s;
-  }
-  .sl-aside:hover .sl-user-info {
-    opacity: 1;
-    transition: opacity 0.2s ease 0.1s;
-  }
-  .sl-user-name { font-size: 0.72rem; font-weight: 600; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .sl-user-email { font-size: 0.6rem; color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .sl-logout {
-    width: 24px; height: 24px; border-radius: 7px;
-    background: none; border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--color-text-muted); flex-shrink: 0;
-    transition: color 0.2s, background 0.2s;
-    opacity: 0;
-  }
-  .sl-aside:hover .sl-logout {
-    opacity: 1;
-    transition: opacity 0.2s ease 0.1s;
-  }
-  .sl-logout:hover { color: #FCA5A5; background: rgba(239,68,68,0.1); }
-
-  /* Theme / notif buttons in header — hide text when collapsed */
-  .sl-logo-actions {
-    display: flex; align-items: center; gap: 0.3rem; flex-shrink: 0;
-    opacity: 0;
-    transition: opacity 0.18s ease 0s;
-  }
-  .sl-aside:hover .sl-logo-actions {
-    opacity: 1;
-    transition: opacity 0.2s ease 0.1s;
+    text-overflow: ellipsis;
   }
 
-  /* ── MAIN ── */
+  .sl-profile-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    width: 230px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.1);
+    padding: 0.5rem;
+    z-index: 60;
+  }
+  .sl-profile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border-radius: 10px;
+    border: none;
+    background: transparent;
+    color: #334155;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    font-family: inherit;
+    text-align: left;
+  }
+  .sl-profile-menu-item:hover {
+    background: #F1F5F9;
+    color: #0F172A;
+  }
+  .sl-profile-menu-item.danger {
+    color: #E11D48;
+  }
+  .sl-profile-menu-item.danger:hover {
+    background: #FFF1F2;
+    color: #BE123C;
+  }
+
+  /* ── MAIN SCROLLABLE STAGE ── */
   .sl-main {
-    flex: 1; overflow-y: auto; overflow-x: hidden;
-    background: var(--color-navy);
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: linear-gradient(180deg, #F0F6FF 0%, #F6F9FC 45%, #F4F7FB 100%);
     padding-bottom: 0;
     overscroll-behavior-y: contain;
     scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    transform: translateZ(0);
-    will-change: scroll-position;
   }
-  @media (max-width: 767px) { .sl-main { padding-bottom: 72px; } }
+  @media (max-width: 1023px) {
+    .sl-main { padding-bottom: 74px; }
+  }
   .sl-main::-webkit-scrollbar { width: 6px; }
   .sl-main::-webkit-scrollbar-track { background: transparent; }
-  .sl-main::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
-  .sl-main::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,0.4); }
+  .sl-main::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+  .sl-main::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
-  /* ── BOTTOM NAV (mobile) ── */
+  /* ── BOTTOM NAV (mobile / tablet) ── */
   .sl-bottom-nav {
     display: none;
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
-    background: var(--color-surface);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid var(--local-card-bdr);
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 50;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid #E2E8F0;
+    box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.05);
   }
-  @media (max-width: 767px) { .sl-bottom-nav { display: flex; } }
+  @media (max-width: 1023px) {
+    .sl-bottom-nav { display: flex; }
+  }
 
   .sl-bottom-item {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 0.6rem 0 0.55rem;
-    gap: 0.22rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.55rem 0;
+    gap: 0.2rem;
     text-decoration: none;
-    color: var(--color-text-secondary);
-    font-size: 0.58rem; font-weight: 700; letter-spacing: 0.04em;
+    color: #64748B;
+    font-size: 0.62rem;
+    font-weight: 700;
     transition: color 0.2s;
     position: relative;
   }
-  .sl-bottom-item:hover { color: var(--color-text-primary); }
-  .sl-bottom-item.active { color: var(--local-lavender); }
-  /* Active indicator dot above icon */
+  .sl-bottom-item:hover { color: #0F172A; }
+  .sl-bottom-item.active { color: #2563EB; }
   .sl-bottom-item.active::before {
     content: '';
-    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-    width: 20px; height: 2px; border-radius: 0 0 4px 4px;
-    background: linear-gradient(90deg, #7C3AED, #00D4FF);
-    box-shadow: 0 0 8px rgba(124,58,237,0.7);
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 24px; height: 3px;
+    border-radius: 0 0 4px 4px;
+    background: #2563EB;
   }
-  .sl-bottom-icon { flex-shrink: 0; }
 
   /* ── Whiteboard CSS ── */
   .wb-grid-dark {
@@ -426,38 +471,47 @@ const CSS = `
 export default function StudentLayout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const activeStageParam = searchParams.get('stage') || 'ALL';
+  const urlQueryParam = searchParams.get('q') || '';
 
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
-  const toggleTheme = () => {
-    const nextTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(nextTheme);
-    localStorage.setItem('theme', nextTheme);
-    if (nextTheme === 'light') {
-      document.documentElement.classList.add('light');
-    } else {
-      document.documentElement.classList.remove('light');
-    }
-  };
+  const [topSearch, setTopSearch] = useState(urlQueryParam);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef(null);
+
+  // Sync topbar search input with URL ?q= parameter
+  useEffect(() => {
+    setTopSearch(searchParams.get('q') || '');
+  }, [searchParams]);
+
+  // Force Light Theme for the Teacher Portal
+  useEffect(() => {
+    document.documentElement.classList.add('light');
+    localStorage.setItem('theme', 'light');
+  }, []);
+
+  // Close profile dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) {
+        setProfileMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Prevent saving/copying images via context menus or dragging
   useEffect(() => {
     const preventImageSave = (e) => {
-      if (e.target.tagName === 'IMG') {
-        e.preventDefault();
-      }
+      if (e.target.tagName === 'IMG') e.preventDefault();
     };
-    const preventImageDrag = (e) => {
-      if (e.target.tagName === 'IMG') {
-        e.preventDefault();
-      }
-    };
-
     document.addEventListener('contextmenu', preventImageSave);
-    document.addEventListener('dragstart', preventImageDrag);
-
+    document.addEventListener('dragstart', preventImageSave);
     return () => {
       document.removeEventListener('contextmenu', preventImageSave);
-      document.removeEventListener('dragstart', preventImageDrag);
+      document.removeEventListener('dragstart', preventImageSave);
     };
   }, []);
 
@@ -466,164 +520,220 @@ export default function StudentLayout() {
     navigate('/login');
   };
 
-  const handleUpgradeClick = () => {
-    // TODO: hook up Razorpay checkout here. For now this just routes
-    // to a premium/checkout page where the payment flow will live.
-    navigate('/premium');
+  const handleStageSelect = (stageValue) => {
+    if (stageValue === 'ALL') {
+      navigate('/courses');
+    } else {
+      navigate(`/courses?stage=${encodeURIComponent(stageValue)}`);
+    }
   };
 
-  const initial = user?.full_name?.[0]?.toUpperCase() ?? 'S';
+  const handleTopSearchChange = (e) => {
+    const val = e.target.value;
+    setTopSearch(val);
+    if (location.pathname === '/courses') {
+      const next = new URLSearchParams(searchParams);
+      if (val.trim()) next.set('q', val);
+      else next.delete('q');
+      navigate(`/courses?${next.toString()}`, { replace: true });
+    }
+  };
+
+  const handleTopSearchSubmit = (e) => {
+    e.preventDefault();
+    if (location.pathname !== '/courses') {
+      navigate(`/courses?q=${encodeURIComponent(topSearch.trim())}`);
+    }
+  };
+
+  const rawName = user?.full_name || user?.name || 'Sarah Mitchell';
+  const initial = rawName[0]?.toUpperCase() ?? 'T';
+  const displayName = rawName;
+  const isOnCourses = location.pathname === '/courses';
 
   return (
     <>
       <style>{CSS}</style>
-      <div className="sl-root">
+      <div className="sl-root light">
 
-        {/* ── Sidebar (desktop) ── */}
+        {/* ── Left Sidebar (Desktop) ── */}
         <div className="sl-aside-wrapper">
-          <motion.aside
-            className="sl-aside"
-            initial={{ x: -22, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-          >
-            {/* Logo */}
-            <div className="sl-logo">
-              <div className="sl-logo-left">
-                <div className="sl-logo-mark">
-                  <img src="/mentara-new.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }} />
-                </div>
-                <span className="sl-logo-text">Mentara Learning</span>
+          <aside className="sl-aside">
+            {/* Brand Logo */}
+            <Link to="/courses" className="sl-logo">
+              <div className="sl-logo-mark">
+                <img src="/mentara-new.png" alt="Mentara Learning" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               </div>
-              <div className="sl-logo-actions">
-                <button
-                  type="button"
-                  onClick={toggleTheme}
-                  title={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: 'var(--color-text-secondary)',
-                    cursor: 'pointer',
-                    padding: '0.35rem',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'color 0.2s, background 0.2s',
-                    flexShrink: 0
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--local-cream)'; e.currentTarget.style.background = 'var(--color-surface-hover)'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-secondary)'; e.currentTarget.style.background = 'transparent'; }}
-                >
-                  {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
-                </button>
-                <NotificationBell variant="desktop" />
+              <div className="sl-logo-copy">
+                <span className="sl-logo-title">Mentara Learning</span>
+                <span className="sl-logo-sub">Learn · Explore · Grow</span>
               </div>
-            </div>
+            </Link>
 
-            {/* Nav */}
+            {/* Navigation List */}
             <nav className="sl-nav">
-              {NAV.map(({ to, icon: Icon, label }, i) => (
-                  <motion.div
-                    key={to}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.06 + i * 0.05, duration: 0.25 }}
+              {/* Dashboard Home */}
+              <button
+                type="button"
+                onClick={() => handleStageSelect('ALL')}
+                className={`sl-nav-item ${isOnCourses && activeStageParam === 'ALL' ? 'active' : ''}`}
+              >
+                <Home size={17} className="sl-nav-icon" />
+                <span>Dashboard</span>
+              </button>
+
+              {/* Teacher Zone */}
+              <button
+                type="button"
+                onClick={() => handleStageSelect('Teacher Zone')}
+                className={`sl-nav-item ${isOnCourses && activeStageParam.toLowerCase().includes('teacher') ? 'active' : ''}`}
+              >
+                <GraduationCap size={17} className="sl-nav-icon" style={{ color: '#6D28D9' }} />
+                <span>Teacher Zone</span>
+              </button>
+
+              {/* Stage 1 to 5 Quick Links */}
+              {STAGE_NAV.map((stg) => {
+                const isStageActive = isOnCourses && activeStageParam.toLowerCase() === stg.stageKey.toLowerCase();
+                return (
+                  <button
+                    key={stg.stageKey}
+                    type="button"
+                    onClick={() => handleStageSelect(stg.stageKey)}
+                    className={`sl-nav-item ${isStageActive ? 'active' : ''}`}
                   >
-                    <NavLink
-                      to={to}
-                      className={({ isActive }) => `sl-nav-item${isActive ? ' active' : ''}`}
-                    >
-                      <Icon size={15} className="sl-nav-icon" />
-                      <span className="sl-nav-label">{label}</span>
-                      <ChevronRight size={11} className="sl-nav-chevron" />
-                    </NavLink>
-                  </motion.div>
-                ))}
+                    <span className="sl-stage-pill" style={{ background: stg.color }}>
+                      {stg.num}
+                    </span>
+                    <span>{stg.label}</span>
+                  </button>
+                );
+              })}
+
+              <div className="sl-nav-divider" />
+
+              {/* Functional Teacher Pages */}
+              {SECONDARY_NAV.map(({ to, icon: Icon, label }) => (
+                <NavLink
+                  key={to}
+                  to={to}
+                  className={({ isActive }) => `sl-nav-item${isActive ? ' active' : ''}`}
+                >
+                  <Icon size={17} className="sl-nav-icon" />
+                  <span>{label}</span>
+                </NavLink>
+              ))}
             </nav>
 
-            {/* Teacher Smart Whiteboard */}
+            {/* Smart Explanation Whiteboard Button */}
             {user?.role === 'teacher' && <TeacherWhiteboard />}
 
-            {/* Premium badge / Upgrade CTA */}
-            {user?.is_premium ? (
-              <motion.div
-                className="sl-premium"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.45 }}
-              >
-                <span className="sl-premium-star">⭐</span>
-                <span className="sl-premium-text">Premium Member</span>
-              </motion.div>
-            ) : (
-              <motion.button
-                className="sl-upgrade"
-                onClick={handleUpgradeClick}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.45 }}
-              >
-                <span className="sl-upgrade-icon">
-                  <Sparkles size={13} />
-                </span>
-                <span className="sl-upgrade-copy">
-                  <span className="sl-upgrade-title">Upgrade to Premium</span>
-                  <span className="sl-upgrade-sub">Unlock all courses & exams</span>
-                </span>
-              </motion.button>
-            )}
-
-            {/* User footer */}
-            <div className="sl-footer">
-              <div className="sl-user-row">
-                <div className="sl-avatar">
-                  {user?.avatar_url ? (
-                    <img src={user.avatar_url} alt="" />
-                  ) : (
-                    initial
-                  )}
-                </div>
-                <div className="sl-user-info">
-                  <div className="sl-user-name">{user?.full_name}</div>
-                  <div className="sl-user-email">{user?.email}</div>
-                </div>
-                <button className="sl-logout" onClick={handleLogout} title="Log out">
-                  <LogOut size={13} />
-                </button>
-              </div>
+            {/* Bottom Teacher Illustration Card */}
+            <div className="sl-sidebar-bottom">
+              <SidebarTeacherIllustration />
             </div>
-          </motion.aside>
+          </aside>
         </div>
 
-        {/* ── Main ── */}
-        <main className="sl-main">
-          <Outlet />
-        </main>
+        {/* ── Right Content Column (Top Header Bar + Main Outlet) ── */}
+        <div className="sl-content-col">
+          {/* Top Header Bar */}
+          <header className="sl-topbar">
+            <form className="sl-topbar-search" onSubmit={handleTopSearchSubmit}>
+              <Search size={16} className="sl-topbar-search-icon" />
+              <input
+                type="text"
+                value={topSearch}
+                onChange={handleTopSearchChange}
+                placeholder="Search for lessons, worksheets, videos, or topics..."
+                className="sl-topbar-search-input"
+              />
+            </form>
 
-        {/* ── Bottom nav (mobile) ── */}
+            <div className="sl-topbar-right">
+              <NotificationBell variant="desktop" />
+
+              <div className="sl-profile-wrap" ref={profileMenuRef}>
+                <button
+                  type="button"
+                  className="sl-profile-btn"
+                  onClick={() => setProfileMenuOpen((v) => !v)}
+                >
+                  <div className="sl-profile-avatar">
+                    {user?.avatar_url ? <img src={user.avatar_url} alt="" /> : initial}
+                  </div>
+                  <span className="sl-profile-name">{displayName}</span>
+                  <ChevronDown size={15} color="#64748B" />
+                </button>
+
+                <AnimatePresence>
+                  {profileMenuOpen && (
+                    <motion.div
+                      className="sl-profile-menu"
+                      initial={{ opacity: 0, y: -6, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                      transition={{ duration: 0.15 }}
+                    >
+                      <div style={{ padding: '0.5rem 0.75rem 0.65rem', borderBottom: '1px solid #F1F5F9', marginBottom: '0.35rem' }}>
+                        <div style={{ fontSize: '0.84rem', fontWeight: 800, color: '#0F172A' }}>{user?.full_name || 'Teacher'}</div>
+                        <div style={{ fontSize: '0.72rem', color: '#64748B', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.email}</div>
+                      </div>
+
+                      <Link
+                        to="/profile"
+                        onClick={() => setProfileMenuOpen(false)}
+                        className="sl-profile-menu-item"
+                      >
+                        <User size={15} />
+                        <span>My Profile</span>
+                      </Link>
+
+                      {!user?.is_premium && (
+                        <Link
+                          to="/premium"
+                          onClick={() => setProfileMenuOpen(false)}
+                          className="sl-profile-menu-item"
+                          style={{ color: '#D97706' }}
+                        >
+                          <Sparkles size={15} />
+                          <span>Upgrade to Premium</span>
+                        </Link>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="sl-profile-menu-item danger"
+                      >
+                        <LogOut size={15} />
+                        <span>Sign Out</span>
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+          </header>
+
+          {/* Main Outlet */}
+          <main className="sl-main">
+            <Outlet />
+          </main>
+        </div>
+
+        {/* ── Bottom Nav (Mobile / Tablet) ── */}
         <nav className="sl-bottom-nav">
-          {NAV.map(({ to, icon: Icon, label }) => (
+          {MOBILE_NAV.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
               to={to}
               className={({ isActive }) => `sl-bottom-item${isActive ? ' active' : ''}`}
             >
-              <Icon size={19} className="sl-bottom-icon" />
-              {label}
+              <Icon size={18} />
+              <span>{label}</span>
             </NavLink>
           ))}
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="sl-bottom-item"
-            style={{ background: 'transparent', border: 'none' }}
-          >
-            {theme === 'light' ? <Moon size={19} className="sl-bottom-icon" /> : <Sun size={19} className="sl-bottom-icon" />}
-            Theme
-          </button>
-          <NotificationBell variant="mobile" />
         </nav>
 
         {/* Floating Voice Tutor */}
@@ -633,9 +743,17 @@ export default function StudentLayout() {
   );
 }
 
+
 /* ── Smart Explanation Whiteboard for Teachers ── */
 function TeacherWhiteboard() {
   const [isOpen, setIsOpen] = useState(false);
+
+  // Listen for dashboard 'open-explanation-board' trigger
+  useEffect(() => {
+    const handleOpenBoard = () => setIsOpen(true);
+    window.addEventListener('open-explanation-board', handleOpenBoard);
+    return () => window.removeEventListener('open-explanation-board', handleOpenBoard);
+  }, []);
 
   // Notify VoiceTutor to shrink when whiteboard is open
   useEffect(() => {
@@ -647,11 +765,11 @@ function TeacherWhiteboard() {
   const laserSegmentsRef = useRef([]);
   const laserAnimationIdRef = useRef(null);
   
-  const [color, setColor] = useState('#22d3ee');
-  const [wbTheme, setWbTheme] = useState('dark'); // 'dark', 'light'
+  const [color, setColor] = useState('#2563EB');
+  const [wbTheme, setWbTheme] = useState('light'); // 'light', 'dark'
   const [wbGrid, setWbGrid] = useState(true); // boolean grid overlay
   const [tool, setTool] = useState('draw'); // 'draw', 'erase', 'line', 'rect', 'circle', 'triangle', 'laser'
-  const [brushSize, setBrushSize] = useState(3);
+  const [brushSize, setBrushSize] = useState(4);
   
   // Undo/Redo history
   const [history, setHistory] = useState([]);
@@ -662,12 +780,12 @@ function TeacherWhiteboard() {
   const prevPosRef = useRef({ x: 0, y: 0 });
   const snapshotRef = useRef(null);
 
-  const [rulerState, setRulerState] = useState({ active: false, x: 180, y: 180, angle: 0, scale: 1.0 });
-  const [protractorState, setProtractorState] = useState({ active: false, x: 380, y: 180, angle: 0, scale: 1.0 });
+  const [rulerState, setRulerState] = useState({ active: false, x: 180, y: 140, angle: 0, scale: 1.0 });
+  const [protractorState, setProtractorState] = useState({ active: false, x: 380, y: 140, angle: 0, scale: 1.0 });
 
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const [windowPos, setWindowPos] = useState({ x: 120, y: 80 });
-  const [windowSize, setWindowSize] = useState({ width: 750, height: 500 });
+  const [windowPos, setWindowPos] = useState({ x: 140, y: 60 });
+  const [windowSize, setWindowSize] = useState({ width: 860, height: 560 });
   
   const isLight = wbTheme === 'light';
 
@@ -717,8 +835,8 @@ function TeacherWhiteboard() {
       const mX = moveEvent.touches ? moveEvent.touches[0].clientX : moveEvent.clientX;
       const mY = moveEvent.touches ? moveEvent.touches[0].clientY : moveEvent.clientY;
       setWindowSize({
-        width: Math.max(450, initialW + (mX - startX)),
-        height: Math.max(350, initialH + (mY - startY))
+        width: Math.max(620, initialW + (mX - startX)),
+        height: Math.max(420, initialH + (mY - startY))
       });
     };
 
@@ -791,7 +909,6 @@ function TeacherWhiteboard() {
     if (!parentEl) return;
     const parentRect = parentEl.getBoundingClientRect();
     
-    // Calculate precise center using state coordinates relative to parent container
     const centerX = isRuler
       ? parentRect.left + rulerState.x + (160 * rulerState.scale)
       : parentRect.left + protractorState.x + (120 * protractorState.scale);
@@ -842,7 +959,6 @@ function TeacherWhiteboard() {
     if (!parentEl) return;
     const parentRect = parentEl.getBoundingClientRect();
 
-    // Calculate precise center using state coordinates relative to parent container
     const centerX = isRuler
       ? parentRect.left + rulerState.x + (160 * rulerState.scale)
       : parentRect.left + protractorState.x + (120 * protractorState.scale);
@@ -853,7 +969,6 @@ function TeacherWhiteboard() {
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     
-    // Initial distance from cursor to center
     const startDist = Math.sqrt(Math.pow(clientX - centerX, 2) + Math.pow(clientY - centerY, 2));
     const initialScale = isRuler ? rulerState.scale : protractorState.scale;
 
@@ -894,7 +1009,6 @@ function TeacherWhiteboard() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const now = Date.now();
-    // Filter out expired segments (fade lifetime: 2.5 seconds)
     laserSegmentsRef.current = laserSegmentsRef.current.filter(seg => now - seg.createdAt < seg.life);
 
     if (laserSegmentsRef.current.length === 0) {
@@ -902,7 +1016,6 @@ function TeacherWhiteboard() {
       return;
     }
 
-    // Draw active segments
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
@@ -915,8 +1028,6 @@ function TeacherWhiteboard() {
       ctx.globalAlpha = alpha;
       ctx.strokeStyle = seg.color;
       ctx.lineWidth = seg.width;
-      
-      // Neon glow effect!
       ctx.shadowBlur = seg.width * 1.5;
       ctx.shadowColor = seg.color;
 
@@ -936,7 +1047,6 @@ function TeacherWhiteboard() {
     }
   };
 
-  // Clean up laser animation on unmount
   useEffect(() => {
     return () => {
       if (laserAnimationIdRef.current) {
@@ -954,16 +1064,14 @@ function TeacherWhiteboard() {
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
 
-      // 1. Save current drawing in memory
       const tempCanvas = document.createElement('canvas');
       tempCanvas.width = canvas.width;
       tempCanvas.height = canvas.height;
       const tempCtx = tempCanvas.getContext('2d');
       tempCtx.drawImage(canvas, 0, 0);
 
-      // 2. Update size to fit current bounds
       const targetW = isFullScreen ? window.innerWidth : windowSize.width;
-      const targetH = isFullScreen ? (window.innerHeight - 40) : (windowSize.height - 40); // Subtract header height
+      const targetH = isFullScreen ? (window.innerHeight - 48) : (windowSize.height - 48);
       
       canvas.width = targetW;
       canvas.height = targetH;
@@ -975,12 +1083,10 @@ function TeacherWhiteboard() {
         triggerLaserRedraw();
       }
 
-      // 3. Restore drawings and brush settings
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.drawImage(tempCanvas, 0, 0);
 
-      // 4. Clamp geometry tools within new bounds
       setRulerState(prev => {
         const nextX = Math.max(10, Math.min(prev.x, targetW - 310));
         const nextY = Math.max(10, Math.min(prev.y, targetH - 70));
@@ -994,8 +1100,6 @@ function TeacherWhiteboard() {
     };
 
     window.addEventListener('resize', handleResize);
-    
-    // Call layout sizing immediately after render
     const timer = setTimeout(handleResize, 100);
 
     return () => {
@@ -1004,7 +1108,6 @@ function TeacherWhiteboard() {
     };
   }, [isOpen, isFullScreen, windowSize]);
 
-  // Save drawing state to history for undo/redo
   const saveState = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -1019,7 +1122,6 @@ function TeacherWhiteboard() {
     setHistoryIndex(newHistory.length - 1);
   };
 
-  // Triggered on first draw or clear
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => {
@@ -1033,7 +1135,6 @@ function TeacherWhiteboard() {
         }
       }, 150);
     } else {
-      // Clear history when closed
       setHistory([]);
       setHistoryIndex(-1);
     }
@@ -1080,13 +1181,11 @@ function TeacherWhiteboard() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Create a temporary canvas to merge background and strokes
     const exportCanvas = document.createElement('canvas');
     exportCanvas.width = canvas.width;
     exportCanvas.height = canvas.height;
     const exportCtx = exportCanvas.getContext('2d');
 
-    // 1. Fill background based on current theme
     if (wbTheme === 'light') {
       exportCtx.fillStyle = '#ffffff';
       exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
@@ -1108,7 +1207,7 @@ function TeacherWhiteboard() {
         }
       }
     } else {
-      exportCtx.fillStyle = '#09090b'; // zinc-950
+      exportCtx.fillStyle = '#09090b';
       exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
       
       if (wbGrid) {
@@ -1129,27 +1228,21 @@ function TeacherWhiteboard() {
       }
     }
 
-    // 2. Draw the whiteboard canvas contents on top
     exportCtx.drawImage(canvas, 0, 0);
 
-    // 2.5 Draw active geometry tools on top of canvas for export
     if (rulerState.active) {
       exportCtx.save();
-      // Translate to CSS transform center
       exportCtx.translate(rulerState.x + 160, rulerState.y + 38);
       exportCtx.rotate(rulerState.angle * Math.PI / 180);
       exportCtx.scale(rulerState.scale, rulerState.scale);
 
-      // Background Tint
       exportCtx.fillStyle = isLight ? 'rgba(8, 102, 126, 0.08)' : 'rgba(34, 211, 238, 0.05)';
       exportCtx.fillRect(-160, -38, 320, 76);
 
-      // Draw Ruler Border
       exportCtx.strokeStyle = isLight ? 'rgba(8, 102, 126, 0.6)' : 'rgba(34, 211, 238, 0.4)';
       exportCtx.lineWidth = 1;
       exportCtx.strokeRect(-160, -38, 320, 76);
 
-      // Centimeter markings
       const startX = -150;
       const cmStep = 300 / 15;
       exportCtx.strokeStyle = isLight ? '#08667e' : '#22d3ee';
@@ -1160,17 +1253,12 @@ function TeacherWhiteboard() {
 
       for (let i = 0; i <= 15; i++) {
         const xPos = startX + i * cmStep;
-        
-        // Major Tick
         exportCtx.beginPath();
         exportCtx.moveTo(xPos, -38);
         exportCtx.lineTo(xPos, -28);
         exportCtx.stroke();
-
-        // Centimeter value
         exportCtx.fillText(i.toString(), xPos, -24);
 
-        // Millimeter ticks
         if (i < 15) {
           const mmStep = cmStep / 10;
           for (let j = 1; j < 10; j++) {
@@ -1183,11 +1271,9 @@ function TeacherWhiteboard() {
         }
       }
 
-      // Title
       exportCtx.fillStyle = isLight ? 'rgba(8, 102, 126, 0.9)' : 'rgba(34, 211, 238, 0.8)';
       exportCtx.fillText(`Ruler · ${Math.round(rulerState.angle)}°`, 0, -5);
 
-      // Bottom bar
       exportCtx.fillStyle = isLight ? '#cffafe' : '#084d62';
       exportCtx.fillRect(-160, 18, 320, 20);
       
@@ -1205,38 +1291,32 @@ function TeacherWhiteboard() {
 
     if (protractorState.active) {
       exportCtx.save();
-      // Translate to CSS transform center bottom
       exportCtx.translate(protractorState.x + 120, protractorState.y + 140);
       exportCtx.rotate(protractorState.angle * Math.PI / 180);
       exportCtx.scale(protractorState.scale, protractorState.scale);
 
-      // Background Tint
       exportCtx.fillStyle = isLight ? 'rgba(91, 33, 182, 0.08)' : 'rgba(167, 139, 250, 0.05)';
       exportCtx.beginPath();
       exportCtx.arc(0, -20, 120, Math.PI, 0);
       exportCtx.fill();
 
-      // Semi-circle Arc
       exportCtx.beginPath();
       exportCtx.arc(0, -20, 120, Math.PI, 0);
       exportCtx.strokeStyle = isLight ? 'rgba(91, 33, 182, 0.6)' : 'rgba(167, 139, 250, 0.4)';
       exportCtx.lineWidth = 1;
       exportCtx.stroke();
 
-      // Inner Concentric split line
       exportCtx.beginPath();
       exportCtx.arc(0, -20, 84, Math.PI, 0);
       exportCtx.strokeStyle = isLight ? 'rgba(91, 33, 182, 0.2)' : 'rgba(167, 139, 250, 0.2)';
       exportCtx.lineWidth = 0.7;
       exportCtx.stroke();
 
-      // Flat Edge Line
       exportCtx.beginPath();
       exportCtx.moveTo(-120, -20);
       exportCtx.lineTo(120, -20);
       exportCtx.stroke();
 
-      // Degrees
       exportCtx.textAlign = 'center';
       exportCtx.textBaseline = 'middle';
 
@@ -1246,7 +1326,6 @@ function TeacherWhiteboard() {
         const cos = Math.cos(angleRad);
         const sin = Math.sin(angleRad);
         
-        // Tick Mark
         exportCtx.beginPath();
         exportCtx.moveTo(cos * 120, -20 - sin * 120);
         exportCtx.lineTo(cos * 105, -20 - sin * 105);
@@ -1254,31 +1333,22 @@ function TeacherWhiteboard() {
         exportCtx.lineWidth = 1;
         exportCtx.stroke();
 
-        // Dual scale labels
         if (degree % 30 === 0) {
-          // Outer scale text
           exportCtx.fillStyle = isLight ? '#5b21b6' : '#c4b5fd';
           exportCtx.font = 'bold 7px monospace';
-          const tx = cos * 92;
-          const ty = -20 - sin * 92;
-          exportCtx.fillText(degree.toString(), tx, ty);
+          exportCtx.fillText(degree.toString(), cos * 92, -20 - sin * 92);
 
-          // Inner scale text
           exportCtx.fillStyle = isLight ? '#7c3aed' : '#a78bfa';
           exportCtx.font = 'bold 6.5px monospace';
-          const txi = cos * 76;
-          const tyi = -20 - sin * 76;
-          exportCtx.fillText((180 - degree).toString(), txi, tyi);
+          exportCtx.fillText((180 - degree).toString(), cos * 76, -20 - sin * 76);
         }
       }
 
-      // Center Vertex
       exportCtx.beginPath();
       exportCtx.arc(0, -20, 2, 0, Math.PI * 2);
       exportCtx.fillStyle = isLight ? '#5b21b6' : '#c4b5fd';
       exportCtx.fill();
 
-      // Bottom Bar
       exportCtx.fillStyle = isLight ? '#ede9fe' : '#2e1065';
       exportCtx.fillRect(-120, -20, 240, 20);
 
@@ -1295,7 +1365,6 @@ function TeacherWhiteboard() {
       exportCtx.restore();
     }
 
-    // 3. Trigger download
     const link = document.createElement('a');
     const dateStr = new Date().toISOString().slice(0, 10);
     link.download = `whiteboard-${dateStr}.png`;
@@ -1343,7 +1412,7 @@ function TeacherWhiteboard() {
         x2: coords.x,
         y2: coords.y,
         color: color,
-        width: brushSize * 2 + 1, // Laser pointer looks better slightly bolder
+        width: brushSize * 2 + 1,
         createdAt: Date.now(),
         life: 2500
       };
@@ -1373,7 +1442,6 @@ function TeacherWhiteboard() {
       ctx.stroke();
       prevPosRef.current = coords;
     } else {
-      // Shape / Line previews
       if (snapshotRef.current) {
         ctx.putImageData(snapshotRef.current, 0, 0);
       }
@@ -1425,27 +1493,40 @@ function TeacherWhiteboard() {
     }
   };
 
+  const COLOR_PALETTE = [
+    { hex: '#0F172A', name: 'Black Ink' },
+    { hex: '#2563EB', name: 'Marker Blue' },
+    { hex: '#DC2626', name: 'Crimson Red' },
+    { hex: '#059669', name: 'Forest Green' },
+    { hex: '#D97706', name: 'Amber Orange' },
+    { hex: '#7C3AED', name: 'Violet Purple' },
+  ];
+
+  const STROKE_PRESETS = [
+    { size: 2, dot: 5, label: 'Fine' },
+    { size: 4, dot: 8, label: 'Medium' },
+    { size: 8, dot: 12, label: 'Bold' },
+  ];
+
   return (
-    <div className="px-3 mb-4">
+    <div className="px-3 mb-2">
       {/* Smart Board Toggle Button in Sidebar */}
       <button
         onClick={() => setIsOpen(true)}
-        className="w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all text-xs select-none cursor-pointer
-          border-slate-800 bg-slate-100 text-slate-900 font-extrabold hover:bg-slate-200 hover:text-black hover:border-slate-950 shadow-sm
-          dark:border-cyan-400/10 dark:bg-cyan-500/5 dark:text-cyan-400 dark:hover:bg-cyan-400/10 dark:hover:text-cyan-300 dark:hover:border-cyan-400/20 dark:hover:shadow-[0_0_15px_rgba(6,182,212,0.15)] dark:font-bold dark:font-mono dark:tracking-wide dark:uppercase"
+        className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl border border-indigo-100 bg-indigo-50/70 text-indigo-700 font-bold hover:bg-indigo-100/80 hover:border-indigo-200 transition-all text-[12.5px] select-none cursor-pointer shadow-xs"
       >
-        <div className="flex items-center gap-2">
-          <PenTool size={14} className="text-cyan-600 dark:text-cyan-400 stroke-[2.5]" />
+        <div className="flex items-center gap-2.5">
+          <PenTool size={15} className="text-indigo-600 stroke-[2.2]" />
           <span>Explanation Board</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="h-1.5 w-1.5 rounded-full bg-cyan-600 dark:bg-cyan-400 animate-pulse" />
-          <span className="text-[9px] text-slate-500 dark:text-cyan-400/60 font-medium">Launch</span>
+          <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse" />
+          <span className="text-[10px] text-indigo-600 font-semibold">Launch</span>
         </div>
       </button>
 
       {/* Draggable & Resizable Whiteboard Window Popup */}
-      {isOpen && (
+      {isOpen && createPortal(
         <div
           style={{
             position: 'fixed',
@@ -1454,46 +1535,191 @@ function TeacherWhiteboard() {
             width: isFullScreen ? '100vw' : `${windowSize.width}px`,
             height: isFullScreen ? '100vh' : `${windowSize.height}px`,
             zIndex: 9999,
+            background: '#FFFFFF',
+            borderRadius: isFullScreen ? 0 : 18,
+            border: isFullScreen ? 'none' : '1px solid #CBD5E1',
+            boxShadow: isFullScreen ? 'none' : '0 24px 60px rgba(15, 23, 42, 0.22), 0 4px 16px rgba(15, 23, 42, 0.08)',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            userSelect: 'none',
+            fontFamily: "'Plus Jakarta Sans', 'Inter', sans-serif",
           }}
-          className={`bg-zinc-950/85 backdrop-blur-md select-none overflow-visible shadow-2xl flex flex-col ${
-            isFullScreen ? 'w-screen h-screen' : 'border-2 border-white/10 rounded-2xl'
-          }`}
         >
-          {/* Draggable Header Bar */}
+          {/* ── Clean Top Header & Utility Bar ── */}
           <div
             onMouseDown={handleWindowDragStart}
             onTouchStart={handleWindowDragStart}
-            className={`h-10 bg-zinc-900/80 border-b border-white/5 flex items-center justify-between px-4 select-none cursor-move flex-shrink-0 ${
-              isFullScreen ? '' : 'rounded-t-2xl'
-            }`}
+            style={{
+              height: 48,
+              background: '#F8FAFC',
+              borderBottom: '1px solid #E2E8F0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '0 14px',
+              cursor: isFullScreen ? 'default' : 'move',
+              flexShrink: 0,
+            }}
           >
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
-              <span className="text-xs font-bold text-zinc-200 tracking-wide font-mono uppercase">Smart Explanation Board</span>
+            {/* Left: Board Title */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{
+                width: 28, height: 28, borderRadius: 8,
+                background: '#EEF2FF', border: '1px solid #C7D2FE',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4F46E5'
+              }}>
+                <PenTool size={14} />
+              </div>
+              <span style={{ fontSize: '0.86rem', fontWeight: 700, color: '#0F172A', letterSpacing: '-0.01em' }}>
+                Explanation Board
+              </span>
             </div>
-            
-            {/* Header controls (Maximize / Close) */}
-            <div className="flex items-center gap-1.5">
+
+            {/* Right: Board Utilities (Undo, Redo, Grid, Theme, Save, Clear, Expand, Close) */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              {/* Undo / Redo group */}
+              <div style={{ display: 'flex', alignItems: 'center', background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 8, padding: 2 }}>
+                <button
+                  type="button"
+                  onClick={undo}
+                  disabled={historyIndex <= 0}
+                  title="Undo"
+                  style={{
+                    width: 28, height: 26, borderRadius: 6, border: 'none', background: 'transparent',
+                    color: historyIndex <= 0 ? '#CBD5E1' : '#475569',
+                    cursor: historyIndex <= 0 ? 'not-allowed' : 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}
+                >
+                  <Undo size={14} />
+                </button>
+                <div style={{ width: 1, height: 14, background: '#E2E8F0' }} />
+                <button
+                  type="button"
+                  onClick={redo}
+                  disabled={historyIndex >= history.length - 1}
+                  title="Redo"
+                  style={{
+                    width: 28, height: 26, borderRadius: 6, border: 'none', background: 'transparent',
+                    color: historyIndex >= history.length - 1 ? '#CBD5E1' : '#475569',
+                    cursor: historyIndex >= history.length - 1 ? 'not-allowed' : 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}
+                >
+                  <Redo size={14} />
+                </button>
+              </div>
+
+              {/* Grid Toggle */}
               <button
-                onClick={() => setIsFullScreen(!isFullScreen)}
-                title={isFullScreen ? "Restore Popup Size" : "Make Full Screen"}
-                className="h-6 w-6 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white flex items-center justify-center transition-all cursor-pointer border border-white/5 pointer-events-auto"
+                type="button"
+                onClick={() => setWbGrid(!wbGrid)}
+                title={wbGrid ? 'Hide Grid' : 'Show Grid'}
+                style={{
+                  height: 30, padding: '0 10px', borderRadius: 8,
+                  border: wbGrid ? '1px solid #C7D2FE' : '1px solid #E2E8F0',
+                  background: wbGrid ? '#EEF2FF' : '#FFFFFF',
+                  color: wbGrid ? '#4F46E5' : '#475569',
+                  fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: '5px'
+                }}
               >
-                {isFullScreen ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
+                <Grid size={13} />
+                <span>Grid</span>
               </button>
+
+              {/* Board Surface Toggle */}
               <button
+                type="button"
+                onClick={() => setWbTheme(prev => prev === 'dark' ? 'light' : 'dark')}
+                title={wbTheme === 'light' ? 'Switch to Dark Board' : 'Switch to White Board'}
+                style={{
+                  height: 30, padding: '0 10px', borderRadius: 8,
+                  border: '1px solid #E2E8F0',
+                  background: '#FFFFFF',
+                  color: '#475569',
+                  fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: '5px'
+                }}
+              >
+                {wbTheme === 'light' ? <Moon size={13} /> : <Sun size={13} color="#F59E0B" />}
+                <span>{wbTheme === 'light' ? 'Dark' : 'Light'}</span>
+              </button>
+
+              {/* Save Image */}
+              <button
+                type="button"
+                onClick={downloadBoard}
+                title="Download board as PNG"
+                style={{
+                  height: 30, padding: '0 10px', borderRadius: 8,
+                  border: '1px solid #E2E8F0',
+                  background: '#FFFFFF',
+                  color: '#0F172A',
+                  fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: '5px'
+                }}
+              >
+                <Download size={13} />
+                <span>Save</span>
+              </button>
+
+              {/* Clear Canvas */}
+              <button
+                type="button"
+                onClick={resetBoard}
+                title="Clear entire board"
+                style={{
+                  height: 30, padding: '0 10px', borderRadius: 8,
+                  border: '1px solid #FECACA',
+                  background: '#FEF2F2',
+                  color: '#DC2626',
+                  fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: '5px'
+                }}
+              >
+                <Trash2 size={13} />
+                <span>Clear</span>
+              </button>
+
+              <div style={{ width: 1, height: 18, background: '#E2E8F0', margin: '0 2px' }} />
+
+              {/* Fullscreen Toggle */}
+              <button
+                type="button"
+                onClick={() => setIsFullScreen(!isFullScreen)}
+                title={isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
+                style={{
+                  width: 30, height: 30, borderRadius: 8,
+                  border: '1px solid #E2E8F0', background: '#FFFFFF',
+                  color: '#475569', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }}
+              >
+                {isFullScreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+              </button>
+
+              {/* Close Board */}
+              <button
+                type="button"
                 onClick={() => setIsOpen(false)}
-                title="Close Board"
-                className="h-6 w-6 rounded-lg bg-red-500/10 hover:bg-red-500/30 text-red-400 hover:text-red-300 border border-red-500/20 flex items-center justify-center transition-all cursor-pointer text-xs font-bold pointer-events-auto"
+                title="Close Explanation Board"
+                style={{
+                  width: 30, height: 30, borderRadius: 8,
+                  border: '1px solid #E2E8F0', background: '#FFFFFF',
+                  color: '#64748B', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '0.85rem', fontWeight: 700
+                }}
               >
                 ✕
               </button>
             </div>
           </div>
 
-          {/* Canvas Wrapper */}
+          {/* ── Canvas Area ── */}
           <div className="relative flex-1 w-full overflow-hidden touch-none">
-            {/* Background CSS Grid Pattern classes */}
             <div className={`absolute inset-0 w-full h-full transition-colors duration-200 ${getBgClass()}`}>
               <canvas
                 ref={canvasRef}
@@ -1519,413 +1745,425 @@ function TeacherWhiteboard() {
               />
             </div>
 
-          {/* Draggable & Rotatable Ruler Widget */}
-          {rulerState.active && (
-            <div
-              id="ruler-widget"
-              style={{
-                position: 'absolute',
-                left: rulerState.x,
-                top: rulerState.y,
-                transform: `rotate(${rulerState.angle}deg) scale(${rulerState.scale})`,
-                transformOrigin: 'center center',
-                width: '320px',
-                height: '76px',
-                touchAction: 'none',
-              }}
-              className={`z-[10000] flex flex-col justify-between border ${
-                isLight ? 'border-cyan-600/60 bg-cyan-50/15 shadow-cyan-800/5' : 'border-cyan-500/40 bg-zinc-950/5'
-              } rounded shadow-lg select-none pointer-events-none`}
-            >
-              {/* Ruler Markings (centimeters / ticks) - Click Pass-Through */}
-              <div className="relative w-full h-[56px] pointer-events-none">
-                <div className={`absolute top-0 left-0 right-0 h-4 flex justify-between px-2 pt-0.5 border-b ${
-                  isLight ? 'border-cyan-600/10' : 'border-white/10'
-                }`}>
-                  {Array.from({ length: 16 }).map((_, i) => (
-                    <div key={i} className="flex flex-col items-center">
-                      <span className={`text-[7px] ${
-                        isLight ? 'text-cyan-800 font-extrabold' : 'text-cyan-400 font-bold'
-                      } font-mono leading-none`}>{i}</span>
-                      <div className={`h-2 w-[1px] ${
-                        isLight ? 'bg-cyan-600' : 'bg-cyan-400/40'
-                      } mt-[1px]`} />
-                    </div>
-                  ))}
-                </div>
-                <div className="absolute top-0 left-0 right-0 h-4 flex justify-between px-2 pt-0.5 opacity-40">
-                  {Array.from({ length: 76 }).map((_, i) => {
-                    if (i % 5 === 0) return null;
-                    return (
-                      <div
-                        key={i}
-                        className={`h-1 w-[0.5px] ${
-                          isLight ? 'bg-cyan-700' : 'bg-cyan-300'
-                        }`}
-                        style={{ marginLeft: `${i * 4}px` }}
-                      />
-                    );
-                  })}
-                </div>
-
-                {/* Title & Stats */}
-                <div className={`w-full text-center text-[10px] ${
-                  isLight ? 'text-cyan-800/90' : 'text-cyan-400/80'
-                } font-mono font-bold pt-4`}>
-                  Ruler · {Math.round(rulerState.angle)}° · {Math.round(rulerState.scale * 100)}%
-                </div>
-              </div>
-
-              {/* Bottom Grab/Drag Bar (Active pointer events) */}
+            {/* Draggable & Rotatable Ruler Widget */}
+            {rulerState.active && (
               <div
-                onMouseDown={(e) => handleDragStart(e, 'ruler')}
-                onTouchStart={(e) => handleDragStart(e, 'ruler')}
-                className={`w-full h-5 ${
-                  isLight ? 'bg-cyan-100/40 backdrop-blur-sm border-t border-cyan-300' : 'bg-cyan-950/90 border-t border-cyan-500/20'
-                } flex items-center justify-between px-2 cursor-move pointer-events-auto rounded-b`}
+                id="ruler-widget"
+                style={{
+                  position: 'absolute',
+                  left: rulerState.x,
+                  top: rulerState.y,
+                  transform: `rotate(${rulerState.angle}deg) scale(${rulerState.scale})`,
+                  transformOrigin: 'center center',
+                  width: '320px',
+                  height: '76px',
+                  touchAction: 'none',
+                }}
+                className={`z-[10000] flex flex-col justify-between border ${
+                  isLight ? 'border-cyan-600/60 bg-cyan-50/15 shadow-cyan-800/5' : 'border-cyan-500/40 bg-zinc-950/5'
+                } rounded shadow-lg select-none pointer-events-none`}
               >
-                {/* Close Button */}
-                <button
-                  onClick={() => setRulerState(prev => ({ ...prev, active: false }))}
-                  className="h-3.5 w-3.5 rounded-full bg-red-500/20 hover:bg-red-500 border border-red-500/30 text-red-400 hover:text-white flex items-center justify-center text-[8px] font-bold cursor-pointer transition-all"
-                  title="Hide ruler"
-                >
-                  ✕
-                </button>
-                
-                <span className={`text-[8px] ${
-                  isLight ? 'text-cyan-700' : 'text-cyan-400/70'
-                } font-mono font-bold uppercase tracking-wider`}>Drag to Move</span>
-                
-                {/* Scale & Rotate buttons */}
-                <div className="flex items-center gap-1">
-                  <button
-                    onMouseDown={(e) => handleScaleStart(e, 'ruler')}
-                    onTouchStart={(e) => handleScaleStart(e, 'ruler')}
-                    className={`h-3.5 px-1 rounded ${
-                      isLight ? 'bg-cyan-50 hover:bg-cyan-200 text-cyan-800 border-cyan-400' : 'bg-cyan-950 hover:bg-cyan-900 text-cyan-400 border-cyan-500'
-                    } border text-[7px] font-extrabold flex items-center justify-center cursor-se-resize active:scale-95 transition-all`}
-                    title="Drag to resize / stretch"
-                  >
-                    ⤢ Stretch
-                  </button>
-                  <button
-                    onMouseDown={(e) => handleRotateStart(e, 'ruler')}
-                    onTouchStart={(e) => handleRotateStart(e, 'ruler')}
-                    className={`h-3.5 w-3.5 rounded ${
-                      isLight ? 'bg-cyan-50 hover:bg-cyan-200 text-cyan-800 border-cyan-400' : 'bg-cyan-950 hover:bg-cyan-900 text-cyan-400 border-cyan-500'
-                    } border text-[8px] font-bold flex items-center justify-center cursor-alias active:scale-95 transition-all`}
-                    title="Rotate ruler"
-                  >
-                    ↻
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Draggable & Rotatable Protractor Widget */}
-          {protractorState.active && (
-            <div
-              id="protractor-widget"
-              style={{
-                position: 'absolute',
-                left: protractorState.x,
-                top: protractorState.y,
-                transform: `rotate(${protractorState.angle}deg) scale(${protractorState.scale})`,
-                transformOrigin: 'center bottom',
-                width: '240px',
-                height: '140px',
-                touchAction: 'none',
-              }}
-              className={`z-[10000] border-t border-x ${
-                isLight ? 'border-violet-600/60 bg-violet-50/15 shadow-violet-800/5' : 'border-violet-500/40 bg-zinc-950/5'
-              } rounded-t-full shadow-lg select-none pointer-events-none flex flex-col justify-end`}
-            >
-              {/* Semi-circular markings SVG - Click Pass-Through */}
-              <div className="relative w-full h-[120px] pointer-events-none">
-                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 240 120">
-                  {/* Concentric Splitter line */}
-                  <path
-                    d="M 36 112 A 84 84 0 0 1 204 112"
-                    fill="none"
-                    stroke={isLight ? 'rgba(109, 40, 217, 0.2)' : 'rgba(196, 181, 253, 0.2)'}
-                    strokeWidth="0.7"
-                  />
-                  {/* Protractor baseline */}
-                  <line
-                    x1="12"
-                    y1="112"
-                    x2="228"
-                    y2="112"
-                    stroke={isLight ? 'rgba(109, 40, 217, 0.5)' : 'rgba(196, 181, 253, 0.4)'}
-                    strokeWidth="1"
-                  />
-                  {Array.from({ length: 19 }).map((_, i) => {
-                    const degree = i * 10;
-                    const angleRad = (180 - degree) * (Math.PI / 180);
-                    const radius = 105;
-                    const x = 120 + radius * Math.cos(angleRad);
-                    const y = 112 - radius * Math.sin(angleRad);
-                    
-                    return (
-                      <g key={degree}>
-                        <line
-                          x1={120 + 115 * Math.cos(angleRad)}
-                          y1={112 - 115 * Math.sin(angleRad)}
-                          x2={x}
-                          y2={y}
-                          stroke={isLight ? 'rgba(109, 40, 217, 0.7)' : 'rgba(196, 181, 253, 0.6)'}
-                          strokeWidth="1"
+                <div className="relative w-full h-[56px] pointer-events-none">
+                  <div className={`absolute top-0 left-0 right-0 h-4 flex justify-between px-2 pt-0.5 border-b ${
+                    isLight ? 'border-cyan-600/10' : 'border-white/10'
+                  }`}>
+                    {Array.from({ length: 16 }).map((_, i) => (
+                      <div key={i} className="flex flex-col items-center">
+                        <span className={`text-[7px] ${
+                          isLight ? 'text-cyan-800 font-extrabold' : 'text-cyan-400 font-bold'
+                        } font-mono leading-none`}>{i}</span>
+                        <div className={`h-2 w-[1px] ${
+                          isLight ? 'bg-cyan-600' : 'bg-cyan-400/40'
+                        } mt-[1px]`} />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="absolute top-0 left-0 right-0 h-4 flex justify-between px-2 pt-0.5 opacity-40">
+                    {Array.from({ length: 76 }).map((_, i) => {
+                      if (i % 5 === 0) return null;
+                      return (
+                        <div
+                          key={i}
+                          className={`h-1 w-[0.5px] ${
+                            isLight ? 'bg-cyan-700' : 'bg-cyan-300'
+                          }`}
+                          style={{ marginLeft: `${i * 4}px` }}
                         />
-                        {degree % 30 === 0 && (
-                          <g>
-                            {/* Outer reading text (0 to 180 Left-to-Right) */}
-                            <text
-                              x={120 + 92 * Math.cos(angleRad)}
-                              y={112 - 92 * Math.sin(angleRad)}
-                              fill={isLight ? '#5b21b6' : '#C4B5FD'}
-                              fontSize="7"
-                              fontFamily="monospace"
-                              fontWeight="bold"
-                              textAnchor="middle"
-                              alignmentBaseline="middle"
-                            >
-                              {degree}
-                            </text>
-                            {/* Inner reading text (180 to 0 Left-to-Right / 0 to 180 Right-to-Left) */}
-                            <text
-                              x={120 + 76 * Math.cos(angleRad)}
-                              y={112 - 76 * Math.sin(angleRad)}
-                              fill={isLight ? '#7c3aed' : '#a78bfa'}
-                              fontSize="6.5"
-                              fontFamily="monospace"
-                              fontWeight="bold"
-                              textAnchor="middle"
-                              alignmentBaseline="middle"
-                              opacity="0.8"
-                            >
-                              {180 - degree}
-                            </text>
-                          </g>
-                        )}
-                      </g>
-                    );
-                  })}
-                  <circle cx="120" cy="112" r="3" fill={isLight ? '#5b21b6' : '#C4B5FD'} />
-                  <line x1="120" y1="112" x2="120" y2="32" stroke={isLight ? 'rgba(109, 40, 217, 0.3)' : 'rgba(196, 181, 253, 0.3)'} strokeDasharray="2,2" />
-                </svg>
+                      );
+                    })}
+                  </div>
+                  <div className={`w-full text-center text-[10px] ${
+                    isLight ? 'text-cyan-800/90' : 'text-cyan-400/80'
+                  } font-mono font-bold pt-4`}>
+                    Ruler · {Math.round(rulerState.angle)}° · {Math.round(rulerState.scale * 100)}%
+                  </div>
+                </div>
 
-                {/* Title & Stats */}
-                <div className={`absolute bottom-2 left-0 right-0 text-center text-[10px] ${
-                  isLight ? 'text-violet-800' : 'text-violet-400/80'
-                } font-mono font-bold`}>
-                  Protractor · {Math.round(protractorState.angle)}° · {Math.round(protractorState.scale * 100)}%
+                <div
+                  onMouseDown={(e) => handleDragStart(e, 'ruler')}
+                  onTouchStart={(e) => handleDragStart(e, 'ruler')}
+                  className={`w-full h-5 ${
+                    isLight ? 'bg-cyan-100/40 backdrop-blur-sm border-t border-cyan-300' : 'bg-cyan-950/90 border-t border-cyan-500/20'
+                  } flex items-center justify-between px-2 cursor-move pointer-events-auto rounded-b`}
+                >
+                  <button
+                    onClick={() => setRulerState(prev => ({ ...prev, active: false }))}
+                    className="h-3.5 w-3.5 rounded-full bg-red-500/20 hover:bg-red-500 border border-red-500/30 text-red-400 hover:text-white flex items-center justify-center text-[8px] font-bold cursor-pointer transition-all"
+                    title="Hide ruler"
+                  >
+                    ✕
+                  </button>
+                  <span className={`text-[8px] ${
+                    isLight ? 'text-cyan-700' : 'text-cyan-400/70'
+                  } font-mono font-bold uppercase tracking-wider`}>Drag to Move</span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onMouseDown={(e) => handleScaleStart(e, 'ruler')}
+                      onTouchStart={(e) => handleScaleStart(e, 'ruler')}
+                      className={`h-3.5 px-1 rounded ${
+                        isLight ? 'bg-cyan-50 hover:bg-cyan-200 text-cyan-800 border-cyan-400' : 'bg-cyan-950 hover:bg-cyan-900 text-cyan-400 border-cyan-500'
+                      } border text-[7px] font-extrabold flex items-center justify-center cursor-se-resize active:scale-95 transition-all`}
+                      title="Drag to resize / stretch"
+                    >
+                      ⤢ Stretch
+                    </button>
+                    <button
+                      onMouseDown={(e) => handleRotateStart(e, 'ruler')}
+                      onTouchStart={(e) => handleRotateStart(e, 'ruler')}
+                      className={`h-3.5 w-3.5 rounded ${
+                        isLight ? 'bg-cyan-50 hover:bg-cyan-200 text-cyan-800 border-cyan-400' : 'bg-cyan-950 hover:bg-cyan-900 text-cyan-400 border-cyan-500'
+                      } border text-[8px] font-bold flex items-center justify-center cursor-alias active:scale-95 transition-all`}
+                      title="Rotate ruler"
+                    >
+                      ↻
+                    </button>
+                  </div>
                 </div>
               </div>
+            )}
 
-              {/* Bottom Grab/Drag Bar (Active pointer events) */}
+            {/* Draggable & Rotatable Protractor Widget */}
+            {protractorState.active && (
               <div
-                onMouseDown={(e) => handleDragStart(e, 'protractor')}
-                onTouchStart={(e) => handleDragStart(e, 'protractor')}
-                className={`w-full h-6 ${
-                  isLight ? 'bg-violet-100/40 backdrop-blur-sm border-t border-violet-300' : 'bg-violet-950/90 border-t border-violet-500/20'
-                } flex items-center justify-between px-2 cursor-move pointer-events-auto rounded-b`}
+                id="protractor-widget"
+                style={{
+                  position: 'absolute',
+                  left: protractorState.x,
+                  top: protractorState.y,
+                  transform: `rotate(${protractorState.angle}deg) scale(${protractorState.scale})`,
+                  transformOrigin: 'center bottom',
+                  width: '240px',
+                  height: '140px',
+                  touchAction: 'none',
+                }}
+                className={`z-[10000] border-t border-x ${
+                  isLight ? 'border-violet-600/60 bg-violet-50/15 shadow-violet-800/5' : 'border-violet-500/40 bg-zinc-950/5'
+                } rounded-t-full shadow-lg select-none pointer-events-none flex flex-col justify-end`}
               >
-                {/* Close Button */}
-                <button
-                  onClick={() => setProtractorState(prev => ({ ...prev, active: false }))}
-                  className="h-3.5 w-3.5 rounded-full bg-red-500/20 hover:bg-red-500 border border-red-500/30 text-red-400 hover:text-white flex items-center justify-center text-[8px] font-bold cursor-pointer transition-all"
-                  title="Hide protractor"
-                >
-                  ✕
-                </button>
-                
-                <span className={`text-[8px] ${
-                  isLight ? 'text-violet-700' : 'text-violet-400/70'
-                } font-mono font-bold uppercase tracking-wider`}>Drag to Move</span>
+                <div className="relative w-full h-[120px] pointer-events-none">
+                  <svg className="absolute inset-0 w-full h-full" viewBox="0 0 240 120">
+                    <path
+                      d="M 36 112 A 84 84 0 0 1 204 112"
+                      fill="none"
+                      stroke={isLight ? 'rgba(109, 40, 217, 0.2)' : 'rgba(196, 181, 253, 0.2)'}
+                      strokeWidth="0.7"
+                    />
+                    <line
+                      x1="12"
+                      y1="112"
+                      x2="228"
+                      y2="112"
+                      stroke={isLight ? 'rgba(109, 40, 217, 0.5)' : 'rgba(196, 181, 253, 0.4)'}
+                      strokeWidth="1"
+                    />
+                    {Array.from({ length: 19 }).map((_, i) => {
+                      const degree = i * 10;
+                      const angleRad = (180 - degree) * (Math.PI / 180);
+                      const radius = 105;
+                      const x = 120 + radius * Math.cos(angleRad);
+                      const y = 112 - radius * Math.sin(angleRad);
+                      
+                      return (
+                        <g key={degree}>
+                          <line
+                            x1={120 + 115 * Math.cos(angleRad)}
+                            y1={112 - 115 * Math.sin(angleRad)}
+                            x2={x}
+                            y2={y}
+                            stroke={isLight ? 'rgba(109, 40, 217, 0.7)' : 'rgba(196, 181, 253, 0.6)'}
+                            strokeWidth="1"
+                          />
+                          {degree % 30 === 0 && (
+                            <g>
+                              <text
+                                x={120 + 92 * Math.cos(angleRad)}
+                                y={112 - 92 * Math.sin(angleRad)}
+                                fill={isLight ? '#5b21b6' : '#C4B5FD'}
+                                fontSize="7"
+                                fontFamily="monospace"
+                                fontWeight="bold"
+                                textAnchor="middle"
+                                alignmentBaseline="middle"
+                              >
+                                {degree}
+                              </text>
+                              <text
+                                x={120 + 76 * Math.cos(angleRad)}
+                                y={112 - 76 * Math.sin(angleRad)}
+                                fill={isLight ? '#7c3aed' : '#a78bfa'}
+                                fontSize="6.5"
+                                fontFamily="monospace"
+                                fontWeight="bold"
+                                textAnchor="middle"
+                                alignmentBaseline="middle"
+                                opacity="0.8"
+                              >
+                                {180 - degree}
+                              </text>
+                            </g>
+                          )}
+                        </g>
+                      );
+                    })}
+                    <circle cx="120" cy="112" r="3" fill={isLight ? '#5b21b6' : '#C4B5FD'} />
+                    <line x1="120" y1="112" x2="120" y2="32" stroke={isLight ? 'rgba(109, 40, 217, 0.3)' : 'rgba(196, 181, 253, 0.3)'} strokeDasharray="2,2" />
+                  </svg>
+                  <div className={`absolute bottom-2 left-0 right-0 text-center text-[10px] ${
+                    isLight ? 'text-violet-800' : 'text-violet-400/80'
+                  } font-mono font-bold`}>
+                    Protractor · {Math.round(protractorState.angle)}° · {Math.round(protractorState.scale * 100)}%
+                  </div>
+                </div>
 
-                {/* Scale & Rotate buttons */}
-                <div className="flex items-center gap-1">
+                <div
+                  onMouseDown={(e) => handleDragStart(e, 'protractor')}
+                  onTouchStart={(e) => handleDragStart(e, 'protractor')}
+                  className={`w-full h-6 ${
+                    isLight ? 'bg-violet-100/40 backdrop-blur-sm border-t border-violet-300' : 'bg-violet-950/90 border-t border-violet-500/20'
+                  } flex items-center justify-between px-2 cursor-move pointer-events-auto rounded-b`}
+                >
                   <button
-                    onMouseDown={(e) => handleScaleStart(e, 'protractor')}
-                    onTouchStart={(e) => handleScaleStart(e, 'protractor')}
-                    className={`h-3.5 px-1 rounded ${
-                      isLight ? 'bg-violet-50 hover:bg-violet-200 text-violet-800 border-violet-450' : 'bg-violet-950 border border-violet-500 text-violet-400'
-                    } border text-[7px] font-extrabold flex items-center justify-center cursor-se-resize active:scale-95 transition-all`}
-                    title="Drag to resize / stretch"
+                    onClick={() => setProtractorState(prev => ({ ...prev, active: false }))}
+                    className="h-3.5 w-3.5 rounded-full bg-red-500/20 hover:bg-red-500 border border-red-500/30 text-red-400 hover:text-white flex items-center justify-center text-[8px] font-bold cursor-pointer transition-all"
+                    title="Hide protractor"
                   >
-                    ⤢ Stretch
+                    ✕
                   </button>
-                  <button
-                    onMouseDown={(e) => handleRotateStart(e, 'protractor')}
-                    onTouchStart={(e) => handleRotateStart(e, 'protractor')}
-                    className={`h-3.5 w-3.5 rounded ${
-                      isLight ? 'bg-violet-50 hover:bg-violet-200 text-violet-800 border-violet-450' : 'bg-violet-950 border border-violet-500 text-violet-400'
-                    } border text-[8px] font-bold flex items-center justify-center cursor-alias active:scale-95 transition-all`}
-                    title="Rotate protractor"
-                  >
-                    ↻
-                  </button>
+                  <span className={`text-[8px] ${
+                    isLight ? 'text-violet-700' : 'text-violet-400/70'
+                  } font-mono font-bold uppercase tracking-wider`}>Drag to Move</span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onMouseDown={(e) => handleScaleStart(e, 'protractor')}
+                      onTouchStart={(e) => handleScaleStart(e, 'protractor')}
+                      className={`h-3.5 px-1 rounded ${
+                        isLight ? 'bg-violet-50 hover:bg-violet-200 text-violet-800 border-violet-450' : 'bg-violet-950 border border-violet-500 text-violet-400'
+                      } border text-[7px] font-extrabold flex items-center justify-center cursor-se-resize active:scale-95 transition-all`}
+                      title="Drag to resize / stretch"
+                    >
+                      ⤢ Stretch
+                    </button>
+                    <button
+                      onMouseDown={(e) => handleRotateStart(e, 'protractor')}
+                      onTouchStart={(e) => handleRotateStart(e, 'protractor')}
+                      className={`h-3.5 w-3.5 rounded ${
+                        isLight ? 'bg-violet-50 hover:bg-violet-200 text-violet-800 border-violet-450' : 'bg-violet-950 border border-violet-500 text-violet-400'
+                      } border text-[8px] font-bold flex items-center justify-center cursor-alias active:scale-95 transition-all`}
+                      title="Rotate protractor"
+                    >
+                      ↻
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          </div>
-
-          {/* Floating Cybernetic Dock Toolbar (Right Side Centered) - Compact Design */}
-          <div
-            style={{
-              position: isFullScreen ? 'fixed' : 'absolute',
-              right: isFullScreen ? '24px' : '-94px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-            }}
-            className="z-[10001] flex flex-col items-center gap-4 px-2.5 py-4 bg-zinc-900/80 border border-white/10 rounded-xl backdrop-blur-md shadow-2xl w-20"
-          >
-            
-            {/* Draw mode icons - 2 Column Grid */}
-            <div className="grid grid-cols-2 gap-1 bg-zinc-950/60 p-0.5 rounded-lg border border-white/5 w-full">
-              {[
-                { id: 'draw', icon: PenTool, label: 'Free Draw' },
-                { id: 'erase', icon: Eraser, label: 'Eraser' },
-                { id: 'laser', icon: Zap, label: 'Laser Pointer' },
-                { id: 'line', icon: Minus, label: 'Straight Line' },
-                { id: 'rect', icon: Square, label: 'Rectangle' },
-                { id: 'circle', icon: Circle, label: 'Circle' },
-                { id: 'triangle', icon: Triangle, label: 'Triangle' }
-              ].map((t) => {
-                const Icon = t.icon;
-                return (
-                  <button
-                    key={t.id}
-                    onClick={() => setTool(t.id)}
-                    title={t.label}
-                    className={`flex items-center justify-center p-2 rounded transition-all ${
-                      tool === t.id
-                        ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
-                        : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
-                    }`}
-                  >
-                    <Icon size={16} />
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Colors picker - Compact Grid */}
-            <div className="grid grid-cols-2 gap-1.5 bg-zinc-950/60 p-1.5 rounded-lg border border-white/5 w-full justify-items-center">
-              {['#22d3ee', '#34d399', '#f59e0b', '#f43f5e', '#ffffff', '#000000'].map((c) => (
-                <button
-                  key={c}
-                  onClick={() => setColor(c)}
-                  className="h-5 w-5 rounded-full border border-black/30 transition-all hover:scale-110"
-                  style={{
-                    backgroundColor: c,
-                    boxShadow: color === c ? `0 0 6px ${c}` : 'none',
-                    border: color === c ? '1.5px solid #ffffff' : '1px solid rgba(255,255,255,0.2)'
-                  }}
-                />
-              ))}
-            </div>
-
-            {/* Geometry Tools - 2 Column Grid */}
-            <div className="grid grid-cols-2 gap-1 bg-zinc-950/60 p-0.5 rounded-lg border border-white/5 w-full">
-              <button
-                onClick={() => setRulerState(prev => ({ ...prev, active: !prev.active }))}
-                title="Toggle Ruler"
-                className={`flex items-center justify-center p-2 rounded transition-all ${
-                  rulerState.active
-                    ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
-                    : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
-                }`}
-              >
-                <Ruler size={16} />
-              </button>
-              <button
-                onClick={() => setProtractorState(prev => ({ ...prev, active: !prev.active }))}
-                title="Toggle Protractor"
-                className={`flex items-center justify-center p-2 rounded transition-all ${
-                  protractorState.active
-                    ? 'bg-violet-500/20 text-violet-400 border border-violet-500/30'
-                    : 'text-zinc-400 hover:text-zinc-200 border border-transparent'
-                }`}
-              >
-                <Compass size={16} />
-              </button>
-            </div>
-
-            {/* Size brush selector - Compact */}
-            <div className="flex flex-col items-center gap-1 bg-zinc-950/60 p-1.5 rounded-lg border border-white/5 w-full">
-              <input
-                type="range"
-                min="1"
-                max="25"
-                value={brushSize}
-                onChange={(e) => setBrushSize(parseInt(e.target.value))}
-                className="w-14 h-0.5 bg-zinc-800 rounded appearance-none cursor-pointer accent-cyan-400"
-                title={`Brush Size: ${brushSize}px`}
-              />
-              <span className="text-[8px] text-white font-mono font-bold leading-none">{brushSize}px</span>
-            </div>
-
-            {/* Board Theme & Grid Toggles (Unified row of icons) */}
-            <div className="grid grid-cols-2 gap-1 bg-zinc-950/60 p-0.5 rounded-lg border border-white/5 w-full">
-              <button
-                onClick={() => setWbTheme(prev => prev === 'dark' ? 'light' : 'dark')}
-                title={wbTheme === 'dark' ? "Switch to Light Theme" : "Switch to Dark Theme"}
-                className={`flex items-center justify-center p-2 rounded transition-all ${
-                  wbTheme === 'light' ? 'bg-amber-500/20 text-amber-400' : 'text-zinc-400 hover:text-zinc-200'
-                }`}
-              >
-                {wbTheme === 'light' ? <Sun size={15} /> : <Moon size={15} />}
-              </button>
-              <button
-                onClick={() => setWbGrid(!wbGrid)}
-                title={wbGrid ? "Disable Grid Overlay" : "Enable Grid Overlay"}
-                className={`flex items-center justify-center p-2 rounded transition-all ${
-                  wbGrid ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'text-zinc-400 hover:text-zinc-200'
-                }`}
-              >
-                {wbGrid ? <Grid size={15} /> : <Square size={15} />}
-              </button>
-            </div>
-
-            {/* Actions: Undo/Redo & Save/Trash */}
-            <div className="flex flex-col gap-1 w-full">
-              <div className="grid grid-cols-2 gap-1 w-full">
-                <button
-                  onClick={undo}
-                  disabled={historyIndex <= 0}
-                  className="flex items-center justify-center p-2 rounded bg-zinc-950/60 border border-white/5 text-zinc-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors"
-                  title="Undo last stroke"
-                >
-                  <Undo size={14} />
-                </button>
-                <button
-                  onClick={redo}
-                  disabled={historyIndex >= history.length - 1}
-                  className="flex items-center justify-center p-2 rounded bg-zinc-950/60 border border-white/5 text-zinc-400 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors"
-                  title="Redo next stroke"
-                >
-                  <Redo size={14} />
-                </button>
+            {/* ── Clean Bottom Floating Toolbar Dock (Human-Centered Design) ── */}
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '16px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 10001,
+                background: '#FFFFFF',
+                border: '1px solid #CBD5E1',
+                borderRadius: 16,
+                padding: '6px 10px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                boxShadow: '0 12px 32px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.06)',
+                maxWidth: 'calc(100% - 24px)',
+                overflowX: 'auto',
+              }}
+            >
+              {/* 1. Primary Drawing Tools (Pen, Laser, Eraser) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#F8FAFC', padding: '3px', borderRadius: 11, border: '1px solid #E2E8F0' }}>
+                {[
+                  { id: 'draw', icon: PenTool, label: 'Pen' },
+                  { id: 'laser', icon: Zap, label: 'Laser' },
+                  { id: 'erase', icon: Eraser, label: 'Eraser' },
+                ].map((t) => {
+                  const Icon = t.icon;
+                  const active = tool === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => setTool(t.id)}
+                      title={t.label}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '5px',
+                        padding: '6px 10px', borderRadius: 8, border: 'none',
+                        background: active ? '#4F46E5' : 'transparent',
+                        color: active ? '#FFFFFF' : '#475569',
+                        fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer',
+                        transition: 'all 0.15s ease', whiteSpace: 'nowrap'
+                      }}
+                    >
+                      <Icon size={14} />
+                      <span>{t.label}</span>
+                    </button>
+                  );
+                })}
               </div>
-              <div className="grid grid-cols-2 gap-1 w-full">
+
+              {/* Divider */}
+              <div style={{ width: 1, height: 24, background: '#E2E8F0', flexShrink: 0 }} />
+
+              {/* 2. Shapes (Line, Box, Circle, Triangle) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                {[
+                  { id: 'line', icon: Minus, label: 'Line' },
+                  { id: 'rect', icon: Square, label: 'Rectangle' },
+                  { id: 'circle', icon: Circle, label: 'Circle' },
+                  { id: 'triangle', icon: Triangle, label: 'Triangle' },
+                ].map((s) => {
+                  const Icon = s.icon;
+                  const active = tool === s.id;
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => setTool(s.id)}
+                      title={s.label}
+                      style={{
+                        width: 34, height: 34, borderRadius: 9,
+                        border: active ? '1.5px solid #4F46E5' : '1px solid transparent',
+                        background: active ? '#EEF2FF' : 'transparent',
+                        color: active ? '#4F46E5' : '#475569',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', transition: 'all 0.15s ease', flexShrink: 0
+                      }}
+                    >
+                      <Icon size={16} />
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Divider */}
+              <div style={{ width: 1, height: 24, background: '#E2E8F0', flexShrink: 0 }} />
+
+              {/* 3. Ink Colors */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '0 2px', flexShrink: 0 }}>
+                {COLOR_PALETTE.map((c) => {
+                  const isSelected = color.toLowerCase() === c.hex.toLowerCase();
+                  return (
+                    <button
+                      key={c.hex}
+                      type="button"
+                      onClick={() => {
+                        setColor(c.hex);
+                        if (tool === 'erase') setTool('draw');
+                      }}
+                      title={c.name}
+                      style={{
+                        width: 22, height: 22, borderRadius: '50%',
+                        backgroundColor: c.hex,
+                        border: isSelected ? '2px solid #FFFFFF' : '1px solid rgba(15,23,42,0.15)',
+                        boxShadow: isSelected ? `0 0 0 2px ${c.hex}` : 'none',
+                        transform: isSelected ? 'scale(1.12)' : 'scale(1)',
+                        cursor: 'pointer', transition: 'all 0.15s ease', flexShrink: 0
+                      }}
+                    />
+                  );
+                })}
+              </div>
+
+              {/* Divider */}
+              <div style={{ width: 1, height: 24, background: '#E2E8F0', flexShrink: 0 }} />
+
+              {/* 4. Stroke Thickness Presets */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '3px', background: '#F8FAFC', padding: '3px', borderRadius: 10, border: '1px solid #E2E8F0', flexShrink: 0 }}>
+                {STROKE_PRESETS.map((p) => {
+                  const active = brushSize === p.size;
+                  return (
+                    <button
+                      key={p.size}
+                      type="button"
+                      onClick={() => setBrushSize(p.size)}
+                      title={`${p.label} Stroke (${p.size}px)`}
+                      style={{
+                        width: 28, height: 28, borderRadius: 7,
+                        border: active ? '1px solid #C7D2FE' : '1px solid transparent',
+                        background: active ? '#EEF2FF' : 'transparent',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', transition: 'all 0.15s ease'
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: p.dot,
+                          height: p.dot,
+                          borderRadius: '50%',
+                          background: active ? '#4F46E5' : '#475569',
+                        }}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Divider */}
+              <div style={{ width: 1, height: 24, background: '#E2E8F0', flexShrink: 0 }} />
+
+              {/* 5. Geometry Instruments (Labeled clearly) */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
                 <button
-                  onClick={downloadBoard}
-                  className="flex items-center justify-center p-2 rounded border border-cyan-500/20 bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/25 transition-all"
-                  title="Save drawing as PNG image"
+                  type="button"
+                  onClick={() => setRulerState(prev => ({ ...prev, active: !prev.active }))}
+                  title="Show / Hide Ruler"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '5px',
+                    padding: '6px 10px', borderRadius: 9,
+                    border: rulerState.active ? '1px solid #BAE6FD' : '1px solid #E2E8F0',
+                    background: rulerState.active ? '#F0F9FF' : '#FFFFFF',
+                    color: rulerState.active ? '#0284C7' : '#475569',
+                    fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer',
+                    whiteSpace: 'nowrap'
+                  }}
                 >
-                  <Download size={14} />
+                  <Ruler size={14} />
+                  <span>Ruler</span>
                 </button>
                 <button
-                  onClick={resetBoard}
-                  className="flex items-center justify-center p-2 rounded border border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500/25 transition-all"
-                  title="Clear whiteboard canvas"
+                  type="button"
+                  onClick={() => setProtractorState(prev => ({ ...prev, active: !prev.active }))}
+                  title="Show / Hide Protractor"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '5px',
+                    padding: '6px 10px', borderRadius: 9,
+                    border: protractorState.active ? '1px solid #DDD6FE' : '1px solid #E2E8F0',
+                    background: protractorState.active ? '#F5F3FF' : '#FFFFFF',
+                    color: protractorState.active ? '#6D28D9' : '#475569',
+                    fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer',
+                    whiteSpace: 'nowrap'
+                  }}
                 >
-                  <Trash2 size={14} />
+                  <Compass size={14} />
+                  <span>Protractor</span>
                 </button>
               </div>
             </div>
@@ -1940,21 +2178,22 @@ function TeacherWhiteboard() {
                 position: 'absolute',
                 right: '0',
                 bottom: '0',
-                width: '28px',
-                height: '28px',
+                width: '24px',
+                height: '24px',
                 cursor: 'se-resize',
                 zIndex: 10002,
                 pointerEvents: 'auto',
               }}
               className="flex items-end justify-end p-1.5"
             >
-              <svg width="10" height="10" viewBox="0 0 10 10" className="text-zinc-500 fill-current opacity-70">
+              <svg width="10" height="10" viewBox="0 0 10 10" style={{ color: '#94A3B8', fill: 'currentColor' }}>
                 <path d="M10,0 L0,10 L10,10 Z" />
               </svg>
             </div>
           )}
 
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

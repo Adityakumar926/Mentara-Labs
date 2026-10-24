@@ -179,20 +179,65 @@ const CSS = `
 
   /* ── Light Mode Overrides ── */
   .light .subj-header {
-    background: linear-gradient(135deg, rgba(34, 211, 238, 0.12) 0%, rgba(124, 58, 237, 0.18) 60%, rgba(248, 250, 252, 0.8) 100%);
-    border-color: #D2D6FF;
+    background: linear-gradient(125deg, #FFFFFF 0%, #F5F7FF 45%, #EEF2FF 78%, #FDF4FF 100%);
+    border-color: #E0E7FF;
+    box-shadow: 0 10px 28px rgba(79, 70, 229, 0.06);
+  }
+  .light .subj-eyebrow {
+    background: #EEF2FF;
+    border-color: #C7D2FE;
+    color: #4F46E5;
+  }
+  .light .subj-title {
+    color: #1E1B4B;
+  }
+  .light .subj-subtitle {
+    color: #475569;
   }
   .light .subj-card {
-    background: #F3F4FD;
-    border-color: #D2D6FF;
+    background: #FFFFFF;
+    border-color: #E2E8F0;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
   }
   .light .subj-card:hover {
-    border-color: #B2B9FF;
-    background: #EBEFFF;
-    box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.08);
+    border-color: #C7D2FE;
+    background: #F8FAFC;
+    box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.1);
+  }
+  .light .subj-index {
+    background: #EEF2FF;
+    border-color: #C7D2FE;
+    color: #4F46E5;
   }
   .light .subj-card-name {
     color: #0F172A;
+  }
+  .light .subj-card-meta {
+    color: #64748B;
+  }
+  .light .subj-badge-content {
+    background: #F0F9FF;
+    border-color: #BAE6FD;
+    color: #0284C7;
+  }
+  .light .subj-badge-premium {
+    background: #FFFBEB;
+    border-color: #FDE68A;
+    color: #D97706;
+  }
+  .light .subj-arrow {
+    background: #EEF2FF;
+    border-color: #C7D2FE;
+  }
+  .light .subj-empty {
+    background: #FFFFFF;
+    border-color: #CBD5E1;
+  }
+  .light .subj-empty-title {
+    color: #0F172A;
+  }
+  .light .subj-empty-desc {
+    color: #64748B;
   }
   .light .subj-back-btn {
     background: #FFFFFF;

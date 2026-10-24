@@ -385,6 +385,62 @@ const CSS = `
     background: rgba(255,255,255,0.2);
     color: #fff;
   }
+
+  /* ── Light Mode Overrides ── */
+  .light .sp-header {
+    background: linear-gradient(125deg, #FFFFFF 0%, #F5F7FF 45%, #EEF2FF 78%, #FDF4FF 100%);
+    border-color: #E0E7FF;
+    box-shadow: 0 10px 28px rgba(79, 70, 229, 0.06);
+  }
+  .light .sp-title {
+    background: none;
+    -webkit-text-fill-color: #1E1B4B;
+    color: #1E1B4B;
+  }
+  .light .sp-eyebrow {
+    background: #EEF2FF;
+    border-color: #C7D2FE;
+    color: #4F46E5;
+  }
+  .light .sp-back-btn {
+    background: #FFFFFF;
+    border-color: #CBD5E1;
+    color: #475569;
+  }
+  .light .sp-back-btn:hover {
+    background: #F1F5F9;
+    border-color: #6366F1;
+    color: #4F46E5;
+  }
+  .light .sp-tabs {
+    background: #FFFFFF;
+    border-color: #E2E8F0;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+  }
+  .light .sp-tab-btn {
+    color: #475569;
+  }
+  .light .sp-tab-btn:hover {
+    color: #0F172A;
+    background: #F8FAFC;
+  }
+  .light .sp-tab-btn.active {
+    color: #FFFFFF;
+    background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  }
+  .light .sp-item {
+    background: #FFFFFF;
+    border-color: #E2E8F0;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+  }
+  .light .sp-item:not(.locked):hover {
+    border-color: #C7D2FE;
+    background: #F8FAFC;
+    box-shadow: 0 8px 22px rgba(79, 70, 229, 0.08);
+  }
+  .light .sp-item-title.normal-txt {
+    color: #0F172A;
+  }
 `;
 
 const TYPE_CONFIG = {

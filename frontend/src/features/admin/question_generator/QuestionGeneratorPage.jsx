@@ -464,16 +464,18 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
     }
   };
 
+  const isLightTheme = !location.pathname.startsWith('/admin');
+
   return (
     <PageWrapper title="Cambridge Primary Assessment Studio">
       <style>{`
         .qg-select {
           width: 100%;
-          background-color: #1E293B !important;
-          border: 1px solid #334155 !important;
+          background-color: ${isLightTheme ? '#F8FAFC' : '#1E293B'} !important;
+          border: 1px solid ${isLightTheme ? '#CBD5E1' : '#334155'} !important;
           border-radius: 10px !important;
           padding: 0.65rem 0.85rem !important;
-          color: #F8FAFC !important;
+          color: ${isLightTheme ? '#0F172A' : '#F8FAFC'} !important;
           font-size: 0.84rem !important;
           font-weight: 600 !important;
           outline: none !important;
@@ -482,30 +484,31 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
           appearance: auto;
         }
         .qg-select:hover {
-          border-color: #475569 !important;
+          border-color: ${isLightTheme ? '#94A3B8' : '#475569'} !important;
         }
         .qg-select:focus {
-          border-color: #2563EB !important;
-          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25) !important;
+          border-color: ${isLightTheme ? '#4F46E5' : '#2563EB'} !important;
+          box-shadow: 0 0 0 3px ${isLightTheme ? 'rgba(79, 70, 229, 0.15)' : 'rgba(37, 99, 235, 0.25)'} !important;
+          background-color: ${isLightTheme ? '#FFFFFF' : '#1E293B'} !important;
         }
         .qg-select option {
-          background-color: #0F172A !important;
-          color: #F8FAFC !important;
+          background-color: ${isLightTheme ? '#FFFFFF' : '#0F172A'} !important;
+          color: ${isLightTheme ? '#0F172A' : '#F8FAFC'} !important;
           padding: 10px 14px !important;
           font-size: 0.88rem !important;
         }
         .qg-select option:hover,
         .qg-select option:focus,
         .qg-select option:checked {
-          background-color: #1E293B !important;
-          color: #38BDF8 !important;
+          background-color: ${isLightTheme ? '#EEF2FF' : '#1E293B'} !important;
+          color: ${isLightTheme ? '#4F46E5' : '#38BDF8'} !important;
         }
         .qg-btn-generate {
           width: 100%;
           padding: 0.85rem 1.25rem;
           border-radius: 12px;
           border: none;
-          background: #2563EB;
+          background: ${isLightTheme ? 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)' : '#2563EB'};
           color: #FFFFFF;
           font-family: 'Inter', sans-serif;
           font-size: 0.92rem;
@@ -515,17 +518,17 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
           align-items: center;
           justify-content: center;
           gap: 0.5rem;
-          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+          box-shadow: ${isLightTheme ? '0 6px 16px rgba(79, 70, 229, 0.25)' : '0 4px 12px rgba(37, 99, 235, 0.25)'};
           transition: all 0.2s ease;
           margin-top: 0.5rem;
         }
         .qg-btn-generate:hover {
-          background: #1D4ED8;
-          box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+          background: ${isLightTheme ? 'linear-gradient(135deg, #4338CA 0%, #6D28D9 100%)' : '#1D4ED8'};
+          box-shadow: ${isLightTheme ? '0 8px 20px rgba(79, 70, 229, 0.35)' : '0 6px 16px rgba(37, 99, 235, 0.35)'};
           transform: translateY(-1px);
         }
         .qg-btn-generate:disabled {
-          background: #475569;
+          background: ${isLightTheme ? '#94A3B8' : '#475569'};
           cursor: not-allowed;
           box-shadow: none;
           transform: none;
@@ -536,42 +539,61 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
         {/* ── PAGE HEADER BANNER ── */}
         <div style={{
           position: 'relative',
-          background: '#0F172A',
-          border: '1px solid #1E293B',
-          borderRadius: 20,
-          padding: '1.4rem 2rem',
+          background: isLightTheme
+            ? 'linear-gradient(125deg, #FFFFFF 0%, #F5F7FF 45%, #EEF2FF 78%, #FDF4FF 100%)'
+            : '#0F172A',
+          border: isLightTheme ? '1px solid #E0E7FF' : '1px solid #1E293B',
+          borderRadius: 24,
+          padding: '1.6rem 2.25rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           gap: '1.5rem',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25)'
+          overflow: 'hidden',
+          boxShadow: isLightTheme ? '0 10px 28px rgba(79, 70, 229, 0.06)' : '0 4px 20px rgba(0, 0, 0, 0.25)'
         }}>
           <div style={{ position: 'relative', zIndex: 1, flex: 1 }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-              background: '#1E293B', border: '1px solid #334155',
+              background: isLightTheme ? '#EEF2FF' : '#1E293B',
+              border: isLightTheme ? '1px solid #C7D2FE' : '1px solid #334155',
               padding: '0.3rem 0.85rem', borderRadius: 50,
-              fontSize: '0.72rem', fontWeight: 700, color: '#38BDF8',
+              fontSize: '0.72rem', fontWeight: 700,
+              color: isLightTheme ? '#4F46E5' : '#38BDF8',
               letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '0.6rem'
             }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#38BDF8' }} />
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: isLightTheme ? '#4F46E5' : '#38BDF8' }} />
               Assessments
             </div>
             <h1 style={{
-              fontFamily: "'Inter', sans-serif",
-              fontSize: '1.85rem',
-              fontWeight: 800,
-              letterSpacing: '-0.02em',
-              color: '#ffffff',
+              fontFamily: "'Outfit', 'Inter', sans-serif",
+              fontSize: 'clamp(1.75rem, 3vw, 2.2rem)',
+              fontWeight: 900,
+              letterSpacing: '-0.025em',
+              color: isLightTheme ? '#1E1B4B' : '#ffffff',
               margin: '0 0 0.35rem 0',
               lineHeight: 1.15
             }}>
               Assessment Studio
             </h1>
-            <p style={{ fontSize: '0.85rem', color: '#94A3B8', margin: 0, lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.85rem', color: isLightTheme ? '#475569' : '#94A3B8', margin: 0, lineHeight: 1.5 }}>
               Generate authentic Cambridge Primary checkpoint questions
             </p>
           </div>
+          {isLightTheme && (
+            <img
+              src="/question.png?v=2"
+              alt=""
+              style={{
+                width: 190,
+                height: 145,
+                objectFit: 'contain',
+                flexShrink: 0,
+                position: 'relative',
+                zIndex: 1,
+              }}
+            />
+          )}
         </div>
 
         {/* ── GENERATOR STUDIO ── */}
@@ -579,13 +601,15 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
           
           {/* LEFT CONTROLS PANEL */}
           <div style={{
-            background: '#0F172A', border: '1px solid #1E293B',
+            background: isLightTheme ? '#FFFFFF' : '#0F172A',
+            border: isLightTheme ? '1px solid #E2E8F0' : '1px solid #1E293B',
             borderRadius: 16, padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem',
-            position: 'sticky', top: '1rem', boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)'
+            position: 'sticky', top: '1rem',
+            boxShadow: isLightTheme ? '0 4px 16px rgba(15, 23, 42, 0.05)' : '0 8px 24px rgba(0, 0, 0, 0.2)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingBottom: '0.65rem', borderBottom: '1px solid #1E293B' }}>
-              <Sliders size={16} color="#38BDF8" />
-              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.92rem', fontWeight: 700, color: '#F8FAFC' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingBottom: '0.65rem', borderBottom: isLightTheme ? '1px solid #E2E8F0' : '1px solid #1E293B' }}>
+              <Sliders size={16} color={isLightTheme ? '#4F46E5' : '#38BDF8'} />
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.92rem', fontWeight: 700, color: isLightTheme ? '#0F172A' : '#F8FAFC' }}>
                 Curriculum Parameters
               </span>
             </div>
@@ -601,10 +625,10 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                   onChange={(e) => setAiModel(e.target.value)}
                   className="qg-select"
                 >
-                  <option value="gemini-3.6-flash" style={{ background: '#0F172A', color: '#F8FAFC' }}>Gemini 3.6 Flash (Recommended Active Fast)</option>
-                  <option value="gemini-3.1-pro-preview" style={{ background: '#0F172A', color: '#F8FAFC' }}>Gemini 3.1 Pro (Recommended High Reasoning)</option>
-                  <option value="gemini-3.5-flash" style={{ background: '#0F172A', color: '#F8FAFC' }}>Gemini 3.5 Flash</option>
-                  <option value="gemini-flash-latest" style={{ background: '#0F172A', color: '#F8FAFC' }}>Gemini Flash Latest</option>
+                  <option value="gemini-3.6-flash">Gemini 3.6 Flash (Recommended Active Fast)</option>
+                  <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro (Recommended High Reasoning)</option>
+                  <option value="gemini-3.5-flash">Gemini 3.5 Flash</option>
+                  <option value="gemini-flash-latest">Gemini Flash Latest</option>
                 </select>
               </div>
             )}
@@ -612,7 +636,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
             {/* Grade Selection (Hidden for Students — automatically locked to their registered stage) */}
             {!isStudent && (
               <div>
-                <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
+                <label style={{ fontSize: '0.78rem', fontWeight: 600, color: isLightTheme ? '#475569' : '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
                   Select Grade / Stage
                 </label>
                 <select
@@ -620,19 +644,19 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                   onChange={(e) => setStage(e.target.value)}
                   className="qg-select"
                 >
-                  <option value="Stage 1" style={{ background: '#0F172A', color: '#F8FAFC' }}>Stage 1 (Primary 1)</option>
-                  <option value="Stage 2" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 1 (Stage 2)</option>
-                  <option value="Stage 3" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 2 (Stage 3)</option>
-                  <option value="Stage 4" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 3 (Stage 4)</option>
-                  <option value="Stage 5" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 4 (Stage 5)</option>
-                  <option value="Stage 6" style={{ background: '#0F172A', color: '#F8FAFC' }}>Grade 5 (Stage 6)</option>
+                  <option value="Stage 1">Stage 1 (Primary 1)</option>
+                  <option value="Stage 2">Grade 1 (Stage 2)</option>
+                  <option value="Stage 3">Grade 2 (Stage 3)</option>
+                  <option value="Stage 4">Grade 3 (Stage 4)</option>
+                  <option value="Stage 5">Grade 4 (Stage 5)</option>
+                  <option value="Stage 6">Grade 5 (Stage 6)</option>
                 </select>
               </div>
             )}
 
             {/* Subject */}
             <div>
-              <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
+              <label style={{ fontSize: '0.78rem', fontWeight: 600, color: isLightTheme ? '#475569' : '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
                 Subject
               </label>
               <select
@@ -652,12 +676,12 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                 }}
                 className="qg-select"
               >
-                <option value="Mathematics" style={{ background: '#0F172A', color: '#F8FAFC' }}>Mathematics</option>
-                <option value="Science" style={{ background: '#0F172A', color: '#F8FAFC' }}>Science</option>
-                <option value="English" style={{ background: '#0F172A', color: '#F8FAFC' }}>English</option>
+                <option value="Mathematics">Mathematics</option>
+                <option value="Science">Science</option>
+                <option value="English">English</option>
                 {filteredSubjects.map(s => (
                   !['mathematics', 'science', 'english'].includes(s.name.toLowerCase()) && (
-                    <option key={s.id} value={s.name} style={{ background: '#0F172A', color: '#F8FAFC' }}>{s.name}</option>
+                    <option key={s.id} value={s.name}>{s.name}</option>
                   )
                 ))}
               </select>
@@ -665,7 +689,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
 
             {/* Topic / Strand */}
             <div>
-              <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
+              <label style={{ fontSize: '0.78rem', fontWeight: 600, color: isLightTheme ? '#475569' : '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
                 Curriculum Strand / Topic Name
               </label>
               <select
@@ -685,7 +709,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
               >
                 {topics && topics.length > 0 ? (
                   topics.map(t => (
-                    <option key={t.id} value={t.id} style={{ background: '#0F172A', color: '#F8FAFC' }}>{t.name}</option>
+                    <option key={t.id} value={t.id}>{t.name}</option>
                   ))
                 ) : (
                   (selectedSubjectName.toLowerCase().includes('math')
@@ -694,7 +718,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                     ? DEFAULT_STRANDS_BY_SUBJECT.science
                     : DEFAULT_STRANDS_BY_SUBJECT.english
                   ).map(strand => (
-                    <option key={strand} value={strand} style={{ background: '#0F172A', color: '#F8FAFC' }}>{strand}</option>
+                    <option key={strand} value={strand}>{strand}</option>
                   ))
                 )}
               </select>
@@ -704,10 +728,10 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
             <div style={{ display: 'grid', gridTemplateColumns: hideAdvancedOptions ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
-                  <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8' }}>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 600, color: isLightTheme ? '#475569' : '#94A3B8' }}>
                     Count
                   </label>
-                  <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#38BDF8' }}>
+                  <span style={{ fontSize: '0.78rem', fontWeight: 700, color: isLightTheme ? '#4F46E5' : '#38BDF8' }}>
                     {questionCount} / 5 max
                   </span>
                 </div>
@@ -717,7 +741,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                   max="5"
                   value={questionCount}
                   onChange={(e) => setQuestionCount(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: '#2563EB' }}
+                  style={{ width: '100%', accentColor: isLightTheme ? '#4F46E5' : '#2563EB' }}
                 />
               </div>
               {!hideAdvancedOptions && (
@@ -730,10 +754,10 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                     onChange={(e) => setQuestionType(e.target.value)}
                     className="qg-select"
                   >
-                    <option value="fill_in_lines" style={{ background: '#0F172A', color: '#F8FAFC' }}>Authentic Fill-in Lines (Paper Structure)</option>
-                    <option value="mcq" style={{ background: '#0F172A', color: '#F8FAFC' }}>MCQ (Options)</option>
-                    <option value="short_answer" style={{ background: '#0F172A', color: '#F8FAFC' }}>Short Answer</option>
-                    <option value="mixed" style={{ background: '#0F172A', color: '#F8FAFC' }}>Mixed</option>
+                    <option value="fill_in_lines">Authentic Fill-in Lines (Paper Structure)</option>
+                    <option value="mcq">MCQ (Options)</option>
+                    <option value="short_answer">Short Answer</option>
+                    <option value="mixed">Mixed</option>
                   </select>
                 </div>
               )}
@@ -741,7 +765,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
 
             {/* Difficulty */}
             <div>
-              <label style={{ fontSize: '0.78rem', fontWeight: 600, color: '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
+              <label style={{ fontSize: '0.78rem', fontWeight: 600, color: isLightTheme ? '#475569' : '#94A3B8', marginBottom: '0.4rem', display: 'block' }}>
                 Difficulty Level
               </label>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.4rem' }}>
@@ -753,9 +777,9 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                     style={{
                       padding: '0.45rem 0.2rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700,
                       textTransform: 'capitalize', border: '1px solid', cursor: 'pointer', transition: 'all 0.15s',
-                      background: difficulty === d ? '#2563EB' : '#1E293B',
-                      borderColor: difficulty === d ? '#3B82F6' : '#334155',
-                      color: difficulty === d ? '#FFFFFF' : '#94A3B8'
+                      background: difficulty === d ? (isLightTheme ? '#4F46E5' : '#2563EB') : (isLightTheme ? '#F8FAFC' : '#1E293B'),
+                      borderColor: difficulty === d ? (isLightTheme ? '#4F46E5' : '#3B82F6') : (isLightTheme ? '#CBD5E1' : '#334155'),
+                      color: difficulty === d ? '#FFFFFF' : (isLightTheme ? '#475569' : '#94A3B8')
                     }}
                   >
                     {d}
@@ -788,11 +812,11 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                 gap: '0.45rem',
                 marginTop: '0.35rem',
                 padding: '0.45rem 0.65rem',
-                background: 'rgba(255, 255, 255, 0.03)',
-                border: '1px solid rgba(255, 255, 255, 0.06)',
+                background: isLightTheme ? '#FFFBEB' : 'rgba(255, 255, 255, 0.03)',
+                border: isLightTheme ? '1px solid #FDE68A' : '1px solid rgba(255, 255, 255, 0.06)',
                 borderRadius: 10,
                 fontSize: '0.72rem',
-                color: 'rgba(255, 255, 255, 0.55)',
+                color: isLightTheme ? '#92400E' : 'rgba(255, 255, 255, 0.55)',
                 lineHeight: 1.35
               }}>
                 <AlertCircle size={13} style={{ color: '#F59E0B', flexShrink: 0 }} />
@@ -806,37 +830,41 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
               {/* TOP BAR ACTION & NOTEBOOKLM CAROUSEL TOGGLE */}
               {generatedQuestions.length > 0 && (
                 <div style={{
-                  background: 'rgba(15, 22, 41, 0.85)', border: '1px solid rgba(255, 255, 255, 0.08)',
+                  background: isLightTheme ? '#FFFFFF' : 'rgba(15, 22, 41, 0.85)',
+                  border: isLightTheme ? '1px solid #E2E8F0' : '1px solid rgba(255, 255, 255, 0.08)',
                   borderRadius: 18, padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  backdropFilter: 'blur(16px)', flexWrap: 'wrap', gap: '1rem'
+                  backdropFilter: 'blur(16px)', flexWrap: 'wrap', gap: '1rem',
+                  boxShadow: isLightTheme ? '0 4px 14px rgba(15, 23, 42, 0.04)' : 'none'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <button
                       onClick={toggleSelectAll}
                       style={{
-                        background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
-                        padding: '0.45rem 0.85rem', borderRadius: 10, color: '#fff', fontSize: '0.78rem', fontWeight: 700,
+                        background: isLightTheme ? '#F8FAFC' : 'rgba(255,255,255,0.06)',
+                        border: isLightTheme ? '1px solid #CBD5E1' : '1px solid rgba(255,255,255,0.12)',
+                        padding: '0.45rem 0.85rem', borderRadius: 10,
+                        color: isLightTheme ? '#0F172A' : '#fff', fontSize: '0.78rem', fontWeight: 700,
                         cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem'
                       }}
                     >
-                      <CheckCircle2 size={14} color="var(--cyan)" />
+                      <CheckCircle2 size={14} color={isLightTheme ? '#4F46E5' : 'var(--cyan)'} />
                       {selectedQuestionIndexes.length === generatedQuestions.length ? 'Deselect All' : 'Select All'}
                     </button>
-                    <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)' }}>
+                    <span style={{ fontSize: '0.8rem', color: isLightTheme ? '#475569' : 'rgba(255,255,255,0.6)' }}>
                       Selected <strong>{selectedQuestionIndexes.length}</strong> of {generatedQuestions.length} questions
                     </span>
                   </div>
 
                   {/* VIEW MODE TOGGLE BUTTONS (NotebookLM Carousel vs Full List) */}
-                  <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.4)', padding: '0.25rem', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', background: isLightTheme ? '#F1F5F9' : 'rgba(0,0,0,0.4)', padding: '0.25rem', borderRadius: 12, border: isLightTheme ? '1px solid #CBD5E1' : '1px solid rgba(255,255,255,0.1)' }}>
                     <button
                       type="button"
                       onClick={() => setViewMode('carousel')}
                       style={{
                         padding: '0.4rem 0.85rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700,
                         border: 'none', cursor: 'pointer', transition: 'all 0.2s',
-                        background: viewMode === 'carousel' ? 'var(--cyan)' : 'transparent',
-                        color: viewMode === 'carousel' ? '#000' : 'rgba(255,255,255,0.7)'
+                        background: viewMode === 'carousel' ? (isLightTheme ? '#4F46E5' : 'var(--cyan)') : 'transparent',
+                        color: viewMode === 'carousel' ? (isLightTheme ? '#FFFFFF' : '#000') : (isLightTheme ? '#475569' : 'rgba(255,255,255,0.7)')
                       }}
                     >
                       🎴 Carousel View (1-by-1)
@@ -847,8 +875,8 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                       style={{
                         padding: '0.4rem 0.85rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700,
                         border: 'none', cursor: 'pointer', transition: 'all 0.2s',
-                        background: viewMode === 'list' ? 'var(--cyan)' : 'transparent',
-                        color: viewMode === 'list' ? '#000' : 'rgba(255,255,255,0.7)'
+                        background: viewMode === 'list' ? (isLightTheme ? '#4F46E5' : 'var(--cyan)') : 'transparent',
+                        color: viewMode === 'list' ? (isLightTheme ? '#FFFFFF' : '#000') : (isLightTheme ? '#475569' : 'rgba(255,255,255,0.7)')
                       }}
                     >
                       📜 List All
@@ -860,7 +888,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                         padding: '0.4rem 0.85rem', borderRadius: 8, fontSize: '0.75rem', fontWeight: 700,
                         border: 'none', cursor: 'pointer', transition: 'all 0.2s', marginLeft: '0.5rem',
                         background: showAnswers ? '#10B981' : 'transparent',
-                        color: showAnswers ? '#fff' : 'rgba(255,255,255,0.7)'
+                        color: showAnswers ? '#fff' : (isLightTheme ? '#475569' : 'rgba(255,255,255,0.7)')
                       }}
                     >
                       {showAnswers ? 'Hide Mark Scheme' : 'Show Mark Scheme'}
@@ -902,16 +930,18 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
               {/* QUESTIONS DISPLAY AREA */}
               {generatedQuestions.length === 0 ? (
                 <div style={{
-                  background: 'rgba(15, 22, 41, 0.5)', border: '1px border-dashed rgba(255, 255, 255, 0.1)',
-                  borderRadius: 20, padding: '4rem 2rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem'
+                  background: isLightTheme ? '#FFFFFF' : 'rgba(15, 22, 41, 0.5)',
+                  border: isLightTheme ? '2px dashed #CBD5E1' : '1px dashed rgba(255, 255, 255, 0.1)',
+                  borderRadius: 20, padding: '4rem 2rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem',
+                  boxShadow: isLightTheme ? '0 4px 16px rgba(15, 23, 42, 0.04)' : 'none'
                 }}>
-                  <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(0,212,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Sparkles size={24} color="var(--cyan)" />
+                  <div style={{ width: 56, height: 56, borderRadius: '50%', background: isLightTheme ? '#EEF2FF' : 'rgba(0,212,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Sparkles size={24} color={isLightTheme ? '#4F46E5' : 'var(--cyan)'} />
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fff', margin: 0 }}>No Questions Generated Yet</h3>
-                    <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.5)', maxWidth: 460, margin: '0 auto' }}>
-                      Configure your Stage, Subject, Topic, and RAG document context on the left, then click <strong>"Generate Questions"</strong> to generate live questions!
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: isLightTheme ? '#0F172A' : '#fff', margin: 0 }}>No Questions Generated Yet</h3>
+                    <p style={{ fontSize: '0.82rem', color: isLightTheme ? '#64748B' : 'rgba(255,255,255,0.5)', maxWidth: 460, margin: '0 auto', lineHeight: 1.55 }}>
+                      Configure your Stage, Subject, and Topic on the left, then click <strong>"Generate Questions"</strong> to generate live questions!
                     </p>
                   </div>
                 </div>
@@ -922,18 +952,20 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                   {viewMode === 'carousel' && (
                     <div style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      background: 'rgba(15, 22, 41, 0.75)', border: '1px solid rgba(255, 255, 255, 0.08)',
-                      borderRadius: 16, padding: '0.85rem 1.5rem', backdropFilter: 'blur(12px)'
+                      background: isLightTheme ? '#FFFFFF' : 'rgba(15, 22, 41, 0.75)',
+                      border: isLightTheme ? '1px solid #E2E8F0' : '1px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: 16, padding: '0.85rem 1.5rem', backdropFilter: 'blur(12px)',
+                      boxShadow: isLightTheme ? '0 4px 14px rgba(15, 23, 42, 0.04)' : 'none'
                     }}>
                       <button
                         type="button"
                         onClick={() => setCurrentCardIndex(prev => Math.max(0, prev - 1))}
                         disabled={currentCardIndex === 0}
                         style={{
-                          background: currentCardIndex === 0 ? 'rgba(255,255,255,0.04)' : 'rgba(0, 212, 255, 0.15)',
+                          background: currentCardIndex === 0 ? (isLightTheme ? '#F8FAFC' : 'rgba(255,255,255,0.04)') : (isLightTheme ? '#EEF2FF' : 'rgba(0, 212, 255, 0.15)'),
                           border: '1px solid',
-                          borderColor: currentCardIndex === 0 ? 'rgba(255,255,255,0.08)' : 'var(--cyan)',
-                          color: currentCardIndex === 0 ? 'rgba(255,255,255,0.3)' : 'var(--cyan)',
+                          borderColor: currentCardIndex === 0 ? (isLightTheme ? '#E2E8F0' : 'rgba(255,255,255,0.08)') : (isLightTheme ? '#C7D2FE' : 'var(--cyan)'),
+                          color: currentCardIndex === 0 ? (isLightTheme ? '#94A3B8' : 'rgba(255,255,255,0.3)') : (isLightTheme ? '#4F46E5' : 'var(--cyan)'),
                           padding: '0.5rem 1.1rem', borderRadius: 10, fontSize: '0.82rem', fontWeight: 700,
                           cursor: currentCardIndex === 0 ? 'not-allowed' : 'pointer', transition: 'all 0.15s'
                         }}
@@ -954,7 +986,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                               height: 10,
                               borderRadius: 10,
                               border: 'none',
-                              background: currentCardIndex === dotIdx ? 'var(--cyan)' : 'rgba(255,255,255,0.2)',
+                              background: currentCardIndex === dotIdx ? (isLightTheme ? '#4F46E5' : 'var(--cyan)') : (isLightTheme ? '#CBD5E1' : 'rgba(255,255,255,0.2)'),
                               cursor: 'pointer',
                               transition: 'all 0.2s'
                             }}
@@ -967,10 +999,10 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                         onClick={() => setCurrentCardIndex(prev => Math.min(generatedQuestions.length - 1, prev + 1))}
                         disabled={currentCardIndex === generatedQuestions.length - 1}
                         style={{
-                          background: currentCardIndex === generatedQuestions.length - 1 ? 'rgba(255,255,255,0.04)' : 'rgba(0, 212, 255, 0.15)',
+                          background: currentCardIndex === generatedQuestions.length - 1 ? (isLightTheme ? '#F8FAFC' : 'rgba(255,255,255,0.04)') : (isLightTheme ? '#EEF2FF' : 'rgba(0, 212, 255, 0.15)'),
                           border: '1px solid',
-                          borderColor: currentCardIndex === generatedQuestions.length - 1 ? 'rgba(255,255,255,0.08)' : 'var(--cyan)',
-                          color: currentCardIndex === generatedQuestions.length - 1 ? 'rgba(255,255,255,0.3)' : 'var(--cyan)',
+                          borderColor: currentCardIndex === generatedQuestions.length - 1 ? (isLightTheme ? '#E2E8F0' : 'rgba(255,255,255,0.08)') : (isLightTheme ? '#C7D2FE' : 'var(--cyan)'),
+                          color: currentCardIndex === generatedQuestions.length - 1 ? (isLightTheme ? '#94A3B8' : 'rgba(255,255,255,0.3)') : (isLightTheme ? '#4F46E5' : 'var(--cyan)'),
                           padding: '0.5rem 1.1rem', borderRadius: 10, fontSize: '0.82rem', fontWeight: 700,
                           cursor: currentCardIndex === generatedQuestions.length - 1 ? 'not-allowed' : 'pointer', transition: 'all 0.15s'
                         }}
@@ -996,13 +1028,15 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
                         style={{
                           background: '#FAF7F2',
                           color: '#1C1917',
-                          border: isSelected ? '2.5px solid #00D4FF' : '1px solid #E5DFD3',
+                          border: isSelected ? `2.5px solid ${isLightTheme ? '#4F46E5' : '#00D4FF'}` : '1px solid #E5DFD3',
                           borderRadius: 16,
                           padding: '1.75rem 2.25rem',
                           display: 'flex',
                           flexDirection: 'column',
                           gap: '1.25rem',
-                          boxShadow: isSelected ? '0 12px 35px rgba(0, 212, 255, 0.25)' : '0 10px 25px rgba(0,0,0,0.2)',
+                          boxShadow: isSelected
+                            ? (isLightTheme ? '0 12px 35px rgba(79, 70, 229, 0.18)' : '0 12px 35px rgba(0, 212, 255, 0.25)')
+                            : (isLightTheme ? '0 8px 24px rgba(15, 23, 42, 0.06)' : '0 10px 25px rgba(0,0,0,0.2)'),
                           position: 'relative',
                           fontFamily: '"Times New Roman", Times, serif'
                         }}
@@ -1140,12 +1174,12 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
             gap: '0.45rem',
             marginTop: '0.5rem',
             paddingTop: '0.85rem',
-            borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+            borderTop: isLightTheme ? '1px solid #E2E8F0' : '1px solid rgba(255, 255, 255, 0.06)',
             fontSize: '0.74rem',
-            color: 'rgba(255, 255, 255, 0.45)',
+            color: isLightTheme ? '#64748B' : 'rgba(255, 255, 255, 0.45)',
             textAlign: 'center'
           }}>
-            <Sparkles size={12} style={{ color: 'var(--cyan)', opacity: 0.8, flexShrink: 0 }} />
+            <Sparkles size={12} style={{ color: isLightTheme ? '#4F46E5' : 'var(--cyan)', opacity: 0.8, flexShrink: 0 }} />
             <span>Mentera AI may make mistakes. Double-check all generated questions, diagrams, and marking schemes.</span>
           </div>
 

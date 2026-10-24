@@ -214,6 +214,55 @@ export default function TopicsPage() {
     .top-chevron.open {
       transform: rotate(180deg);
     }
+
+    /* ── Light Mode Overrides ── */
+    .light .top-header {
+      background: linear-gradient(125deg, #FFFFFF 0%, #F5F7FF 45%, #EEF2FF 78%, #FDF4FF 100%);
+      border-color: #E0E7FF;
+      box-shadow: 0 10px 28px rgba(79, 70, 229, 0.06);
+    }
+    .light .top-title {
+      background: none;
+      -webkit-text-fill-color: #1E1B4B;
+      color: #1E1B4B;
+    }
+    .light .top-back-btn {
+      background: #FFFFFF;
+      border-color: #CBD5E1;
+      color: #475569;
+    }
+    .light .top-back-btn:hover {
+      background: #F1F5F9;
+      color: #0F172A;
+    }
+    .light .top-progress-container {
+      background: #FFFFFF;
+      border-color: #E2E8F0;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    }
+    .light .top-progress-bar {
+      background: #F1F5F9;
+      border-color: #E2E8F0;
+    }
+    .light .top-parent-card {
+      background: #FFFFFF;
+      border-color: #E2E8F0;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    }
+    .light .top-parent-card:hover {
+      border-color: #C7D2FE;
+    }
+    .light .top-name {
+      color: #0F172A;
+    }
+    .light .top-subtopic-row {
+      background: #F8FAFC;
+      border-color: #E2E8F0;
+    }
+    .light .top-subtopic-row:hover {
+      background: #EEF2FF;
+      border-color: #C7D2FE;
+    }
   `;
 
   return (

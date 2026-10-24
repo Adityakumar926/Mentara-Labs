@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   Search, Sparkles, BookOpen, FileText, Video, Image, 
   ExternalLink, Eye, Play, Download, ChevronRight, Award, Lock, Clock, CheckCircle, ChevronDown, Check, Layers
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageWrapper, EmptyState, Button, Modal } from '@/components/ui';
-import { useApi, useMutation } from '@/hooks/useApi';
+import { useApi, useMutation, useProgressiveItems } from '@/hooks/useApi';
 import { studentApi } from '@/api/services';
 import useAuthStore from '@/store/authStore';
 import MuxPlayer from '@mux/mux-player-react';
@@ -134,9 +134,10 @@ const CSS = `
     box-shadow: 0 0 16px rgba(34,211,238,0.25);
   }
 
-  /* ── CUSTOM GLASS SUBJECT DROPDOWN ── */
+  /* ── SUBJECT DROPDOWN ── */
   .ex-dropdown-wrap {
     position: relative;
+    z-index: 20;
     min-width: 240px;
     margin-bottom: 1.25rem;
   }
@@ -148,38 +149,36 @@ const CSS = `
     width: 100%;
     max-width: 320px;
     padding: 0.7rem 1.15rem;
-    background: rgba(15, 23, 42, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #FFFFFF;
+    border: 1.5px solid #CBD5E1;
     border-radius: 16px;
-    color: #ffffff;
+    color: #0F172A;
     font-family: 'Space Grotesk', sans-serif;
     font-size: 0.85rem;
     font-weight: 700;
     cursor: pointer;
-    backdrop-filter: blur(16px);
-    transition: all 0.25s ease;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
   }
   .ex-dropdown-btn:hover, .ex-dropdown-btn.open {
-    border-color: rgba(0, 212, 255, 0.5);
-    background: rgba(0, 212, 255, 0.08);
-    box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
-    color: var(--cyan);
+    border-color: #6366F1;
+    background: #EEF2FF;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.12);
+    color: #4F46E5;
   }
 
   .ex-dropdown-menu {
     position: absolute;
-    top: calc(100% + 6px);
+    top: calc(100% + 8px);
     left: 0;
     width: 100%;
     max-width: 320px;
-    background: rgba(15, 22, 41, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #FFFFFF;
+    border: 1.5px solid #E2E8F0;
     border-radius: 18px;
     padding: 0.5rem;
-    z-index: 50;
-    backdrop-filter: blur(24px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 212, 255, 0.1);
+    z-index: 30;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14), 0 4px 12px rgba(79, 70, 229, 0.08);
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -193,21 +192,21 @@ const CSS = `
     padding: 0.65rem 0.85rem;
     border-radius: 12px;
     font-family: 'Inter', sans-serif;
-    font-size: 0.83rem;
+    font-size: 0.84rem;
     font-weight: 600;
-    color: var(--cream);
+    color: #334155;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.18s ease;
   }
   .ex-dropdown-item:hover {
-    background: rgba(0, 212, 255, 0.12);
-    color: var(--cyan);
+    background: #F1F5F9;
+    color: #4F46E5;
   }
   .ex-dropdown-item.active {
-    background: rgba(0, 212, 255, 0.18);
-    color: var(--cyan);
+    background: #EEF2FF;
+    color: #4F46E5;
     font-weight: 700;
-    border: 1px solid rgba(0, 212, 255, 0.3);
+    border: 1px solid #C7D2FE;
   }
 
   /* ── SUB-TAB SELECTION FOR MATERIALS ── */
@@ -376,22 +375,70 @@ const CSS = `
     border-top: 1px solid #D2D6FF !important;
   }
   .light .ex-header {
-    background: linear-gradient(135deg, rgba(34, 211, 238, 0.12) 0%, rgba(124, 58, 237, 0.18) 60%, rgba(248, 250, 252, 0.8) 100%);
-    border-color: #D2D6FF;
+    background: linear-gradient(125deg, #FFFFFF 0%, #F5F7FF 45%, #EEF2FF 78%, #FDF4FF 100%);
+    border-color: #E0E7FF;
+    box-shadow: 0 10px 28px rgba(79, 70, 229, 0.06);
+  }
+  .light .ex-dropdown-btn {
+    background: #FFFFFF;
+    border-color: #CBD5E1;
+    color: #0F172A;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  }
+  .light .ex-dropdown-btn:hover, .light .ex-dropdown-btn.open {
+    border-color: #6366F1;
+    background: #EEF2FF;
+    color: #4F46E5;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.12);
+  }
+  .light .ex-dropdown-menu {
+    background: #FFFFFF;
+    border-color: #E2E8F0;
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
+  }
+  .light .ex-dropdown-item {
+    color: #334155;
+  }
+  .light .ex-dropdown-item:hover {
+    background: #F1F5F9;
+    color: #4F46E5;
+  }
+  .light .ex-dropdown-item.active {
+    background: #EEF2FF;
+    color: #4F46E5;
+    border-color: #C7D2FE;
+  }
+  .light .exam-attempt-btn {
+    background: #EEF2FF !important;
+    border-color: #C7D2FE !important;
+    color: #4F46E5 !important;
   }
 `;
 
 export default function Explore() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuthStore();
   const [selectedNode, setSelectedNode] = useState(null);
-  const [activeTab, setActiveTab] = useState('animations'); // 'animations', 'materials', 'exams'
+  const initialTab = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState(
+    initialTab === 'materials' || initialTab === 'exams' || initialTab === 'animations'
+      ? initialTab
+      : 'animations'
+  ); // 'animations', 'materials', 'exams'
   const [activeSubjectName, setActiveSubjectName] = useState('all');
   const [activeMatType, setActiveMatType] = useState('all'); // 'all', 'notes', 'video', 'worksheet'
   const [activeExamFilter, setActiveExamFilter] = useState('all'); // 'all', 'attempted', 'pending'
   const [searchQuery, setSearchQuery] = useState('');
   const [subjectDropdownOpen, setSubjectDropdownOpen] = useState(false);
   const subjectDropdownRef = useRef(null);
+
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'animations' || tabParam === 'materials' || tabParam === 'exams') {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -800,6 +847,41 @@ export default function Explore() {
   const activeContents = getFilteredContents();
   const activeExams = getFilteredExams();
 
+  const contentResetKey = `${activeTab}-${activeSubjectName}-${activeMatType}-${searchQuery}-${selectedNode?.type}-${selectedNode?.id}`;
+  const examResetKey = `${activeTab}-${activeSubjectName}-${activeExamFilter}-${searchQuery}-${selectedNode?.type}-${selectedNode?.id}`;
+
+  const {
+    visibleItems: visibleContents,
+    hasMore: hasMoreContents,
+    isStreaming: isStreamingContents,
+    sentinelRef: contentsSentinelRef,
+    loadMore: loadMoreContents,
+    totalCount: totalContentsCount,
+    visibleCount: visibleContentsCount,
+  } = useProgressiveItems(activeContents, {
+    initialCount: 1,
+    step: 1,
+    intervalMs: 55,
+    batchSize: 18,
+    resetKey: contentResetKey,
+  });
+
+  const {
+    visibleItems: visibleExams,
+    hasMore: hasMoreExams,
+    isStreaming: isStreamingExams,
+    sentinelRef: examsSentinelRef,
+    loadMore: loadMoreExams,
+    totalCount: totalExamsCount,
+    visibleCount: visibleExamsCount,
+  } = useProgressiveItems(activeExams, {
+    initialCount: 1,
+    step: 1,
+    intervalMs: 55,
+    batchSize: 18,
+    resetKey: examResetKey,
+  });
+
   const isUserPremium = user?.is_premium;
   const isTeacher = user?.role === 'teacher' || user?.role === 'admin';
   // Teachers can see all content regardless of premium status
@@ -887,7 +969,7 @@ export default function Explore() {
           </div>
         </div>
 
-        {/* ── CUSTOM GLASS SUBJECT DROPDOWN ── */}
+        {/* ── SUBJECT DROPDOWN ── */}
         <div className="ex-dropdown-wrap" ref={subjectDropdownRef}>
           <button
             type="button"
@@ -895,7 +977,7 @@ export default function Explore() {
             onClick={() => setSubjectDropdownOpen(!subjectDropdownOpen)}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <BookOpen size={16} color="var(--cyan)" />
+              <BookOpen size={16} color="#4F46E5" />
               <span>
                 {activeSubjectName === 'all'
                   ? `All Subjects (${uniqueSubjects.length})`
@@ -907,7 +989,7 @@ export default function Explore() {
               style={{
                 transform: subjectDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
                 transition: 'transform 0.25s ease',
-                color: 'var(--cyan)'
+                color: '#4F46E5'
               }}
             />
           </button>
@@ -926,12 +1008,12 @@ export default function Explore() {
                   onClick={() => { setActiveSubjectName('all'); setSubjectDropdownOpen(false); }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {activeSubjectName === 'all' && <Check size={14} color="var(--cyan)" />}
+                    {activeSubjectName === 'all' && <Check size={14} color="#4F46E5" />}
                     <span>All Subjects</span>
                   </div>
                 </div>
 
-                <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '4px 0' }} />
+                <div style={{ height: '1px', background: '#E2E8F0', margin: '4px 0' }} />
 
                 {uniqueSubjects.map((sub) => (
                   <div
@@ -940,7 +1022,7 @@ export default function Explore() {
                     onClick={() => { setActiveSubjectName(sub.key); setSubjectDropdownOpen(false); }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      {activeSubjectName === sub.key && <Check size={14} color="var(--cyan)" />}
+                      {activeSubjectName === sub.key && <Check size={14} color="#4F46E5" />}
                       <span>{sub.name}</span>
                     </div>
                   </div>
@@ -980,51 +1062,75 @@ export default function Explore() {
               {activeContents.length === 0 ? (
                 <EmptyState icon={Sparkles} title="No Animations Found" description="Try selecting a different subject or typing another keyword." />
               ) : (
-                <div className="ex-grid">
-                  {activeContents.map(c => {
-                    const locked = c.is_premium && !canViewContent;
-                    return (
-                      <div 
-                        key={c.id} 
-                        className={clsx('ex-card', locked && 'dimmed')}
-                        onClick={locked || loadingActionId === c.id ? undefined : () => handleOpenAnimation(c)}
-                      >
-                        <div className="ex-card-strip ex-strip-anim" />
-                        <div className="ex-card-glow" />
+                <>
+                  <div className="ex-grid">
+                    {visibleContents.map(c => {
+                      const locked = c.is_premium && !canViewContent;
+                      return (
+                        <motion.div 
+                          key={c.id} 
+                          initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          transition={{ duration: 0.22, ease: 'easeOut' }}
+                          className={clsx('ex-card', locked && 'dimmed')}
+                          onClick={locked || loadingActionId === c.id ? undefined : () => handleOpenAnimation(c)}
+                        >
+                          <div className="ex-card-strip ex-strip-anim" />
+                          <div className="ex-card-glow" />
 
-                        <div className="ex-card-header">
-                          <span className="ex-card-title">{c.title}</span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                            {locked && (
-                              <span className="ep-status" style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.25)', color: 'var(--amber)' }}><Lock size={10} />Locked</span>
+                          <div className="ex-card-header">
+                            <span className="ex-card-title">{c.title}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                              {locked && (
+                                <span className="ep-status" style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.25)', color: 'var(--amber)' }}><Lock size={10} />Locked</span>
+                              )}
+                            </div>
+                          </div>
+
+                          {(c.subject_name || c.topic_name) && (
+                            <div className="ex-card-meta" style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', fontSize: '0.78rem', color: 'var(--local-violet-l)', fontWeight: 600 }}>
+                              <span>
+                                {c.subject_name}
+                                {c.topic_name && ` • ${c.topic_name}`}
+                              </span>
+                            </div>
+                          )}
+
+                          <div className="ex-card-foot" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.07)', marginTop: 'auto', fontSize: '0.72rem', color: 'var(--muted)' }}>
+                            <span>Widget Demo</span>
+                            {locked ? (
+                              <span className="exam-locked-btn" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: 'var(--amber)', padding: '0.25rem 0.75rem', borderRadius: 50, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}><Lock size={11} />Premium</span>
+                            ) : (
+                              <span className="exam-attempt-btn" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(34, 211, 238, 0.08)', border: '1px solid rgba(34, 211, 238, 0.2)', color: '#22d3ee', padding: '0.25rem 0.75rem', borderRadius: 50, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                                {loadingActionId === c.id ? 'Loading' : 'Launch'}
+                                <ExternalLink size={11} style={{ marginLeft: 2 }} />
+                              </span>
                             )}
                           </div>
-                        </div>
-
-                        {(c.subject_name || c.topic_name) && (
-                          <div className="ex-card-meta" style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', fontSize: '0.78rem', color: 'var(--local-violet-l)', fontWeight: 600 }}>
-                            <span>
-                              {c.subject_name}
-                              {c.topic_name && ` • ${c.topic_name}`}
-                            </span>
-                          </div>
-                        )}
-
-                        <div className="ex-card-foot" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.07)', marginTop: 'auto', fontSize: '0.72rem', color: 'var(--muted)' }}>
-                          <span>Widget Demo</span>
-                          {locked ? (
-                            <span className="exam-locked-btn" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: 'var(--amber)', padding: '0.25rem 0.75rem', borderRadius: 50, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}><Lock size={11} />Premium</span>
-                          ) : (
-                            <span className="exam-attempt-btn" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(34, 211, 238, 0.08)', border: '1px solid rgba(34, 211, 238, 0.2)', color: '#22d3ee', padding: '0.25rem 0.75rem', borderRadius: 50, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                              {loadingActionId === c.id ? 'Loading' : 'Launch'}
-                              <ExternalLink size={11} style={{ marginLeft: 2 }} />
-                            </span>
-                          )}
-                        </div>
+                        </motion.div>
+                      );
+                    })}
+                    {isStreamingContents && (
+                      <div className="ex-card" style={{ minHeight: 155, opacity: 0.55, pointerEvents: 'none' }}>
+                        <div style={{ width: '65%', height: 14, background: 'rgba(124,58,237,0.12)', borderRadius: 6 }} />
+                        <div style={{ width: '45%', height: 11, background: 'rgba(34,211,238,0.1)', borderRadius: 6, marginTop: 10 }} />
+                        <div style={{ width: '100%', height: 28, background: 'rgba(124,58,237,0.06)', borderRadius: 8, marginTop: 'auto' }} />
                       </div>
-                    );
-                  })}
-                </div>
+                    )}
+                  </div>
+                  {hasMoreContents && (
+                    <div ref={contentsSentinelRef} style={{ display: 'flex', justifyContent: 'center', padding: '1.25rem 0' }}>
+                      <button
+                        type="button"
+                        onClick={loadMoreContents}
+                        className="ex-mat-btn"
+                        style={{ fontSize: '0.76rem', opacity: 0.85 }}
+                      >
+                        Showing {visibleContentsCount} of {totalContentsCount} • Load more
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </motion.div>
           ) : activeTab === 'materials' ? (
@@ -1047,85 +1153,109 @@ export default function Explore() {
               {activeContents.length === 0 ? (
                 <EmptyState icon={BookOpen} title="No Materials Found" description="Try selecting a different subject or type filter." />
               ) : (
-                <div className="ex-grid">
-                  {activeContents.map(c => {
-                    const locked = c.is_premium && !canViewContent;
-                    const isNotes = c.content_type === 'note' || c.content_type === 'notes';
-                    const isVideo = c.content_type === 'video';
-                    const isWorksheet = c.content_type === 'worksheet';
-                    
-                    let icon = BookOpen;
-                    let iconCls = 'ex-mat-icon-notes';
-                    let actionIcon = Download;
-                    let handler = () => handleOpenNote(c);
-                    
-                    if (isVideo) {
-                       icon = Video;
-                       iconCls = 'ex-mat-icon-video';
-                       actionIcon = Play;
-                       handler = () => handleOpenVideo(c);
-                    } else if (isWorksheet) {
-                       icon = Image;
-                       iconCls = 'ex-mat-icon-worksheet';
-                       actionIcon = Eye;
-                       handler = () => handleOpenWorksheet(c);
-                    }
+                <>
+                  <div className="ex-grid">
+                    {visibleContents.map(c => {
+                      const locked = c.is_premium && !canViewContent;
+                      const isNotes = c.content_type === 'note' || c.content_type === 'notes';
+                      const isVideo = c.content_type === 'video';
+                      const isWorksheet = c.content_type === 'worksheet';
+                      
+                      let icon = BookOpen;
+                      let iconCls = 'ex-mat-icon-notes';
+                      let actionIcon = Download;
+                      let handler = () => handleOpenNote(c);
+                      
+                      if (isVideo) {
+                         icon = Video;
+                         iconCls = 'ex-mat-icon-video';
+                         actionIcon = Play;
+                         handler = () => handleOpenVideo(c);
+                      } else if (isWorksheet) {
+                         icon = Image;
+                         iconCls = 'ex-mat-icon-worksheet';
+                         actionIcon = Eye;
+                         handler = () => handleOpenWorksheet(c);
+                      }
 
-                    const IconComp = icon;
-                    const ActionIconComp = actionIcon;
+                      const IconComp = icon;
+                      const ActionIconComp = actionIcon;
 
-                    return (
-                      <div 
-                        key={c.id} 
-                        className={clsx('ex-card', locked && 'dimmed')}
-                        onClick={locked || loadingActionId === c.id ? undefined : handler}
-                      >
-                        <div className="ex-card-strip ex-strip-mat" />
-                        <div className="ex-card-glow" />
+                      return (
+                        <motion.div 
+                          key={c.id} 
+                          initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          transition={{ duration: 0.22, ease: 'easeOut' }}
+                          className={clsx('ex-card', locked && 'dimmed')}
+                          onClick={locked || loadingActionId === c.id ? undefined : handler}
+                        >
+                          <div className="ex-card-strip ex-strip-mat" />
+                          <div className="ex-card-glow" />
 
-                        <div className="ex-card-header">
-                          <span className="ex-card-title">{c.title}</span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                          <div className="ex-card-header">
+                            <span className="ex-card-title">{c.title}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                              {locked ? (
+                                <span className="ep-status" style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.25)', color: 'var(--amber)' }}><Lock size={10} />Locked</span>
+                              ) : (
+                                <span className={clsx('ex-mat-icon-wrap', iconCls)} style={{ width: 26, height: 26, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <IconComp size={12} />
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {(c.subject_name || c.topic_name) && (
+                            <div className="ex-card-meta" style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', fontSize: '0.78rem', color: 'var(--local-violet-l)', fontWeight: 600 }}>
+                              <span>
+                                {c.subject_name}
+                                {c.topic_name && ` • ${c.topic_name}`}
+                              </span>
+                            </div>
+                          )}
+
+                          <div className="ex-card-foot" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.07)', marginTop: 'auto', fontSize: '0.72rem', color: 'var(--muted)' }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                              {isNotes && 'Document'}
+                              {isVideo && 'Video Lecture'}
+                              {isWorksheet && 'Worksheet'}
+                            </span>
                             {locked ? (
-                              <span className="ep-status" style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.25)', color: 'var(--amber)' }}><Lock size={10} />Locked</span>
+                              <span className="exam-locked-btn" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: 'var(--amber)', padding: '0.25rem 0.75rem', borderRadius: 50, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}><Lock size={11} />Premium</span>
                             ) : (
-                              <span className={clsx('ex-mat-icon-wrap', iconCls)} style={{ width: 26, height: 26, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <IconComp size={12} />
+                              <span className="exam-attempt-btn" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(34, 211, 238, 0.08)', border: '1px solid rgba(34, 211, 238, 0.2)', color: '#22d3ee', padding: '0.25rem 0.75rem', borderRadius: 50, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                                <ActionIconComp size={11} />
+                                {isNotes && 'Open'}
+                                {isVideo && 'Play'}
+                                {isWorksheet && 'View'}
                               </span>
                             )}
                           </div>
-                        </div>
-
-                        {(c.subject_name || c.topic_name) && (
-                          <div className="ex-card-meta" style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', fontSize: '0.78rem', color: 'var(--local-violet-l)', fontWeight: 600 }}>
-                            <span>
-                              {c.subject_name}
-                              {c.topic_name && ` • ${c.topic_name}`}
-                            </span>
-                          </div>
-                        )}
-
-                        <div className="ex-card-foot" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.07)', marginTop: 'auto', fontSize: '0.72rem', color: 'var(--muted)' }}>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                            {isNotes && 'Document'}
-                            {isVideo && 'Video Lecture'}
-                            {isWorksheet && 'Worksheet'}
-                          </span>
-                          {locked ? (
-                            <span className="exam-locked-btn" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: 'var(--amber)', padding: '0.25rem 0.75rem', borderRadius: 50, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}><Lock size={11} />Premium</span>
-                          ) : (
-                            <span className="exam-attempt-btn" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(34, 211, 238, 0.08)', border: '1px solid rgba(34, 211, 238, 0.2)', color: '#22d3ee', padding: '0.25rem 0.75rem', borderRadius: 50, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                              <ActionIconComp size={11} />
-                              {isNotes && 'Open'}
-                              {isVideo && 'Play'}
-                              {isWorksheet && 'View'}
-                            </span>
-                          )}
-                        </div>
+                        </motion.div>
+                      );
+                    })}
+                    {isStreamingContents && (
+                      <div className="ex-card" style={{ minHeight: 155, opacity: 0.55, pointerEvents: 'none' }}>
+                        <div style={{ width: '65%', height: 14, background: 'rgba(124,58,237,0.12)', borderRadius: 6 }} />
+                        <div style={{ width: '45%', height: 11, background: 'rgba(34,211,238,0.1)', borderRadius: 6, marginTop: 10 }} />
+                        <div style={{ width: '100%', height: 28, background: 'rgba(124,58,237,0.06)', borderRadius: 8, marginTop: 'auto' }} />
                       </div>
-                    );
-                  })}
-                </div>
+                    )}
+                  </div>
+                  {hasMoreContents && (
+                    <div ref={contentsSentinelRef} style={{ display: 'flex', justifyContent: 'center', padding: '1.25rem 0' }}>
+                      <button
+                        type="button"
+                        onClick={loadMoreContents}
+                        className="ex-mat-btn"
+                        style={{ fontSize: '0.76rem', opacity: 0.85 }}
+                      >
+                        Showing {visibleContentsCount} of {totalContentsCount} • Load more
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </motion.div>
           ) : (
@@ -1147,65 +1277,93 @@ export default function Explore() {
               {activeExams.length === 0 ? (
                 <EmptyState icon={FileText} title="No Practice Exams Found" description="Try selecting a different subject or typing another keyword." />
               ) : (
-                <div className="ex-grid">
-                  {activeExams.map(exam => {
-                    const isLive = exam.status === 'live';
-                    const attempted = exam.submission_status === 'submitted';
-                    const locked = exam.is_premium && !canViewContent;
+                <>
+                  <div className="ex-grid">
+                    {visibleExams.map(exam => {
+                      const isLive = exam.status === 'live';
+                      const attempted = exam.submission_status === 'submitted';
+                      const locked = exam.is_premium && !canViewContent;
 
-                    return (
-                      <div key={exam.id} className={clsx('ex-card', locked && 'dimmed')} onClick={locked ? undefined : () => navigate(`/exams/${exam.id}/take`)}>
-                        <div className="ex-card-strip ex-strip-exam" />
-                        <div className="ex-card-glow" />
+                      return (
+                        <motion.div
+                          key={exam.id}
+                          initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          transition={{ duration: 0.22, ease: 'easeOut' }}
+                          className={clsx('ex-card', locked && 'dimmed')}
+                          onClick={locked ? undefined : () => navigate(`/exams/${exam.id}/take`)}
+                        >
+                          <div className="ex-card-strip ex-strip-exam" />
+                          <div className="ex-card-glow" />
 
-                        <div className="ex-card-header">
-                          <span className="ex-card-title">{exam.title}</span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                            {locked ? (
-                              <span className="ep-status ep-status-scheduled" style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.25)', color: 'var(--amber)' }}><Lock size={10} />Locked</span>
-                            ) : (
-                              <span className={clsx('ep-status', isLive ? 'ep-status-live' : 'ep-status-scheduled')} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                {isLive && <span className="ep-live-pulse" />}
-                                {isLive ? 'LIVE' : 'Scheduled'}
+                          <div className="ex-card-header">
+                            <span className="ex-card-title">{exam.title}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                              {locked ? (
+                                <span className="ep-status ep-status-scheduled" style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.25)', color: 'var(--amber)' }}><Lock size={10} />Locked</span>
+                              ) : (
+                                <span className={clsx('ep-status', isLive ? 'ep-status-live' : 'ep-status-scheduled')} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  {isLive && <span className="ep-live-pulse" />}
+                                  {isLive ? 'LIVE' : 'Scheduled'}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {(exam.subject_name || exam.topic_name) && (
+                            <div className="ex-card-meta" style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', fontSize: '0.78rem', color: 'var(--local-violet-l)', fontWeight: 600 }}>
+                              <span>
+                                {exam.subject_name}
+                                {exam.topic_name && ` • ${exam.topic_name}`}
                               </span>
+                            </div>
+                          )}
+
+                          <div className="ex-card-foot" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.07)', marginTop: 'auto', fontSize: '0.72rem', color: 'var(--muted)' }}>
+                            <span><Clock size={11} style={{ color: 'var(--cyan)' }} />{exam.duration_minutes}m</span>
+                            <span><Award size={11} style={{ color: 'var(--local-violet-l)' }} />{exam.total_marks} Marks</span>
+                            {!isTeacher && attempted && (
+                              <span style={{ color: 'var(--local-green)' }}><CheckCircle size={11} />Attempted</span>
+                            )}
+                            {locked ? (
+                              <span className="exam-locked-btn" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: 'var(--amber)', padding: '0.25rem 0.75rem', borderRadius: 50, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}><Lock size={11} />Premium</span>
+                            ) : isTeacher ? (
+                              <span className="exam-attempt-btn" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(124, 58, 237, 0.1)', border: '1px solid rgba(124, 58, 237, 0.25)', color: '#C4B5FD', padding: '0.25rem 0.75rem', borderRadius: 50, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                                <Eye size={11} />Preview
+                              </span>
+                            ) : isLive ? (
+                              <span className="exam-attempt-btn" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(34, 211, 238, 0.08)', border: '1px solid rgba(34, 211, 238, 0.2)', color: '#22d3ee', padding: '0.25rem 0.75rem', borderRadius: 50, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                                <Play size={11} />
+                                {attempted ? 'Retake' : 'Start'}
+                              </span>
+                            ) : (
+                              <span style={{ marginLeft: 'auto', fontSize: '0.68rem', fontWeight: 600, color: 'var(--muted)' }}>Pending</span>
                             )}
                           </div>
-                        </div>
-
-                        {(exam.subject_name || exam.topic_name) && (
-                          <div className="ex-card-meta" style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', fontSize: '0.78rem', color: 'var(--local-violet-l)', fontWeight: 600 }}>
-                            <span>
-                              {exam.subject_name}
-                              {exam.topic_name && ` • ${exam.topic_name}`}
-                            </span>
-                          </div>
-                        )}
-
-                        <div className="ex-card-foot" style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.07)', marginTop: 'auto', fontSize: '0.72rem', color: 'var(--muted)' }}>
-                          <span><Clock size={11} style={{ color: 'var(--cyan)' }} />{exam.duration_minutes}m</span>
-                          <span><Award size={11} style={{ color: 'var(--local-violet-l)' }} />{exam.total_marks} Marks</span>
-                          {!isTeacher && attempted && (
-                            <span style={{ color: 'var(--local-green)' }}><CheckCircle size={11} />Attempted</span>
-                          )}
-                          {locked ? (
-                            <span className="exam-locked-btn" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', color: 'var(--amber)', padding: '0.25rem 0.75rem', borderRadius: 50, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}><Lock size={11} />Premium</span>
-                          ) : isTeacher ? (
-                            <span className="exam-attempt-btn" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(124, 58, 237, 0.1)', border: '1px solid rgba(124, 58, 237, 0.25)', color: '#C4B5FD', padding: '0.25rem 0.75rem', borderRadius: 50, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                              <Eye size={11} />Preview
-                            </span>
-                          ) : isLive ? (
-                            <span className="exam-attempt-btn" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(34, 211, 238, 0.08)', border: '1px solid rgba(34, 211, 238, 0.2)', color: '#22d3ee', padding: '0.25rem 0.75rem', borderRadius: 50, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                              <Play size={11} />
-                              {attempted ? 'Retake' : 'Start'}
-                            </span>
-                          ) : (
-                            <span style={{ marginLeft: 'auto', fontSize: '0.68rem', fontWeight: 600, color: 'var(--muted)' }}>Pending</span>
-                          )}
-                        </div>
+                        </motion.div>
+                      );
+                    })}
+                    {isStreamingExams && (
+                      <div className="ex-card" style={{ minHeight: 155, opacity: 0.55, pointerEvents: 'none' }}>
+                        <div style={{ width: '65%', height: 14, background: 'rgba(124,58,237,0.12)', borderRadius: 6 }} />
+                        <div style={{ width: '45%', height: 11, background: 'rgba(34,211,238,0.1)', borderRadius: 6, marginTop: 10 }} />
+                        <div style={{ width: '100%', height: 28, background: 'rgba(124,58,237,0.06)', borderRadius: 8, marginTop: 'auto' }} />
                       </div>
-                    );
-                  })}
-                </div>
+                    )}
+                  </div>
+                  {hasMoreExams && (
+                    <div ref={examsSentinelRef} style={{ display: 'flex', justifyContent: 'center', padding: '1.25rem 0' }}>
+                      <button
+                        type="button"
+                        onClick={loadMoreExams}
+                        className="ex-mat-btn"
+                        style={{ fontSize: '0.76rem', opacity: 0.85 }}
+                      >
+                        Showing {visibleExamsCount} of {totalExamsCount} • Load more
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </motion.div>
           )}

@@ -29,7 +29,7 @@ const AdminDashboard        = lazy(() => import('@/features/admin/dashboard/Dash
 const CurriculumPage        = lazy(() => import('@/features/admin/curriculum/CurriculumPage'));
 const CurriculumDetail      = lazy(() => import('@/features/admin/curriculum/CurriculumDetail'));
 const QuestionsPage         = lazy(() => import('@/features/admin/questions/QuestionsPage'));
-const QuestionGeneratorPage = lazy(() => import('@/features/admin/question_generator/QuestionGeneratorPage'));
+import QuestionGeneratorPage from '@/features/admin/question_generator/QuestionGeneratorPage';
 const ExamsAdminPage        = lazy(() => import('@/features/admin/exams/ExamsPage'));
 const ExamDetail            = lazy(() => import('@/features/admin/exams/ExamDetail'));
 const StudentsPage          = lazy(() => import('@/features/admin/students/StudentsPage'));

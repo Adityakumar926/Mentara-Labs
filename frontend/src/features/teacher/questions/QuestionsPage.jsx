@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { BookOpen, Search, ChevronDown, ChevronUp, Lock, CheckCircle, XCircle, RotateCcw, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageWrapper, Badge, Skeleton, EmptyState } from '@/components/ui';
-import { useApi } from '@/hooks/useApi';
+import { useApi, useProgressiveItems } from '@/hooks/useApi';
 import { studentApi } from '@/api/services';
 import clsx from 'clsx';
 import HierarchySidebar from '@/components/shared/HierarchySidebar';
@@ -172,6 +172,8 @@ const CSS = `
     cursor: pointer;
     font-family: 'Inter', sans-serif;
     position: relative;
+    isolation: isolate;
+    z-index: 1;
     transition: color 0.2s;
     white-space: nowrap;
   }
@@ -453,6 +455,95 @@ const CSS = `
     margin: 0.25rem 0;
   }
 
+  /* ── Light Mode Overrides ── */
+  .light .q-header {
+    background: linear-gradient(125deg, #FFFFFF 0%, #F5F7FF 45%, #EEF2FF 78%, #FDF4FF 100%);
+    border-color: #E0E7FF;
+    box-shadow: 0 10px 28px rgba(79, 70, 229, 0.06);
+  }
+  .light .q-search-input {
+    background: #FFFFFF;
+    border-color: #CBD5E1;
+    color: #0F172A;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+  }
+  .light .q-search-input:focus {
+    background: #FFFFFF;
+    border-color: #4F46E5;
+  }
+  .light .q-select-filter {
+    background: #FFFFFF;
+    border-color: #CBD5E1;
+    color: #0F172A;
+  }
+  .light .q-select-filter:focus, .light .q-select-filter:hover {
+    border-color: #4F46E5;
+    background: #EEF2FF;
+  }
+  .light .q-select-filter option {
+    background: #FFFFFF;
+    color: #0F172A;
+  }
+  .light .q-filter-strip {
+    background: #F1F5F9;
+    border-color: #CBD5E1;
+  }
+  .light .q-filter-btn {
+    color: #475569;
+  }
+  .light .q-filter-btn.active {
+    color: #FFFFFF;
+  }
+  .light .subject-header-btn {
+    background: #FFFFFF;
+    border-color: #E2E8F0;
+    color: #0F172A;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+  }
+  .light .subject-header-btn:hover {
+    border-color: #C7D2FE;
+    background: #F8FAFC;
+  }
+  .light .q-card {
+    background: #FFFFFF;
+    border-color: #E2E8F0;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+  }
+  .light .q-card:hover {
+    border-color: #C7D2FE;
+  }
+  .light .q-header-row.clickable:hover {
+    background: #F8FAFC;
+  }
+  .light .q-text {
+    color: #0F172A;
+  }
+  .light .q-option-btn {
+    background: #F8FAFC;
+    border-color: #CBD5E1;
+    color: #0F172A;
+  }
+  .light .q-option-btn:not(:disabled):hover {
+    border-color: #6366F1;
+    background: #EEF2FF;
+  }
+  .light .q-feedback-row {
+    border-top-color: #E2E8F0;
+  }
+  .light .q-try-again-btn {
+    background: #F1F5F9;
+    border-color: #CBD5E1;
+    color: #475569;
+  }
+  .light .q-try-again-btn:hover {
+    background: #E2E8F0;
+    color: #0F172A;
+  }
+  .light .q-empty {
+    background: #FFFFFF;
+    border-color: #E2E8F0;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,*::before,*::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   }
@@ -563,9 +654,9 @@ function QuestionCard({ q, idx }) {
   return (
     <motion.div
       className={cardClass}
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: idx * 0.03, duration: 0.22 }}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
     >
       {isLocked && <PremiumOverlay />}
 
@@ -606,6 +697,7 @@ function QuestionCard({ q, idx }) {
           <img
             src={q.image_url}
             alt="Question photo"
+            loading="lazy"
             style={{
               width: '100%',
               maxHeight: '450px',
@@ -894,6 +986,23 @@ function SubjectSection({ group, typeFilter, search, subjectFilter, topicFilter,
     });
   }, [group.questions, group.subject_name, typeFilter, search, subjectFilter, topicFilter, premiumFilter, categoryFilter, selectedNode]);
 
+  const resetKey = `${group.subject_id}-${typeFilter}-${search}-${subjectFilter}-${topicFilter}-${premiumFilter}-${categoryFilter}-${selectedNode?.id}-${collapsed}`;
+  const {
+    visibleItems: visibleQuestions,
+    hasMore,
+    isStreaming,
+    sentinelRef,
+    loadMore,
+    totalCount,
+    visibleCount: shownCount,
+  } = useProgressiveItems(collapsed ? [] : questions, {
+    initialCount: 1,
+    step: 1,
+    intervalMs: 45,
+    batchSize: 12,
+    resetKey,
+  });
+
   if (!questions.length) return null;
 
   const freeCount = questions.filter((q) => !q.is_premium).length;
@@ -903,7 +1012,7 @@ function SubjectSection({ group, typeFilter, search, subjectFilter, topicFilter,
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: sectionIdx * 0.08, duration: 0.3 }}
+      transition={{ duration: 0.25 }}
       style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}
     >
       {/* Subject header */}
@@ -933,9 +1042,24 @@ function SubjectSection({ group, typeFilter, search, subjectFilter, topicFilter,
             transition={{ duration: 0.25, ease: 'easeInOut' }}
             style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}
           >
-            {questions.map((q, i) => (
+            {visibleQuestions.map((q, i) => (
               <QuestionCard key={q.id} q={q} idx={i} />
             ))}
+            {isStreaming && (
+              <div className="q-skel" style={{ height: 54, opacity: 0.6 }} />
+            )}
+            {hasMore && (
+              <div ref={sentinelRef} style={{ display: 'flex', justifyContent: 'center', padding: '0.5rem 0' }}>
+                <button
+                  type="button"
+                  onClick={loadMore}
+                  className="q-filter-btn"
+                  style={{ fontSize: '0.74rem', padding: '0.4rem 1rem', borderRadius: 99, border: '1px solid var(--card-bdr)' }}
+                >
+                  Showing {shownCount} of {totalCount} questions in {group.subject_name} • Load more
+                </button>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -1039,19 +1163,18 @@ export default function StudentQuestionsPage() {
   const totalFree = useMemo(() => groups.reduce((a, g) => a + g.questions.filter((q) => !q.is_premium).length, 0), [groups]);
   const totalPremium = useMemo(() => groups.reduce((a, g) => a + g.questions.filter((q) => q.is_premium).length, 0), [groups]);
 
-  const visibleCount = useMemo(
-    () => groups.reduce((acc, g) => {
-      // filter by subject_id when a subject is selected
-      if (subjectFilter !== 'all' && g.subject_id !== subjectFilter) return acc;
-      const term = (search || '').trim().toLowerCase();
-      const count = g.questions.filter((q) => {
+  const { activeGroups, visibleCount } = useMemo(() => {
+    let total = 0;
+    const matchedGroups = [];
+    const term = (search || '').trim().toLowerCase();
+
+    for (const g of groups) {
+      if (subjectFilter !== 'all' && g.subject_id !== subjectFilter) continue;
+
+      const count = (g.questions || []).filter((q) => {
         if (!q) return false;
-
-        // Sidebar topic node filter
         if (selectedNode?.type === 'topic' && q.topic_id !== selectedNode.id) return false;
-
-        const matchType = typeFilter === 'all' || q.question_type === typeFilter;
-        if (!matchType) return false;
+        if (typeFilter !== 'all' && q.question_type !== typeFilter) return false;
 
         if (topicFilter !== 'all') {
           const qTopicKey = (q.topic_name || '').trim().toLowerCase();
@@ -1082,10 +1205,29 @@ export default function StudentQuestionsPage() {
 
         return textMatch || subjectMatch || topicMatch || typeMatch || diffMatch || imageMatch || optionsMatch;
       }).length;
-      return acc + count;
-    }, 0),
-    [groups, typeFilter, search, subjectFilter, topicFilter, premiumFilter, categoryFilter, selectedNode]
-  );
+
+      if (count > 0) {
+        matchedGroups.push(g);
+        total += count;
+      }
+    }
+
+    return { activeGroups: matchedGroups, visibleCount: total };
+  }, [groups, typeFilter, search, subjectFilter, topicFilter, premiumFilter, categoryFilter, selectedNode]);
+
+  const groupsResetKey = `${typeFilter}-${search}-${subjectFilter}-${topicFilter}-${premiumFilter}-${categoryFilter}-${selectedNode?.type}-${selectedNode?.id}`;
+  const {
+    visibleItems: visibleGroups,
+    hasMore: hasMoreGroups,
+    sentinelRef: groupsSentinelRef,
+    loadMore: loadMoreGroups,
+  } = useProgressiveItems(activeGroups, {
+    initialCount: 1,
+    step: 1,
+    intervalMs: 80,
+    batchSize: 5,
+    resetKey: groupsResetKey,
+  });
 
   return (
     <PageWrapper className="p-0">
@@ -1275,7 +1417,7 @@ export default function StudentQuestionsPage() {
           <QEmpty icon={Search} title="No matches" description="Try a different search term or question type." />
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {groups.map((group, si) => (
+            {visibleGroups.map((group, si) => (
               <SubjectSection
                 key={group.subject_id}
                 group={group}
@@ -1289,6 +1431,18 @@ export default function StudentQuestionsPage() {
                 selectedNode={selectedNode}
               />
             ))}
+            {hasMoreGroups && (
+              <div ref={groupsSentinelRef} style={{ display: 'flex', justifyContent: 'center', padding: '0.75rem 0' }}>
+                <button
+                  type="button"
+                  onClick={loadMoreGroups}
+                  className="q-filter-btn"
+                  style={{ fontSize: '0.76rem', padding: '0.5rem 1.25rem', borderRadius: 99, border: '1px solid var(--card-bdr)' }}
+                >
+                  Load more subjects
+                </button>
+              </div>
+            )}
           </div>
         )}
 
