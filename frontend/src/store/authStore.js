@@ -8,10 +8,11 @@ const useAuthStore = create((set, get) => ({
   error:   null,
 
   // ── Actions ────────────────────────────────────────────────────────────────
-  login: async (credentials) => {
+  login: async (credentials, password) => {
     set({ loading: true, error: null });
     try {
-      const { data } = await authApi.login(credentials);
+      const payload = typeof credentials === 'string' ? { email: credentials, password } : credentials;
+      const { data } = await authApi.login(payload);
       localStorage.setItem('accessToken',  data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
       localStorage.setItem('user', JSON.stringify(data.user));

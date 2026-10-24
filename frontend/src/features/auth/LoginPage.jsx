@@ -184,7 +184,7 @@ export default function LoginPage() {
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     try {
-      const user = await login(form.email, form.password);
+      const user = await login(form);
       saveAccountToCache(user);
       toast.success(`Welcome back, ${user.full_name.split(' ')[0]}!`);
       navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
@@ -685,8 +685,8 @@ export default function LoginPage() {
             {/* Mobile-only brand logo with live color effect */}
             <div className="md-hidden">
               <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-                <img src="/mentara-new.png" alt="Mentara Labs Logo" className="h-9 w-9 object-contain" />
-                <span className="panel-logo-text">Mentara Labs</span>
+                <img src="/mentara-new.png" alt="Mentara Learning Logo" className="h-9 w-9 object-contain" />
+                <span className="panel-logo-text">Mentara Learning</span>
               </Link>
             </div>
 
