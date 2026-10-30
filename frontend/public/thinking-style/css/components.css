@@ -1,0 +1,801 @@
+/* ==========================================================================
+   Mentara Labs | Learning Profile Check
+   Components: Mira Guide, Parent Gate, Confidence Picker, Room Layout
+   ========================================================================== */
+
+/* Mira Guide Component */
+.mira-container {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+  padding: 16px 20px;
+  background: var(--color-soft-sand-light);
+  border: 1px solid var(--color-soft-sand);
+  border-radius: var(--radius-lg);
+  position: relative;
+}
+
+.mira-avatar {
+  flex-shrink: 0;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 2px solid var(--color-sage);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.mira-avatar svg {
+  width: 100%;
+  height: 100%;
+}
+
+.mira-speech {
+  flex: 1;
+}
+
+.mira-name {
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-muted-teal);
+  margin-bottom: 2px;
+}
+
+.mira-text {
+  font-size: 1.05rem;
+  line-height: 1.5;
+  color: var(--color-deep-ink);
+  font-weight: 600;
+}
+
+.mira-speech-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.btn-read-aloud {
+  background: #FFFFFF;
+  border: 1px solid var(--color-soft-sand);
+  border-radius: var(--radius-full);
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-muted-teal);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  min-height: 36px;
+  transition: all var(--transition-gentle);
+}
+
+.btn-read-aloud:hover {
+  background: var(--color-muted-teal-light);
+  border-color: var(--color-muted-teal);
+}
+
+/* Subtle Progress Indicator (Room / Stage - No percent or raw numbers) */
+.room-ribbon {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0 20px;
+  border-bottom: 1px solid var(--color-soft-sand);
+  margin-bottom: var(--space-lg);
+}
+
+.room-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.room-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+  background: var(--color-sage-light);
+  color: var(--color-deep-ink);
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1px solid var(--color-sage);
+}
+
+.room-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-deep-ink);
+}
+
+.room-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-quiet-skip {
+  background: transparent;
+  border: none;
+  color: var(--color-deep-ink-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.btn-quiet-skip:hover {
+  color: var(--color-deep-ink);
+  background: var(--color-soft-sand-light);
+}
+
+/* Question Area */
+.question-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.question-card {
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-soft-sand);
+  border-radius: var(--radius-lg);
+  padding: clamp(20px, 3.5vw, 36px);
+  box-shadow: var(--shadow-sm);
+}
+
+.question-stem {
+  font-size: clamp(1.2rem, 2.2vw, 1.45rem);
+  font-family: var(--font-serif);
+  line-height: 1.5;
+  color: var(--color-deep-ink);
+  margin-bottom: var(--space-md);
+}
+
+.question-media {
+  display: flex;
+  justify-content: center;
+  margin: var(--space-md) 0 var(--space-lg);
+}
+
+.question-media-img {
+  max-width: 100%;
+  max-height: 240px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-soft-sand);
+  object-fit: contain;
+}
+
+/* Confidence Picker: 3 gentle faces (Before answering) */
+.confidence-box {
+  background: var(--color-soft-sand-light);
+  border: 1px solid var(--color-soft-sand);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.confidence-prompt {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-deep-ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.confidence-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.confidence-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 10px;
+  background: #FFFFFF;
+  border: 2px solid var(--color-soft-sand);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-gentle);
+  min-height: 64px;
+}
+
+.confidence-btn:hover {
+  border-color: var(--color-sage);
+  background: #FCFBF9;
+}
+
+.confidence-btn.selected {
+  border-color: var(--color-muted-teal);
+  background: var(--color-muted-teal-light);
+  color: var(--color-deep-ink);
+  box-shadow: 0 2px 10px rgba(79, 127, 134, 0.2);
+}
+
+.confidence-face {
+  font-size: 1.5rem;
+}
+
+.confidence-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* Answer Option Grid */
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: var(--space-sm);
+}
+
+@media (min-width: 640px) {
+  .options-grid.two-col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.option-tile {
+  min-height: 60px;
+  padding: 16px 20px;
+  background: #FFFFFF;
+  border: 2px solid var(--color-soft-sand);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: left;
+  transition: all var(--transition-gentle);
+  color: var(--color-deep-ink);
+}
+
+.option-tile:hover {
+  border-color: var(--color-sage);
+  background: #FCFBF9;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.option-tile.selected {
+  border-color: var(--color-muted-teal);
+  background: var(--color-muted-teal-light);
+}
+
+.option-tile.has-visual {
+  min-height: 72px;
+  padding: 12px 18px;
+  gap: 14px;
+}
+
+.option-visual-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-warm-white);
+  border: 1px solid var(--color-soft-sand);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  min-width: 48px;
+  min-height: 48px;
+}
+
+.option-label-text {
+  flex: 1;
+}
+
+.question-visual-display {
+  margin: var(--space-sm) 0 var(--space-md);
+  animation: gentleFadeIn 350ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.mosaic-tile {
+  transition: transform 200ms ease;
+}
+
+.mosaic-tile:hover {
+  transform: scale(1.04);
+}
+
+.option-indicator {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--color-soft-sand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-deep-ink-muted);
+}
+
+.option-tile.selected .option-indicator {
+  background: var(--color-muted-teal);
+  border-color: var(--color-muted-teal);
+  color: #FFFFFF;
+}
+
+/* Two-tier diagnostic reasoning follow-up */
+.reasoning-box {
+  margin-top: var(--space-lg);
+  padding: 20px;
+  background: var(--color-soft-sand-light);
+  border: 1px solid var(--color-soft-sand);
+  border-radius: var(--radius-md);
+  animation: gentleFadeIn 350ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.reasoning-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-deep-ink);
+  margin-bottom: 12px;
+}
+
+.reasoning-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reasoning-tile {
+  background: #FFFFFF;
+  border: 1px solid var(--color-soft-sand);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all var(--transition-gentle);
+}
+
+.reasoning-tile:hover {
+  border-color: var(--color-sage);
+  background: #FCFBF9;
+}
+
+.reasoning-tile.selected {
+  border-color: var(--color-muted-teal);
+  background: var(--color-muted-teal-light);
+}
+
+/* Calming Dialog / Modal for Stop & Confirmation */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(38, 51, 58, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 20px;
+  animation: gentleFadeIn 250ms ease;
+}
+
+.modal-content {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border-radius: 28px !important;
+  padding: clamp(24px, 4vw, 36px);
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 20px 50px rgba(26, 36, 51, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.95) !important;
+  border: 2px solid rgba(255, 255, 255, 0.9) !important;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: var(--space-lg);
+}
+
+/* ==========================================================================
+   8-Mission Stepper & Pastel Glassmorphism UI
+   ========================================================================== */
+.mission-tracker-container {
+  margin-bottom: 24px;
+  background: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border-radius: var(--radius-lg);
+  padding: 14px 20px;
+  border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 6px 20px rgba(41, 51, 71, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+.mission-tracker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.mission-tracker-title {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1A2433;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mission-progress-label {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #4D5E70;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(200, 215, 225, 0.6);
+}
+
+.mission-stepper {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+
+.mission-step-pill {
+  flex: 1;
+  min-width: 90px;
+  padding: 10px 10px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid #D5E0EA;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--muted);
+  transition: all var(--transition-gentle);
+  text-align: center;
+  user-select: none;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+}
+
+.mission-step-pill.completed {
+  background: rgba(168, 255, 120, 0.12) !important;
+  border-color: rgba(168, 255, 120, 0.45) !important;
+  color: var(--lime) !important;
+  box-shadow: 0 0 14px rgba(168, 255, 120, 0.15);
+}
+
+.mission-step-pill.completed {
+  background: #DFF4EA !important;
+  border-color: #2EA879 !important;
+  color: #11422E !important;
+  box-shadow: 0 4px 10px rgba(46, 168, 121, 0.2);
+}
+
+.mission-step-pill.active {
+  background: #FFF0BE !important;
+  border-color: #C78B12 !important;
+  color: #1A2433 !important;
+  box-shadow: 0 0 0 3px rgba(199, 139, 18, 0.25), 0 4px 12px rgba(199, 139, 18, 0.15) !important;
+  transform: translateY(-2px);
+}
+
+.mission-step-pill.pending {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1.5px solid #D5E2EC;
+  color: #55687E;
+  opacity: 0.85;
+}
+
+.mission-step-icon {
+  font-size: 1.3rem;
+}
+
+/* Atmospheric Mission Scene Banner (Pastel Glass) */
+.mission-scene-banner {
+  border-radius: var(--radius-lg);
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.65) 100%),
+    var(--island-soft, #DFF4EA) !important;
+  border: 2px solid rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(24px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 14px 36px rgba(70, 95, 125, 0.08), inset 0 2px 4px rgba(255, 255, 255, 0.95) !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.mission-scene-info {
+  position: relative;
+  z-index: 2;
+}
+
+.mission-island-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 850;
+  font-family: var(--font-mono);
+  color: #11422E;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+  border: 1.5px solid #A3D9BD;
+  box-shadow: 0 2px 8px rgba(70, 95, 125, 0.06);
+}
+
+.mission-scene-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 2.8vw, 2.15rem);
+  color: var(--text-primary);
+  font-weight: 850;
+  margin-bottom: 4px;
+}
+
+.mission-scene-desc {
+  font-size: 1.025rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  max-width: 520px;
+}
+
+.mission-decorations {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 14px;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+/* High-Visibility Frosted Pastel Answer Cards */
+.choice-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+
+.choice-card-btn {
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 2px solid #C8D7E3 !important;
+  border-radius: var(--radius-md) !important;
+  padding: 16px 20px;
+  min-height: 62px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 1.05rem;
+  font-weight: 750;
+  color: var(--text-primary) !important;
+  cursor: pointer;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+  outline: none;
+  width: 100%;
+  box-shadow: 0 4px 14px rgba(70, 95, 125, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.choice-card-btn:hover:not(:disabled) {
+  border-color: #2EA879 !important;
+  background: #FFFFFF !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(46, 168, 121, 0.22) !important;
+}
+
+.choice-card-btn:focus-visible {
+  box-shadow: 0 0 0 3px #2EA879 !important;
+  border-color: #2EA879 !important;
+}
+
+.choice-card-btn.selected {
+  border: 2.5px solid #177A53 !important;
+  background: #DFF4EA !important;
+  color: #0E3E2A !important;
+  box-shadow: 0 0 0 3px rgba(46, 168, 121, 0.3), 0 8px 22px rgba(46, 168, 121, 0.2) !important;
+}
+
+.choice-marker {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: #EAF7F0 !important;
+  border: 2px solid #78BFA5 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-family: var(--font-mono);
+  font-weight: 900;
+  color: #11422E !important;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 6px rgba(120, 191, 165, 0.2);
+}
+
+.choice-card-btn.selected .choice-marker {
+  background: #177A53 !important;
+  border-color: #10593B !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 10px rgba(23, 122, 83, 0.35);
+}
+
+/* Collapsible Gentle Hint Drawer (Soft Amber Pastel Glass) */
+.hint-drawer {
+  background: rgba(255, 249, 241, 0.95) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 2px dashed #C78B12 !important;
+  border-radius: var(--radius-md) !important;
+  padding: 16px 20px;
+  margin: 18px 0;
+  box-shadow: 0 6px 20px rgba(199, 139, 18, 0.12);
+}
+
+.hint-toggle-btn {
+  background: #FFF0BE !important;
+  border: 2px solid #C78B12 !important;
+  border-radius: var(--radius-full);
+  padding: 8px 18px;
+  font-weight: 850;
+  font-size: 0.9rem;
+  color: #5C3D04 !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 8px rgba(199, 139, 18, 0.18);
+}
+
+.hint-toggle-btn:hover {
+  background: #FFE694 !important;
+  transform: translateY(-1px);
+}
+
+.hint-content {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1.5px solid rgba(199, 139, 18, 0.25);
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+/* Confidence Meter Visible Soft Pastel Glass Buttons */
+.btn-confidence {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 2px solid #D5E0EA !important;
+  color: var(--text-primary) !important;
+  font-weight: 850 !important;
+  font-size: 0.925rem !important;
+  border-radius: var(--radius-md) !important;
+  transition: all var(--transition-fast);
+  box-shadow: 0 2px 6px rgba(70, 95, 125, 0.05);
+}
+
+.btn-confidence:hover {
+  border-color: #C78B12 !important;
+  background: #FFFDF7 !important;
+  transform: translateY(-1px);
+}
+
+.btn-confidence.active,
+.btn-confidence.selected {
+  border: 2.5px solid #C78B12 !important;
+  background: #FFF0BE !important;
+  color: #5C3D04 !important;
+  box-shadow: 0 0 0 3px rgba(199, 139, 18, 0.25), 0 4px 12px rgba(199, 139, 18, 0.18) !important;
+}
+
+/* Age Band Visible Buttons */
+.btn-age-band {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 2px solid #D5E0EA !important;
+  font-weight: 850 !important;
+  color: var(--text-primary) !important;
+  transition: all var(--transition-fast);
+  border-radius: var(--radius-md) !important;
+}
+
+.btn-age-band:hover {
+  border-color: #2EA879 !important;
+  transform: translateY(-1px);
+}
+
+.btn-age-band.active {
+  border: 2.5px solid #177A53 !important;
+  background: #DFF4EA !important;
+  color: #0E3E2A !important;
+  box-shadow: 0 0 0 3px rgba(46, 168, 121, 0.25) !important;
+}
+
+/* Mission Transition Card */
+.mission-transition-card {
+  text-align: center;
+  padding: 36px 24px;
+}
+
+.mission-badge-award {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  background: linear-gradient(135deg, #FFF0BE 0%, #DFF4EA 100%);
+  border: 3px solid #E5A83B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  box-shadow: 0 8px 24px rgba(229, 168, 59, 0.25);
+}
+
+/* Asset Attribution Footer & Modal */
+.asset-attribution-bar {
+  text-align: center;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-soft-sand);
+  font-size: 0.85rem;
+  color: var(--color-deep-ink-muted);
+}
+
+.btn-attribution-link {
+  background: none;
+  border: none;
+  color: var(--color-muted-teal);
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: inherit;
+}
+

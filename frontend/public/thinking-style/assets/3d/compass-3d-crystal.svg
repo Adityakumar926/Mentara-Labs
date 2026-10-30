@@ -1,0 +1,203 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="100%" height="100%">
+  <defs>
+    <!-- Soft 3D Studio Drop Shadow -->
+    <filter id="compass-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#3C2E60" flood-opacity="0.22"/>
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#3C2E60" flood-opacity="0.14"/>
+    </filter>
+
+    <!-- Brass / Gold Loop & Top Casing Gradients -->
+    <linearGradient id="brass-tube" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF9D6"/>
+      <stop offset="30%" stop-color="#FCD34D"/>
+      <stop offset="70%" stop-color="#D97706"/>
+      <stop offset="100%" stop-color="#854D0E"/>
+    </linearGradient>
+
+    <radialGradient id="brass-knob" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#FFFBEB"/>
+      <stop offset="45%" stop-color="#FBBF24"/>
+      <stop offset="85%" stop-color="#B45309"/>
+      <stop offset="100%" stop-color="#78350F"/>
+    </radialGradient>
+
+    <!-- Translucent Crystal Glass Sphere Outer Rim (Iridescent Aurora) -->
+    <radialGradient id="glass-casing-rim" cx="42%" cy="38%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95"/>
+      <stop offset="40%" stop-color="#EAE4FF" stop-opacity="0.5"/>
+      <stop offset="75%" stop-color="#BAE6FD" stop-opacity="0.4"/>
+      <stop offset="92%" stop-color="#DDD6FE" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#A78BFA" stop-opacity="0.9"/>
+    </radialGradient>
+
+    <!-- Compass Dial Backplate (Deep Pearlescent Sky) -->
+    <radialGradient id="dial-backplate" cx="45%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="45%" stop-color="#F8FAFC"/>
+      <stop offset="75%" stop-color="#E0E7FF"/>
+      <stop offset="100%" stop-color="#C7D2FE"/>
+    </radialGradient>
+
+    <!-- Dial Depth Vignette -->
+    <radialGradient id="dial-depth" cx="50%" cy="50%" r="50%">
+      <stop offset="70%" stop-color="#4F46E5" stop-opacity="0"/>
+      <stop offset="95%" stop-color="#4338CA" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#312E81" stop-opacity="0.32"/>
+    </radialGradient>
+
+    <!-- 3D Star North Needle (Glowing Cyan & Teal) -->
+    <linearGradient id="north-light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E0F2FE"/>
+      <stop offset="40%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#0284C7"/>
+    </linearGradient>
+    <linearGradient id="north-dark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284C7"/>
+      <stop offset="60%" stop-color="#0369A1"/>
+      <stop offset="100%" stop-color="#075985"/>
+    </linearGradient>
+
+    <!-- 3D Star South Needle (Vibrant Pastel Violet & Coral Pink) -->
+    <linearGradient id="south-light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDF2F8"/>
+      <stop offset="40%" stop-color="#F472B6"/>
+      <stop offset="100%" stop-color="#DB2777"/>
+    </linearGradient>
+    <linearGradient id="south-dark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9333EA"/>
+      <stop offset="60%" stop-color="#7E22CE"/>
+      <stop offset="100%" stop-color="#581C87"/>
+    </linearGradient>
+
+    <!-- 3D Star East/West Needles (Faceted Gold) -->
+    <linearGradient id="gold-light" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFDF0"/>
+      <stop offset="50%" stop-color="#FDE047"/>
+      <stop offset="100%" stop-color="#EAB308"/>
+    </linearGradient>
+    <linearGradient id="gold-dark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D97706"/>
+      <stop offset="60%" stop-color="#B45309"/>
+      <stop offset="100%" stop-color="#78350F"/>
+    </linearGradient>
+
+    <!-- Central Sapphire / Core Orb -->
+    <radialGradient id="center-gem" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="35%" stop-color="#67E8F9"/>
+      <stop offset="70%" stop-color="#0284C7"/>
+      <stop offset="100%" stop-color="#0C4A6E"/>
+    </radialGradient>
+
+    <!-- Front Glass Specular Highlight (Curved dome reflection) -->
+    <linearGradient id="glass-sheen" x1="0%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.75"/>
+      <stop offset="35%" stop-color="#FFFFFF" stop-opacity="0.35"/>
+      <stop offset="70%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <g filter="url(#compass-shadow)">
+    <!-- Top Attachment Loop & Winding Pin -->
+    <!-- Suspension Ring -->
+    <circle cx="120" cy="30" r="18" fill="none" stroke="url(#brass-tube)" stroke-width="6"/>
+    <circle cx="120" cy="30" r="18" fill="none" stroke="#FFFFFF" stroke-width="1.8" opacity="0.6"/>
+
+    <!-- Mounting Collar & Pivot Knob -->
+    <rect x="110" y="40" width="20" height="12" rx="3" fill="url(#brass-tube)"/>
+    <ellipse cx="120" cy="40" rx="9" ry="3" fill="#FFEAA7"/>
+    <rect x="114" y="48" width="12" height="6" rx="2" fill="url(#brass-knob)"/>
+
+    <!-- Outer Solid Glass Bezel Rim -->
+    <circle cx="120" cy="136" r="86" fill="url(#glass-casing-rim)"/>
+    
+    <!-- Outer Inset Bevel Shadow -->
+    <circle cx="120" cy="136" r="82" fill="#CBD5E1" opacity="0.35"/>
+    <circle cx="120" cy="136" r="80" fill="#FFFFFF"/>
+
+    <!-- Dial Face (Inner Well) -->
+    <circle cx="120" cy="136" r="76" fill="url(#dial-backplate)"/>
+    <circle cx="120" cy="136" r="76" fill="url(#dial-depth)"/>
+
+    <!-- Concentric Decorative Gold Ring -->
+    <circle cx="120" cy="136" r="68" fill="none" stroke="url(#brass-tube)" stroke-width="2.5" opacity="0.85"/>
+    <circle cx="120" cy="136" r="62" fill="none" stroke="#A78BFA" stroke-width="1.2" stroke-dasharray="3, 3" opacity="0.7"/>
+
+    <!-- Cardinal Direction Indices -->
+    <!-- North Marker (Triangle + Star) -->
+    <polygon points="120,70 123.5,78 116.5,78" fill="#0284C7"/>
+    <circle cx="120" cy="74" r="1.5" fill="#FFFFFF"/>
+    <!-- South Marker -->
+    <polygon points="120,202 123.5,194 116.5,194" fill="#9333EA"/>
+    <!-- East Marker -->
+    <polygon points="186,136 178,139.5 178,132.5" fill="#D97706"/>
+    <!-- West Marker -->
+    <polygon points="54,136 62,139.5 62,132.5" fill="#D97706"/>
+
+    <!-- Diagonal Dot Indicators -->
+    <circle cx="164" cy="92" r="2.8" fill="#FBBF24"/>
+    <circle cx="164" cy="180" r="2.8" fill="#FBBF24"/>
+    <circle cx="76" cy="180" r="2.8" fill="#FBBF24"/>
+    <circle cx="76" cy="92" r="2.8" fill="#FBBF24"/>
+
+    <!-- 8-POINTED 3D CRYSTAL STAR COMPASS NEEDLE (Centered at 120, 136) -->
+    <g transform="translate(120, 136) rotate(-14)">
+      <!-- Diagonal Secondary Points (Behind main needles) -->
+      <!-- NE -->
+      <polygon points="0,0 24,-24 4,-12" fill="url(#gold-light)" opacity="0.9"/>
+      <polygon points="0,0 24,-24 12,-4" fill="url(#gold-dark)" opacity="0.9"/>
+      <!-- SE -->
+      <polygon points="0,0 24,24 12,4" fill="url(#gold-light)" opacity="0.9"/>
+      <polygon points="0,0 24,24 4,12" fill="url(#gold-dark)" opacity="0.9"/>
+      <!-- SW -->
+      <polygon points="0,0 -24,24 -4,12" fill="url(#gold-light)" opacity="0.9"/>
+      <polygon points="0,0 -24,24 -12,4" fill="url(#gold-dark)" opacity="0.9"/>
+      <!-- NW -->
+      <polygon points="0,0 -24,-24 -12,-4" fill="url(#gold-light)" opacity="0.9"/>
+      <polygon points="0,0 -24,-24 -4,-12" fill="url(#gold-dark)" opacity="0.9"/>
+
+      <!-- East & West Needles -->
+      <!-- East Needle -->
+      <polygon points="0,0 46,0 12,-11" fill="url(#gold-light)"/>
+      <polygon points="0,0 46,0 12,11" fill="url(#gold-dark)"/>
+      <!-- West Needle -->
+      <polygon points="0,0 -46,0 -12,11" fill="url(#gold-light)"/>
+      <polygon points="0,0 -46,0 -12,-11" fill="url(#gold-dark)"/>
+
+      <!-- South Needle (Violet/Pink) -->
+      <polygon points="0,0 0,58 -13,14" fill="url(#south-light)"/>
+      <polygon points="0,0 0,58 13,14" fill="url(#south-dark)"/>
+
+      <!-- North Needle (Glowing Cyan/Blue - Dominant Hero) -->
+      <polygon points="0,0 0,-62 -14,-14" fill="url(#north-light)"/>
+      <polygon points="0,0 0,-62 14,-14" fill="url(#north-dark)"/>
+
+      <!-- North Tip Specular Highlight -->
+      <polygon points="0,-62 -4,-28 0,-24" fill="#FFFFFF" opacity="0.65"/>
+
+      <!-- Central Pivot Hub (3D Brass Tiered Collar) -->
+      <circle cx="0" cy="0" r="14" fill="url(#brass-tube)"/>
+      <circle cx="0" cy="0" r="11" fill="#78350F"/>
+      <circle cx="0" cy="0" r="9.5" fill="url(#brass-tube)"/>
+
+      <!-- Central Glowing Sapphire Gemstone -->
+      <circle cx="0" cy="0" r="7" fill="url(#center-gem)"/>
+      <!-- Specular bead on sapphire -->
+      <circle cx="-2.5" cy="-2.5" r="2.2" fill="#FFFFFF" opacity="0.9"/>
+    </g>
+
+    <!-- Translucent Front Glass Lens Dome Specular Flare -->
+    <!-- Primary Crescent Reflection -->
+    <path d="M 68 84 C 92 56, 148 56, 172 84 C 150 72, 90 72, 68 84 Z" fill="url(#glass-sheen)"/>
+    <ellipse cx="98" cy="90" rx="34" ry="14" transform="rotate(-28, 98, 90)" fill="#FFFFFF" opacity="0.38"/>
+
+    <!-- Bottom Secondary Rim Glint -->
+    <path d="M 78 186 C 104 206, 142 204, 168 184 C 146 196, 100 196, 78 186 Z" fill="#FFFFFF" opacity="0.35"/>
+
+    <!-- Magical Star Twinkles (Cosmic Floating Clues) -->
+    <polygon points="196,82 198,87 203,89 198,91 196,96 194,91 189,89 194,87" fill="#FBBF24"/>
+    <polygon points="42,106 43.5,110 47,111.5 43.5,113 42,117 40.5,113 37,111.5 40.5,110" fill="#38BDF8"/>
+    <circle cx="204" cy="148" r="3" fill="#F472B6"/>
+    <circle cx="34" cy="154" r="2.5" fill="#FDE047"/>
+  </g>
+</svg>

@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 320" width="100%" height="100%" fill="none" role="img" aria-label="Switch Lab Kinetic Gear Apparatus and Rule Switcher">
+  <defs>
+    <linearGradient id="slBg" x1="0" y1="0" x2="500" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFDF5" />
+      <stop offset="50%" stop-color="#FFF0BE" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#DDF5E9" stop-opacity="0.5" />
+    </linearGradient>
+    <filter id="slShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#5C3D04" flood-opacity="0.1" />
+    </filter>
+  </defs>
+
+  <rect width="500" height="320" rx="20" fill="url(#slBg)" />
+
+  <!-- Laboratory Workbench Base Table -->
+  <rect x="40" y="250" width="420" height="18" rx="6" fill="#EAE4FF" stroke="#7C5CDB" stroke-width="2" />
+  <rect x="70" y="268" width="16" height="40" rx="4" fill="#D0C4F7" />
+  <rect x="414" y="268" width="16" height="40" rx="4" fill="#D0C4F7" />
+
+  <!-- Center Flask with Bubbly Catalyst Fluid -->
+  <g transform="translate(250, 195)" filter="url(#slShadow)">
+    <!-- Flask Body -->
+    <path d="M-14 -70 L14 -70 L14 -40 L45 28 C48 38 40 48 30 48 L-30 48 C-40 48 -48 38 -45 28 L-14 -40 Z" fill="#DFEDFF" stroke="#2B7BC7" stroke-width="2.5" />
+    <!-- Liquid Level -->
+    <path d="M-36 10 Q0 0 36 10 C42 26 36 44 26 44 L-26 44 C-36 44 -42 26 -36 10 Z" fill="#DDF5E9" opacity="0.9" />
+    <!-- Flask Neck Lip -->
+    <rect x="-18" y="-74" width="36" height="8" rx="3" fill="#DFEDFF" stroke="#2B7BC7" stroke-width="2" />
+    <!-- Rising Bubbles -->
+    <circle cx="-10" cy="24" r="5" fill="#FFF1BD" />
+    <circle cx="12" cy="18" r="4" fill="#FFF1BD" />
+    <circle cx="2" cy="-10" r="3.5" fill="#FFE4D6" />
+    <circle cx="-6" cy="-45" r="3" fill="#EAE4FF" />
+  </g>
+
+  <!-- Large Left Gear (Pastel Butter Yellow & Amber) -->
+  <g transform="translate(140, 130)" filter="url(#slShadow)">
+    <!-- Teeth -->
+    <path d="M-10 -58 L10 -58 L8 -45 L-8 -45 Z" fill="#FFF0BE" stroke="#C78B12" stroke-width="1.5" />
+    <path d="M-10 58 L10 58 L8 45 L-8 45 Z" fill="#FFF0BE" stroke="#C78B12" stroke-width="1.5" />
+    <path d="M-58 -10 L-58 10 L-45 8 L-45 -8 Z" fill="#FFF0BE" stroke="#C78B12" stroke-width="1.5" />
+    <path d="M58 -10 L58 10 L45 8 L45 -8 Z" fill="#FFF0BE" stroke="#C78B12" stroke-width="1.5" />
+    <path d="M-42 -42 L-28 -56 L-20 -44 L-34 -30 Z" fill="#FFF0BE" stroke="#C78B12" stroke-width="1.5" />
+    <path d="M42 42 L28 56 L20 44 L34 30 Z" fill="#FFF0BE" stroke="#C78B12" stroke-width="1.5" />
+    <path d="M-42 42 L-56 28 L-44 20 L-30 34 Z" fill="#FFF0BE" stroke="#C78B12" stroke-width="1.5" />
+    <path d="M42 -42 L56 -28 L44 -20 L30 -34 Z" fill="#FFF0BE" stroke="#C78B12" stroke-width="1.5" />
+    <!-- Gear Rim & Center Hole -->
+    <circle cx="0" cy="0" r="48" fill="#FFF0BE" stroke="#C78B12" stroke-width="2.5" />
+    <circle cx="0" cy="0" r="28" fill="#FFE694" stroke="#C78B12" stroke-width="2" />
+    <circle cx="0" cy="0" r="12" fill="#FFFDF5" stroke="#C78B12" stroke-width="2" />
+  </g>
+
+  <!-- Interlocking Medium Right Gear (Pastel Mint) -->
+  <g transform="translate(360, 110)" filter="url(#slShadow)">
+    <circle cx="0" cy="0" r="38" fill="#DDF5E9" stroke="#177A53" stroke-width="2.5" />
+    <circle cx="0" cy="0" r="20" fill="#C2EBD4" stroke="#177A53" stroke-width="2" />
+    <circle cx="0" cy="0" r="8" fill="#FFFDF5" stroke="#177A53" stroke-width="2" />
+    <!-- Gear spoke lines -->
+    <line x1="0" y1="-38" x2="0" y2="38" stroke="#177A53" stroke-width="2" />
+    <line x1="-38" y1="0" x2="38" y2="0" stroke="#177A53" stroke-width="2" />
+  </g>
+
+  <!-- Interactive Rule-Switch Toggle Lever -->
+  <g transform="translate(250, 75)" filter="url(#slShadow)">
+    <rect x="-35" y="-12" width="70" height="24" rx="12" fill="#FFE4D6" stroke="#E07338" stroke-width="2" />
+    <circle cx="-16" cy="0" r="9" fill="#FFF1BD" stroke="#C78B12" stroke-width="1.5" />
+    <text x="12" y="5" font-family="'Nunito', sans-serif" font-weight="900" font-size="10" fill="#E07338" text-anchor="middle">FLIP</text>
+  </g>
+</svg>

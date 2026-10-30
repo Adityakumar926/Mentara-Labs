@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 320" width="100%" height="100%" fill="none" role="img" aria-label="Pattern Planet Celestial Constellation Matrix">
+  <defs>
+    <linearGradient id="pGradSky" x1="0" y1="0" x2="500" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F4FAF7" />
+      <stop offset="50%" stop-color="#EAE4FF" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#DFEDFF" />
+    </linearGradient>
+    <radialGradient id="pGradOrbit" cx="250" cy="160" r="140" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#DDF5E9" stop-opacity="0.8" />
+      <stop offset="70%" stop-color="#EAE4FF" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#FAF8F4" stop-opacity="0" />
+    </radialGradient>
+    <filter id="pSoftGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#434970" flood-opacity="0.08" />
+    </filter>
+  </defs>
+
+  <!-- Ambient Sky & Orbit Backdrop -->
+  <rect width="500" height="320" rx="20" fill="url(#pGradSky)" />
+  <circle cx="250" cy="160" r="130" fill="url(#pGradOrbit)" />
+
+  <!-- Constellation Orbit Lines -->
+  <ellipse cx="250" cy="160" rx="190" ry="70" stroke="rgba(120, 191, 165, 0.45)" stroke-width="1.5" stroke-dasharray="6 6" transform="rotate(-12 250 160)" />
+  <ellipse cx="250" cy="160" rx="130" ry="50" stroke="rgba(146, 117, 217, 0.45)" stroke-width="1.5" stroke-dasharray="4 4" transform="rotate(18 250 160)" />
+
+  <!-- Central Floating Matrix Crystal Polyhedron -->
+  <g transform="translate(250, 155)" filter="url(#pSoftGlow)">
+    <!-- Faceted Octahedron / Crystal -->
+    <polygon points="0,-65 48,-10 0,22 -48,-10" fill="#EAE4FF" stroke="#FFFFFF" stroke-width="2" />
+    <polygon points="0,65 48,-10 0,22 -48,-10" fill="#DDF5E9" stroke="#FFFFFF" stroke-width="2" />
+    <polygon points="0,-65 0,22 -48,-10" fill="#DFEDFF" opacity="0.9" />
+    <polygon points="0,65 0,22 48,-10" fill="#FFE4D6" opacity="0.85" />
+    <circle cx="0" cy="0" r="14" fill="#FFF1BD" stroke="#2EA879" stroke-width="2" />
+    <polygon points="0,-6 2,-1 7,0 2,2 0,7 -2,2 -7,0 -2,-1" fill="#E07338" />
+  </g>
+
+  <!-- Orbiting Geometric Nodes -->
+  <!-- Node 1: Mint Hexagon -->
+  <g transform="translate(100, 110)" filter="url(#pSoftGlow)">
+    <polygon points="0,-22 19,-11 19,11 0,22 -19,11 -19,-11" fill="#DDF5E9" stroke="#2EA879" stroke-width="2" />
+    <circle cx="0" cy="0" r="6" fill="#177A53" />
+  </g>
+
+  <!-- Node 2: Lavender Diamond -->
+  <g transform="translate(390, 95)" filter="url(#pSoftGlow)">
+    <polygon points="0,-26 22,0 0,26 -22,0" fill="#EAE4FF" stroke="#7C5CDB" stroke-width="2" />
+    <circle cx="0" cy="0" r="5" fill="#FFE4D6" />
+  </g>
+
+  <!-- Node 3: Peach Star -->
+  <g transform="translate(120, 230)" filter="url(#pSoftGlow)">
+    <circle cx="0" cy="0" r="18" fill="#FFE4D6" stroke="#E07338" stroke-width="1.8" />
+    <polygon points="0,-9 3,-2 10,0 3,3 0,10 -3,3 -10,0 -3,-2" fill="#FFF1BD" />
+  </g>
+
+  <!-- Node 4: Powder Blue Cube Projection -->
+  <g transform="translate(380, 220)" filter="url(#pSoftGlow)">
+    <polygon points="0,-18 16,-9 0,0 -16,-9" fill="#DFEDFF" stroke="#2B7BC7" stroke-width="1.5" />
+    <polygon points="-16,-9 0,0 0,18 -16,9" fill="#C9E1FF" stroke="#2B7BC7" stroke-width="1.5" />
+    <polygon points="16,-9 0,0 0,18 16,9" fill="#B1D4FF" stroke="#2B7BC7" stroke-width="1.5" />
+  </g>
+
+  <!-- Connecting Starlight Constellation Lines -->
+  <line x1="100" y1="110" x2="202" y2="145" stroke="rgba(46, 168, 121, 0.4)" stroke-width="1.5" />
+  <line x1="298" y1="145" x2="390" y2="95" stroke="rgba(124, 92, 219, 0.4)" stroke-width="1.5" />
+  <line x1="120" y1="230" x2="202" y2="177" stroke="rgba(224, 115, 56, 0.4)" stroke-width="1.5" />
+  <line x1="298" y1="177" x2="380" y2="220" stroke="rgba(43, 123, 199, 0.4)" stroke-width="1.5" />
+
+  <!-- Tiny Decorative Twinkles -->
+  <circle cx="70" cy="60" r="2.5" fill="#FFF1BD" />
+  <circle cx="430" cy="50" r="3" fill="#FFF1BD" />
+  <circle cx="210" cy="50" r="2" fill="#2EA879" />
+  <circle cx="310" cy="270" r="2.5" fill="#7C5CDB" />
+</svg>

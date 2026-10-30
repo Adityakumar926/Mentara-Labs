@@ -9,6 +9,7 @@ const studentRoutes = require('./routes/student.routes');
 const paymentRoutes = require('./routes/payment.routes');
 const aiRoutes = require('./routes/ai.routes');
 const classroomRoutes = require('./routes/classroom.routes');
+const assessmentRoutes = require('./routes/assessment.routes');
 
 const app = express();
 
@@ -50,6 +51,7 @@ app.use('/api/student', studentRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/classrooms', classroomRoutes);
+app.use('/api/assessment', assessmentRoutes);
 
 // Robots.txt for API domain (prevents search engines from indexing backend endpoints)
 app.get('/robots.txt', (req, res) => {

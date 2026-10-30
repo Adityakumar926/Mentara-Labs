@@ -1,0 +1,758 @@
+[
+  {
+    "id": "cam-s3-frac-01",
+    "stage": 3,
+    "strand": "fractions",
+    "difficulty": 2,
+    "skillId": "fraction-comparison",
+    "stem": "Which fraction is bigger: 1/4 or 1/8 of the same cake?",
+    "readAloudText": "Which fraction is bigger: 1 fourth or 1 eighth of the same cake?",
+    "options": [
+      { "text": "1/4", "correct": true },
+      { "text": "1/8", "correct": false, "misconceptionId": "fraction-bigger-denominator-bigger-value" },
+      { "text": "They are exactly the same size", "correct": false, "misconceptionId": "fraction-unit-numerator-same" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "Cutting into fewer slices makes each slice larger.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "8 is a bigger number than 4, so 1/8 must be bigger.", "misconceptionId": "fraction-bigger-denominator-bigger-value" },
+      { "id": "r3", "text": "Both have 1 at the top, so they must be equal.", "misconceptionId": "fraction-unit-numerator-same" },
+      { "id": "r4", "text": "I was guessing or not quite sure.", "isGuess": true }
+    ],
+    "strategyProbe": "How did you work it out?"
+  },
+  {
+    "id": "cam-s3-frac-02",
+    "stage": 3,
+    "strand": "fractions",
+    "difficulty": 3,
+    "skillId": "fraction-comparison",
+    "stem": "Sam has 1/3 of a chocolate bar. Leo has 1/6 of the same bar. Who has the larger piece?",
+    "readAloudText": "Sam has 1 third of a chocolate bar. Leo has 1 sixth of the same bar. Who has the larger piece?",
+    "options": [
+      { "text": "Sam (1/3)", "correct": true },
+      { "text": "Leo (1/6)", "correct": false, "misconceptionId": "fraction-bigger-denominator-bigger-value" },
+      { "text": "Both have the same", "correct": false, "misconceptionId": "fraction-unit-numerator-same" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "Sharing between 3 children gives bigger pieces than sharing between 6.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "6 is greater than 3, so 1/6 is bigger.", "misconceptionId": "fraction-bigger-denominator-bigger-value" },
+      { "id": "r3", "text": "Both only have 1 piece.", "misconceptionId": "fraction-unit-numerator-same" },
+      { "id": "r4", "text": "I tried imagining the chocolate bar in my head.", "isHeuristic": true }
+    ]
+  },
+  {
+    "id": "cam-s3-frac-03",
+    "stage": 3,
+    "strand": "fractions",
+    "difficulty": 2,
+    "skillId": "fraction-equal-parts",
+    "stem": "Look at these four pizzas. Which pizza shows quarters (1/4)?",
+    "readAloudText": "Look at these four pizzas. Which pizza shows quarters?",
+    "options": [
+      { "text": "A pizza cut into 4 equal slices", "correct": true },
+      { "text": "A pizza cut into 4 slices of different sizes", "correct": false, "misconceptionId": "fraction-count-pieces-ignoring-size" },
+      { "text": "A pizza cut into 2 halves", "correct": false, "misconceptionId": "fraction-half-quarter-confusion" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "Fractions must always be divided into equal parts.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "Any pizza cut into 4 pieces is quarters, even if slices are unequal.", "misconceptionId": "fraction-count-pieces-ignoring-size" },
+      { "id": "r3", "text": "I just counted the number of cuts.", "misconceptionId": "fraction-count-cuts" }
+    ]
+  },
+  {
+    "id": "cam-s3-frac-04",
+    "stage": 3,
+    "strand": "fractions",
+    "difficulty": 3,
+    "skillId": "fraction-equal-parts",
+    "stem": "What is 1/4 of 16 counters?",
+    "readAloudText": "What is 1 fourth of 16 counters?",
+    "options": [
+      { "text": "4", "correct": true },
+      { "text": "12", "correct": false, "misconceptionId": "fraction-subtracted-denominator" },
+      { "text": "8", "correct": false, "misconceptionId": "fraction-default-to-half" },
+      { "text": "64", "correct": false, "misconceptionId": "multiplication-operation-slip" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "I shared 16 into 4 equal groups: 16 ÷ 4 = 4.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I subtracted 4 from 16.", "misconceptionId": "fraction-subtracted-denominator" },
+      { "id": "r3", "text": "I just took half of 16.", "misconceptionId": "fraction-default-to-half" }
+    ],
+    "strategyProbe": "How did you find 1/4 of 16?"
+  },
+  {
+    "id": "cam-s3-frac-05",
+    "stage": 3,
+    "strand": "fractions",
+    "difficulty": 3,
+    "skillId": "fraction-comparison",
+    "stem": "Which fraction is smaller than 1/2?",
+    "readAloudText": "Which fraction is smaller than 1 half?",
+    "options": [
+      { "text": "1/5", "correct": true },
+      { "text": "2/2", "correct": false, "misconceptionId": "fraction-whole-misunderstood" },
+      { "text": "3/4", "correct": false, "misconceptionId": "fraction-numerator-ignored" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "1/5 means sharing into 5 pieces, which are smaller than half.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "5 is bigger than 2, so 1/5 is larger than 1/2.", "misconceptionId": "fraction-bigger-denominator-bigger-value" }
+    ]
+  },
+  {
+    "id": "cam-s3-frac-06",
+    "stage": 3,
+    "strand": "fractions",
+    "difficulty": 4,
+    "skillId": "fraction-comparison",
+    "stem": "Place these in order from smallest to largest: 1/10, 1/2, 1/5",
+    "readAloudText": "Place these in order from smallest to largest: 1 tenth, 1 half, 1 fifth.",
+    "options": [
+      { "text": "1/10, 1/5, 1/2", "correct": true },
+      { "text": "1/2, 1/5, 1/10", "correct": false, "misconceptionId": "fraction-bigger-denominator-bigger-value" },
+      { "text": "1/5, 1/10, 1/2", "correct": false, "misconceptionId": "fraction-random-ordering" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "The more pieces a whole is shared into, the smaller each piece is.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "2 is the smallest number, so 1/2 is the smallest fraction.", "misconceptionId": "fraction-bigger-denominator-bigger-value" }
+    ]
+  },
+  {
+    "id": "cam-s3-frac-07",
+    "stage": 3,
+    "strand": "fractions",
+    "difficulty": 3,
+    "skillId": "fraction-equal-parts",
+    "stem": "What fraction of this set of 6 stars is shaded if 3 are shaded?",
+    "readAloudText": "What fraction of this set of 6 stars is shaded if 3 are shaded?",
+    "options": [
+      { "text": "1/2 (or 3/6)", "correct": true },
+      { "text": "1/3", "correct": false, "misconceptionId": "fraction-numerator-matches-denominator" },
+      { "text": "3/3", "correct": false, "misconceptionId": "fraction-total-confused-with-part" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "3 is half of 6, so half the stars are shaded.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "There are 3 shaded, so the fraction is 1/3.", "misconceptionId": "fraction-numerator-matches-denominator" }
+    ]
+  },
+  {
+    "id": "cam-s3-frac-08",
+    "stage": 3,
+    "strand": "fractions",
+    "difficulty": 4,
+    "skillId": "fraction-equal-parts",
+    "stem": "What is 1/3 of 21 counters?",
+    "readAloudText": "What is 1 third of 21 counters?",
+    "options": [
+      { "text": "7", "correct": true },
+      { "text": "18", "correct": false, "misconceptionId": "fraction-subtracted-denominator" },
+      { "text": "3", "correct": false, "misconceptionId": "fraction-picked-denominator" },
+      { "text": "9", "correct": false, "misconceptionId": "multiplication-fact-slip" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "21 divided by 3 is 7.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I subtracted 3 from 21.", "misconceptionId": "fraction-subtracted-denominator" }
+    ]
+  },
+  {
+    "id": "cam-s3-num-01",
+    "stage": 3,
+    "strand": "number",
+    "difficulty": 2,
+    "skillId": "place-value-3digit",
+    "stem": "What is the value of the digit 7 in the number 472?",
+    "readAloudText": "What is the value of the digit 7 in the number 472?",
+    "options": [
+      { "text": "70 (7 tens)", "correct": true },
+      { "text": "7 (7 ones)", "correct": false, "misconceptionId": "place-value-face-value-only" },
+      { "text": "700 (7 hundreds)", "correct": false, "misconceptionId": "place-value-column-reversal" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "The 7 is in the middle tens column, so it means 7 tens or 70.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "The digit is simply 7.", "misconceptionId": "place-value-face-value-only" },
+      { "id": "r3", "text": "I read from right to left so I thought it was hundreds.", "misconceptionId": "place-value-column-reversal" }
+    ]
+  },
+  {
+    "id": "cam-s3-num-02",
+    "stage": 3,
+    "strand": "number",
+    "difficulty": 2,
+    "skillId": "place-value-3digit",
+    "stem": "Which number is made of 5 hundreds, 0 tens, and 8 ones?",
+    "readAloudText": "Which number is made of 5 hundreds, 0 tens, and 8 ones?",
+    "options": [
+      { "text": "508", "correct": true },
+      { "text": "58", "correct": false, "misconceptionId": "place-value-zero-as-nothing" },
+      { "text": "580", "correct": false, "misconceptionId": "place-value-column-swap-tens-ones" },
+      { "text": "5008", "correct": false, "misconceptionId": "place-value-expanded-concatenation" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "Zero holds the tens place, making 508.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "Zero means nothing, so you just write 5 and 8 together as 58.", "misconceptionId": "place-value-zero-as-nothing" },
+      { "id": "r3", "text": "5 hundreds is 500, then add 8 to make 5008.", "misconceptionId": "place-value-expanded-concatenation" }
+    ]
+  },
+  {
+    "id": "cam-s3-num-03",
+    "stage": 3,
+    "strand": "number",
+    "difficulty": 3,
+    "skillId": "place-value-3digit",
+    "stem": "Which number is 10 more than 394?",
+    "readAloudText": "Which number is 10 more than 394?",
+    "options": [
+      { "text": "404", "correct": true },
+      { "text": "395", "correct": false, "misconceptionId": "place-value-confused-ten-with-one" },
+      { "text": "3104", "correct": false, "misconceptionId": "place-value-digit-concatenation" },
+      { "text": "494", "correct": false, "misconceptionId": "place-value-added-hundred-instead" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "9 tens plus 1 ten is 10 tens (1 hundred), so 394 becomes 404.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I added 1 to the last digit (395).", "misconceptionId": "place-value-confused-ten-with-one" },
+      { "id": "r3", "text": "I added 100 instead of 10 (494).", "misconceptionId": "place-value-added-hundred-instead" }
+    ],
+    "strategyProbe": "How did you add 10 to 394?"
+  },
+  {
+    "id": "cam-s3-num-04",
+    "stage": 3,
+    "strand": "number",
+    "difficulty": 2,
+    "skillId": "place-value-3digit",
+    "stem": "Which sign makes this statement true: 603 [ ? ] 630",
+    "readAloudText": "Which sign makes this statement true: 603 is what compared to 630?",
+    "options": [
+      { "text": "< (is less than)", "correct": true },
+      { "text": "> (is greater than)", "correct": false, "misconceptionId": "place-value-symbol-confusion" },
+      { "text": "= (is equal to)", "correct": false, "misconceptionId": "place-value-same-digits-equal" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "603 has 0 tens, while 630 has 3 tens, so 603 is smaller.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "They have the exact same digits, so they are the same.", "misconceptionId": "place-value-same-digits-equal" },
+      { "id": "r3", "text": "The crocodile mouth always opens towards the right.", "misconceptionId": "place-value-symbol-confusion" }
+    ]
+  },
+  {
+    "id": "cam-s3-num-05",
+    "stage": 3,
+    "strand": "number",
+    "difficulty": 3,
+    "skillId": "place-value-3digit",
+    "stem": "Round 348 to the nearest 10.",
+    "readAloudText": "Round 348 to the nearest 10.",
+    "options": [
+      { "text": "350", "correct": true },
+      { "text": "340", "correct": false, "misconceptionId": "rounding-always-down" },
+      { "text": "300", "correct": false, "misconceptionId": "rounding-rounded-to-hundred" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "The units digit is 8, which is 5 or more, so we round up to 350.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "You just cut off the 8 and replace with 0 (340).", "misconceptionId": "rounding-always-down" },
+      { "id": "r3", "text": "I rounded to the nearest hundred instead.", "misconceptionId": "rounding-rounded-to-hundred" }
+    ]
+  },
+  {
+    "id": "cam-s3-num-06",
+    "stage": 3,
+    "strand": "number",
+    "difficulty": 3,
+    "skillId": "place-value-3digit",
+    "stem": "Which number is exactly in the middle between 200 and 300?",
+    "readAloudText": "Which number is exactly in the middle between 200 and 300?",
+    "options": [
+      { "text": "250", "correct": true },
+      { "text": "205", "correct": false, "misconceptionId": "place-value-zero-confusion" },
+      { "text": "225", "correct": false, "misconceptionId": "midpoint-quarter-confusion" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "Halfway between 0 and 100 is 50, so 250 is in the middle.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I put 5 in the ones place (205).", "misconceptionId": "place-value-zero-confusion" }
+    ]
+  },
+  {
+    "id": "cam-s3-num-07",
+    "stage": 3,
+    "strand": "number",
+    "difficulty": 4,
+    "skillId": "place-value-3digit",
+    "stem": "What number is 100 less than 102?",
+    "readAloudText": "What number is 100 less than 102?",
+    "options": [
+      { "text": "2", "correct": true },
+      { "text": "100", "correct": false, "misconceptionId": "subtraction-disregard-remainder" },
+      { "text": "202", "correct": false, "misconceptionId": "subtraction-addition-confusion" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "102 take away 1 hundred leaves 2 ones.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I added 100 instead of subtracting.", "misconceptionId": "subtraction-addition-confusion" }
+    ]
+  },
+  {
+    "id": "cam-s3-num-08",
+    "stage": 3,
+    "strand": "number",
+    "difficulty": 3,
+    "skillId": "place-value-3digit",
+    "stem": "Look at the pattern: 240, 250, 260, [ ? ]. What comes next?",
+    "readAloudText": "Look at the pattern: 240, 250, 260, what comes next?",
+    "options": [
+      { "text": "270", "correct": true },
+      { "text": "261", "correct": false, "misconceptionId": "sequence-step-confused-with-one" },
+      { "text": "300", "correct": false, "misconceptionId": "sequence-jump-to-hundred" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "The pattern is counting up by 10 each time.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I counted up by 1 (261).", "misconceptionId": "sequence-step-confused-with-one" }
+    ]
+  },
+  {
+    "id": "cam-s3-ops-01",
+    "stage": 3,
+    "strand": "operations",
+    "difficulty": 2,
+    "skillId": "subtraction-regrouping",
+    "stem": "Solve: 52 - 27",
+    "readAloudText": "Solve: 52 minus 27",
+    "options": [
+      { "text": "25", "correct": true },
+      { "text": "35", "correct": false, "misconceptionId": "subtraction-smaller-from-larger-regardless-of-order" },
+      { "text": "29", "correct": false, "misconceptionId": "subtraction-exchange-omission" },
+      { "text": "79", "correct": false, "misconceptionId": "subtraction-addition-confusion" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "Since 2 is smaller than 7, I exchanged a ten to make 12 - 7 = 5, and 40 - 20 = 20.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "In the ones column I did 7 - 2 = 5, and 5 - 2 = 3, getting 35.", "misconceptionId": "subtraction-smaller-from-larger-regardless-of-order" },
+      { "id": "r3", "text": "I added 52 and 27 together.", "misconceptionId": "subtraction-addition-confusion" }
+    ],
+    "strategyProbe": "How did you work out 52 - 27?"
+  },
+  {
+    "id": "cam-s3-ops-02",
+    "stage": 3,
+    "strand": "operations",
+    "difficulty": 3,
+    "skillId": "subtraction-regrouping",
+    "stem": "Solve: 81 - 38",
+    "readAloudText": "Solve: 81 minus 38",
+    "options": [
+      { "text": "43", "correct": true },
+      { "text": "57", "correct": false, "misconceptionId": "subtraction-smaller-from-larger-regardless-of-order" },
+      { "text": "53", "correct": false, "misconceptionId": "subtraction-forgot-borrowed-ten" },
+      { "text": "47", "correct": false, "misconceptionId": "subtraction-calculation-slip" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "I exchanged a ten: 11 - 8 = 3, then 70 - 30 = 40, making 43.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I subtracted 1 from 8 to get 7 in the ones place.", "misconceptionId": "subtraction-smaller-from-larger-regardless-of-order" },
+      { "id": "r3", "text": "I borrowed a ten but forgot to decrease 8 to 7.", "misconceptionId": "subtraction-forgot-borrowed-ten" }
+    ]
+  },
+  {
+    "id": "cam-s3-ops-03",
+    "stage": 3,
+    "strand": "operations",
+    "difficulty": 2,
+    "skillId": "multiplication-arrays",
+    "stem": "There are 4 baskets. Each basket has 6 apples. How many apples are there altogether?",
+    "readAloudText": "There are 4 baskets. Each basket has 6 apples. How many apples are there altogether?",
+    "options": [
+      { "text": "24", "correct": true },
+      { "text": "10", "correct": false, "misconceptionId": "multiplication-adds-factors" },
+      { "text": "18", "correct": false, "misconceptionId": "multiplication-miscount-groups" },
+      { "text": "20", "correct": false, "misconceptionId": "multiplication-skip-count-slip" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "4 groups of 6 is 4 × 6 = 24.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I added 4 + 6 to get 10.", "misconceptionId": "multiplication-adds-factors" },
+      { "id": "r3", "text": "I counted in 6s: 6, 12, 18, 24.", "isHeuristic": true }
+    ],
+    "strategyProbe": "How did you work out 4 groups of 6?"
+  },
+  {
+    "id": "cam-s3-ops-04",
+    "stage": 3,
+    "strand": "operations",
+    "difficulty": 3,
+    "skillId": "multiplication-arrays",
+    "stem": "Which addition sentence matches 3 × 5?",
+    "readAloudText": "Which addition sentence matches 3 times 5?",
+    "options": [
+      { "text": "5 + 5 + 5", "correct": true },
+      { "text": "3 + 5", "correct": false, "misconceptionId": "multiplication-adds-factors" },
+      { "text": "3 + 3 + 3", "correct": false, "misconceptionId": "multiplication-wrong-repeated-term" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "3 × 5 means 3 groups of 5 added together.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "Multiplication is just adding the two numbers together (3 + 5).", "misconceptionId": "multiplication-adds-factors" }
+    ]
+  },
+  {
+    "id": "cam-s3-ops-05",
+    "stage": 3,
+    "strand": "operations",
+    "difficulty": 3,
+    "skillId": "division-sharing",
+    "stem": "Share 24 marbles equally between 3 friends. How many marbles does each friend get?",
+    "readAloudText": "Share 24 marbles equally between 3 friends. How many marbles does each friend get?",
+    "options": [
+      { "text": "8", "correct": true },
+      { "text": "21", "correct": false, "misconceptionId": "division-subtracted-divisor" },
+      { "text": "6", "correct": false, "misconceptionId": "division-fact-slip" },
+      { "text": "27", "correct": false, "misconceptionId": "division-added-divisor" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "24 divided into 3 equal shares is 8 because 3 × 8 = 24.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I subtracted 3 from 24 (21).", "misconceptionId": "division-subtracted-divisor" }
+    ]
+  },
+  {
+    "id": "cam-s3-ops-06",
+    "stage": 3,
+    "strand": "operations",
+    "difficulty": 2,
+    "skillId": "subtraction-without-regrouping",
+    "stem": "Solve: 68 - 25",
+    "readAloudText": "Solve: 68 minus 25",
+    "options": [
+      { "text": "43", "correct": true },
+      { "text": "42", "correct": false, "misconceptionId": "subtraction-ones-off-by-one" },
+      { "text": "93", "correct": false, "misconceptionId": "subtraction-addition-confusion" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "8 - 5 = 3 and 60 - 20 = 40, so 43.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I added the numbers instead of subtracting.", "misconceptionId": "subtraction-addition-confusion" }
+    ]
+  },
+  {
+    "id": "cam-s3-ops-07",
+    "stage": 3,
+    "strand": "operations",
+    "difficulty": 4,
+    "skillId": "multiplication-arrays",
+    "stem": "What is 8 × 4?",
+    "readAloudText": "What is 8 times 4?",
+    "options": [
+      { "text": "32", "correct": true },
+      { "text": "12", "correct": false, "misconceptionId": "multiplication-adds-factors" },
+      { "text": "28", "correct": false, "misconceptionId": "multiplication-skip-count-slip" },
+      { "text": "36", "correct": false, "misconceptionId": "multiplication-skip-count-slip" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "I know double 8 is 16, and double 16 is 32.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I added 8 + 4 = 12.", "misconceptionId": "multiplication-adds-factors" }
+    ]
+  },
+  {
+    "id": "cam-s3-ops-08",
+    "stage": 3,
+    "strand": "operations",
+    "difficulty": 4,
+    "skillId": "subtraction-regrouping",
+    "stem": "Solve: 200 - 45",
+    "readAloudText": "Solve: 200 minus 45",
+    "options": [
+      { "text": "155", "correct": true },
+      { "text": "165", "correct": false, "misconceptionId": "subtraction-forgot-borrowed-ten" },
+      { "text": "245", "correct": false, "misconceptionId": "subtraction-addition-confusion" },
+      { "text": "145", "correct": false, "misconceptionId": "subtraction-exchange-omission" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "Exchanging through the zeros: 200 becomes 1 hundred, 9 tens, 10 ones.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I subtracted 40 from 200 to get 160, then forgot to subtract the 5 properly.", "misconceptionId": "subtraction-forgot-borrowed-ten" }
+    ]
+  },
+  {
+    "id": "cam-s3-geom-01",
+    "stage": 3,
+    "strand": "geometry",
+    "difficulty": 2,
+    "skillId": "shape-recognition",
+    "stem": "Which shape has exactly 5 straight sides and 5 vertices?",
+    "readAloudText": "Which shape has exactly 5 straight sides and 5 vertices?",
+    "options": [
+      { "text": "Pentagon", "correct": true },
+      { "text": "Hexagon", "correct": false, "misconceptionId": "shape-pentagon-hexagon-confusion" },
+      { "text": "Octagon", "correct": false, "misconceptionId": "shape-sides-count-confusion" },
+      { "text": "Quadrilateral", "correct": false, "misconceptionId": "shape-sides-count-confusion" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "A pentagon has 5 sides, a hexagon has 6, and an octagon has 8.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I always mix up pentagon (5) and hexagon (6).", "misconceptionId": "shape-pentagon-hexagon-confusion" }
+    ]
+  },
+  {
+    "id": "cam-s3-geom-02",
+    "stage": 3,
+    "strand": "geometry",
+    "difficulty": 3,
+    "skillId": "shape-partitioning",
+    "stem": "How many right angles (square corners) does a rectangle have?",
+    "readAloudText": "How many right angles or square corners does a rectangle have?",
+    "options": [
+      { "text": "4", "correct": true },
+      { "text": "2", "correct": false, "misconceptionId": "geometry-angle-pairs-confusion" },
+      { "text": "0", "correct": false, "misconceptionId": "geometry-angle-concept-missing" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "All 4 corners of a rectangle are right angles.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "Only 2 opposite corners are right angles.", "misconceptionId": "geometry-angle-pairs-confusion" }
+    ]
+  },
+  {
+    "id": "cam-s3-geom-03",
+    "stage": 3,
+    "strand": "geometry",
+    "difficulty": 3,
+    "skillId": "shape-recognition",
+    "stem": "Which 3D shape has 6 flat square faces and 8 vertices?",
+    "readAloudText": "Which 3D shape has 6 flat square faces and 8 vertices?",
+    "options": [
+      { "text": "Cube", "correct": true },
+      { "text": "Cylinder", "correct": false, "misconceptionId": "shape-2d-3d-confusion" },
+      { "text": "Square-based pyramid", "correct": false, "misconceptionId": "shape-face-count-confusion" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "A cube is like a dice: 6 square faces and 8 corner points.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "A pyramid has a square base, so I thought it had 6 square faces.", "misconceptionId": "shape-face-count-confusion" }
+    ]
+  },
+  {
+    "id": "cam-s3-geom-04",
+    "stage": 3,
+    "strand": "geometry",
+    "difficulty": 4,
+    "skillId": "shape-partitioning",
+    "stem": "A regular hexagon has how many lines of symmetry?",
+    "readAloudText": "A regular hexagon has how many lines of symmetry?",
+    "options": [
+      { "text": "6", "correct": true },
+      { "text": "1", "correct": false, "misconceptionId": "symmetry-single-vertical-only" },
+      { "text": "3", "correct": false, "misconceptionId": "symmetry-half-count-confusion" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "A regular hexagon has 6 sides, so it has 6 lines of symmetry.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "Shapes only have one line of symmetry down the middle.", "misconceptionId": "symmetry-single-vertical-only" }
+    ]
+  },
+  {
+    "id": "cam-s3-geom-05",
+    "stage": 3,
+    "strand": "geometry",
+    "difficulty": 2,
+    "skillId": "shape-recognition",
+    "stem": "Which word describes an angle that is smaller than a right angle (90°)?",
+    "readAloudText": "Which word describes an angle that is smaller than a right angle?",
+    "options": [
+      { "text": "Acute angle", "correct": true },
+      { "text": "Obtuse angle", "correct": false, "misconceptionId": "angle-acute-obtuse-reversal" },
+      { "text": "Straight line", "correct": false, "misconceptionId": "angle-type-confusion" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "Acute angles are sharp and smaller than a square corner.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I mixed up acute and obtuse.", "misconceptionId": "angle-acute-obtuse-reversal" }
+    ]
+  },
+  {
+    "id": "cam-s3-geom-06",
+    "stage": 3,
+    "strand": "geometry",
+    "difficulty": 3,
+    "skillId": "shape-recognition",
+    "stem": "How many edges does a triangular prism have?",
+    "readAloudText": "How many edges does a triangular prism have?",
+    "options": [
+      { "text": "9", "correct": true },
+      { "text": "6", "correct": false, "misconceptionId": "shape-edges-vertices-confusion" },
+      { "text": "5", "correct": false, "misconceptionId": "shape-faces-edges-confusion" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "3 edges on top triangle, 3 on bottom triangle, 3 connecting edges = 9.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I counted the vertices (corners) instead of the edges.", "misconceptionId": "shape-edges-vertices-confusion" }
+    ]
+  },
+  {
+    "id": "cam-s3-geom-07",
+    "stage": 3,
+    "strand": "geometry",
+    "difficulty": 3,
+    "skillId": "shape-partitioning",
+    "stem": "If you cut a square diagonally from corner to corner, what 2 shapes do you make?",
+    "readAloudText": "If you cut a square diagonally from corner to corner, what 2 shapes do you make?",
+    "options": [
+      { "text": "2 right-angled triangles", "correct": true },
+      { "text": "2 rectangles", "correct": false, "misconceptionId": "shape-partition-straight-cut-assumption" },
+      { "text": "2 smaller squares", "correct": false, "misconceptionId": "shape-partition-preserves-parent-type" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "A diagonal cut joins two corners, creating 2 triangles.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "Cutting a square in half always makes 2 rectangles.", "misconceptionId": "shape-partition-straight-cut-assumption" }
+    ]
+  },
+  {
+    "id": "cam-s3-geom-08",
+    "stage": 3,
+    "strand": "geometry",
+    "difficulty": 4,
+    "skillId": "shape-recognition",
+    "stem": "A shape has 4 equal straight sides, but no right angles. What is it?",
+    "readAloudText": "A shape has 4 equal straight sides, but no right angles. What is it?",
+    "options": [
+      { "text": "Rhombus", "correct": true },
+      { "text": "Square", "correct": false, "misconceptionId": "shape-square-ignores-angle-constraint" },
+      { "text": "Trapezium", "correct": false, "misconceptionId": "shape-quadrilateral-confusion" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "A rhombus has 4 equal sides with slanted corners (no right angles).", "isCorrectReasoning": true },
+      { "id": "r2", "text": "A square has 4 equal sides, so I picked square.", "misconceptionId": "shape-square-ignores-angle-constraint" }
+    ]
+  },
+  {
+    "id": "cam-s3-meas-01",
+    "stage": 3,
+    "strand": "measure",
+    "difficulty": 2,
+    "skillId": "perimeter-measurement",
+    "stem": "A rectangle has sides of 5 cm and 3 cm. What is its perimeter?",
+    "readAloudText": "A rectangle has sides of 5 centimetres and 3 centimetres. What is its perimeter?",
+    "options": [
+      { "text": "16 cm", "correct": true },
+      { "text": "8 cm", "correct": false, "misconceptionId": "perimeter-added-two-sides-only" },
+      { "text": "15 cm", "correct": false, "misconceptionId": "perimeter-area-confusion" },
+      { "text": "20 cm", "correct": false, "misconceptionId": "perimeter-count-corners-twice" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "Perimeter is the distance all the way around: 5 + 3 + 5 + 3 = 16 cm.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I added 5 + 3 = 8 cm.", "misconceptionId": "perimeter-added-two-sides-only" },
+      { "id": "r3", "text": "I multiplied 5 × 3 = 15 cm.", "misconceptionId": "perimeter-area-confusion" }
+    ],
+    "strategyProbe": "How did you find the perimeter?"
+  },
+  {
+    "id": "cam-s3-meas-02",
+    "stage": 3,
+    "strand": "measure",
+    "difficulty": 3,
+    "skillId": "perimeter-measurement",
+    "stem": "A square garden has a perimeter of 24 metres. How long is each side?",
+    "readAloudText": "A square garden has a perimeter of 24 metres. How long is each side?",
+    "options": [
+      { "text": "6 m", "correct": true },
+      { "text": "12 m", "correct": false, "misconceptionId": "perimeter-divided-by-two-not-four" },
+      { "text": "4 m", "correct": false, "misconceptionId": "perimeter-confused-side-count" },
+      { "text": "48 m", "correct": false, "misconceptionId": "multiplication-operation-slip" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "A square has 4 equal sides, so 24 ÷ 4 = 6 m.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I divided 24 by 2 to get 12 m.", "misconceptionId": "perimeter-divided-by-two-not-four" }
+    ]
+  },
+  {
+    "id": "cam-s3-meas-03",
+    "stage": 3,
+    "strand": "measure",
+    "difficulty": 2,
+    "skillId": "clock-time-intervals",
+    "stem": "The short hand points just past 3, and the long hand points to 6. What time is it?",
+    "readAloudText": "The short hand points just past 3, and the long hand points to 6. What time is it?",
+    "options": [
+      { "text": "Half past 3 (3:30)", "correct": true },
+      { "text": "6:15", "correct": false, "misconceptionId": "clock-hand-confusion" },
+      { "text": "3:06", "correct": false, "misconceptionId": "clock-minute-hand-face-value" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "Short hand is hours (3), long hand on 6 means 30 minutes past.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I mixed up the hour and minute hands.", "misconceptionId": "clock-hand-confusion" },
+      { "id": "r3", "text": "The long hand is on 6, so it means 6 minutes.", "misconceptionId": "clock-minute-hand-face-value" }
+    ]
+  },
+  {
+    "id": "cam-s3-meas-04",
+    "stage": 3,
+    "strand": "measure",
+    "difficulty": 3,
+    "skillId": "clock-time-intervals",
+    "stem": "A film starts at 4:15 pm and lasts 45 minutes. What time does it end?",
+    "readAloudText": "A film starts at 4:15 pm and lasts 45 minutes. What time does it end?",
+    "options": [
+      { "text": "5:00 pm", "correct": true },
+      { "text": "4:60 pm", "correct": false, "misconceptionId": "time-base-100-error" },
+      { "text": "4:45 pm", "correct": false, "misconceptionId": "time-added-duration-to-hour" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "15 minutes + 45 minutes = 60 minutes (1 hour), bringing 4:15 to 5:00.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I added 15 + 45 to get 60, writing 4:60.", "misconceptionId": "time-base-100-error" }
+    ]
+  },
+  {
+    "id": "cam-s3-meas-05",
+    "stage": 3,
+    "strand": "measure",
+    "difficulty": 2,
+    "skillId": "length-measurement-cm",
+    "stem": "How many centimetres are there in 2 metres?",
+    "readAloudText": "How many centimetres are there in 2 metres?",
+    "options": [
+      { "text": "200 cm", "correct": true },
+      { "text": "20 cm", "correct": false, "misconceptionId": "units-metric-factor-10" },
+      { "text": "2000 cm", "correct": false, "misconceptionId": "units-metric-factor-1000" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "1 metre has 100 centimetres, so 2 metres is 200 cm.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I thought there were 10 centimetres in 1 metre.", "misconceptionId": "units-metric-factor-10" }
+    ]
+  },
+  {
+    "id": "cam-s3-meas-06",
+    "stage": 3,
+    "strand": "measure",
+    "difficulty": 3,
+    "skillId": "mass-capacity-estimation",
+    "stem": "Which unit of measurement would you use to measure the water in a swimming pool?",
+    "readAloudText": "Which unit of measurement would you use to measure the water in a swimming pool?",
+    "options": [
+      { "text": "Litres (L)", "correct": true },
+      { "text": "Millilitres (ml)", "correct": false, "misconceptionId": "units-scale-inappropriate" },
+      { "text": "Kilograms (kg)", "correct": false, "misconceptionId": "units-mass-volume-confusion" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "A pool has a large liquid volume, so litres is the suitable measure.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I thought water is measured in kilograms.", "misconceptionId": "units-mass-volume-confusion" }
+    ]
+  },
+  {
+    "id": "cam-s3-meas-07",
+    "stage": 3,
+    "strand": "measure",
+    "difficulty": 4,
+    "skillId": "perimeter-measurement",
+    "stem": "An equilateral triangle has sides of 7 cm each. What is its perimeter?",
+    "readAloudText": "An equilateral triangle has sides of 7 centimetres each. What is its perimeter?",
+    "options": [
+      { "text": "21 cm", "correct": true },
+      { "text": "14 cm", "correct": false, "misconceptionId": "perimeter-added-two-sides-only" },
+      { "text": "28 cm", "correct": false, "misconceptionId": "perimeter-assumed-four-sides" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "3 sides of 7 cm is 3 × 7 = 21 cm.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "I added 7 + 7 for only 2 sides.", "misconceptionId": "perimeter-added-two-sides-only" },
+      { "id": "r3", "text": "I calculated 4 × 7 = 28 as if it was a square.", "misconceptionId": "perimeter-assumed-four-sides" }
+    ]
+  },
+  {
+    "id": "cam-s3-meas-08",
+    "stage": 3,
+    "strand": "measure",
+    "difficulty": 3,
+    "skillId": "clock-time-intervals",
+    "stem": "How many minutes are in 1 hour and 15 minutes?",
+    "readAloudText": "How many minutes are in 1 hour and 15 minutes?",
+    "options": [
+      { "text": "75 minutes", "correct": true },
+      { "text": "115 minutes", "correct": false, "misconceptionId": "time-base-100-error" },
+      { "text": "25 minutes", "correct": false, "misconceptionId": "time-hour-confused-with-ten" }
+    ],
+    "reasoningOptions": [
+      { "id": "r1", "text": "1 hour is 60 minutes, and 60 + 15 = 75 minutes.", "isCorrectReasoning": true },
+      { "id": "r2", "text": "1 hour is 100 minutes, so 100 + 15 = 115.", "misconceptionId": "time-base-100-error" }
+    ]
+  }
+]

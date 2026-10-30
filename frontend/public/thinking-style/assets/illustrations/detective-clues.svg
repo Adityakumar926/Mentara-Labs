@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 320" width="100%" height="100%" fill="none" role="img" aria-label="The Learning Detective Dossier and Magnifying Clues">
+  <defs>
+    <linearGradient id="ldBg" x1="0" y1="0" x2="500" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FCF9F3" />
+      <stop offset="60%" stop-color="#E4ECF0" />
+      <stop offset="100%" stop-color="#FFE4D6" stop-opacity="0.4" />
+    </linearGradient>
+    <filter id="ldShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#375965" flood-opacity="0.12" />
+    </filter>
+  </defs>
+
+  <rect width="500" height="320" rx="20" fill="url(#ldBg)" />
+
+  <!-- Open Secret Case Dossier File Folder -->
+  <g transform="translate(250, 160)" filter="url(#ldShadow)">
+    <!-- Back Folder Tab -->
+    <path d="M-170 -95 L-60 -95 L-40 -75 L170 -75 L170 95 L-170 95 Z" fill="#FFE4D6" stroke="#E07338" stroke-width="2.5" />
+    <!-- White Report Parchment Pages -->
+    <rect x="-150" y="-70" width="300" height="150" rx="10" fill="#FFFFFF" stroke="#D5E0EA" stroke-width="1.5" />
+    
+    <!-- Written Clues & Lines -->
+    <line x1="-120" y1="-45" x2="-20" y2="-45" stroke="#375965" stroke-width="3" stroke-linecap="round" />
+    <line x1="-120" y1="-25" x2="60" y2="-25" stroke="#647184" stroke-width="2" stroke-linecap="round" />
+    <line x1="-120" y1="-5" x2="10" y2="-5" stroke="#647184" stroke-width="2" stroke-linecap="round" />
+    <line x1="-120" y1="15" x2="40" y2="15" stroke="#647184" stroke-width="2" stroke-linecap="round" />
+
+    <!-- Top Secret Detective Seal Stamp -->
+    <circle cx="100" cy="35" r="26" fill="#DDF5E9" stroke="#177A53" stroke-width="2" stroke-dasharray="4 2" />
+    <text x="100" y="40" font-family="'Nunito', sans-serif" font-weight="900" font-size="10" fill="#177A53" text-anchor="middle">VERIFIED</text>
+
+    <!-- Detective Footprint Clue Steps -->
+    <g transform="translate(-100, 48) rotate(-15) scale(0.6)">
+      <ellipse cx="0" cy="0" rx="8" ry="14" fill="#375965" opacity="0.6" />
+      <circle cx="-6" cy="-18" r="3" fill="#375965" opacity="0.6" />
+      <circle cx="-1" cy="-20" r="3.2" fill="#375965" opacity="0.6" />
+      <circle cx="4" cy="-18" r="3" fill="#375965" opacity="0.6" />
+    </g>
+    <g transform="translate(-60, 40) rotate(10) scale(0.6)">
+      <ellipse cx="0" cy="0" rx="8" ry="14" fill="#375965" opacity="0.6" />
+      <circle cx="-4" cy="-18" r="3" fill="#375965" opacity="0.6" />
+      <circle cx="1" cy="-20" r="3.2" fill="#375965" opacity="0.6" />
+      <circle cx="6" cy="-18" r="3" fill="#375965" opacity="0.6" />
+    </g>
+  </g>
+
+  <!-- Large 3D Magnifying Glass Examining Clue -->
+  <g transform="translate(340, 110) rotate(-28)" filter="url(#ldShadow)">
+    <!-- Wooden / Pastel Handle -->
+    <rect x="-8" y="50" width="16" height="70" rx="6" fill="#FFE4D6" stroke="#E07338" stroke-width="2.5" />
+    <circle cx="0" cy="115" r="5" fill="#FFF1BD" />
+
+    <!-- Outer Brass Bezel -->
+    <circle cx="0" cy="0" r="50" fill="none" stroke="#FFF1BD" stroke-width="12" />
+    <circle cx="0" cy="0" r="50" fill="none" stroke="#C78B12" stroke-width="2" />
+    <circle cx="0" cy="0" r="44" fill="none" stroke="#FFFDF5" stroke-width="2" />
+
+    <!-- Convex Lens with Subtle Liquid Reflection -->
+    <circle cx="0" cy="0" r="44" fill="rgba(223, 237, 255, 0.45)" />
+    <ellipse cx="-16" cy="-16" rx="14" ry="7" transform="rotate(-30 -16 -16)" fill="#FFFFFF" opacity="0.75" />
+
+    <!-- Magnified Golden Discovery Star in Center -->
+    <polygon points="0,-16 5,-4 18,-2 8,6 11,18 0,11 -11,18 -8,6 -18,-2 -5,-4" fill="#F5A623" stroke="#FFF1BD" stroke-width="1.5" />
+  </g>
+</svg>

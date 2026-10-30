@@ -1,0 +1,44 @@
+{
+  "resources": [
+    {
+      "strand": "fractions",
+      "misconceptionId": "fraction-bigger-denominator-bigger-value",
+      "title": "Mentara Visual Fraction Balancer (Interactive Simulation)",
+      "url": "https://mentp.com/simulations/stage3/fraction-balancer",
+      "description": "An interactive digital simulation where children drag and slice virtual pizzas to discover why 1/4 is bigger than 1/8.",
+      "type": "Simulation"
+    },
+    {
+      "strand": "fractions",
+      "misconceptionId": "fraction-equal-parts",
+      "title": "Stage 3 Equal Sharing & Slicing Guided Practice Set",
+      "url": "https://mentp.com/worksheets/stage3/fractions-equal-sharing",
+      "description": "Short, printable 10-minute exploration sheets using visual bars and concrete drawings.",
+      "type": "Worksheet Set"
+    },
+    {
+      "strand": "number",
+      "misconceptionId": "place-value-column-reversal",
+      "title": "Mentara Place Value Block Builder",
+      "url": "https://mentp.com/simulations/stage3/place-value-blocks",
+      "description": "Children combine and decompose hundreds flats, ten rods, and unit cubes.",
+      "type": "Simulation"
+    },
+    {
+      "strand": "operations",
+      "misconceptionId": "subtraction-smaller-from-larger-regardless-of-order",
+      "title": "Exchanging & Regrouping Step-by-Step Cards",
+      "url": "https://mentp.com/worksheets/stage3/subtraction-exchanging",
+      "description": "Illustrated worked examples illustrating exchanging a ten rod before subtracting ones.",
+      "type": "Worksheet Set"
+    },
+    {
+      "strand": "enrichment",
+      "misconceptionId": null,
+      "title": "Mentara Primary Math Explorers Studio",
+      "url": "https://mentp.com/simulations/stage3/math-explorers",
+      "description": "Open-ended geometry patterns, symmetry puzzles, and creative math challenges.",
+      "type": "Enrichment Simulation"
+    }
+  ]
+}

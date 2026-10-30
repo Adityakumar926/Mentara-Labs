@@ -252,3 +252,10 @@ export const classroomApi = {
   getClassroomSettings: () => api.get('/admin/classroom-settings'),
   updateClassroomSettings: (data) => api.put('/admin/classroom-settings', data),
 };
+
+// ── DISCOVER YOUR THINKING STYLE (LEARNING COMPASS ASSESSMENT) ───────────────
+export const assessmentApi = {
+  submitAssessment: (payload) => api.post('/assessment/submit', payload),
+  getHistory:       ()        => api.get('/assessment/history'),
+  getMyResults:     ()        => api.get('/assessment/my-results'),
+};

@@ -1,0 +1,145 @@
+{
+  "approaches": {
+    "concrete-pictorial-abstract": {
+      "name": "Concrete-Pictorial-Abstract (CPA)",
+      "rationale": "Transitions physical objects (counters, bread slices) to sketches before abstract numbers."
+    },
+    "think-aloud": {
+      "name": "Think-Aloud & Metacognitive Prompts",
+      "rationale": "Helps child verbalise their inner reasoning without fear of wrong answers."
+    },
+    "worked-examples": {
+      "name": "Worked Examples & Error Analysis",
+      "rationale": "Looking at solved examples together relieves performance anxiety and clarifies rules."
+    },
+    "open-ended-creative": {
+      "name": "Open-Ended Creative Explorations",
+      "rationale": "Harnesses natural curiosity and multiple representations."
+    }
+  },
+  "strands": {
+    "fractions": {
+      "focus": "Visualising Fractions as Sharing Wholes",
+      "weeks": [
+        {
+          "week": 1,
+          "focus": "Hands-on Slicing & Equal Sharing",
+          "activities": [
+            "Fold a paper napkin into 4 pieces, then fold another into 8 pieces. Lay them side by side to see which single piece is larger.",
+            "Share 8 strawberries between 4 soft toys. Count how many each friend receives."
+          ],
+          "askYourChild": "If more friends come to share the pizza, do the slices get bigger or smaller?"
+        },
+        {
+          "week": 2,
+          "focus": "Drawing Fraction Strips",
+          "activities": [
+            "Draw a long chocolate bar on paper. Colour in 1/2 with blue and 1/4 with yellow. Talk about how many 1/4 pieces fit in 1/2.",
+            "Find things around the house that are half-full or quarter-full."
+          ],
+          "askYourChild": "How can we prove that two quarters are the same as one half?"
+        },
+        {
+          "week": 3,
+          "focus": "Fractions of Everyday Quantities",
+          "activities": [
+            "Count 12 spoons. Find half (6 spoons) and one quarter (3 spoons) by making equal piles.",
+            "Bake or make toast together, cutting toast into four triangular quarters."
+          ],
+          "askYourChild": "What is your favourite way to divide a sandwich?"
+        },
+        {
+          "week": 4,
+          "focus": "Celebration & Creative Fraction Art",
+          "activities": [
+            "Create a 'Fraction Monster' using cut paper shapes of halves and quarters.",
+            "Invent a fraction riddle for someone in your family to solve."
+          ],
+          "askYourChild": "What was the most surprising thing you discovered about fractions this month?"
+        }
+      ]
+    },
+    "number": {
+      "focus": "Place Value & Mental Decomposition",
+      "weeks": [
+        {
+          "week": 1,
+          "focus": "Spotting the Value of Hundreds and Tens",
+          "activities": [
+            "Look for 3-digit house numbers or speed signs on a walk. Call out the tens digit.",
+            "Make 3-digit numbers using playing cards (Aces = 1, omit 10/face cards)."
+          ],
+          "askYourChild": "In the number 472, what does the 7 really stand for?"
+        },
+        {
+          "week": 2,
+          "focus": "Zero as the Silent Place Holder",
+          "activities": [
+            "Write 58 on paper. Slide a 0 into the middle to make 508. Talk about why the 5 moved to the hundreds place.",
+            "Count up by tens starting from 290 to cross into 300."
+          ],
+          "askYourChild": "What would happen to 508 if the zero fell out of the middle?"
+        },
+        {
+          "week": 3,
+          "focus": "Splitting Numbers for Quick Addition",
+          "activities": [
+            "Practise splitting numbers: 45 is 40 and 5. Try adding 23 by adding 20 first, then 3.",
+            "Estimate prices to the nearest 10 during grocery trips."
+          ],
+          "askYourChild": "How does your brain like to break up big numbers?"
+        },
+        {
+          "week": 4,
+          "focus": "Number Riddles & Confidence",
+          "activities": [
+            "Play 'I am thinking of a 3-digit number with 6 hundreds and an even number of ones'.",
+            "Write a secret number code for a grown-up to guess."
+          ],
+          "askYourChild": "Can you make a tricky number riddle for me?"
+        }
+      ]
+    },
+    "enrichment": {
+      "focus": "Open-Ended Problem Solving & Deepening Curiosity",
+      "weeks": [
+        {
+          "week": 1,
+          "focus": "Patterns in Nature & Geometry",
+          "activities": [
+            "Look for tessellations and repeating tiles around your home or pavement.",
+            "Draw repeating patterns using simple triangles and squares."
+          ],
+          "askYourChild": "Where can we see math hiding outside today?"
+        },
+        {
+          "week": 2,
+          "focus": "Inventing Math Games",
+          "activities": [
+            "Design a board game with cardboard where moving forward requires solving a riddle.",
+            "Create a dice game with custom rules for doubling points."
+          ],
+          "askYourChild": "What rule would make our game the most fun to play?"
+        },
+        {
+          "week": 3,
+          "focus": "Strategy & Estimation Challenges",
+          "activities": [
+            "Estimate how many footsteps it takes to walk from the front door to the kitchen.",
+            "Test three different ways to group and count a large jar of pasta shells."
+          ],
+          "askYourChild": "Which counting shortcut felt the most satisfying?"
+        },
+        {
+          "week": 4,
+          "focus": "Creative STEM Inventions",
+          "activities": [
+            "Build the tallest freestanding tower using only rolled newspaper and tape.",
+            "Write or draw an invention that solves a small problem around the house."
+          ],
+          "askYourChild": "What was the most exciting thing you designed this week?"
+        }
+      ]
+    }
+  }
+}

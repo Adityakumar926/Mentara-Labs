@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 320" width="100%" height="100%" fill="none" role="img" aria-label="Memory Forest Enchanted Firefly Trail">
+  <defs>
+    <linearGradient id="mfSky" x1="0" y1="0" x2="500" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F0FAF3" />
+      <stop offset="60%" stop-color="#D5EEDB" />
+      <stop offset="100%" stop-color="#FFF0BE" stop-opacity="0.4" />
+    </linearGradient>
+    <radialGradient id="mfLanternGlow" cx="0" cy="0" r="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFF1BD" stop-opacity="0.9" />
+      <stop offset="60%" stop-color="#FFE4D6" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#D5EEDB" stop-opacity="0" />
+    </radialGradient>
+    <filter id="mfSoftShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#1B573A" flood-opacity="0.1" />
+    </filter>
+  </defs>
+
+  <rect width="500" height="320" rx="20" fill="url(#mfSky)" />
+
+  <!-- Rolling Gentle Pastel Hills -->
+  <path d="M0 260 Q120 220 250 240 T500 230 L500 320 L0 320 Z" fill="#DDF5E9" opacity="0.7" />
+  <path d="M0 280 Q160 250 320 270 T500 260 L500 320 L0 320 Z" fill="#C2EBD4" opacity="0.8" />
+
+  <!-- Stylized Whimsical Forest Trees -->
+  <!-- Left Tree 1 -->
+  <g transform="translate(60, 180)" filter="url(#mfSoftShadow)">
+    <rect x="-6" y="40" width="12" height="60" rx="5" fill="#8FA998" />
+    <circle cx="0" cy="15" r="38" fill="#DDF5E9" stroke="#267A4F" stroke-width="2" />
+    <circle cx="-12" cy="5" r="24" fill="#EAE4FF" stroke="#7C5CDB" stroke-width="1.5" />
+    <circle cx="14" cy="10" r="26" fill="#C8EEDA" stroke="#267A4F" stroke-width="1.5" />
+  </g>
+
+  <!-- Left Tree 2 (Smaller) -->
+  <g transform="translate(130, 200)" filter="url(#mfSoftShadow)">
+    <rect x="-4" y="30" width="8" height="50" rx="4" fill="#A4BDB0" />
+    <polygon points="0,-10 24,35 -24,35" fill="#DDF5E9" stroke="#267A4F" stroke-width="2" />
+    <polygon points="0,-25 18,10 -18,10" fill="#EAE4FF" stroke="#7C5CDB" stroke-width="1.5" />
+  </g>
+
+  <!-- Right Tree 1 -->
+  <g transform="translate(430, 175)" filter="url(#mfSoftShadow)">
+    <rect x="-6" y="45" width="12" height="65" rx="5" fill="#8FA998" />
+    <ellipse cx="0" cy="10" rx="34" ry="44" fill="#DDF5E9" stroke="#267A4F" stroke-width="2" />
+    <ellipse cx="10" cy="0" rx="22" ry="30" fill="#FFF1BD" stroke="#C78B12" stroke-width="1.5" />
+  </g>
+
+  <!-- Right Tree 2 -->
+  <g transform="translate(360, 210)" filter="url(#mfSoftShadow)">
+    <rect x="-5" y="25" width="10" height="45" rx="4" fill="#A4BDB0" />
+    <circle cx="0" cy="5" r="30" fill="#EAE4FF" stroke="#7C5CDB" stroke-width="1.8" />
+  </g>
+
+  <!-- Center Memory Path & Firefly Trail -->
+  <path d="M120 280 Q240 220 270 170 T310 90" stroke="rgba(255, 241, 189, 0.9)" stroke-width="8" stroke-linecap="round" fill="none" filter="url(#mfSoftShadow)" />
+  <path d="M120 280 Q240 220 270 170 T310 90" stroke="#E29B63" stroke-width="2.5" stroke-dasharray="8 8" fill="none" />
+
+  <!-- Glowing Firefly Memory Lights (Step Sequence 1, 2, 3, 4) -->
+  <!-- Firefly 1 -->
+  <g transform="translate(160, 255)">
+    <circle cx="0" cy="0" r="28" fill="url(#mfLanternGlow)" />
+    <circle cx="0" cy="0" r="10" fill="#FFF1BD" stroke="#E07338" stroke-width="2" />
+    <text x="0" y="4" font-family="'Nunito', sans-serif" font-weight="900" font-size="11" fill="#293347" text-anchor="middle">1</text>
+  </g>
+
+  <!-- Firefly 2 -->
+  <g transform="translate(225, 215)">
+    <circle cx="0" cy="0" r="28" fill="url(#mfLanternGlow)" />
+    <circle cx="0" cy="0" r="10" fill="#DDF5E9" stroke="#177A53" stroke-width="2" />
+    <text x="0" y="4" font-family="'Nunito', sans-serif" font-weight="900" font-size="11" fill="#293347" text-anchor="middle">2</text>
+  </g>
+
+  <!-- Firefly 3 -->
+  <g transform="translate(265, 160)">
+    <circle cx="0" cy="0" r="28" fill="url(#mfLanternGlow)" />
+    <circle cx="0" cy="0" r="10" fill="#EAE4FF" stroke="#7C5CDB" stroke-width="2" />
+    <text x="0" y="4" font-family="'Nunito', sans-serif" font-weight="900" font-size="11" fill="#293347" text-anchor="middle">3</text>
+  </g>
+
+  <!-- Firefly 4 (Destination Lantern) -->
+  <g transform="translate(305, 95)" filter="url(#mfSoftShadow)">
+    <circle cx="0" cy="0" r="38" fill="url(#mfLanternGlow)" />
+    <rect x="-10" y="-14" width="20" height="26" rx="5" fill="#FFE4D6" stroke="#E07338" stroke-width="2" />
+    <circle cx="0" cy="-1" r="7" fill="#FFF1BD" />
+    <path d="M-6 -14 C-6 -22 6 -22 6 -14" stroke="#E07338" stroke-width="2" fill="none" />
+    <polygon points="0,-5 2,0 6,1 3,4 4,8 0,6 -4,8 -3,4 -6,1 -2,0" fill="#F5A623" />
+  </g>
+</svg>

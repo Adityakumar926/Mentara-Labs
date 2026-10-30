@@ -1,0 +1,247 @@
+[
+  {
+    "id": "diag-spatial-pattern",
+    "strand": "spatial-intuition",
+    "category": "Spatial Pattern Probe",
+    "title": "The Mysterious Mosaic",
+    "stem": "Study the ancient stone mosaic. Notice how each row and column changes. Which carved stone tile belongs in the empty glowing spot (?)?",
+    "readAloudText": "Study the ancient stone mosaic. Notice how each row and column changes. Which carved stone tile belongs in the empty glowing spot with the question mark?",
+    "visualHtml": "<div class=\"mosaic-container\" style=\"background: #F5EFEB; border: 2px solid #DECFC4; border-radius: 16px; padding: 18px; max-width: 480px; margin: 12px auto 20px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.04); text-align: center;\"><div style=\"font-size: 0.85rem; font-weight: 800; color: #4F7F86; margin-bottom: 12px; letter-spacing: 0.05em; text-transform: uppercase;\">🏛️ Ancient Floor Mosaic (3 × 3 Grid)</div><div class=\"mosaic-grid\" style=\"display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 320px; margin: 0 auto;\"><div class=\"mosaic-tile\" style=\"background:#FFFFFF; border:2px solid #8FA998; border-radius:10px; padding:8px; display:flex; align-items:center; justify-content:center;\" title=\"Row 1: Circle with Dot\"><svg viewBox=\"0 0 60 60\" width=\"56\" height=\"56\"><circle cx=\"30\" cy=\"30\" r=\"24\" fill=\"#EDF5F0\" stroke=\"#4F7F86\" stroke-width=\"3\"/><circle cx=\"30\" cy=\"30\" r=\"6\" fill=\"#E29B63\"/></svg></div><div class=\"mosaic-tile\" style=\"background:#FFFFFF; border:2px solid #8FA998; border-radius:10px; padding:8px; display:flex; align-items:center; justify-content:center;\" title=\"Row 1: Square with Dot\"><svg viewBox=\"0 0 60 60\" width=\"56\" height=\"56\"><rect x=\"8\" y=\"8\" width=\"44\" height=\"44\" rx=\"6\" fill=\"#EDF5F0\" stroke=\"#4F7F86\" stroke-width=\"3\"/><circle cx=\"30\" cy=\"30\" r=\"6\" fill=\"#E29B63\"/></svg></div><div class=\"mosaic-tile\" style=\"background:#FFFFFF; border:2px solid #8FA998; border-radius:10px; padding:8px; display:flex; align-items:center; justify-content:center;\" title=\"Row 1: Triangle with Dot\"><svg viewBox=\"0 0 60 60\" width=\"56\" height=\"56\"><polygon points=\"30,8 54,50 6,50\" fill=\"#EDF5F0\" stroke=\"#4F7F86\" stroke-width=\"3\"/><circle cx=\"30\" cy=\"35\" r=\"6\" fill=\"#E29B63\"/></svg></div><div class=\"mosaic-tile\" style=\"background:#FFFFFF; border:2px solid #8FA998; border-radius:10px; padding:8px; display:flex; align-items:center; justify-content:center;\" title=\"Row 2: Circle with Plus\"><svg viewBox=\"0 0 60 60\" width=\"56\" height=\"56\"><circle cx=\"30\" cy=\"30\" r=\"24\" fill=\"#EDF5F0\" stroke=\"#4F7F86\" stroke-width=\"3\"/><line x1=\"18\" y1=\"30\" x2=\"42\" y2=\"30\" stroke=\"#E29B63\" stroke-width=\"4\" stroke-linecap=\"round\"/><line x1=\"30\" y1=\"18\" x2=\"30\" y2=\"42\" stroke=\"#E29B63\" stroke-width=\"4\" stroke-linecap=\"round\"/></svg></div><div class=\"mosaic-tile\" style=\"background:#FFFFFF; border:2px solid #8FA998; border-radius:10px; padding:8px; display:flex; align-items:center; justify-content:center;\" title=\"Row 2: Square with Plus\"><svg viewBox=\"0 0 60 60\" width=\"56\" height=\"56\"><rect x=\"8\" y=\"8\" width=\"44\" height=\"44\" rx=\"6\" fill=\"#EDF5F0\" stroke=\"#4F7F86\" stroke-width=\"3\"/><line x1=\"18\" y1=\"30\" x2=\"42\" y2=\"30\" stroke=\"#E29B63\" stroke-width=\"4\" stroke-linecap=\"round\"/><line x1=\"30\" y1=\"18\" x2=\"30\" y2=\"42\" stroke=\"#E29B63\" stroke-width=\"4\" stroke-linecap=\"round\"/></svg></div><div class=\"mosaic-tile\" style=\"background:#FFFFFF; border:2px solid #8FA998; border-radius:10px; padding:8px; display:flex; align-items:center; justify-content:center;\" title=\"Row 2: Triangle with Plus\"><svg viewBox=\"0 0 60 60\" width=\"56\" height=\"56\"><polygon points=\"30,8 54,50 6,50\" fill=\"#EDF5F0\" stroke=\"#4F7F86\" stroke-width=\"3\"/><line x1=\"18\" y1=\"35\" x2=\"42\" y2=\"35\" stroke=\"#E29B63\" stroke-width=\"4\" stroke-linecap=\"round\"/><line x1=\"30\" y1=\"23\" x2=\"30\" y2=\"47\" stroke=\"#E29B63\" stroke-width=\"4\" stroke-linecap=\"round\"/></svg></div><div class=\"mosaic-tile\" style=\"background:#FFFFFF; border:2px solid #8FA998; border-radius:10px; padding:8px; display:flex; align-items:center; justify-content:center;\" title=\"Row 3: Circle with Diamond\"><svg viewBox=\"0 0 60 60\" width=\"56\" height=\"56\"><circle cx=\"30\" cy=\"30\" r=\"24\" fill=\"#EDF5F0\" stroke=\"#4F7F86\" stroke-width=\"3\"/><polygon points=\"30,19 41,30 30,41 19,30\" fill=\"#E29B63\"/></svg></div><div class=\"mosaic-tile\" style=\"background:#FFFFFF; border:2px solid #8FA998; border-radius:10px; padding:8px; display:flex; align-items:center; justify-content:center;\" title=\"Row 3: Square with Diamond\"><svg viewBox=\"0 0 60 60\" width=\"56\" height=\"56\"><rect x=\"8\" y=\"8\" width=\"44\" height=\"44\" rx=\"6\" fill=\"#EDF5F0\" stroke=\"#4F7F86\" stroke-width=\"3\"/><polygon points=\"30,19 41,30 30,41 19,30\" fill=\"#E29B63\"/></svg></div><div class=\"mosaic-tile mosaic-missing\" style=\"border: 3px dashed #E29B63; background: #FFF9F2; border-radius: 10px; display: flex; align-items: center; justify-content: center; height: 72px; box-shadow: 0 0 10px rgba(226,155,99,0.25);\"><span style=\"font-size: 2rem; font-weight: 900; color: #E29B63;\">?</span></div></div></div>",
+    "options": [
+      {
+        "text": "Triangle with Diamond",
+        "correct": true,
+        "trait": "spatial-systematic",
+        "visual": "<svg viewBox=\"0 0 60 60\" width=\"44\" height=\"44\"><polygon points=\"30,8 54,50 6,50\" fill=\"#EDF5F0\" stroke=\"#4F7F86\" stroke-width=\"3\"/><polygon points=\"30,24 41,35 30,46 19,35\" fill=\"#E29B63\"/></svg>"
+      },
+      {
+        "text": "Triangle with Dot",
+        "correct": false,
+        "trait": "row-slip",
+        "visual": "<svg viewBox=\"0 0 60 60\" width=\"44\" height=\"44\"><polygon points=\"30,8 54,50 6,50\" fill=\"#EDF5F0\" stroke=\"#4F7F86\" stroke-width=\"3\"/><circle cx=\"30\" cy=\"35\" r=\"6\" fill=\"#E29B63\"/></svg>"
+      },
+      {
+        "text": "Square with Diamond",
+        "correct": false,
+        "trait": "column-slip",
+        "visual": "<svg viewBox=\"0 0 60 60\" width=\"44\" height=\"44\"><rect x=\"8\" y=\"8\" width=\"44\" height=\"44\" rx=\"6\" fill=\"#EDF5F0\" stroke=\"#4F7F86\" stroke-width=\"3\"/><polygon points=\"30,19 41,30 30,41 19,30\" fill=\"#E29B63\"/></svg>"
+      },
+      {
+        "text": "Circle with Star",
+        "correct": false,
+        "trait": "divergent-guess",
+        "visual": "<svg viewBox=\"0 0 60 60\" width=\"44\" height=\"44\"><circle cx=\"30\" cy=\"30\" r=\"24\" fill=\"#EDF5F0\" stroke=\"#4F7F86\" stroke-width=\"3\"/><polygon points=\"30,15 34,25 45,25 36,32 39,43 30,36 21,43 24,32 15,25 26,25\" fill=\"#E29B63\"/></svg>"
+      }
+    ],
+    "reflectionPrompt": "What was your brain doing as you worked out the missing tile?",
+    "reflectionOptions": [
+      { "id": "ref-visual", "text": "I looked across the rows and down the columns like a map.", "mindStyle": "visual-spatial" },
+      { "id": "ref-rule", "text": "I checked the shape rule first, then matched the symbol inside.", "mindStyle": "analytic-deductive" },
+      { "id": "ref-gut", "text": "My eye instantly jumped to the one that felt right without counting.", "mindStyle": "intuitive-holistic" },
+      { "id": "ref-elim", "text": "I spotted the ones that were clearly wrong and ruled them out.", "mindStyle": "evaluative-pragmatic" }
+    ]
+  },
+  {
+    "id": "diag-detective-logic",
+    "strand": "deductive-logic",
+    "category": "Deductive Logic Probe",
+    "title": "The Whispering Stream Footprints",
+    "stem": "Three animal friends crossed the whispering stream at dawn. Read the clues on the wooden signs. Who made it across first?",
+    "readAloudText": "Three animal friends crossed the whispering stream at dawn. Read the clues on the wooden signs. Who made it across first?",
+    "visualHtml": "<div class=\"stream-scene-box\" style=\"background: #EBF3F5; border: 2px solid #C8DFE3; border-radius: 16px; padding: 18px 22px; max-width: 520px; margin: 12px auto 20px;\"><div style=\"display: flex; justify-content: space-around; align-items: center; margin-bottom: 14px; background: #FFFFFF; border-radius: 12px; padding: 12px; border: 1px solid #D7E8EB;\"><div style=\"text-align: center;\"><div style=\"font-size: 2.2rem;\">🦡</div><div style=\"font-size: 0.85rem; font-weight: 800; color: #26333A;\">Badger</div></div><div style=\"font-size: 1.4rem; color: #8FA998;\">〰️</div><div style=\"text-align: center;\"><div style=\"font-size: 2.2rem;\">🦉</div><div style=\"font-size: 0.85rem; font-weight: 800; color: #26333A;\">Owl</div></div><div style=\"font-size: 1.4rem; color: #8FA998;\">〰️</div><div style=\"text-align: center;\"><div style=\"font-size: 2.2rem;\">🦊</div><div style=\"font-size: 0.85rem; font-weight: 800; color: #26333A;\">Fox</div></div></div><div style=\"background: #FCFBF9; border-radius: 10px; padding: 12px 16px; border: 1px solid #E4DDD3; display: flex; flex-direction: column; gap: 8px;\"><div style=\"display: flex; gap: 10px; align-items: center;\"><span style=\"font-size: 1.2rem;\">🪵</span><span style=\"font-size: 0.95rem; font-weight: 600; color: #26333A;\"><strong>Sign 1:</strong> The <strong>Owl</strong> crossed after the <strong>Badger</strong>.</span></div><div style=\"display: flex; gap: 10px; align-items: center;\"><span style=\"font-size: 1.2rem;\">🪵</span><span style=\"font-size: 0.95rem; font-weight: 600; color: #26333A;\"><strong>Sign 2:</strong> The <strong>Fox</strong> crossed after the <strong>Owl</strong>.</span></div></div></div>",
+    "options": [
+      {
+        "text": "The Badger",
+        "correct": true,
+        "trait": "sequential-deduction",
+        "visual": "<span style=\"font-size: 2rem;\">🦡</span>"
+      },
+      {
+        "text": "The Owl",
+        "correct": false,
+        "trait": "middle-capture",
+        "visual": "<span style=\"font-size: 2rem;\">🦉</span>"
+      },
+      {
+        "text": "The Fox",
+        "correct": false,
+        "trait": "recency-bias",
+        "visual": "<span style=\"font-size: 2rem;\">🦊</span>"
+      },
+      {
+        "text": "They all crossed together",
+        "correct": false,
+        "trait": "harmony-bias",
+        "visual": "<span style=\"font-size: 2rem;\">🐾</span>"
+      }
+    ],
+    "reflectionPrompt": "How did you find the order in your head?",
+    "reflectionOptions": [
+      { "id": "ref-timeline", "text": "I built a line in my head: 1st Badger, 2nd Owl, 3rd Fox.", "mindStyle": "structured-linear" },
+      { "id": "ref-story", "text": "I pictured a movie in my mind of the animals walking across.", "mindStyle": "narrative-imaginative" },
+      { "id": "ref-elim", "text": "I read Sign 1 and immediately knew Fox and Owl were not first.", "mindStyle": "elimination-pragmatic" },
+      { "id": "ref-quick", "text": "I made a quick, confident guess from the first clue I saw.", "mindStyle": "spontaneous-bold" }
+    ]
+  },
+  {
+    "id": "diag-ambiguity-fork",
+    "strand": "decision-temperament",
+    "category": "Learning Temperament Probe",
+    "title": "The Fork in the Forest",
+    "stem": "You and your friends arrive at an uncharted valley. Look at the four trails ahead. Which path sounds most exciting to explore?",
+    "readAloudText": "You and your friends arrive at an uncharted valley. Look at the four trails ahead. Which path sounds most exciting to explore?",
+    "visualHtml": "<div class=\"fork-paths-grid\" style=\"display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 12px auto 20px; max-width: 560px;\"><div style=\"background: #FCFBF7; border: 2px solid #E9E2D6; border-radius: 14px; padding: 14px; text-align: center;\"><div style=\"font-size: 2.2rem; margin-bottom: 4px;\">🏮</div><div style=\"font-weight: 800; color: #26333A; font-size: 0.95rem;\">The Lantern Trail</div><div style=\"font-size: 0.8rem; color: #5B6D74; margin-top: 4px;\">Clear stepping stones & lit lanterns. Peaceful, safe, reliable destination.</div></div><div style=\"background: #F3F7F8; border: 2px solid #D2E4E7; border-radius: 14px; padding: 14px; text-align: center;\"><div style=\"font-size: 2.2rem; margin-bottom: 4px;\">💎</div><div style=\"font-weight: 800; color: #26333A; font-size: 0.95rem;\">The Crystal Cavern</div><div style=\"font-size: 0.8rem; color: #5B6D74; margin-top: 4px;\">Sparkling dark caves. Full of surprises, twists, and hidden treasures.</div></div><div style=\"background: #F2F7F3; border: 2px solid #D3E7D7; border-radius: 14px; padding: 14px; text-align: center;\"><div style=\"font-size: 2.2rem; margin-bottom: 4px;\">🌲</div><div style=\"font-weight: 800; color: #26333A; font-size: 0.95rem;\">The Wild Ridge</div><div style=\"font-size: 0.8rem; color: #5B6D74; margin-top: 4px;\">No path exists at all. You climb, invent, and create your own route.</div></div><div style=\"background: #FAF6F0; border: 2px solid #EBDCCF; border-radius: 14px; padding: 14px; text-align: center;\"><div style=\"font-size: 2.2rem; margin-bottom: 4px;\">🗺️</div><div style=\"font-weight: 800; color: #26333A; font-size: 0.95rem;\">The Mapmaker's Post</div><div style=\"font-size: 0.8rem; color: #5B6D74; margin-top: 4px;\">Stop, look through the telescope, draw a map, and agree as a group first.</div></div></div>",
+    "options": [
+      {
+        "text": "The Lantern Trail — Clear steps, reliable, and peaceful.",
+        "trait": "deliberate-structured",
+        "visual": "<span style=\"font-size: 1.8rem;\">🏮</span>"
+      },
+      {
+        "text": "The Crystal Cavern — Dark mystery, surprises, and secret treasures.",
+        "trait": "adventurous-exploratory",
+        "visual": "<span style=\"font-size: 1.8rem;\">💎</span>"
+      },
+      {
+        "text": "The Wild Ridge — Inventing our own trail through the wild trees.",
+        "trait": "autonomous-inventor",
+        "visual": "<span style=\"font-size: 1.8rem;\">🌲</span>"
+      },
+      {
+        "text": "The Mapmaker's Post — Observing first, drawing a plan, and coordinating.",
+        "trait": "collaborative-observational",
+        "visual": "<span style=\"font-size: 1.8rem;\">🗺️</span>"
+      }
+    ],
+    "reflectionPrompt": "What makes this choice feel like you?",
+    "reflectionOptions": [
+      { "id": "ref-p1", "text": "I feel happiest when I know what steps come next without confusion.", "mindStyle": "structured-clarity" },
+      { "id": "ref-p2", "text": "I love discoveries, surprises, and figuring out mysteries.", "mindStyle": "novelty-seeking" },
+      { "id": "ref-p3", "text": "I like doing things my own unique way rather than copying someone else.", "mindStyle": "creative-independent" },
+      { "id": "ref-p4", "text": "I like pausing to see the whole picture before jumping into action.", "mindStyle": "reflective-strategic" }
+    ]
+  },
+  {
+    "id": "diag-balance-weights",
+    "strand": "relational-intuition",
+    "category": "Relational Reasoning Probe",
+    "title": "The Antique Balance Scale",
+    "stem": "Look at the two balance scales. Both are perfectly level. How many Silver Stars will balance 1 Purple Sun Gem?",
+    "readAloudText": "Look at the two balance scales. Both are perfectly level. How many Silver Stars will balance 1 Purple Sun Gem?",
+    "visualHtml": "<div class=\"scale-display-box\" style=\"background: #FDFCF7; border: 2px solid #E8DFD3; border-radius: 16px; padding: 16px 20px; max-width: 520px; margin: 12px auto 20px;\"><div style=\"display: flex; align-items: center; justify-content: space-between; background: #FFFFFF; border: 1px solid #ECE3D7; border-radius: 12px; padding: 10px 16px; margin-bottom: 10px;\"><div style=\"display: flex; align-items: center; gap: 8px; font-weight: 800; color: #26333A;\"><span style=\"font-size: 1.5rem;\">🟣</span> 1 Purple Gem</div><div style=\"font-weight: 800; color: #4F7F86; font-size: 1.05rem;\">⚖️ Balances</div><div style=\"display: flex; align-items: center; gap: 6px; font-weight: 800; color: #26333A;\"><span style=\"font-size: 1.4rem;\">🪙 🪙</span> 2 Gold Coins</div></div><div style=\"display: flex; align-items: center; justify-content: space-between; background: #FFFFFF; border: 1px solid #ECE3D7; border-radius: 12px; padding: 10px 16px; margin-bottom: 12px;\"><div style=\"display: flex; align-items: center; gap: 8px; font-weight: 800; color: #26333A;\"><span style=\"font-size: 1.4rem;\">🪙</span> 1 Gold Coin</div><div style=\"font-weight: 800; color: #4F7F86; font-size: 1.05rem;\">⚖️ Balances</div><div style=\"display: flex; align-items: center; gap: 4px; font-weight: 800; color: #26333A;\"><span style=\"font-size: 1.3rem;\">⭐ ⭐ ⭐</span> 3 Silver Stars</div></div><div style=\"background: #FFF8EE; border: 2px dashed #E29B63; border-radius: 12px; padding: 10px 16px; text-align: center; font-weight: 800; color: #9A5016; font-size: 1.05rem;\">🟣 1 Purple Gem = ⚖️ How many Silver Stars ⭐ ?</div></div>",
+    "options": [
+      {
+        "text": "6 Silver Stars (⭐⭐⭐⭐⭐⭐)",
+        "correct": true,
+        "trait": "multiplicative-transitive",
+        "visual": "<span style=\"font-size: 1.5rem;\">⭐⭐⭐⭐⭐⭐</span>"
+      },
+      {
+        "text": "5 Silver Stars (⭐⭐⭐⭐⭐)",
+        "correct": false,
+        "trait": "additive-slip",
+        "visual": "<span style=\"font-size: 1.5rem;\">⭐⭐⭐⭐⭐</span>"
+      },
+      {
+        "text": "3 Silver Stars (⭐⭐⭐)",
+        "correct": false,
+        "trait": "salience-capture",
+        "visual": "<span style=\"font-size: 1.5rem;\">⭐⭐⭐</span>"
+      },
+      {
+        "text": "8 Silver Stars (⭐⭐⭐⭐⭐⭐⭐⭐)",
+        "correct": false,
+        "trait": "over-projection",
+        "visual": "<span style=\"font-size: 1.5rem;\">⭐⭐⭐⭐⭐⭐⭐⭐</span>"
+      }
+    ],
+    "reflectionPrompt": "Which explanation fits how your mind figured that out?",
+    "reflectionOptions": [
+      { "id": "ref-visual-swap", "text": "I pictured replacing each coin with 3 stars: 3 and 3 make 6.", "mindStyle": "visual-substitution" },
+      { "id": "ref-calc", "text": "I used mental math: 2 groups of 3 equals 6.", "mindStyle": "analytic-mathematical" },
+      { "id": "ref-double", "text": "Since 1 coin is 3 stars, doubling coins doubles the stars.", "mindStyle": "proportional-logic" },
+      { "id": "ref-not-sure", "text": "I wasn't completely sure, so I picked the option that felt most balanced.", "mindStyle": "emerging-calibration" }
+    ]
+  },
+  {
+    "id": "diag-cake-fractions",
+    "strand": "fractions",
+    "category": "Conceptual Mathematical Inquiry",
+    "title": "The Birthday Cake Sharing Dilemma",
+    "stem": "Maya and Noah each have an identical round birthday cake. Maya cuts hers into 4 equal slices and takes 1 slice (1/4). Noah cuts his into 8 equal slices and takes 1 slice (1/8). Who gets the bigger single slice to eat?",
+    "readAloudText": "Maya and Noah each have an identical round birthday cake. Maya cuts hers into 4 equal slices and takes 1 slice. Noah cuts his into 8 equal slices and takes 1 slice. Who gets the bigger single slice to eat?",
+    "visualHtml": "<div class=\"cake-compare-display\" style=\"display: flex; gap: 16px; justify-content: center; align-items: stretch; margin: 12px auto 20px; max-width: 540px; flex-wrap: wrap;\"><div style=\"flex: 1; min-width: 220px; background: #FFFFFF; border: 2px solid #8FA998; border-radius: 14px; padding: 14px; text-align: center; box-shadow: var(--shadow-sm);\"><div style=\"font-weight: 800; color: #26333A; margin-bottom: 6px; font-size: 1.05rem;\">Maya's Cake</div><div style=\"width: 110px; height: 110px; margin: 0 auto 8px;\"><svg viewBox=\"0 0 100 100\" width=\"110\" height=\"110\"><circle cx=\"50\" cy=\"50\" r=\"45\" fill=\"#F5EFEB\" stroke=\"#26333A\" stroke-width=\"2\"/><path d=\"M 50,50 L 50,5 A 45,45 0 0,1 95,50 Z\" fill=\"#E29B63\" stroke=\"#26333A\" stroke-width=\"2\"/><line x1=\"50\" y1=\"5\" x2=\"50\" y2=\"95\" stroke=\"#26333A\" stroke-width=\"2\"/><line x1=\"5\" y1=\"50\" x2=\"95\" y2=\"50\" stroke=\"#26333A\" stroke-width=\"2\"/></svg></div><div style=\"font-weight: 800; color: #9A5016; font-size: 1rem;\">1 of 4 Slices (1/4)</div><div style=\"font-size: 0.8rem; color: #5B6D74;\">Shared among 4 friends</div></div><div style=\"flex: 1; min-width: 220px; background: #FFFFFF; border: 2px solid #4F7F86; border-radius: 14px; padding: 14px; text-align: center; box-shadow: var(--shadow-sm);\"><div style=\"font-weight: 800; color: #26333A; margin-bottom: 6px; font-size: 1.05rem;\">Noah's Cake</div><div style=\"width: 110px; height: 110px; margin: 0 auto 8px;\"><svg viewBox=\"0 0 100 100\" width=\"110\" height=\"110\"><circle cx=\"50\" cy=\"50\" r=\"45\" fill=\"#F5EFEB\" stroke=\"#26333A\" stroke-width=\"2\"/><path d=\"M 50,50 L 50,5 A 45,45 0 0,1 81.8,18.2 Z\" fill=\"#E29B63\" stroke=\"#26333A\" stroke-width=\"2\"/><line x1=\"50\" y1=\"5\" x2=\"50\" y2=\"95\" stroke=\"#26333A\" stroke-width=\"2\"/><line x1=\"5\" y1=\"50\" x2=\"95\" y2=\"50\" stroke=\"#26333A\" stroke-width=\"2\"/><line x1=\"18.2\" y1=\"18.2\" x2=\"81.8\" y2=\"81.8\" stroke=\"#26333A\" stroke-width=\"2\"/><line x1=\"18.2\" y1=\"81.8\" x2=\"81.8\" y2=\"18.2\" stroke=\"#26333A\" stroke-width=\"2\"/></svg></div><div style=\"font-weight: 800; color: #4F7F86; font-size: 1rem;\">1 of 8 Slices (1/8)</div><div style=\"font-size: 0.8rem; color: #5B6D74;\">Shared among 8 friends</div></div></div>",
+    "options": [
+      {
+        "text": "Maya's slice (1/4) is bigger",
+        "correct": true,
+        "trait": "relational-partitioning",
+        "visual": "<span style=\"font-size: 1.8rem;\">🍰</span>"
+      },
+      {
+        "text": "Noah's slice (1/8) is bigger",
+        "correct": false,
+        "misconceptionId": "fraction-bigger-denominator-bigger-value",
+        "trait": "whole-number-bias",
+        "visual": "<span style=\"font-size: 1.8rem;\">🍰</span>"
+      },
+      {
+        "text": "Both slices are exactly the same size",
+        "correct": false,
+        "trait": "numerator-equality-bias",
+        "visual": "<span style=\"font-size: 1.8rem;\">⚖️</span>"
+      },
+      {
+        "text": "It is impossible to tell without weighing",
+        "correct": false,
+        "trait": "uncommitted-evasion",
+        "visual": "<span style=\"font-size: 1.8rem;\">❓</span>"
+      }
+    ],
+    "reflectionPrompt": "Which explanation sounds most like your thinking?",
+    "reflectionOptions": [
+      { "id": "ref-sharing", "text": "Fewer friends sharing means everyone gets a bigger piece.", "mindStyle": "conceptual-relational", "misconceptionId": null },
+      { "id": "ref-visual-slice", "text": "I looked at the pictures and could visually see the 1/4 slice was fatter.", "mindStyle": "visual-spatial", "misconceptionId": null },
+      { "id": "ref-eight-bigger", "text": "8 is a bigger number than 4, so 1/8 sounded bigger at first.", "mindStyle": "whole-number-anchor", "misconceptionId": "fraction-bigger-denominator-bigger-value" },
+      { "id": "ref-unsure-frac", "text": "Fractions feel tricky for me, so I guessed.", "mindStyle": "uncertain-calibration", "misconceptionId": null }
+    ]
+  },
+  {
+    "id": "diag-empathy-peer",
+    "strand": "social-emotional",
+    "category": "Interpersonal Mind Style",
+    "title": "The Silent Project Partner",
+    "stem": "In science class, your partner Mateo seems quiet today. He sits back and hasn't picked up any experiment tools. What would feel like the most natural thing for you to do first?",
+    "readAloudText": "In science class, your partner Mateo seems quiet today. He sits back and hasn't picked up any experiment tools. What would feel like the most natural thing for you to do first?",
+    "visualHtml": "<div class=\"partner-scene-box\" style=\"background: #F7FAF9; border: 2px solid #D6E8E2; border-radius: 16px; padding: 16px 20px; max-width: 520px; margin: 12px auto 20px; text-align: center;\"><div style=\"display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 8px;\"><div style=\"width: 54px; height: 54px; border-radius: 50%; background: #FFFFFF; border: 2px solid #8FA998; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;\">👦</div><div style=\"text-align: left;\"><div style=\"font-weight: 800; color: #26333A; font-size: 1.05rem;\">Mateo is sitting quietly</div><div style=\"font-size: 0.85rem; color: #5B6D74;\">Arms gently folded, looking down while other teams are working.</div></div></div></div>",
+    "options": [
+      {
+        "text": "Smile and gently ask: 'Would you like to pour the liquid or hold the timer today?'",
+        "trait": "empowering-invitation",
+        "visual": "<span style=\"font-size: 1.8rem;\">🤝</span>"
+      },
+      {
+        "text": "Do the experiment carefully yourself, then explain each step warmly so he doesn't miss out.",
+        "trait": "protective-scaffolding",
+        "visual": "<span style=\"font-size: 1.8rem;\">🔬</span>"
+      },
+      {
+        "text": "Ask quietly: 'Hey, are you feeling okay today? We can take our time.'",
+        "trait": "empathetic-checking",
+        "visual": "<span style=\"font-size: 1.8rem;\">💬</span>"
+      },
+      {
+        "text": "Show him the coolest reaction: 'Look at this bubbling crystal!' to spark his excitement.",
+        "trait": "enthusiastic-inspiring",
+        "visual": "<span style=\"font-size: 1.8rem;\">💡</span>"
+      }
+    ],
+    "reflectionPrompt": "What felt most important to you here?",
+    "reflectionOptions": [
+      { "id": "ref-agency", "text": "Giving him a choice so he feels included without pressure.", "mindStyle": "respectful-collaborator" },
+      { "id": "ref-care", "text": "Checking how he feels as a person before worrying about the work.", "mindStyle": "empathetic-anchor" },
+      { "id": "ref-progress", "text": "Making sure the project gets done well while staying kind.", "mindStyle": "practical-steward" },
+      { "id": "ref-joy", "text": "Sharing excitement so school feels fun and welcoming.", "mindStyle": "positive-catalyst" }
+    ]
+  }
+]

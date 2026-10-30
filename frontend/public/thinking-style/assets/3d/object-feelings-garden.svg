@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <!-- Drop shadow -->
+    <filter id="flower-drop" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#4A3B69" flood-opacity="0.18"/>
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#4A3B69" flood-opacity="0.12"/>
+    </filter>
+
+    <!-- Petal gradients (plump pastel pink/peach clay) -->
+    <radialGradient id="petal-grad" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#FFF0F5"/>
+      <stop offset="40%" stop-color="#FFB6D3"/>
+      <stop offset="85%" stop-color="#F472B6"/>
+      <stop offset="100%" stop-color="#DB2777"/>
+    </radialGradient>
+
+    <!-- Center face gradient (warm buttery cream) -->
+    <radialGradient id="center-grad" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="50%" stop-color="#FEF3C7"/>
+      <stop offset="85%" stop-color="#FDE68A"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </radialGradient>
+
+    <!-- Stem & Leaves (vibrant mint/emerald) -->
+    <linearGradient id="stem-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#34D399"/>
+      <stop offset="50%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+    <radialGradient id="leaf-grad" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#A7F3D0"/>
+      <stop offset="60%" stop-color="#34D399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </radialGradient>
+
+    <!-- Floating 3D Heart -->
+    <radialGradient id="heart-grad" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#FFE4E6"/>
+      <stop offset="40%" stop-color="#FB7185"/>
+      <stop offset="85%" stop-color="#E11D48"/>
+      <stop offset="100%" stop-color="#9F1239"/>
+    </radialGradient>
+
+    <!-- Clay ground mound -->
+    <radialGradient id="ground-grad" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#E0E7FF"/>
+      <stop offset="70%" stop-color="#C7D2FE"/>
+      <stop offset="100%" stop-color="#818CF8"/>
+    </radialGradient>
+  </defs>
+
+  <g filter="url(#flower-drop)">
+    <!-- Base mound -->
+    <ellipse cx="98" cy="172" rx="42" ry="14" fill="url(#ground-grad)" opacity="0.9"/>
+    <ellipse cx="98" cy="170" rx="36" ry="10" fill="#EEF2FF"/>
+
+    <!-- Stem -->
+    <path d="M 98 116 Q 94 144, 98 170" fill="none" stroke="url(#stem-grad)" stroke-width="8" stroke-linecap="round"/>
+
+    <!-- Left leaf -->
+    <path d="M 95 146 C 70 148, 56 138, 54 130 C 66 128, 86 134, 95 142 Z" fill="url(#leaf-grad)"/>
+    <ellipse cx="70" cy="135" rx="6" ry="2" transform="rotate(-15, 70, 135)" fill="#FFFFFF" opacity="0.5"/>
+
+    <!-- Right leaf -->
+    <path d="M 97 138 C 118 136, 134 144, 138 152 C 126 156, 108 150, 97 142 Z" fill="url(#leaf-grad)"/>
+    <ellipse cx="120" cy="146" rx="6" ry="2" transform="rotate(15, 120, 146)" fill="#FFFFFF" opacity="0.5"/>
+
+    <!-- 6 Plump 3D Petals radiating from center (cx=98, cy=78) -->
+    <!-- Petal Top -->
+    <circle cx="98" cy="46" r="24" fill="url(#petal-grad)"/>
+    <!-- Petal Top-Right -->
+    <circle cx="126" cy="62" r="24" fill="url(#petal-grad)"/>
+    <!-- Petal Bottom-Right -->
+    <circle cx="126" cy="94" r="24" fill="url(#petal-grad)"/>
+    <!-- Petal Bottom -->
+    <circle cx="98" cy="110" r="24" fill="url(#petal-grad)"/>
+    <!-- Petal Bottom-Left -->
+    <circle cx="70" cy="94" r="24" fill="url(#petal-grad)"/>
+    <!-- Petal Top-Left -->
+    <circle cx="70" cy="62" r="24" fill="url(#petal-grad)"/>
+
+    <!-- Petal Specular Beads -->
+    <circle cx="98" cy="36" r="4.5" fill="#FFFFFF" opacity="0.75"/>
+    <circle cx="134" cy="54" r="4.5" fill="#FFFFFF" opacity="0.75"/>
+    <circle cx="134" cy="102" r="4.5" fill="#FFFFFF" opacity="0.75"/>
+    <circle cx="98" cy="120" r="4.5" fill="#FFFFFF" opacity="0.75"/>
+    <circle cx="62" cy="102" r="4.5" fill="#FFFFFF" opacity="0.75"/>
+    <circle cx="62" cy="54" r="4.5" fill="#FFFFFF" opacity="0.75"/>
+
+    <!-- Central Smiling Face Disc -->
+    <circle cx="98" cy="78" r="30" fill="url(#center-grad)"/>
+    <ellipse cx="90" cy="64" rx="9" ry="5" transform="rotate(-25, 90, 64)" fill="#FFFFFF" opacity="0.75"/>
+
+    <!-- Cute Eyes -->
+    <ellipse cx="88" cy="76" rx="3.5" ry="5" fill="#1E293B"/>
+    <circle cx="89.5" cy="74" r="1.6" fill="#FFFFFF"/>
+    <ellipse cx="108" cy="76" rx="3.5" ry="5" fill="#1E293B"/>
+    <circle cx="109.5" cy="74" r="1.6" fill="#FFFFFF"/>
+
+    <!-- Blush Cheeks -->
+    <ellipse cx="80" cy="84" rx="5" ry="3" fill="#FB7185" opacity="0.5"/>
+    <ellipse cx="116" cy="84" rx="5" ry="3" fill="#FB7185" opacity="0.5"/>
+
+    <!-- Happy Smile -->
+    <path d="M 92 85 Q 98 92, 104 85" fill="none" stroke="#9A3412" stroke-width="2.6" stroke-linecap="round"/>
+
+    <!-- Floating 3D Heart -->
+    <g transform="translate(148, 48) rotate(18) scale(0.85)">
+      <path d="M 0 10 C -16 -12, -26 6, 0 28 C 26 6, 16 -12, 0 10 Z" fill="url(#heart-grad)"/>
+      <ellipse cx="-6" cy="6" rx="4" ry="2" transform="rotate(-30, -6, 6)" fill="#FFFFFF" opacity="0.8"/>
+    </g>
+
+    <!-- Sparkles -->
+    <polygon points="44,36 45.5,40.5 50,42 45.5,43.5 44,48 42.5,43.5 38,42 42.5,40.5" fill="#F472B6"/>
+    <polygon points="160,110 161.5,114.5 166,116 161.5,117.5 160,122 158.5,117.5 154,116 158.5,114.5" fill="#FBBF24"/>
+  </g>
+</svg>

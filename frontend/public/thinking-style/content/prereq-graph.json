@@ -1,0 +1,114 @@
+{
+  "skills": {
+    "fraction-comparison": {
+      "id": "fraction-comparison",
+      "name": "Comparing Unit Fractions",
+      "stage": 3,
+      "strand": "fractions",
+      "description": "Comparing unit fractions like 1/4 and 1/8 using visual and numerical models",
+      "prerequisites": ["fraction-equal-parts", "division-sharing"],
+      "commonMisconceptions": ["fraction-bigger-denominator-bigger-value"],
+      "rootCauseAdvice": "Check whether the child visualises fractions as slices of a whole cake or as standalone whole numbers."
+    },
+    "fraction-equal-parts": {
+      "id": "fraction-equal-parts",
+      "name": "Fractions as Equal Parts of a Whole",
+      "stage": 2,
+      "strand": "fractions",
+      "description": "Recognising that fractions require equal-sized divisions",
+      "prerequisites": ["division-sharing", "shape-partitioning"],
+      "commonMisconceptions": ["fraction-count-pieces-ignoring-size"],
+      "rootCauseAdvice": "Use hands-on folding of paper strips into halves and quarters."
+    },
+    "division-sharing": {
+      "id": "division-sharing",
+      "name": "Equal Sharing & Grouping",
+      "stage": 2,
+      "strand": "number",
+      "description": "Understanding sharing items equally into groups",
+      "prerequisites": ["counting-cardinality"],
+      "commonMisconceptions": ["division-remainder-ignored"],
+      "rootCauseAdvice": "Physical sharing with counters, stones, or pasta shells at home."
+    },
+    "shape-partitioning": {
+      "id": "shape-partitioning",
+      "name": "2D Shape Partitioning",
+      "stage": 1,
+      "strand": "geometry",
+      "description": "Cutting shapes into 2 or 4 equal pieces",
+      "prerequisites": ["shape-recognition"],
+      "commonMisconceptions": ["shape-halves-unequal"],
+      "rootCauseAdvice": "Drawing mirror lines and cutting paper sandwiches."
+    },
+    "place-value-3digit": {
+      "id": "place-value-3digit",
+      "name": "3-Digit Place Value & Decomposition",
+      "stage": 3,
+      "strand": "number",
+      "description": "Understanding hundreds, tens, and ones in numbers up to 1000",
+      "prerequisites": ["place-value-2digit", "number-line-estimation"],
+      "commonMisconceptions": ["place-value-column-reversal", "place-value-zero-as-nothing"],
+      "rootCauseAdvice": "Base-10 block building and expanded notation cards (e.g. 300 + 40 + 5)."
+    },
+    "place-value-2digit": {
+      "id": "place-value-2digit",
+      "name": "2-Digit Place Value",
+      "stage": 2,
+      "strand": "number",
+      "description": "Understanding tens and ones",
+      "prerequisites": ["counting-to-100"],
+      "commonMisconceptions": ["place-value-digit-concatenation"],
+      "rootCauseAdvice": "Bundling ten sticks with elastic bands."
+    },
+    "subtraction-regrouping": {
+      "id": "subtraction-regrouping",
+      "name": "Subtraction with Regrouping (Exchanging)",
+      "stage": 3,
+      "strand": "operations",
+      "description": "Subtracting 2-digit and 3-digit numbers requiring exchange across tens",
+      "prerequisites": ["place-value-2digit", "subtraction-without-regrouping"],
+      "commonMisconceptions": ["subtraction-smaller-from-larger-regardless-of-order"],
+      "rootCauseAdvice": "Physically exchanging one 10-rod for ten unit cubes before subtracting."
+    },
+    "subtraction-without-regrouping": {
+      "id": "subtraction-without-regrouping",
+      "name": "Basic Subtraction & Difference",
+      "stage": 2,
+      "strand": "operations",
+      "description": "Subtracting within 20 and 50 without borrowing",
+      "prerequisites": ["counting-backward", "number-bonds-10"],
+      "commonMisconceptions": ["subtraction-addition-confusion"],
+      "rootCauseAdvice": "Walking backward along a chalk number line."
+    },
+    "multiplication-arrays": {
+      "id": "multiplication-arrays",
+      "name": "Multiplication as Equal Arrays",
+      "stage": 3,
+      "strand": "operations",
+      "description": "Recognising 3 groups of 4 as an array and related to repeated addition",
+      "prerequisites": ["repeated-addition", "skip-counting"],
+      "commonMisconceptions": ["multiplication-adds-factors"],
+      "rootCauseAdvice": "Arranging muffin tins, egg boxes, or LEGO pegs in neat grid rows."
+    },
+    "perimeter-measurement": {
+      "id": "perimeter-measurement",
+      "name": "Perimeter of Rectilinear Shapes",
+      "stage": 3,
+      "strand": "measure",
+      "description": "Calculating distance around a boundary",
+      "prerequisites": ["length-measurement-cm", "shape-boundary"],
+      "commonMisconceptions": ["perimeter-area-confusion", "perimeter-count-corners-twice"],
+      "rootCauseAdvice": "Tracing around objects with a piece of string, then measuring the string against a ruler."
+    },
+    "clock-time-intervals": {
+      "id": "clock-time-intervals",
+      "name": "Time to 5 Minutes & Intervals",
+      "stage": 3,
+      "strand": "measure",
+      "description": "Reading analogue clock to 5 minutes and calculating simple elapsed time",
+      "prerequisites": ["clock-hour-half-hour", "skip-counting-by-5"],
+      "commonMisconceptions": ["clock-hand-confusion", "time-base-100-error"],
+      "rootCauseAdvice": "Real analogue clock play with separate hour and minute hands."
+    }
+  }
+}

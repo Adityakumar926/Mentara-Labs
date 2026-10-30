@@ -5,7 +5,17 @@ export default function ProtectedRoute({ role }) {
   const user = useAuthStore((s) => s.user);
   const location = useLocation();
 
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) {
+    if (location.pathname === '/discover-thinking-style' || location.pathname === '/student/learning-compass') {
+      try {
+        sessionStorage.setItem('mentara_post_auth_redirect', '/discover-thinking-style');
+      } catch (e) {
+        // ignore
+      }
+      return <Navigate to="/register?redirect=/discover-thinking-style" replace />;
+    }
+    return <Navigate to="/login" replace />;
+  }
 
   const roles = Array.isArray(role) ? role : role ? [role] : [];
   if (role && !roles.includes(user.role)) {
@@ -15,7 +25,8 @@ export default function ProtectedRoute({ role }) {
 
   // Redirect student/teacher to onboarding if not onboarded yet
   const isClassroomPath = location.pathname.startsWith('/classroom/join/') || location.pathname.startsWith('/student/classrooms');
-  if (['student', 'teacher'].includes(user.role) && !user.onboarded && location.pathname !== '/onboarding' && !isClassroomPath) {
+  const isThinkingStylePath = location.pathname === '/discover-thinking-style' || location.pathname === '/student/learning-compass';
+  if (['student', 'teacher'].includes(user.role) && !user.onboarded && location.pathname !== '/onboarding' && !isClassroomPath && !isThinkingStylePath) {
     return <Navigate to="/onboarding" replace />;
   }
 

@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <!-- Studio drop shadow -->
+    <filter id="ship-drop" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#4A3B69" flood-opacity="0.18"/>
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#4A3B69" flood-opacity="0.12"/>
+    </filter>
+
+    <!-- Hull gradients -->
+    <linearGradient id="hull-grad" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#FFB38A"/>
+      <stop offset="45%" stop-color="#F28B66"/>
+      <stop offset="100%" stop-color="#B8553B"/>
+    </linearGradient>
+    <linearGradient id="hull-rim" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFE2D1"/>
+      <stop offset="50%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#FFC5AB"/>
+    </linearGradient>
+
+    <!-- Sail gradients -->
+    <linearGradient id="sail-grad" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%" stop-color="#F6F1FF"/>
+      <stop offset="40%" stop-color="#D8CBF8"/>
+      <stop offset="100%" stop-color="#9E8BE3"/>
+    </linearGradient>
+    <linearGradient id="sail-shadow" x1="0%" y1="0%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#BCA5F5" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#7B65C7" stop-opacity="0.6"/>
+    </linearGradient>
+
+    <!-- Cloud gradients -->
+    <radialGradient id="cloud-puff1" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="65%" stop-color="#E8F1FC"/>
+      <stop offset="100%" stop-color="#C5D9F4"/>
+    </radialGradient>
+    <radialGradient id="cloud-puff2" cx="30%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="60%" stop-color="#EBE7FA"/>
+      <stop offset="100%" stop-color="#CDCAED"/>
+    </radialGradient>
+
+    <!-- Gold details -->
+    <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF5C0"/>
+      <stop offset="45%" stop-color="#FFD65C"/>
+      <stop offset="100%" stop-color="#E59E1A"/>
+    </linearGradient>
+    
+    <!-- Flag gradient -->
+    <linearGradient id="flag-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF9EC6"/>
+      <stop offset="100%" stop-color="#EE5B88"/>
+    </linearGradient>
+  </defs>
+
+  <g filter="url(#ship-drop)">
+    <!-- Base Cloud 3D puffs -->
+    <ellipse cx="65" cy="155" rx="36" ry="24" fill="url(#cloud-puff1)"/>
+    <ellipse cx="140" cy="158" rx="34" ry="22" fill="url(#cloud-puff1)"/>
+    <ellipse cx="100" cy="160" rx="46" ry="26" fill="url(#cloud-puff2)"/>
+    <circle cx="50" cy="148" r="18" fill="url(#cloud-puff1)"/>
+    <circle cx="85" cy="146" r="24" fill="#FFFFFF"/>
+    <circle cx="120" cy="147" r="22" fill="#FFFFFF"/>
+    <circle cx="152" cy="152" r="16" fill="url(#cloud-puff2)"/>
+
+    <!-- Ship Hull -->
+    <!-- Keel shadow -->
+    <path d="M 38 126 C 45 152, 145 154, 164 128 C 145 144, 52 142, 38 126 Z" fill="#7A3220" opacity="0.45"/>
+    
+    <!-- Main Hull body -->
+    <path d="M 34 118 C 42 148, 148 150, 168 120 C 158 126, 140 128, 102 128 C 62 128, 44 125, 34 118 Z" fill="url(#hull-grad)"/>
+    
+    <!-- Upper Deck / Gunwale rim -->
+    <ellipse cx="102" cy="120" rx="66" ry="11" fill="url(#hull-rim)"/>
+    <ellipse cx="102" cy="121" rx="61" ry="8.5" fill="#8C3F2B"/>
+    <ellipse cx="102" cy="122.5" rx="58" ry="7" fill="#C2664D"/>
+
+    <!-- Portholes -->
+    <circle cx="82" cy="133" r="4.5" fill="#FFEAA7"/>
+    <circle cx="82" cy="133" r="3" fill="#3D4B66"/>
+    <circle cx="102" cy="134" r="4.5" fill="#FFEAA7"/>
+    <circle cx="102" cy="134" r="3" fill="#3D4B66"/>
+    <circle cx="122" cy="133" r="4.5" fill="#FFEAA7"/>
+    <circle cx="122" cy="133" r="3" fill="#3D4B66"/>
+
+    <!-- Mast -->
+    <rect x="98.5" y="32" width="6" height="90" rx="3" fill="#8C583E"/>
+    <rect x="100" y="32" width="2" height="88" fill="#DDB093"/>
+
+    <!-- Yardarm (crossbeam) -->
+    <rect x="58" y="46" width="86" height="4.5" rx="2" fill="#75442C"/>
+    <rect x="66" y="104" width="70" height="4" rx="2" fill="#75442C"/>
+
+    <!-- Main 3D Billowing Sail -->
+    <path d="M 62 48 C 82 46, 120 46, 140 48 C 148 76, 146 98, 134 104 C 110 98, 88 98, 68 104 C 58 98, 56 76, 62 48 Z" fill="url(#sail-grad)"/>
+    <path d="M 62 48 C 82 46, 120 46, 140 48 C 148 76, 146 98, 134 104 C 110 98, 88 98, 68 104 C 58 98, 56 76, 62 48 Z" fill="url(#sail-shadow)"/>
+
+    <!-- Sail Highlight Crease -->
+    <path d="M 72 52 C 86 51, 114 51, 126 52 C 132 75, 126 92, 120 97 C 104 93, 88 93, 76 97 C 68 91, 66 75, 72 52 Z" fill="#FFFFFF" opacity="0.32"/>
+
+    <!-- Golden Compass Star on Sail -->
+    <g transform="translate(101, 74) scale(0.95)">
+      <!-- Star rays -->
+      <polygon points="0,-18 4,-5 18,0 4,5 0,18 -4,5 -18,0 -4,-5" fill="url(#gold-grad)"/>
+      <circle cx="0" cy="0" r="3.5" fill="#FFFFFF"/>
+    </g>
+
+    <!-- Top Flag / Pennant -->
+    <path d="M 104 32 L 138 38 L 104 46 Z" fill="url(#flag-grad)"/>
+    <circle cx="101.5" cy="30" r="4" fill="url(#gold-grad)"/>
+
+    <!-- Star twinkles in sky -->
+    <circle cx="38" cy="48" r="3" fill="#FFEB78"/>
+    <polygon points="38,42 39.5,46.5 44,48 39.5,49.5 38,54 36.5,49.5 32,48 36.5,46.5" fill="#FFE86B"/>
+    <circle cx="162" cy="62" r="2.5" fill="#FFFFFF"/>
+    <polygon points="162,56 163.5,60.5 168,62 163.5,63.5 162,68 160.5,63.5 156,62 160.5,60.5" fill="#FFDF70"/>
+  </g>
+</svg>

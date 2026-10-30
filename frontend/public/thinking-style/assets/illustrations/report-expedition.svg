@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 180" width="100%" height="100%" fill="none" role="img" aria-label="Mentp Learning Expedition Discovery Banner">
+  <defs>
+    <linearGradient id="repBg" x1="0" y1="0" x2="700" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FAF8F4" />
+      <stop offset="30%" stop-color="#DDF5E9" stop-opacity="0.8" />
+      <stop offset="70%" stop-color="#EAE4FF" stop-opacity="0.7" />
+      <stop offset="100%" stop-color="#FFE4D6" stop-opacity="0.8" />
+    </linearGradient>
+    <filter id="repShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#434970" flood-opacity="0.08" />
+    </filter>
+  </defs>
+
+  <rect width="700" height="180" rx="24" fill="url(#repBg)" stroke="#FFFFFF" stroke-width="2" />
+
+  <!-- The 8 Island Waypoints Connected by Curved Golden Trajectory -->
+  <path d="M60 110 C 130 50, 190 140, 260 80 C 330 30, 390 130, 460 70 C 530 30, 590 120, 640 90" stroke="#E29B63" stroke-width="3" stroke-dasharray="6 6" fill="none" filter="url(#repShadow)" />
+
+  <!-- 8 Expedition Island Waypoint Badges -->
+  <!-- 1. Pattern Planet -->
+  <g transform="translate(60, 110)" filter="url(#repShadow)">
+    <circle cx="0" cy="0" r="22" fill="#DDF5E9" stroke="#177A53" stroke-width="2" />
+    <text x="0" y="6" font-size="16" text-anchor="middle">🪐</text>
+  </g>
+
+  <!-- 2. Memory Forest -->
+  <g transform="translate(145, 80)" filter="url(#repShadow)">
+    <circle cx="0" cy="0" r="20" fill="#D5EEDB" stroke="#267A4F" stroke-width="2" />
+    <text x="0" y="6" font-size="15" text-anchor="middle">🌲</text>
+  </g>
+
+  <!-- 3. Switch Lab -->
+  <g transform="translate(225, 115)" filter="url(#repShadow)">
+    <circle cx="0" cy="0" r="20" fill="#FFF0BE" stroke="#C78B12" stroke-width="2" />
+    <text x="0" y="6" font-size="15" text-anchor="middle">🧪</text>
+  </g>
+
+  <!-- 4. Story Ship -->
+  <g transform="translate(305, 65)" filter="url(#repShadow)">
+    <circle cx="0" cy="0" r="20" fill="#DFEDFF" stroke="#2B7BC7" stroke-width="2" />
+    <text x="0" y="6" font-size="15" text-anchor="middle">⛵</text>
+  </g>
+
+  <!-- 5. Inventor's Workshop -->
+  <g transform="translate(390, 115)" filter="url(#repShadow)">
+    <circle cx="0" cy="0" r="20" fill="#FFE4D6" stroke="#E07338" stroke-width="2" />
+    <text x="0" y="6" font-size="15" text-anchor="middle">💡</text>
+  </g>
+
+  <!-- 6. Feelings Garden -->
+  <g transform="translate(470, 60)" filter="url(#repShadow)">
+    <circle cx="0" cy="0" r="20" fill="#EAE4FF" stroke="#7C5CDB" stroke-width="2" />
+    <text x="0" y="6" font-size="15" text-anchor="middle">🌸</text>
+  </g>
+
+  <!-- 7. Friendship & Fairness -->
+  <g transform="translate(555, 105)" filter="url(#repShadow)">
+    <circle cx="0" cy="0" r="20" fill="#FFE4D6" stroke="#D95D3E" stroke-width="2" />
+    <text x="0" y="6" font-size="15" text-anchor="middle">🤝</text>
+  </g>
+
+  <!-- 8. The Learning Detective (Trophy Finish) -->
+  <g transform="translate(640, 90)" filter="url(#repShadow)">
+    <circle cx="0" cy="0" r="26" fill="#FFF1BD" stroke="#C78B12" stroke-width="2.5" />
+    <text x="0" y="7" font-size="18" text-anchor="middle">🏆</text>
+  </g>
+</svg>

@@ -1,0 +1,1318 @@
+/* ==========================================================================
+   Mentara Labs | Mentp Learning Compass
+   Theme: Premium Soft Pastel Glassmorphism & Atmospheric Visual Storytelling
+   Ages 5–11 • Child-Friendly, Trustworthy, Delightful
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Nunito:wght@500;600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap');
+
+:root {
+  /* Pastel Aurora Glass Color System */
+  --bg-canvas: #FAF8F4;
+  --pastel-lavender: #EAE4FF;
+  --pastel-mint: #DDF5E9;
+  --pastel-blue: #DFEDFF;
+  --pastel-peach: #FFE4D6;
+  --pastel-yellow: #FFF1BD;
+  --pastel-cream: #FAF8F4;
+
+  /* Typography & High-Contrast Ink (WCAG AA Compliant) */
+  --text-primary: #293347;
+  --text-secondary: #647184;
+  --text-muted: #647184;
+  --font-heading: 'Outfit', -apple-system, sans-serif;
+  --font-body: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'Space Grotesk', monospace;
+
+  /* Brand Colors */
+  --brand-emerald: #2EA879;
+  --brand-emerald-deep: #177A53;
+  --border-subtle: #EAE2D6;
+
+  /* Liquid Glass Tokens (Selectively applied to navigation, tracker, hints) */
+  --glass-bg: rgba(255, 255, 255, 0.62);
+  --glass-border: rgba(255, 255, 255, 0.78);
+  --glass-shadow: 0 8px 28px rgba(67, 73, 112, 0.07);
+
+  /* Radii */
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --transition-gentle: 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Selective Liquid Glass Surface */
+.glass-surface {
+  background: rgba(255, 255, 255, 0.62) !important;
+  backdrop-filter: blur(16px) saturate(135%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(135%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.78) !important;
+  box-shadow: 0 8px 28px rgba(67, 73, 112, 0.07) !important;
+}
+
+@supports not (backdrop-filter: blur(16px)) {
+  .glass-surface {
+    background: rgba(255, 255, 255, 0.94) !important;
+  }
+}
+
+/* Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  background-color: #F8FAF8;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  color: var(--text-primary);
+  overflow-x: hidden;
+  position: relative;
+  background-color: #FAF8F4;
+  /* Pastel Aurora Atmosphere: Calm, colorful, airy */
+  background-image:
+    radial-gradient(circle at 10% 12%, rgba(221, 245, 233, 0.70) 0%, transparent 40%),
+    radial-gradient(circle at 88% 14%, rgba(234, 228, 255, 0.65) 0%, transparent 42%),
+    radial-gradient(circle at 50% 86%, rgba(255, 228, 214, 0.60) 0%, transparent 45%),
+    radial-gradient(circle at 86% 80%, rgba(255, 241, 189, 0.55) 0%, transparent 38%),
+    radial-gradient(circle at 14% 82%, rgba(223, 237, 255, 0.60) 0%, transparent 40%);
+  background-attachment: fixed;
+}
+
+/* ==========================================================================
+   TEXTURE 1: Subtle Organic Canvas Micro-Dot Grid (Paper Texture)
+   ========================================================================== */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(100, 113, 132, 0.08) 1.25px, transparent 1.25px);
+  background-size: 26px 26px;
+  mask-image: radial-gradient(ellipse at 50% 50%, black 50%, transparent 95%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 50%, black 50%, transparent 95%);
+  z-index: 0;
+}
+
+/* Headings */
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  font-weight: 850;
+  line-height: 1.22;
+  color: var(--text-primary);
+  letter-spacing: -0.015em;
+}
+
+h1 {
+  font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+}
+
+h2 {
+  font-size: clamp(1.35rem, 2.5vw, 1.85rem);
+}
+
+h3 {
+  font-size: 1.2rem;
+}
+
+p {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-weight: 600;
+}
+
+/* Eyebrow Label */
+.eyebrow {
+  margin: 0 0 6px;
+  color: #177A53;
+  font-size: 0.78rem;
+  font-weight: 850;
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ==========================================================================
+   CONTENT SURFACES (High-Contrast, Maximum Readability, Clean Surfaces)
+   ========================================================================== */
+.calm-card {
+  background: #FFFFFF !important;
+  border: 1.5px solid var(--border-subtle, #EAE2D6) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 10px 32px -4px rgba(67, 73, 112, 0.06), 0 2px 8px rgba(67, 73, 112, 0.03) !important;
+  padding: clamp(24px, 4vw, 42px) !important;
+  position: relative;
+  z-index: 1;
+}
+
+.glass-panel-sub {
+  background: #FFFFFF !important;
+  border: 1.5px solid var(--border-subtle, #EAE2D6) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: 0 4px 14px rgba(67, 73, 112, 0.04) !important;
+  position: relative;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   HIGH-VISIBILITY BUTTONS (Prominent, High-Contrast, Tactile Depth)
+   ========================================================================== */
+button, a.button {
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 26px;
+  border-radius: var(--radius-full);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 850;
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
+  text-decoration: none;
+  user-select: none;
+  outline: none;
+  box-sizing: border-box;
+}
+
+button:focus-visible, a.button:focus-visible, select:focus-visible, input:focus-visible {
+  outline: 3px solid #2EA879;
+  outline-offset: 3px;
+}
+
+/* 1. PRIMARY CTA BUTTON: Rich Emerald Gradient (High Visibility on Pastel) */
+.btn-primary, .primary-button {
+  background: linear-gradient(135deg, #2EA879 0%, #177A53 100%) !important;
+  color: #FFFFFF !important;
+  border: 2px solid #10593B !important;
+  font-weight: 850 !important;
+  font-size: 1.05rem !important;
+  box-shadow: 
+    0 8px 24px -2px rgba(23, 122, 83, 0.38),
+    0 2px 6px rgba(0, 0, 0, 0.08),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.45) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  letter-spacing: 0.01em;
+}
+
+.btn-primary:hover:not(:disabled), .primary-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #34BD89 0%, #1B8A5E 100%) !important;
+  box-shadow: 
+    0 12px 30px -2px rgba(23, 122, 83, 0.48),
+    0 4px 10px rgba(0, 0, 0, 0.1),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.6) !important;
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(23, 122, 83, 0.35) !important;
+}
+
+.btn-primary:disabled {
+  background: #D8DFE5 !important;
+  color: #7B8B97 !important;
+  border-color: #BCC8D2 !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+  opacity: 0.75 !important;
+  text-shadow: none !important;
+}
+
+/* 2. SECONDARY BUTTON: Cream / Mint Glass with Bold Border */
+.btn-secondary, .secondary-button {
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: #11422E !important;
+  border: 2px solid #48B68C !important;
+  font-weight: 850 !important;
+  box-shadow: 0 4px 14px rgba(72, 182, 140, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  background: #EAF7F0 !important;
+  border-color: #2EA879 !important;
+  box-shadow: 0 8px 20px rgba(72, 182, 140, 0.3) !important;
+}
+
+/* 3. GHOST BUTTON: Translucent Frosted Glass */
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.8) !important;
+  color: var(--text-primary) !important;
+  border: 2px solid #CFDCE8 !important;
+  font-weight: 800 !important;
+  box-shadow: 0 2px 8px rgba(70, 95, 125, 0.05);
+}
+
+.btn-ghost:hover {
+  background: #FFFFFF !important;
+  border-color: #48B68C !important;
+  color: #11422E !important;
+  transform: translateY(-1px);
+}
+
+.btn-sm {
+  min-height: 40px;
+  padding: 8px 18px;
+  font-size: 0.88rem;
+}
+
+/* ==========================================================================
+   Header & Sticky Glass Navigation
+   ========================================================================== */
+.app-header {
+  border-bottom: 2px solid rgba(255, 255, 255, 0.85) !important;
+  background: rgba(255, 255, 255, 0.78) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  padding: 14px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 6px 24px rgba(70, 95, 125, 0.07);
+}
+
+.brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.brand-badge:hover {
+  transform: translateY(-1px);
+}
+
+.brand-logo-img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(124, 58, 237, 0.28));
+  transition: transform 0.2s ease;
+}
+
+.brand-badge:hover .brand-logo-img {
+  transform: scale(1.06) rotate(-2deg);
+}
+
+.brand-logo-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #7C3AED 0%, #2EA879 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  font-weight: 900;
+  font-size: 1.3rem;
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.25);
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+}
+
+.brand-title {
+  font-family: var(--font-heading);
+  font-weight: 850;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.brand-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-weight: 750;
+  font-family: var(--font-sans);
+  letter-spacing: 0.02em;
+}
+
+/* 8-Level Stepper Styles */
+.levels-stepper-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+  border-radius: 9999px;
+  box-shadow: 0 4px 16px rgba(67, 73, 112, 0.06);
+  margin-bottom: 16px;
+  overflow-x: auto;
+}
+
+.level-step-node {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.level-step-node.completed {
+  background: #E8F8F0;
+  color: #177A53;
+  border: 1.5px solid #78BFA5;
+}
+
+.level-step-node.active {
+  background: linear-gradient(135deg, #7C3AED 0%, #6366F1 100%);
+  color: #FFFFFF;
+  border: 1.5px solid #FFFFFF;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+  transform: scale(1.05);
+}
+
+.level-step-node.upcoming {
+  background: rgba(240, 244, 250, 0.8);
+  color: #8292A3;
+  border: 1.5px solid rgba(215, 228, 238, 0.6);
+}
+
+.level-indicator-pill {
+  background: rgba(234, 228, 255, 0.8);
+  border: 1.5px solid #C4B5FD;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: #5B21B6;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.12);
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Female Voice Selector Dropdown */
+.voice-select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.voice-select-dropdown {
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid #C8D7E3;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 750;
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  outline: none;
+  cursor: pointer;
+  max-width: 240px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: border-color var(--transition-fast);
+}
+
+.voice-select-dropdown:focus {
+  border-color: #2EA879;
+}
+
+/* ==========================================================================
+   LEARNING COMPASS: PASTEL 3D HERO BACKGROUND ARTWORK (INTRO PAGE)
+   ========================================================================== */
+body.theme-intro {
+  --island-color: #7C3AED;
+  --island-soft: #EAE4FF;
+  background-color: #FAF8F4;
+  background-image: none !important;
+}
+
+body.theme-intro::before {
+  display: none !important;
+}
+
+.intro-bg-artwork {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none !important;
+  user-select: none;
+  -webkit-user-select: none;
+  background-image: url('../assets/intro-hero-bg.png');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  will-change: transform;
+}
+
+.intro-bg-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100vw;
+  height: 100vh;
+  min-width: 100%;
+  min-height: 100%;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  object-position: center center;
+  pointer-events: none !important;
+  user-select: none;
+  -webkit-user-select: none;
+  display: block;
+}
+
+/* Medium Desktop & Laptop: Balance card width so corner characters remain visible */
+@media (min-width: 901px) and (max-width: 1366px) {
+  .intro-bg-artwork {
+    background-size: cover;
+    background-position: center 65%;
+  }
+
+  .intro-bg-video {
+    object-position: center 65%;
+  }
+
+  .theme-intro .calm-card {
+    max-width: 740px !important;
+  }
+}
+
+@media (min-width: 1367px) {
+  .theme-intro .calm-card {
+    max-width: 760px !important;
+  }
+}
+
+/* Tablet & Mobile: Reposition to serene starry sky so characters do not clash with content */
+@media (max-width: 900px) {
+  .intro-bg-artwork {
+    background-size: cover;
+    background-position: center top;
+  }
+
+  .intro-bg-video {
+    object-position: center top;
+  }
+
+  .theme-intro .calm-card {
+    margin: 20px auto 40px !important;
+    width: calc(100% - 24px) !important;
+    max-width: 640px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .intro-bg-artwork {
+    background-size: cover;
+    background-position: 50% 12%;
+  }
+
+  .intro-bg-video {
+    object-position: 50% 12%;
+  }
+
+  .theme-intro .calm-card {
+    width: calc(100% - 16px) !important;
+    max-width: 100% !important;
+    padding: 20px 14px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-bg-video {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   THE 8 ASSESSMENT ISLANDS: RICH PASTEL GRADIENTS & ATMOSPHERES
+   ========================================================================== */
+.theme-pattern-planet {
+  --island-color: #2EA879;
+  --island-soft: #DFF4EA;
+  background:
+    radial-gradient(circle at 14% 15%, #DFF4EA 0%, transparent 45%),
+    radial-gradient(circle at 86% 18%, #EAE4FF 0%, transparent 42%),
+    radial-gradient(circle at 50% 88%, #FFE6D5 0%, transparent 44%),
+    #F4FBF7;
+}
+
+.theme-memory-forest {
+  --island-color: #267A4F;
+  --island-soft: #D5EEDB;
+  background:
+    radial-gradient(circle at 12% 16%, #D5EEDB 0%, transparent 46%),
+    radial-gradient(circle at 88% 22%, #FFF0BE 0%, transparent 42%),
+    radial-gradient(circle at 50% 85%, #E2F4E9 0%, transparent 45%),
+    #F0FAF3;
+}
+
+.theme-switch-lab {
+  --island-color: #C78B12;
+  --island-soft: #FFF0BE;
+  background:
+    radial-gradient(circle at 15% 15%, #FFF0BE 0%, transparent 45%),
+    radial-gradient(circle at 85% 20%, #DFF4EA 0%, transparent 44%),
+    radial-gradient(circle at 45% 85%, #FFE6D5 0%, transparent 42%),
+    #FFFDF5;
+}
+
+.theme-story-ship {
+  --island-color: #2B7BC7;
+  --island-soft: #DDEEFF;
+  background:
+    radial-gradient(circle at 10% 20%, #DDEEFF 0%, transparent 46%),
+    radial-gradient(circle at 90% 16%, #EAE4FF 0%, transparent 44%),
+    radial-gradient(circle at 55% 85%, #D7F5EC 0%, transparent 42%),
+    #F3F8FE;
+}
+
+.theme-inventor-workshop {
+  --island-color: #E07338;
+  --island-soft: #FFE6D5;
+  background:
+    radial-gradient(circle at 15% 16%, #FFE6D5 0%, transparent 46%),
+    radial-gradient(circle at 85% 24%, #FFF0BE 0%, transparent 42%),
+    radial-gradient(circle at 50% 85%, #FDE4D8 0%, transparent 44%),
+    #FFF7F2;
+}
+
+.theme-feelings-garden {
+  --island-color: #7C5CDB;
+  --island-soft: #EAE4FF;
+  background:
+    radial-gradient(circle at 15% 20%, #EAE4FF 0%, transparent 46%),
+    radial-gradient(circle at 85% 15%, #FFE0EB 0%, transparent 44%),
+    radial-gradient(circle at 50% 85%, #DFF4EA 0%, transparent 42%),
+    #F9F6FE;
+}
+
+.theme-friendship-fairness {
+  --island-color: #D95D3E;
+  --island-soft: #FEEDDE;
+  background:
+    radial-gradient(circle at 12% 18%, #FEEDDE 0%, transparent 46%),
+    radial-gradient(circle at 88% 22%, #DFF4EA 0%, transparent 44%),
+    radial-gradient(circle at 50% 85%, #FFF0BE 0%, transparent 42%),
+    #FFF8F3;
+}
+
+.theme-learning-detective {
+  --island-color: #375965;
+  --island-soft: #E4ECF0;
+  background:
+    radial-gradient(circle at 10% 20%, #E4ECF0 0%, transparent 46%),
+    radial-gradient(circle at 90% 20%, #DDEEFF 0%, transparent 44%),
+    radial-gradient(circle at 50% 85%, #FFF5E4 0%, transparent 42%),
+    #FCF9F3;
+}
+
+/* Modals */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 45, 60, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal-content {
+  border: 2px solid rgba(255, 255, 255, 0.95) !important;
+  border-radius: var(--radius-lg) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  box-shadow: 0 24px 60px rgba(40, 60, 80, 0.18), inset 0 2px 4px rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(28px) !important;
+  max-width: 540px;
+  width: 100%;
+  padding: 34px;
+}
+
+/* Form Controls in Soft Pastel Theme */
+.form-input,
+.form-select {
+  width: 100%;
+  background: #FFFFFF !important;
+  color: var(--text-primary) !important;
+  border: 2px solid var(--border-subtle) !important;
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03), 0 2px 6px rgba(0, 0, 0, 0.02);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #2EA879 !important;
+  box-shadow: 0 0 0 3px rgba(46, 168, 121, 0.2);
+}
+
+/* Progressive Disclosure for Report Technical Details */
+.report-details-disclosure {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1.5px solid #D5E0EA;
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-top: 24px;
+  transition: all var(--transition-fast);
+}
+
+.report-details-disclosure summary {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #374659;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.report-details-disclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+.report-details-disclosure[open] {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: #B8CFE0;
+  box-shadow: 0 4px 16px rgba(40, 60, 80, 0.05);
+}
+
+.report-details-content {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #EAEFF4;
+}
+
+/* ==========================================================================
+   PASTEL 3D ADVENTURE TILES (ROADMAP GRID)
+   ========================================================================== */
+.adventure-tiles-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .adventure-tiles-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .adventure-tiles-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+.adventure-tile {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1.5px solid #EAE2D6;
+  border-radius: 18px;
+  padding: 14px 10px 16px;
+  text-align: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  box-shadow: 0 4px 12px rgba(67, 73, 112, 0.04);
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.28s ease;
+  user-select: none;
+}
+
+.adventure-tile:hover,
+.adventure-tile:focus-within {
+  transform: translateY(-5px);
+  border-color: #C4B5FD;
+  box-shadow: 0 12px 28px -4px rgba(124, 58, 237, 0.16), 0 4px 12px rgba(67, 73, 112, 0.05);
+}
+
+.adventure-tile:hover .tile-3d-icon,
+.adventure-tile:focus-within .tile-3d-icon {
+  transform: scale(1.08) translateY(-3px);
+}
+
+.tile-level-badge {
+  font-size: 0.70rem;
+  font-weight: 850;
+  color: #7C3AED;
+  background: #F3EEFF;
+  border: 1px solid #E4D7FE;
+  border-radius: 20px;
+  padding: 2px 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: inline-block;
+}
+
+.tile-3d-box {
+  width: 92px;
+  height: 92px;
+  margin: 2px auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, rgba(234, 228, 255, 0.8) 0%, rgba(223, 237, 255, 0.35) 55%, transparent 72%);
+  border-radius: 50%;
+}
+
+.tile-3d-icon {
+  width: 82px;
+  height: 82px;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 6px 12px rgba(74, 59, 105, 0.12));
+}
+
+.tile-title {
+  font-size: 0.88rem;
+  font-weight: 850;
+  color: #1A2433;
+  line-height: 1.25;
+  margin-bottom: 2px;
+}
+
+.tile-character {
+  font-size: 0.74rem;
+  color: #506173;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.tile-subtitle {
+  font-size: 0.68rem;
+  color: #8A97A8;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  border-top: 1px dashed #EAEFF4;
+  padding-top: 6px;
+  width: 100%;
+}
+
+/* ==========================================================================
+   PATTERN PLANET — BESPOKE PASTEL 3D DISCOVERY INTERFACE
+   ========================================================================== */
+
+/* Pattern Planet Intro Grid (Side-by-side mascot & text) */
+.pattern-intro-section {
+  display: grid;
+  grid-template-columns: 1fr 190px;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+@media (max-width: 540px) {
+  .pattern-intro-section {
+    grid-template-columns: 1fr 160px;
+    gap: 10px;
+  }
+}
+
+.pip-mascot-box {
+  width: 160px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Action Pill Buttons (Listen & Need a Clue) */
+.action-pill-btn {
+  background: #FFFFFF;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 9999px;
+  padding: 8px 18px;
+  font-size: 0.92rem;
+  font-weight: 750;
+  color: #2D3748;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(67, 73, 112, 0.06);
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  user-select: none;
+}
+
+.action-pill-btn:hover {
+  border-color: #CBD5E1;
+  background: #F8FAFC;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(67, 73, 112, 0.12);
+}
+
+.action-pill-btn:active {
+  transform: translateY(0);
+}
+
+.action-pill-btn:focus-visible {
+  outline: 2.5px solid #7C3AED;
+  outline-offset: 2px;
+}
+
+/* Pip Speech Bubble with Tail */
+.pip-speech-bubble {
+  background: #FFFFFF;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 18px;
+  padding: 9px 16px;
+  font-size: 0.82rem;
+  font-weight: 750;
+  color: #2D3748;
+  box-shadow: 0 6px 18px rgba(67, 73, 112, 0.08);
+  max-width: 200px;
+  text-align: center;
+  line-height: 1.4;
+  position: relative;
+  transition: all 0.25s ease;
+}
+
+.pip-speech-bubble .bubble-arrow {
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 7px solid #FFFFFF;
+}
+
+.pip-speech-bubble .bubble-arrow::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #E2E8F0;
+  z-index: -1;
+}
+
+/* Main Puzzle Glass Panel */
+.puzzle-glass-panel {
+  background: linear-gradient(135deg, rgba(238, 246, 255, 0.72) 0%, rgba(234, 250, 242, 0.72) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 28px;
+  padding: 28px 24px;
+  box-shadow: 0 16px 40px rgba(74, 59, 105, 0.06), inset 0 2px 4px rgba(255, 255, 255, 0.8);
+  position: relative;
+  margin-bottom: 24px;
+}
+
+/* 3x3 Matrix Grid */
+.matrix-grid-3x3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.matrix-cell {
+  background: #F0FAF5;
+  border: 2px solid #A7DBC5;
+  border-radius: 18px;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(120, 191, 165, 0.12), inset 0 1px 2px rgba(255, 255, 255, 0.9);
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.2s ease;
+}
+
+.matrix-cell:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(120, 191, 165, 0.22);
+}
+
+.matrix-cell-missing {
+  background: #FFF5ED;
+  border: 2.5px dashed #F59E0B;
+  border-radius: 18px;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.25);
+  animation: pulseMissingCell 3s ease-in-out infinite;
+}
+
+@keyframes pulseMissingCell {
+  0%, 100% {
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.2);
+    border-color: #F59E0B;
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(245, 158, 11, 0.45);
+    border-color: #EA580C;
+  }
+}
+
+/* Pattern Planet 2x2 Answer Cards */
+.pattern-choices-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+}
+
+@media (max-width: 440px) {
+  .pattern-choices-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+.pattern-choice-card {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border: 1.8px solid #E2E8F0 !important;
+  border-radius: 18px !important;
+  padding: 10px 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  cursor: pointer !important;
+  transition: all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+  box-shadow: 0 4px 14px rgba(67, 73, 112, 0.05) !important;
+  text-align: left !important;
+  width: 100% !important;
+  position: relative !important;
+  outline: none;
+  min-height: 76px;
+}
+
+.pattern-choice-card:hover {
+  border-color: #6EE7B7 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.14) !important;
+  background: #FFFFFF !important;
+}
+
+.pattern-choice-card:focus-visible {
+  outline: 3px solid #10B981 !important;
+  outline-offset: 2px !important;
+}
+
+.pattern-choice-card.selected {
+  border: 2px solid #10B981 !important;
+  background: #F0FDF4 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25), 0 8px 22px rgba(16, 185, 129, 0.18) !important;
+}
+
+.pattern-choice-preview {
+  width: 58px;
+  height: 58px;
+  background: #F0FAF5;
+  border: 1.5px solid #C8E8DA;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.22s ease;
+}
+
+.pattern-choice-card:hover .pattern-choice-preview {
+  transform: scale(1.04);
+}
+
+.pattern-choice-card.selected .pattern-choice-preview {
+  background: #E6F8EF;
+  border-color: #A3E6C7;
+  transform: scale(1.05);
+}
+
+.pattern-choice-label {
+  flex: 1;
+  font-weight: 800;
+  font-size: 0.94rem;
+  color: #1A2433;
+  line-height: 1.35;
+}
+
+.pattern-choice-card.selected .pattern-choice-label {
+  color: #064E3B;
+}
+
+.pattern-choice-check {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+
+.pattern-choice-card.selected .pattern-choice-check {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+}
+
+/* Bottom Continue Button Pill */
+.btn-continue-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 38px;
+  font-size: 1.15rem;
+  font-weight: 850;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(16, 185, 129, 0.36);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  user-select: none;
+}
+
+.btn-continue-pill:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 28px rgba(16, 185, 129, 0.45);
+}
+
+.btn-continue-pill:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-continue-pill:focus-visible {
+  outline: 3px solid #059669;
+  outline-offset: 3px;
+}
+
+.btn-continue-pill:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+  filter: grayscale(0.2);
+  transform: none;
+}
+
+/* ==========================================================================
+   AUTHENTIC EDUCATIONAL REPORT STYLING (9-SECTION ARCHITECTURE)
+   ========================================================================== */
+.report-section-title {
+  font-size: clamp(1.2rem, 2.4vw, 1.45rem);
+  color: #1A2433;
+  font-weight: 850;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.report-section-desc {
+  font-size: 0.92rem;
+  color: #506173;
+  line-height: 1.55;
+  margin-bottom: 16px;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.status-demonstrated {
+  background: #DFF4EA;
+  color: #11422E;
+  border: 1px solid #78BFA5;
+}
+
+.status-guided {
+  background: #E0F2FE;
+  color: #0369A1;
+  border: 1px solid #7DD3FC;
+}
+
+.status-developing {
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FCD34D;
+}
+
+.status-inconclusive {
+  background: #F1F5F9;
+  color: #475569;
+  border: 1px solid #CBD5E1;
+}
+
+.roadmap-card {
+  background: #FFFFFF;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 18px;
+  padding: 20px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.roadmap-card:hover {
+  border-color: #7C3AED;
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.08);
+}
+
+.dimension-full-card {
+  background: #FFFFFF;
+  border: 1.5px solid #EAE2D6;
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(67, 73, 112, 0.03);
+}
+
+.dimension-sub-box {
+  background: #F8FAFC;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-top: 10px;
+  border: 1px solid #EDF2F7;
+}
+
+.progress-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid #E2E8F0;
+  font-size: 0.88rem;
+}
+
+.progress-table th {
+  background: #F8FAFC;
+  padding: 12px 14px;
+  font-weight: 800;
+  color: #334155;
+  text-align: left;
+  border-bottom: 1.5px solid #E2E8F0;
+}
+
+.progress-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #F1F5F9;
+  color: #1E293B;
+  vertical-align: top;
+  line-height: 1.45;
+}
+
+.progress-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Print Optimization */
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  
+  #video-canvas-layer,
+  .aurora-blur-layer,
+  .space-canvas-container,
+  #bg-video,
+  header,
+  nav,
+  .mission-decorations,
+  #btn-print-compass-report,
+  #btn-retake-compass,
+  .btn-primary,
+  .btn-secondary,
+  .profile-switch-bar {
+    display: none !important;
+  }
+
+  .calm-card {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .dimension-full-card,
+  .roadmap-card,
+  .glass-panel-sub {
+    page-break-inside: avoid;
+    border: 1px solid #CBD5E1 !important;
+    background: #FFFFFF !important;
+    box-shadow: none !important;
+  }
+
+  a {
+    color: #000000 !important;
+    text-decoration: underline !important;
+  }
+}
+
+
+

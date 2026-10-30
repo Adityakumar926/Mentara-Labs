@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
 import Auth3DSurfer from '@/components/auth/Auth3DSurfer';
@@ -8,6 +8,34 @@ import { BookOpen, GraduationCap, Users, Star, Compass } from 'lucide-react';
 export default function RegisterPage() {
   const { loginWithGoogle, loading } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const queryRedirect = new URLSearchParams(location.search).get('redirect');
+  const redirectTarget = queryRedirect || sessionStorage.getItem('mentara_post_auth_redirect') || null;
+
+  useEffect(() => {
+    if (queryRedirect) {
+      try {
+        sessionStorage.setItem('mentara_post_auth_redirect', queryRedirect);
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, [queryRedirect]);
+
+  const navigateAfterAuth = (user) => {
+    const target = queryRedirect || sessionStorage.getItem('mentara_post_auth_redirect');
+    if (target) {
+      sessionStorage.removeItem('mentara_post_auth_redirect');
+      navigate(target);
+      return;
+    }
+    if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
+      navigate('/onboarding');
+    } else {
+      navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
+    }
+  };
 
   const [selectedRole, setSelectedRole] = useState(null);
 
@@ -19,11 +47,7 @@ export default function RegisterPage() {
     try {
       const user = await loginWithGoogle(response.credential, selectedRole, 'register');
       toast.success(`Account resolved! Welcome, ${user.full_name.split(' ')[0]}!`);
-      if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
-        navigate('/onboarding');
-      } else {
-        navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
-      }
+      navigateAfterAuth(user);
     } catch (err) {
       toast.error(err.message);
     }
@@ -64,11 +88,7 @@ export default function RegisterPage() {
               try {
                 const user = await loginWithGoogle({ access_token: tokenResponse.access_token }, selectedRole, 'register');
                 toast.success(`Account resolved! Welcome, ${user.full_name.split(' ')[0]}!`);
-                if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
-                  navigate('/onboarding');
-                } else {
-                  navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
-                }
+                navigateAfterAuth(user);
               } catch (err) {
                 toast.error(err.message || 'Google authentication failed');
               }
@@ -628,7 +648,51 @@ export default function RegisterPage() {
 
             <div className="form-eyebrow">Get Started Free</div>
             <h1 className="form-title">Create Account</h1>
-            <p className="form-sub">Select your role to start your learning journey.</p>
+            <p className="form-sub">
+              {redirectTarget === '/discover-thinking-style'
+                ? 'Select your role to launch the 8-Level "Discover Your Thinking Style" diagnostic.'
+                : 'Select your role to start your learning journey.'}
+            </p>
+
+            {redirectTarget === '/discover-thinking-style' && (
+              <div
+                style={{
+                  marginBottom: '1.25rem',
+                  padding: '0.85rem 1rem',
+                  borderRadius: '14px',
+                  background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(2, 132, 199, 0.08) 100%)',
+                  border: '1.5px solid rgba(124, 58, 237, 0.28)',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '10px',
+                }}
+              >
+                <div
+                  style={{
+                    width: '34px',
+                    height: '34px',
+                    borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #7c3aed, #0284c7)',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    marginTop: '2px',
+                  }}
+                >
+                  <Compass size={18} />
+                </div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: '0.84rem', fontWeight: 800, color: '#4c1d95', lineHeight: 1.25 }}>
+                    Discover Your Thinking Style
+                  </div>
+                  <div style={{ fontSize: '0.73rem', fontWeight: 600, color: '#0369a1', marginTop: '2px', lineHeight: 1.35 }}>
+                    Conceptualised and crafted by Ms. Sakshi Srivastava (B.Sc. Psychology · B.Ed. · Child Educator)
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Role selector cards */}
             <div className="role-cards-container">
@@ -704,7 +768,7 @@ export default function RegisterPage() {
 
             <div className="auth-divider" />
             <p className="auth-footer-link">
-              Already have an account? <Link to="/login">Sign in</Link>
+              Already have an account? <Link to={redirectTarget ? `/login?redirect=${encodeURIComponent(redirectTarget)}` : '/login'}>Sign in</Link>
             </p>
           </div>
         </main>

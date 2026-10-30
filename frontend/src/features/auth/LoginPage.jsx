@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Users, Star, BookOpen } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Users, Star, BookOpen, Compass } from 'lucide-react';
 import useAuthStore from '@/store/authStore';
 import toast from 'react-hot-toast';
 import Auth3DSurfer from '@/components/auth/Auth3DSurfer';
@@ -34,6 +34,34 @@ const inputBase = (hasError) => ({
 export default function LoginPage() {
   const { login, loginWithGoogle, loading } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const queryRedirect = new URLSearchParams(location.search).get('redirect');
+  const redirectTarget = queryRedirect || sessionStorage.getItem('mentara_post_auth_redirect') || null;
+
+  useEffect(() => {
+    if (queryRedirect) {
+      try {
+        sessionStorage.setItem('mentara_post_auth_redirect', queryRedirect);
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, [queryRedirect]);
+
+  const navigateAfterAuth = (user) => {
+    const target = queryRedirect || sessionStorage.getItem('mentara_post_auth_redirect');
+    if (target) {
+      sessionStorage.removeItem('mentara_post_auth_redirect');
+      navigate(target);
+      return;
+    }
+    if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
+      navigate('/onboarding');
+    } else {
+      navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
+    }
+  };
 
   const [form, setForm]       = useState({ email: '', password: '' });
   const [show, setShow]       = useState(false);
@@ -69,15 +97,11 @@ export default function LoginPage() {
     try {
       const user = await loginWithGoogle(response.credential, null, 'login');
       toast.success(`Welcome back, ${user.full_name.split(' ')[0]}!`);
-      if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
-        navigate('/onboarding');
-      } else {
-        navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
-      }
+      navigateAfterAuth(user);
     } catch (err) {
       if (err.code === 'USER_NOT_FOUND' || err.message?.toLowerCase().includes('no account found')) {
         toast.error('No account found for this Google email. Redirecting to register...');
-        setTimeout(() => navigate('/register'), 1000);
+        setTimeout(() => navigate(redirectTarget ? `/register?redirect=${encodeURIComponent(redirectTarget)}` : '/register'), 1000);
       } else {
         toast.error(err.message);
       }
@@ -115,15 +139,11 @@ export default function LoginPage() {
               try {
                 const user = await loginWithGoogle({ access_token: tokenResponse.access_token }, null, 'login');
                 toast.success(`Welcome back, ${user.full_name.split(' ')[0]}!`);
-                if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
-                  navigate('/onboarding');
-                } else {
-                  navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
-                }
+                navigateAfterAuth(user);
               } catch (err) {
                 if (err.code === 'USER_NOT_FOUND' || err.message?.toLowerCase().includes('no account found')) {
                   toast.error('No account found for this Google email. Redirecting to register...');
-                  setTimeout(() => navigate('/register'), 1000);
+                  setTimeout(() => navigate(redirectTarget ? `/register?redirect=${encodeURIComponent(redirectTarget)}` : '/register'), 1000);
                 } else {
                   toast.error(err.message || 'Google login failed');
                 }
@@ -153,16 +173,12 @@ export default function LoginPage() {
         loginWithGoogle({ access_token }, null, 'login')
           .then((user) => {
             toast.success(`Welcome back, ${user.full_name.split(' ')[0]}!`);
-            if (['student', 'teacher'].includes(user.role) && !user.onboarded) {
-              navigate('/onboarding');
-            } else {
-              navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
-            }
+            navigateAfterAuth(user);
           })
           .catch((err) => {
             if (err.code === 'USER_NOT_FOUND' || err.message?.toLowerCase().includes('no account found')) {
               toast.error('No account found for this Google email. Redirecting to register...');
-              setTimeout(() => navigate('/register'), 1000);
+              setTimeout(() => navigate(redirectTarget ? `/register?redirect=${encodeURIComponent(redirectTarget)}` : '/register'), 1000);
             } else {
               toast.error(err.message || 'Google login failed');
             }
@@ -187,7 +203,7 @@ export default function LoginPage() {
       const user = await login(form);
       saveAccountToCache(user);
       toast.success(`Welcome back, ${user.full_name.split(' ')[0]}!`);
-      navigate(user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/courses' : '/student/dashboard');
+      navigateAfterAuth(user);
     } catch (err) {
       toast.error(err.message);
     }
@@ -682,7 +698,51 @@ export default function LoginPage() {
 
             <div className="form-eyebrow">Welcome back</div>
             <h1 className="form-title">Sign in</h1>
-            <p className="form-sub">Enter your credentials to continue learning.</p>
+            <p className="form-sub">
+              {redirectTarget === '/discover-thinking-style'
+                ? 'Sign in to launch your 8-Level "Discover Your Thinking Style" diagnostic.'
+                : 'Enter your credentials to continue learning.'}
+            </p>
+
+            {redirectTarget === '/discover-thinking-style' && (
+              <div
+                style={{
+                  marginBottom: '1.25rem',
+                  padding: '0.85rem 1rem',
+                  borderRadius: '14px',
+                  background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(2, 132, 199, 0.08) 100%)',
+                  border: '1.5px solid rgba(124, 58, 237, 0.28)',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '10px',
+                }}
+              >
+                <div
+                  style={{
+                    width: '34px',
+                    height: '34px',
+                    borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #7c3aed, #0284c7)',
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    marginTop: '2px',
+                  }}
+                >
+                  <Compass size={18} />
+                </div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: '0.84rem', fontWeight: 800, color: '#4c1d95', lineHeight: 1.25 }}>
+                    Discover Your Thinking Style
+                  </div>
+                  <div style={{ fontSize: '0.73rem', fontWeight: 600, color: '#0369a1', marginTop: '2px', lineHeight: 1.35 }}>
+                    Conceptualised and crafted by Ms. Sakshi Srivastava (B.Sc. Psychology · B.Ed. · Child Educator)
+                  </div>
+                </div>
+              </div>
+            )}
 
             {savedAccount && (
               <div
@@ -842,7 +902,7 @@ export default function LoginPage() {
 
             <div className="auth-divider" />
             <p className="auth-footer-link">
-              Don't have an account? <Link to="/register">Create one free</Link>
+              Don't have an account? <Link to={redirectTarget ? `/register?redirect=${encodeURIComponent(redirectTarget)}` : '/register'}>Create one free</Link>
             </p>
           </div>
         </main>

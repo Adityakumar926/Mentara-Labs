@@ -45,6 +45,7 @@ const StudentCertificatesPage = lazy(() => import('@/features/student/certificat
 const StudentClassroomsPage   = lazy(() => import('@/features/student/classrooms/StudentClassroomsPage'));
 const StudentClassroomView   = lazy(() => import('@/features/student/classrooms/StudentClassroomView'));
 const ClassroomJoinPage       = lazy(() => import('@/features/student/classrooms/ClassroomJoinPage'));
+const LearningCompassPage     = lazy(() => import('@/features/learning-compass/LearningCompassPage'));
 
 // Teacher (Lazy)
 const SubjectsListPage     = lazy(() => import('@/features/teacher/courses/SubjectsListPage'));
@@ -294,8 +295,10 @@ export default function App() {
 
           {/* ── Shared Student/Teacher/Admin Exam Attempt & Results (Layout-Free) ── */}
           <Route element={<ProtectedRoute role={['student', 'teacher', 'admin']} />}>
-            <Route path="/exams/:id/take"   element={<ExamTakePage />} />
-            <Route path="/exams/:id/result" element={<ResultPage />} />
+            <Route path="/exams/:id/take"          element={<ExamTakePage />} />
+            <Route path="/exams/:id/result"        element={<ResultPage />} />
+            <Route path="/discover-thinking-style" element={<LearningCompassPage />} />
+            <Route path="/student/learning-compass" element={<LearningCompassPage />} />
           </Route>
 
           {/* ── Public Certificate Verification ── */}

@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <!-- Drop shadow -->
+    <filter id="friends-drop" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#4A3B69" flood-opacity="0.18"/>
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#4A3B69" flood-opacity="0.12"/>
+    </filter>
+
+    <!-- Blue buddy gradients -->
+    <radialGradient id="blue-buddy" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="45%" stop-color="#BAE6FD"/>
+      <stop offset="85%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#0284C7"/>
+    </radialGradient>
+    <radialGradient id="blue-ear" cx="40%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#E0F2FE"/>
+      <stop offset="70%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#0369A1"/>
+    </radialGradient>
+
+    <!-- Pink buddy gradients -->
+    <radialGradient id="pink-buddy" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="45%" stop-color="#FBCFE8"/>
+      <stop offset="85%" stop-color="#F472B6"/>
+      <stop offset="100%" stop-color="#DB2777"/>
+    </radialGradient>
+    <radialGradient id="pink-ear" cx="40%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#FCE7F3"/>
+      <stop offset="70%" stop-color="#F472B6"/>
+      <stop offset="100%" stop-color="#BE185D"/>
+    </radialGradient>
+
+    <!-- Glowing star gradients -->
+    <radialGradient id="star-glow" cx="45%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#FFFFF0"/>
+      <stop offset="45%" stop-color="#FDE047"/>
+      <stop offset="85%" stop-color="#EAB308"/>
+      <stop offset="100%" stop-color="#CA8A04"/>
+    </radialGradient>
+
+    <!-- Cloud base -->
+    <radialGradient id="cloud-base" cx="40%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="65%" stop-color="#E8EDF5"/>
+      <stop offset="100%" stop-color="#CBD5E1"/>
+    </radialGradient>
+  </defs>
+
+  <g filter="url(#friends-drop)">
+    <!-- Fluffy cloud ground base -->
+    <ellipse cx="100" cy="172" rx="66" ry="16" fill="url(#cloud-base)"/>
+    <ellipse cx="60" cy="166" rx="28" ry="12" fill="#FFFFFF"/>
+    <ellipse cx="140" cy="166" rx="28" ry="12" fill="#FFFFFF"/>
+    <ellipse cx="100" cy="168" rx="36" ry="13" fill="#FFFFFF"/>
+
+    <!-- LEFT BUDDY (Blue Bear / Bunny) -->
+    <!-- Ears -->
+    <ellipse cx="52" cy="74" rx="8" ry="13" transform="rotate(-20, 52, 74)" fill="url(#blue-ear)"/>
+    <ellipse cx="78" cy="72" rx="8" ry="13" transform="rotate(15, 78, 72)" fill="url(#blue-ear)"/>
+    <!-- Body -->
+    <path d="M 44 162 C 42 126, 88 126, 86 162 Z" fill="url(#blue-buddy)"/>
+    <!-- Head -->
+    <circle cx="65" cy="98" r="25" fill="url(#blue-buddy)"/>
+    <!-- Specular highlight on forehead -->
+    <ellipse cx="58" cy="86" rx="7" ry="4" transform="rotate(-20, 58, 86)" fill="#FFFFFF" opacity="0.8"/>
+    <!-- Cute Face -->
+    <!-- Eyes -->
+    <circle cx="58" cy="98" r="3" fill="#0F172A"/>
+    <circle cx="59" cy="97" r="1.2" fill="#FFFFFF"/>
+    <circle cx="72" cy="98" r="3" fill="#0F172A"/>
+    <circle cx="73" cy="97" r="1.2" fill="#FFFFFF"/>
+    <!-- Snout / Cheeks -->
+    <ellipse cx="65" cy="106" rx="7" ry="4.5" fill="#FFFFFF" opacity="0.85"/>
+    <circle cx="65" cy="104" r="2" fill="#0284C7"/>
+    <path d="M 62 106 Q 65 109, 68 106" fill="none" stroke="#0369A1" stroke-width="1.6" stroke-linecap="round"/>
+    <circle cx="54" cy="104" r="3.5" fill="#38BDF8" opacity="0.6"/>
+    <!-- Left Hand waving outward -->
+    <ellipse cx="36" cy="126" rx="8" ry="7" transform="rotate(-30, 36, 126)" fill="url(#blue-buddy)"/>
+    <!-- Right Hand reaching to the star -->
+    <ellipse cx="86" cy="116" rx="8" ry="7" transform="rotate(35, 86, 116)" fill="url(#blue-buddy)"/>
+
+
+    <!-- RIGHT BUDDY (Pink Bunny) -->
+    <!-- Ears -->
+    <ellipse cx="122" cy="72" rx="8" ry="13" transform="rotate(-15, 122, 72)" fill="url(#pink-ear)"/>
+    <ellipse cx="148" cy="74" rx="8" ry="13" transform="rotate(20, 148, 74)" fill="url(#pink-ear)"/>
+    <!-- Body -->
+    <path d="M 114 162 C 112 126, 158 126, 156 162 Z" fill="url(#pink-buddy)"/>
+    <!-- Head -->
+    <circle cx="135" cy="98" r="25" fill="url(#pink-buddy)"/>
+    <!-- Specular highlight on forehead -->
+    <ellipse cx="128" cy="86" rx="7" ry="4" transform="rotate(-20, 128, 86)" fill="#FFFFFF" opacity="0.8"/>
+    <!-- Cute Face -->
+    <!-- Eyes -->
+    <circle cx="128" cy="98" r="3" fill="#0F172A"/>
+    <circle cx="129" cy="97" r="1.2" fill="#FFFFFF"/>
+    <circle cx="142" cy="98" r="3" fill="#0F172A"/>
+    <circle cx="143" cy="97" r="1.2" fill="#FFFFFF"/>
+    <!-- Snout / Cheeks -->
+    <ellipse cx="135" cy="106" rx="7" ry="4.5" fill="#FFFFFF" opacity="0.85"/>
+    <circle cx="135" cy="104" r="2" fill="#DB2777"/>
+    <path d="M 132 106 Q 135 109, 138 106" fill="none" stroke="#9D174D" stroke-width="1.6" stroke-linecap="round"/>
+    <circle cx="146" cy="104" r="3.5" fill="#F472B6" opacity="0.6"/>
+    <!-- Left Hand reaching to the star -->
+    <ellipse cx="114" cy="116" rx="8" ry="7" transform="rotate(-35, 114, 116)" fill="url(#pink-buddy)"/>
+    <!-- Right Hand waving outward -->
+    <ellipse cx="164" cy="126" rx="8" ry="7" transform="rotate(30, 164, 126)" fill="url(#pink-buddy)"/>
+
+
+    <!-- GLOWING STAR HELD BETWEEN THEM -->
+    <!-- Ambient glow behind star -->
+    <circle cx="100" cy="94" r="28" fill="#FEF08A" opacity="0.45"/>
+    <circle cx="100" cy="94" r="18" fill="#FDE047" opacity="0.5"/>
+
+    <!-- 3D Star shape -->
+    <g transform="translate(100, 94)">
+      <!-- 5-point star -->
+      <polygon points="0,-24 7,-8 24,-7 12,5 16,22 0,13 -16,22 -12,5 -24,-7 -7,-8" fill="url(#star-glow)"/>
+      <!-- Inner star facet/specular -->
+      <polygon points="0,-24 0,13 -16,22 -12,5 -24,-7 -7,-8" fill="#FFFFFF" opacity="0.25"/>
+      <circle cx="-3" cy="-5" r="4.5" fill="#FFFFFF" opacity="0.75"/>
+    </g>
+
+    <!-- Sparkle twinkles around star -->
+    <polygon points="100,54 102,59 107,61 102,63 100,68 98,63 93,61 98,59" fill="#F59E0B"/>
+    <polygon points="76,46 77.5,49.5 81,51 77.5,52.5 76,56 74.5,52.5 71,51 74.5,49.5" fill="#FDE047"/>
+    <polygon points="124,46 125.5,49.5 129,51 125.5,52.5 124,56 122.5,52.5 119,51 122.5,49.5" fill="#FDE047"/>
+  </g>
+</svg>

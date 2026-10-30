@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <!-- Drop shadow -->
+    <filter id="inventor-drop" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#4A3B69" flood-opacity="0.2"/>
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#4A3B69" flood-opacity="0.12"/>
+    </filter>
+
+    <!-- Bulb bulb glow -->
+    <radialGradient id="bulb-glow" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFFDF0"/>
+      <stop offset="40%" stop-color="#FFE67A"/>
+      <stop offset="85%" stop-color="#FDB82C"/>
+      <stop offset="100%" stop-color="#E28914"/>
+    </radialGradient>
+
+    <!-- Bulb glass rim -->
+    <radialGradient id="bulb-rim" cx="45%" cy="30%" r="70%">
+      <stop offset="65%" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="90%" stop-color="#FFFFFF" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.1"/>
+    </radialGradient>
+
+    <!-- Screw base metal -->
+    <linearGradient id="metal-base" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#D1D9E6"/>
+      <stop offset="35%" stop-color="#F2F5FA"/>
+      <stop offset="70%" stop-color="#A5B3CA"/>
+      <stop offset="100%" stop-color="#7B8CA7"/>
+    </linearGradient>
+
+    <!-- Gear gradients -->
+    <radialGradient id="gear-blue" cx="35%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#EBF5FF"/>
+      <stop offset="50%" stop-color="#93C5FD"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </radialGradient>
+    <radialGradient id="gear-mint" cx="35%" cy="35%" r="70%">
+      <stop offset="0%" stop-color="#E6FCF5"/>
+      <stop offset="50%" stop-color="#6EE7B7"/>
+      <stop offset="100%" stop-color="#10B981"/>
+    </radialGradient>
+
+    <!-- Hammer wood & head -->
+    <linearGradient id="hammer-wood" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F6C8A6"/>
+      <stop offset="50%" stop-color="#DF9B68"/>
+      <stop offset="100%" stop-color="#9F572C"/>
+    </linearGradient>
+    <linearGradient id="hammer-head" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#B2A8D9"/>
+      <stop offset="50%" stop-color="#8072B5"/>
+      <stop offset="100%" stop-color="#554687"/>
+    </linearGradient>
+  </defs>
+
+  <g filter="url(#inventor-drop)">
+    <!-- Background gear (mint) -->
+    <g transform="translate(142, 68) rotate(15)">
+      <!-- 8 teeth -->
+      <path d="M -8 -36 L 8 -36 L 10 -28 C 16 -26, 21 -23, 26 -19 L 33 -23 L 42 -12 L 36 -5 C 38 1, 38 7, 36 13 L 42 20 L 33 31 L 26 27 C 21 31, 16 34, 10 36 L 8 44 L -8 44 L -10 36 C -16 34, -21 31, -26 27 L -33 31 L -42 20 L -36 13 C -38 7, -38 1, -36 -5 L -42 -12 L -33 -23 L -26 -19 C -21 -23, -16 -26, -10 -28 Z" fill="url(#gear-mint)" opacity="0.95"/>
+      <circle cx="0" cy="0" r="14" fill="#FFFFFF"/>
+      <circle cx="0" cy="0" r="9" fill="#047857"/>
+    </g>
+
+    <!-- Foreground big gear (powder-blue) -->
+    <g transform="translate(62, 134) rotate(-22)">
+      <path d="M -9 -40 L 9 -40 L 11 -32 C 18 -30, 24 -26, 29 -21 L 37 -26 L 47 -14 L 40 -6 C 42 1, 42 8, 40 15 L 47 23 L 37 35 L 29 30 C 24 35, 18 39, 11 41 L 9 50 L -9 50 L -11 41 C -18 39, -24 35, -29 30 L -37 35 L -47 23 L -40 15 C -42 8, -42 1, -40 -6 L -47 -14 L -37 -26 L -29 -21 C -24 -26, -18 -30, -11 -32 Z" fill="url(#gear-blue)"/>
+      <circle cx="0" cy="0" r="16" fill="#FFFFFF"/>
+      <circle cx="0" cy="0" r="10" fill="#1D4ED8"/>
+    </g>
+
+    <!-- Toy craft hammer crossing behind bulb -->
+    <g transform="translate(138, 142) rotate(-42)">
+      <!-- Handle -->
+      <rect x="-6" y="-12" width="12" height="68" rx="6" fill="url(#hammer-wood)"/>
+      <rect x="-3" y="-8" width="6" height="60" rx="3" fill="#FFE2C9" opacity="0.4"/>
+      <!-- Head -->
+      <rect x="-24" y="-28" width="48" height="20" rx="5" fill="url(#hammer-head)"/>
+      <rect x="-20" y="-25" width="40" height="4" rx="2" fill="#FFFFFF" opacity="0.4"/>
+    </g>
+
+    <!-- Central Glowing 3D Lightbulb -->
+    <!-- Ambient aura glow circle behind -->
+    <circle cx="106" cy="80" r="46" fill="#FFE57F" opacity="0.25"/>
+
+    <!-- Bulb glass body -->
+    <path d="M 106 36 C 80 36, 64 56, 64 80 C 64 96, 74 110, 84 122 L 86 134 L 126 134 L 128 122 C 138 110, 148 96, 148 80 C 148 56, 132 36, 106 36 Z" fill="url(#bulb-glow)"/>
+    <path d="M 106 36 C 80 36, 64 56, 64 80 C 64 96, 74 110, 84 122 L 86 134 L 126 134 L 128 122 C 138 110, 148 96, 148 80 C 148 56, 132 36, 106 36 Z" fill="url(#bulb-rim)"/>
+
+    <!-- Filament inside -->
+    <path d="M 94 112 L 96 82 L 106 68 L 116 82 L 118 112" fill="none" stroke="#FFA726" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 94 112 L 96 82 L 106 68 L 116 82 L 118 112" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Filament center bead / glowing spark -->
+    <circle cx="106" cy="68" r="7" fill="#FFFFFF"/>
+    <circle cx="106" cy="68" r="4.5" fill="#FFF3B0"/>
+
+    <!-- Specular highlight on bulb dome -->
+    <ellipse cx="88" cy="60" rx="14" ry="9" transform="rotate(-30, 88, 60)" fill="#FFFFFF" opacity="0.75"/>
+    <ellipse cx="82" cy="74" rx="5" ry="3" transform="rotate(-30, 82, 74)" fill="#FFFFFF" opacity="0.6"/>
+
+    <!-- Screw base threads -->
+    <rect x="88" y="134" width="36" height="7" rx="3.5" fill="url(#metal-base)"/>
+    <rect x="89" y="142" width="34" height="7" rx="3.5" fill="url(#metal-base)"/>
+    <rect x="91" y="150" width="30" height="7" rx="3.5" fill="url(#metal-base)"/>
+    <!-- Bottom contact point -->
+    <path d="M 97 157 C 97 157, 98 163, 106 163 C 114 163, 115 157, 115 157 Z" fill="#374151"/>
+
+    <!-- Idea spark twinkles -->
+    <polygon points="56,42 58,47 63,49 58,51 56,56 54,51 49,49 54,47" fill="#FBBF24"/>
+    <polygon points="158,46 160,51 165,53 160,55 158,60 156,55 151,53 156,51" fill="#FBBF24"/>
+    <circle cx="166" cy="98" r="3.5" fill="#FCD34D"/>
+    <circle cx="48" cy="84" r="2.5" fill="#FCD34D"/>
+  </g>
+</svg>

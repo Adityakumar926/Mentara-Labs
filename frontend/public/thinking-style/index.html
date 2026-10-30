@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learning Profile Check | Mentara Labs (mentp.com)</title>
+  
+  <!-- Calm Consultation Room Styles -->
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+  <!-- Accessible Skip Link -->
+  <a href="#main-content" class="sr-only">Skip to main content</a>
+
+  <!-- App Header -->
+  <header class="app-header" role="banner">
+    <a href="https://mentp.com" target="_blank" rel="noopener noreferrer" class="brand-badge" id="brand-home" aria-label="Mentara Learning (mentp.com)">
+      <img src="assets/mentara-logo.png" alt="Mentara Learning Logo" class="brand-logo-img" />
+      <div>
+        <div class="brand-title">Mentara Learning</div>
+        <div class="brand-subtitle">mentp.com • Cambridge Primary</div>
+      </div>
+    </a>
+
+    <div class="header-controls">
+      <!-- 8 Levels Indicator Pill -->
+      <div class="level-indicator-pill" title="8 Assessment Levels">
+        <span>🧭</span>
+        <span>8 Levels</span>
+      </div>
+
+      <!-- Learning Compass Adventure Link -->
+      <a 
+        href="learning-compass.html" 
+        class="btn-primary btn-sm" 
+        style="text-decoration: none;"
+        title="Launch Mentp Learning Compass 3D Adventure"
+      >
+        <span>🧭 Start 8-Level Adventure</span>
+      </a>
+
+      <!-- Read-Aloud Voice Audio Toggle -->
+      <button 
+        id="btn-voice-toggle" 
+        class="btn-ghost btn-sm" 
+        type="button" 
+        aria-pressed="true"
+        title="Toggle voice guidance"
+      >
+        <span class="icon" aria-hidden="true">🔊</span>
+        <span id="voice-toggle-label">Voice: On</span>
+      </button>
+
+      <!-- Calm Stop / Break Button -->
+      <button 
+        id="btn-stop-session" 
+        class="btn-ghost btn-sm" 
+        type="button" 
+        style="display: none;"
+        title="Pause or conclude the session"
+      >
+        <span>Take a Break</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Experience Container -->
+  <main id="main-content" class="app-container" role="main" aria-live="polite">
+    <!-- Dynamic views injected here -->
+  </main>
+
+  <!-- Confirmation / Take a Break Dialog -->
+  <div id="modal-container" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-overlay">
+      <div class="modal-content screen-enter">
+        <h3 id="modal-title" style="margin-bottom: 12px; font-family: var(--font-serif);">
+          Would you like to take a break?
+        </h3>
+        <p style="margin-bottom: 20px; color: var(--color-deep-ink-muted);">
+          It is always okay to stop anytime. Even with a few questions, Shruti can make a helpful partial profile for your grown-up.
+        </p>
+        <div class="modal-actions">
+          <button id="btn-modal-continue" class="btn-primary btn-sm" type="button">
+            Keep Going
+          </button>
+          <button id="btn-modal-finish" class="btn-secondary btn-sm" type="button">
+            Finish for Now
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3D WebGL & Animation Runtimes -->
+  <script src="lib/three.min.js"></script>
+  <script src="lib/lottie.min.js"></script>
+
+  <!-- Main App Script -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,453 @@
+/* ==========================================================================
+   Mentara Labs | Learning Profile Check
+   Animations & Transitions: Slow, Gentle (300-500ms)
+   ========================================================================== */
+
+/* Gentle screen transitions */
+.screen-enter {
+  animation: gentleFadeIn 450ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.screen-exit {
+  animation: gentleFadeOut 300ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes gentleFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gentleFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* Mira breathing / floating idle animation */
+@keyframes miraFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.mira-idle {
+  animation: miraFloat 4s ease-in-out infinite;
+}
+
+/* Soft pulse for interactive indicators */
+@keyframes softPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(79, 127, 134, 0.25);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(79, 127, 134, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(79, 127, 134, 0);
+  }
+}
+
+.pulse-hint {
+  animation: softPulse 2.5s infinite;
+}
+
+/* Slide in from right for questions */
+.slide-in-right {
+  animation: slideInRight 400ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Mascot Expressions & Gestures */
+@keyframes mascotWave {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(14deg); }
+  75% { transform: rotate(-8deg); }
+}
+
+@keyframes mascotCelebrate {
+  0%, 100% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-12px) scale(1.05); }
+  50% { transform: translateY(-6px) scale(1.02); }
+  70% { transform: translateY(-10px) scale(1.04); }
+}
+
+@keyframes mascotThinking {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-6deg) translateY(-2px); }
+}
+
+@keyframes mascotLanternGlow {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(226, 155, 99, 0.4)); }
+  50% { filter: drop-shadow(0 0 14px rgba(226, 155, 99, 0.85)); }
+}
+
+.anim-mascot-wave {
+  animation: mascotWave 2s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.anim-mascot-celebrate {
+  animation: mascotCelebrate 1.2s ease-in-out infinite;
+}
+
+.anim-mascot-think {
+  animation: mascotThinking 3s ease-in-out infinite;
+}
+
+.anim-lantern-glow {
+  animation: mascotLanternGlow 2s ease-in-out infinite;
+}
+
+/* Subtle background floaters for mission atmospheres */
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(4deg); }
+}
+
+@keyframes floatReverse {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(8px) rotate(-4deg); }
+}
+
+.anim-float-slow {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+.anim-float-reverse {
+  animation: floatReverse 7s ease-in-out infinite;
+}
+
+/* Confetti & Sparkles */
+@keyframes popSparkle {
+  0% { transform: scale(0) rotate(0deg); opacity: 0; }
+  50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+  100% { transform: scale(1) rotate(360deg); opacity: 0.9; }
+}
+
+.anim-sparkle {
+  animation: popSparkle 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Character Idle Subtle Movement */
+@keyframes characterIdleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.anim-mascot-idle {
+  animation: characterIdleFloat 3.5s ease-in-out infinite;
+}
+
+/* Interactive 3D Canvas Box */
+.interactive-3d-box {
+  transition: transform var(--transition-gentle), filter var(--transition-gentle);
+  touch-action: none;
+  user-select: none;
+}
+
+.interactive-3d-box:hover {
+  transform: scale(1.04);
+  filter: drop-shadow(0 12px 24px rgba(67, 73, 112, 0.14));
+}
+
+/* Supporting Art Card Hover */
+.mission-supporting-art {
+  transition: transform var(--transition-gentle), box-shadow var(--transition-gentle);
+}
+
+.mission-supporting-art:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(67, 73, 112, 0.09) !important;
+}
+
+/* ==========================================================================
+   PASTEL 3D DISCOVERY UNIVERSE — 8 BESPOKE OBJECT MICRO-INTERACTIONS
+   ========================================================================== */
+
+/* 3D Pip Floating Animation */
+@keyframes pipFloat {
+  0%, 100% {
+    transform: translateY(0);
+    filter: drop-shadow(0 8px 16px rgba(124, 58, 237, 0.16));
+  }
+  50% {
+    transform: translateY(-6px);
+    filter: drop-shadow(0 14px 22px rgba(124, 58, 237, 0.22));
+  }
+}
+
+.anim-pip-float {
+  animation: pipFloat 3.8s ease-in-out infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* 3D Crystal Compass Shimmer */
+@keyframes compassCrystalShimmer {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    filter: drop-shadow(0 6px 14px rgba(124, 58, 237, 0.18));
+  }
+  50% {
+    transform: translateY(-4px) rotate(3deg);
+    filter: drop-shadow(0 10px 20px rgba(124, 58, 237, 0.28));
+  }
+}
+
+.anim-compass-crystal {
+  animation: compassCrystalShimmer 4.2s ease-in-out infinite;
+  display: inline-block;
+}
+
+/* 1. Pattern Planet: Continuous slow tilt and orbital sway */
+@keyframes planetRotate {
+  0%, 100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(4deg);
+  }
+}
+
+.anim-3d-planet {
+  animation: planetRotate 4.5s ease-in-out infinite;
+  transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.adventure-tile:hover .anim-3d-planet,
+.adventure-tile:focus-within .anim-3d-planet {
+  transform: translateY(-6px) scale(1.1) rotate(10deg);
+  filter: drop-shadow(0 8px 16px rgba(120, 191, 165, 0.45));
+}
+
+/* 2. Memory Forest: Crystalline shimmer & glowing pulse */
+@keyframes crystalShine {
+  0%, 100% {
+    transform: translateY(0);
+    filter: brightness(1) drop-shadow(0 4px 10px rgba(94, 155, 118, 0.25));
+  }
+  50% {
+    transform: translateY(-5px);
+    filter: brightness(1.12) drop-shadow(0 8px 18px rgba(94, 155, 118, 0.45));
+  }
+}
+
+.anim-3d-crystal {
+  animation: crystalShine 3.6s ease-in-out infinite;
+  transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.adventure-tile:hover .anim-3d-crystal,
+.adventure-tile:focus-within .anim-3d-crystal {
+  transform: translateY(-6px) scale(1.1);
+  filter: brightness(1.18) drop-shadow(0 10px 22px rgba(94, 155, 118, 0.55));
+}
+
+/* 3. Switch Lab: Mechanical step-tick & antenna bob */
+@keyframes robotShift {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-2px) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-1px) rotate(3deg);
+  }
+}
+
+.anim-3d-robot {
+  animation: robotShift 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.adventure-tile:hover .anim-3d-robot,
+.adventure-tile:focus-within .anim-3d-robot {
+  transform: translateY(-6px) scale(1.1) rotate(-5deg);
+  filter: drop-shadow(0 8px 18px rgba(229, 168, 59, 0.45));
+}
+
+/* 4. Story Ship: Oceanic cloud wave rocking */
+@keyframes shipRocking {
+  0%, 100% {
+    transform: translateY(0) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(3deg);
+  }
+}
+
+.anim-3d-ship {
+  animation: shipRocking 4.8s ease-in-out infinite;
+  transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.adventure-tile:hover .anim-3d-ship,
+.adventure-tile:focus-within .anim-3d-ship {
+  transform: translateY(-7px) scale(1.1) rotate(6deg);
+  filter: drop-shadow(0 8px 18px rgba(75, 141, 201, 0.45));
+}
+
+/* 5. Inventor's Workshop: Warm filament pulsing glow & gentle vibration */
+@keyframes bulbGlow {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 3px 8px rgba(224, 133, 84, 0.25));
+  }
+  50% {
+    transform: scale(1.05) translateY(-3px);
+    filter: drop-shadow(0 8px 20px rgba(224, 133, 84, 0.5));
+  }
+}
+
+.anim-3d-bulb {
+  animation: bulbGlow 2.8s ease-in-out infinite;
+  transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.adventure-tile:hover .anim-3d-bulb,
+.adventure-tile:focus-within .anim-3d-bulb {
+  transform: translateY(-6px) scale(1.12);
+  filter: drop-shadow(0 10px 24px rgba(224, 133, 84, 0.6));
+}
+
+/* 6. Feelings Garden: Organic breathing expand & gentle blossom tilt */
+@keyframes flowerBreathe {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.06) translateY(-4px) rotate(3deg);
+  }
+}
+
+.anim-3d-flower {
+  animation: flowerBreathe 3.4s ease-in-out infinite;
+  transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.adventure-tile:hover .anim-3d-flower,
+.adventure-tile:focus-within .anim-3d-flower {
+  transform: translateY(-6px) scale(1.12) rotate(6deg);
+  filter: drop-shadow(0 8px 18px rgba(146, 117, 217, 0.45));
+}
+
+/* 7. Friendship & Fairness: Friendly companion nod & bounce */
+@keyframes duoNod {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  30% {
+    transform: translateY(-4px) rotate(-2deg);
+  }
+  70% {
+    transform: translateY(-2px) rotate(2deg);
+  }
+}
+
+.anim-3d-duo {
+  animation: duoNod 3.5s ease-in-out infinite;
+  transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.adventure-tile:hover .anim-3d-duo,
+.adventure-tile:focus-within .anim-3d-duo {
+  transform: translateY(-6px) scale(1.1) rotate(3deg);
+  filter: drop-shadow(0 8px 18px rgba(222, 125, 102, 0.45));
+}
+
+/* 8. The Learning Detective: Observational scanning aim & tilt */
+@keyframes telescopeAim {
+  0%, 100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(5deg);
+  }
+}
+
+.anim-3d-telescope {
+  animation: telescopeAim 4s ease-in-out infinite;
+  transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.adventure-tile:hover .anim-3d-telescope,
+.adventure-tile:focus-within .anim-3d-telescope {
+  transform: translateY(-6px) scale(1.12) rotate(8deg);
+  filter: drop-shadow(0 8px 18px rgba(94, 126, 137, 0.45));
+}
+
+/* Reduced Motion Override (WCAG AA requirement) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .mira-idle,
+  .pulse-hint,
+  .screen-enter,
+  .screen-exit,
+  .slide-in-right,
+  .anim-mascot-wave,
+  .anim-mascot-celebrate,
+  .anim-mascot-think,
+  .anim-lantern-glow,
+  .anim-float-slow,
+  .anim-float-reverse,
+  .anim-sparkle,
+  .anim-pip-float,
+  .anim-compass-crystal,
+  .anim-3d-planet,
+  .anim-3d-crystal,
+  .anim-3d-robot,
+  .anim-3d-ship,
+  .anim-3d-bulb,
+  .anim-3d-flower,
+  .anim-3d-duo,
+  .anim-3d-telescope {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+body.reduced-motion *,
+body.reduced-motion *::before,
+body.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+

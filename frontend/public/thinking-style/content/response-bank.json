@@ -1,0 +1,16 @@
+{
+  "categories": {
+    "container": ["pencil holder", "drinking water", "holding coins", "holding paint", "seed planter", "snack cup", "scoop for flour"],
+    "sound_music": ["telephone with string", "drum shaker with beans", "megaphone", "amplifier for speaker", "ear horn"],
+    "building_craft": ["castle tower", "robot head", "stacking pyramid", "party hat", "mini lantern", "puppet face"],
+    "games_toys": ["target game", "ball catching cup", "bowling pins", "cup stacking game", "spinning top"],
+    "tools_gadgets": ["cookie cutter", "magnifying stand", "funnel", "pencil sharpener bin", "sundial base"],
+    "nature_outdoors": ["bird feeder", "bug catcher with air holes", "plant protector against frost", "watering pot"]
+  },
+  "commonResponses": [
+    "drinking water", "pencil holder", "holding coins", "holding paint", "stacking tower", "plant pot"
+  ],
+  "rareResponses": [
+    "bug catcher with air holes", "sundial base", "telephone with string", "cookie cutter", "puppet face", "mini lantern"
+  ]
+}

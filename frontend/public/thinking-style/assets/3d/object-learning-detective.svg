@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <!-- Drop shadow -->
+    <filter id="detective-drop" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#4A3B69" flood-opacity="0.2"/>
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#4A3B69" flood-opacity="0.12"/>
+    </filter>
+
+    <!-- Brass / Gold gradients -->
+    <linearGradient id="brass-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFFBEB"/>
+      <stop offset="30%" stop-color="#FCD34D"/>
+      <stop offset="70%" stop-color="#D97706"/>
+      <stop offset="100%" stop-color="#92400E"/>
+    </linearGradient>
+
+    <!-- Mint/Teal Telescope Barrel -->
+    <linearGradient id="barrel-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E6FFFA"/>
+      <stop offset="35%" stop-color="#5EEAD4"/>
+      <stop offset="75%" stop-color="#0D9488"/>
+      <stop offset="100%" stop-color="#115E59"/>
+    </linearGradient>
+
+    <!-- Glowing Optical Lens (Cyan/Crystal) -->
+    <radialGradient id="lens-glow" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="50%" stop-color="#67E8F9"/>
+      <stop offset="85%" stop-color="#06B6D4"/>
+      <stop offset="100%" stop-color="#0E7490"/>
+    </radialGradient>
+
+    <!-- Tripod Legs (Warm Walnut Wood) -->
+    <linearGradient id="wood-leg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FDBA74"/>
+      <stop offset="50%" stop-color="#C2410C"/>
+      <stop offset="100%" stop-color="#7C2D12"/>
+    </linearGradient>
+
+    <!-- Magnifying Glass Rim & Glass -->
+    <radialGradient id="glass-lens" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="50%" stop-color="#E0E7FF"/>
+      <stop offset="85%" stop-color="#C7D2FE"/>
+      <stop offset="100%" stop-color="#818CF8"/>
+    </radialGradient>
+  </defs>
+
+  <g filter="url(#detective-drop)">
+    <!-- Tripod Legs (Behind) -->
+    <!-- Center leg -->
+    <path d="M 86 118 L 82 178 L 90 178 Z" fill="url(#wood-leg)"/>
+    <ellipse cx="86" cy="178" rx="4" ry="2" fill="#7C2D12"/>
+
+    <!-- Left leg -->
+    <path d="M 84 118 L 44 174 L 51 176 Z" fill="url(#wood-leg)"/>
+    <ellipse cx="47.5" cy="175" rx="3.5" ry="2" fill="#7C2D12"/>
+
+    <!-- Right leg -->
+    <path d="M 88 118 L 126 174 L 119 176 Z" fill="url(#wood-leg)"/>
+    <ellipse cx="122.5" cy="175" rx="3.5" ry="2" fill="#7C2D12"/>
+
+    <!-- Tripod mount / brass sphere bracket -->
+    <circle cx="86" cy="116" r="10" fill="url(#brass-grad)"/>
+    <rect x="80" y="112" width="12" height="6" rx="3" fill="#B45309"/>
+
+    <!-- Telescope Body (Rotated ~35 degrees pointing up-right) -->
+    <g transform="translate(86, 116) rotate(-35) translate(-86, -116)">
+      <!-- Eyepiece end (left) -->
+      <rect x="36" y="112" width="14" height="8" rx="3" fill="url(#brass-grad)"/>
+      <ellipse cx="36" cy="116" rx="3" ry="5.5" fill="#78350F"/>
+
+      <!-- Narrow barrel segment -->
+      <rect x="48" y="110" width="22" height="12" rx="2" fill="url(#brass-grad)"/>
+      <rect x="68" y="108" width="6" height="16" rx="2" fill="#D97706"/>
+
+      <!-- Main Telescope Tube (Mint/Teal) -->
+      <path d="M 74 107 L 140 102 L 140 130 L 74 125 Z" fill="url(#barrel-grad)"/>
+      <!-- Specular highlight streak on tube -->
+      <path d="M 75 110 L 138 106 L 138 111 L 75 113 Z" fill="#FFFFFF" opacity="0.65"/>
+
+      <!-- Brass Rings on barrel -->
+      <rect x="96" y="105" width="6" height="22" rx="2" fill="url(#brass-grad)"/>
+      <rect x="122" y="103" width="6" height="24" rx="2" fill="url(#brass-grad)"/>
+
+      <!-- Objective lens collar (Large front) -->
+      <rect x="140" y="99" width="10" height="34" rx="3" fill="url(#brass-grad)"/>
+
+      <!-- Front Lens glass disc -->
+      <ellipse cx="150" cy="116" rx="5" ry="17" fill="url(#lens-glow)"/>
+      <ellipse cx="149" cy="113" rx="2" ry="7" fill="#FFFFFF" opacity="0.8"/>
+    </g>
+
+    <!-- Lens Flare / Starlight beam bursting from lens -->
+    <g transform="translate(148, 62)">
+      <!-- Ray aura -->
+      <circle cx="0" cy="0" r="14" fill="#67E8F9" opacity="0.4"/>
+      <!-- Star flare -->
+      <polygon points="0,-18 3,-5 18,0 3,5 0,18 -3,5 -18,0 -3,-5" fill="#FFFFFF"/>
+      <circle cx="0" cy="0" r="4" fill="#FEF08A"/>
+    </g>
+
+    <!-- Whimsical Detective Magnifying Glass (floating bottom-left) -->
+    <g transform="translate(48, 118) rotate(-15) scale(0.65)">
+      <!-- Handle -->
+      <rect x="-4" y="24" width="8" height="28" rx="4" fill="url(#brass-grad)"/>
+      <!-- Frame -->
+      <circle cx="0" cy="0" r="25" fill="none" stroke="url(#brass-grad)" stroke-width="7"/>
+      <!-- Glass -->
+      <circle cx="0" cy="0" r="22" fill="url(#glass-lens)" opacity="0.85"/>
+      <!-- Highlight curve -->
+      <path d="M -12 -12 A 16 16 0 0 1 12 -12" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+    </g>
+
+    <!-- Star Twinkles -->
+    <polygon points="166,112 167.5,116 171,117.5 167.5,119 166,123 164.5,119 161,117.5 164.5,116" fill="#FCD34D"/>
+    <polygon points="112,42 113.5,45.5 117,47 113.5,48.5 112,52 110.5,48.5 107,47 110.5,45.5" fill="#38BDF8"/>
+    <circle cx="158" cy="38" r="2.5" fill="#FCD34D"/>
+  </g>
+</svg>

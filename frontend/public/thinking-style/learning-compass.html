@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discover Your Thinking Style | Mentara Learning</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Design System & Styles -->
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/components.css">
+
+  <!-- Preload 3D Hero Background Artwork -->
+  <link rel="preload" as="image" href="assets/intro-hero-bg.png">
+
+  <style>
+    /* Compass Navigation Styles */
+    .compass-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-motion-toggle {
+      border: 1px solid var(--color-soft-sand);
+      background: #FFFFFF;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--color-deep-ink-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 38px;
+      transition: all var(--transition-gentle);
+    }
+
+    .btn-motion-toggle:hover {
+      background: var(--color-soft-sand-light);
+      color: var(--color-deep-ink);
+    }
+
+    /* Print styles */
+    @media print {
+      .app-header, .mission-tracker-container, .btn-ghost, .btn-read-aloud, #btn-print-compass-report, .asset-attribution-bar {
+        display: none !important;
+      }
+      body, html {
+        background: #FFFFFF !important;
+      }
+      .calm-card {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body class="theme-intro">
+  <!-- Skip Link for Accessibility -->
+  <a href="#compass-app-root" class="sr-only">Skip to main adventure</a>
+
+  <!-- Top App Navigation Header -->
+  <header class="app-header glass-surface" role="banner">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="/" id="compass-home-link" class="brand-badge" aria-label="Mentara Learning Home">
+        <img src="assets/mentara-logo.png" alt="Mentara Learning Logo" class="brand-logo-img" />
+        <div>
+          <div class="brand-title">Mentara Learning</div>
+          <div class="brand-subtitle">Discover Your Thinking Style</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="header-controls">
+      <!-- 8 Levels Indicator Pill for Student Awareness -->
+      <div class="level-indicator-pill" id="header-levels-badge" title="8 Assessment Levels in this Journey">
+        <span>🧭</span>
+        <span>8 Adventure Levels</span>
+      </div>
+
+      <!-- Simple Voice Narration Toggle -->
+      <button id="btn-voice-toggle" class="btn-ghost btn-sm" type="button" aria-pressed="true" title="Toggle voice narration by Pip">
+        <span class="icon" aria-hidden="true">🔊</span>
+        <span id="voice-toggle-label">Voice: On</span>
+      </button>
+
+      <!-- Back to Dashboard / Home -->
+      <button id="btn-back-dashboard" class="btn-ghost btn-sm" type="button" title="Return to Mentara Dashboard" style="font-weight: 800; color: #5B21B6; border-color: rgba(124, 58, 237, 0.28);">
+        <span>← Back to Dashboard</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 3D Pastel Hero Animated Video Background Layer (Persistent across all screens) -->
+  <div class="intro-bg-artwork" aria-hidden="true">
+    <video 
+      class="intro-bg-video" 
+      autoplay 
+      muted 
+      loop 
+      playsinline 
+      preload="auto"
+      poster="assets/intro-hero-bg.png"
+    >
+      <source src="assets/intro-hero-bg.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="app-container" role="main" id="compass-app-root">
+    <!-- Dynamic Screens Injected Here (Intro -> 8 Missions -> Transitions -> Report) -->
+  </main>
+
+  <!-- 3D WebGL & Animation Runtimes -->
+  <script src="lib/three.min.js"></script>
+  <script src="lib/lottie.min.js"></script>
+
+  <!-- Application Initializer Script -->
+  <script type="module">
+    import { CompassApp } from './js/learning-compass-app.js';
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Initialize Master Compass App
+      window.CompassApp = CompassApp;
+      CompassApp.init('compass-app-root');
+    });
+  </script>
+</body>
+</html>

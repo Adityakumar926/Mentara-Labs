@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <!-- Sphere Lighting: 3D Studio Soft Pastel -->
+    <radialGradient id="ppPlanet3D" cx="35%" cy="30%" r="68%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="18%" stop-color="#E8F4FD" />
+      <stop offset="42%" stop-color="#D0C2F7" />
+      <stop offset="68%" stop-color="#9DE0C6" />
+      <stop offset="90%" stop-color="#7BB4DE" />
+      <stop offset="100%" stop-color="#6784B0" />
+    </radialGradient>
+
+    <!-- Swirled Planet Bands -->
+    <linearGradient id="ppBandPeach" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFE4D6" stop-opacity="0.8" />
+      <stop offset="50%" stop-color="#FCD2BE" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#EAA684" stop-opacity="0.2" />
+    </linearGradient>
+
+    <linearGradient id="ppBandMint" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#A8E8CC" stop-opacity="0.7" />
+      <stop offset="60%" stop-color="#82D2B0" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#5EBA94" stop-opacity="0.1" />
+    </linearGradient>
+
+    <!-- Glossy Specular Gleam -->
+    <radialGradient id="ppGleam" cx="30%" cy="28%" r="40%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9" />
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Ring 3D Clay Tube Lighting -->
+    <linearGradient id="ppRing3D" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF2D6" />
+      <stop offset="25%" stop-color="#F7C978" />
+      <stop offset="55%" stop-color="#E29A44" />
+      <stop offset="85%" stop-color="#F7C978" />
+      <stop offset="100%" stop-color="#FFE8B5" />
+    </linearGradient>
+
+    <linearGradient id="ppRingShadow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#C27A23" />
+      <stop offset="100%" stop-color="#8C5311" />
+    </linearGradient>
+
+    <!-- Faceted Crystal 1 (Pink Octahedron) -->
+    <linearGradient id="gemPinkLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="40%" stop-color="#FDB7D5" />
+      <stop offset="100%" stop-color="#E882AE" />
+    </linearGradient>
+    <linearGradient id="gemPinkDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E882AE" />
+      <stop offset="100%" stop-color="#BA4E7D" />
+    </linearGradient>
+
+    <!-- Faceted Crystal 2 (Cyan Diamond) -->
+    <linearGradient id="gemCyanLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="50%" stop-color="#BEE8FC" />
+      <stop offset="100%" stop-color="#73BAE8" />
+    </linearGradient>
+    <linearGradient id="gemCyanDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#73BAE8" />
+      <stop offset="100%" stop-color="#3D82B3" />
+    </linearGradient>
+
+    <!-- Ambient Shadow Filter -->
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#4A5568" flood-opacity="0.14" />
+    </filter>
+  </defs>
+
+  <!-- Ambient Contact Shadow on Ground -->
+  <ellipse cx="100" cy="168" rx="54" ry="11" fill="#4A5568" opacity="0.1" />
+
+  <!-- 1. BACK SECTION OF RING (Behind the sphere) -->
+  <g transform="rotate(-18, 100, 104)">
+    <!-- Back Outer Arc -->
+    <path d="M 28 104 A 74 24 0 0 1 172 104" stroke="url(#ppRing3D)" stroke-width="13" stroke-linecap="round" fill="none" opacity="0.95" />
+    <!-- Back Inner Highlight -->
+    <path d="M 36 104 A 66 18 0 0 1 164 104" stroke="#FFF7E6" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.8" />
+  </g>
+
+  <!-- 2. MAIN PLANET SPHERE -->
+  <g filter="url(#softShadow)">
+    <circle cx="100" cy="102" r="48" fill="url(#ppPlanet3D)" />
+    
+    <!-- Swirled Organic Pastel Cloud Patches on Sphere -->
+    <path d="M62 86 C 75 74, 98 80, 106 90 C 114 100, 134 94, 142 86 C 147 94, 142 106, 134 114 C 118 126, 92 118, 76 116 C 66 114, 58 98, 62 86 Z" fill="url(#ppBandPeach)" />
+    <path d="M68 116 C 82 112, 102 124, 120 120 C 132 118, 142 126, 140 134 C 134 144, 114 148, 98 146 C 80 144, 64 132, 68 116 Z" fill="url(#ppBandMint)" />
+
+    <!-- Sphere Edge Shading Clip -->
+    <circle cx="100" cy="102" r="48" fill="url(#ppGleam)" />
+  </g>
+
+  <!-- 3. FRONT SECTION OF RING (In front of the sphere) -->
+  <g transform="rotate(-18, 100, 104)">
+    <!-- Cast Shadow on Planet Body from Ring -->
+    <path d="M 28 105 A 74 24 0 0 0 172 105" stroke="url(#ppRingShadow)" stroke-width="15" stroke-linecap="round" fill="none" opacity="0.28" filter="blur(2px)" />
+    <!-- Front Ring Body -->
+    <path d="M 28 104 A 74 24 0 0 0 172 104" stroke="url(#ppRing3D)" stroke-width="13" stroke-linecap="round" fill="none" />
+    <!-- Front Ring 3D Upper Specular Highlight -->
+    <path d="M 32 102 A 70 21 0 0 0 168 102" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round" fill="none" opacity="0.85" />
+    <!-- Front Ring Rim Shadow Underneath -->
+    <path d="M 30 106 A 72 23 0 0 0 170 106" stroke="#C27A23" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6" />
+  </g>
+
+  <!-- 4. FLOATING 3D FACETED CRYSTALS & STARS -->
+  <!-- Top-Right: Pink 3D Octahedron -->
+  <g transform="translate(156, 44) scale(0.95)" filter="url(#softShadow)">
+    <polygon points="12,0 24,14 12,28 0,14" fill="url(#gemPinkLight)" />
+    <polygon points="12,0 24,14 12,14" fill="#FFFFFF" opacity="0.4" />
+    <polygon points="12,14 24,14 12,28" fill="url(#gemPinkDark)" />
+    <polygon points="12,14 0,14 12,28" fill="url(#gemPinkDark)" opacity="0.7" />
+  </g>
+
+  <!-- Top-Left: Soft Cyan 4-Point Sparkle -->
+  <g transform="translate(26, 46) scale(0.85)">
+    <path d="M12,0 C12,7 19,12 26,12 C19,12 12,17 12,24 C12,17 5,12 -2,12 C5,12 12,7 12,0 Z" fill="url(#gemCyanLight)" />
+    <circle cx="12" cy="12" r="3" fill="#FFFFFF" />
+  </g>
+
+  <!-- Bottom-Left: Mint/Cyan 3D Diamond -->
+  <g transform="translate(24, 126) scale(0.85)" filter="url(#softShadow)">
+    <polygon points="12,2 22,12 12,24 2,12" fill="url(#gemCyanLight)" />
+    <polygon points="12,12 22,12 12,24" fill="url(#gemCyanDark)" />
+    <polygon points="2,12 12,12 12,24" fill="url(#gemCyanDark)" opacity="0.6" />
+    <circle cx="10" cy="8" r="2" fill="#FFFFFF" opacity="0.8" />
+  </g>
+
+  <!-- Bottom-Right: Lavender 3D Facet Star -->
+  <g transform="translate(150, 124) scale(0.8)">
+    <polygon points="14,0 18,10 28,14 18,18 14,28 10,18 0,14 10,10" fill="#D7C8F8" />
+    <polygon points="14,0 18,10 14,14 10,10" fill="#FFFFFF" opacity="0.7" />
+    <polygon points="14,14 18,18 14,28 10,18" fill="#9C82E8" />
+  </g>
+</svg>

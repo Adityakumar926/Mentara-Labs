@@ -54,7 +54,13 @@ export default function OnboardingPage() {
     try {
       await onboard({ curriculum_id: selectedCurriculum.id, class_id: selectedClass.id });
       toast.success('Welcome to Mentara Learning! 🎉');
-      navigate('/courses');
+      const redirectTarget = sessionStorage.getItem('mentara_post_auth_redirect');
+      if (redirectTarget) {
+        sessionStorage.removeItem('mentara_post_auth_redirect');
+        navigate(redirectTarget);
+      } else {
+        navigate(user?.role === 'teacher' ? '/courses' : '/student/dashboard');
+      }
     } catch (err) {
       toast.error(err.message || 'Failed to complete setup');
     } finally {

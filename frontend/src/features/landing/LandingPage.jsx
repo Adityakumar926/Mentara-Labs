@@ -675,6 +675,66 @@ function Hero() {
               </a>
             </div>
 
+            {/* ── DIAGNOSTIC TEST FEATURE CARD: "Discover Your Thinking Style" ── */}
+            <div className="mt-6 max-w-xl">
+              <button
+                type="button"
+                data-testid="hero-discover-thinking-style-btn"
+                onClick={() => {
+                  try {
+                    sessionStorage.setItem('mentara_post_auth_redirect', '/discover-thinking-style');
+                  } catch (e) {
+                    // ignore
+                  }
+                  window.location.href = localStorage.getItem('accessToken')
+                    ? '/discover-thinking-style'
+                    : '/register?redirect=/discover-thinking-style';
+                }}
+                className="group w-full text-left rounded-2xl p-4 sm:p-4.5 transition-all duration-300 hover:scale-[1.015] active:scale-[0.99] border border-purple-200/90 bg-white/95 backdrop-blur-md shadow-md hover:shadow-xl cursor-pointer flex items-center justify-between gap-3.5"
+                style={{
+                  boxShadow: "0 12px 30px -6px rgba(124, 58, 237, 0.16), inset 0 1px 0 rgba(255, 255, 255, 1)",
+                }}
+              >
+                <div className="flex items-start sm:items-center gap-3.5 min-w-0">
+                  <div
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-white shadow-sm"
+                    style={{
+                      background: "linear-gradient(135deg, #7C3AED 0%, #6366F1 55%, #0284C7 100%)",
+                      boxShadow: "0 6px 16px rgba(124, 58, 237, 0.3)",
+                    }}
+                  >
+                    <span className="text-xl" aria-hidden="true">🧭</span>
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200">
+                        8-Level Diagnostic Test
+                      </span>
+                    </div>
+                    <div className="font-doodle text-base sm:text-lg font-extrabold text-slate-900 mt-0.5 group-hover:text-purple-700 transition-colors">
+                      Discover Your Thinking Style
+                    </div>
+                    <div className="text-[11.5px] sm:text-xs font-semibold text-slate-700 mt-0.5 leading-snug">
+                      Conceptualised and crafted by <span className="text-purple-800 font-bold">Ms. Sakshi Srivastava</span>
+                    </div>
+                    <div className="text-[11px] font-medium text-emerald-700 leading-snug">
+                      B.Sc. Psychology · B.Ed. · Child Educator
+                    </div>
+                  </div>
+                </div>
+                <div
+                  className="shrink-0 inline-flex items-center gap-1 px-3.5 py-2 rounded-full text-xs font-bold text-white transition-transform group-hover:translate-x-0.5"
+                  style={{
+                    background: "linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)",
+                    boxShadow: "0 4px 12px rgba(124, 58, 237, 0.25)",
+                  }}
+                >
+                  <span>Start Test</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </div>
+              </button>
+            </div>
+
             {/* Micro Feature Highlights Row (Clay Badges) */}
             <div className="mt-10 pt-7 border-t border-slate-200/50 grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-4 sm:gap-6">
               <div className="flex items-center gap-2.5 text-xs font-medium text-slate-700">
