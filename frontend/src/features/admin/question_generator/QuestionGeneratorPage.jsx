@@ -464,7 +464,7 @@ export default function QuestionGeneratorPage({ isSimpleMode = false }) {
     }
   };
 
-  const isLightTheme = !location.pathname.startsWith('/admin');
+  const isLightTheme = location.pathname === '/question-generator' || (!location.pathname.startsWith('/admin') && document.documentElement.classList.contains('light'));
 
   return (
     <PageWrapper title="Cambridge Primary Assessment Studio">

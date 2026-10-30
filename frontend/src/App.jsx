@@ -207,7 +207,7 @@ export default function App() {
     if (localStorage.getItem('accessToken')) {
       fetchMe();
     }
-    const theme = localStorage.getItem('theme') || 'dark';
+    const theme = localStorage.getItem('student_theme') || 'dark';
     if (theme === 'light') {
       document.documentElement.classList.add('light');
     } else {

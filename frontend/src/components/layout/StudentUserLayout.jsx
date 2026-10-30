@@ -281,10 +281,22 @@ export default function StudentUserLayout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
 
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  const [theme, setTheme] = useState(() => localStorage.getItem('student_theme') || 'dark');
+
+  useEffect(() => {
+    if (theme === 'light') {
+      document.documentElement.classList.add('light');
+      localStorage.setItem('theme', 'light');
+    } else {
+      document.documentElement.classList.remove('light');
+      localStorage.setItem('theme', 'dark');
+    }
+  }, [theme]);
+
   const toggleTheme = () => {
     const nextTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(nextTheme);
+    localStorage.setItem('student_theme', nextTheme);
     localStorage.setItem('theme', nextTheme);
     if (nextTheme === 'light') {
       document.documentElement.classList.add('light');

@@ -485,10 +485,15 @@ export default function StudentLayout() {
     setTopSearch(searchParams.get('q') || '');
   }, [searchParams]);
 
-  // Force Light Theme for the Teacher Portal
+  // Force Light Theme for the Teacher Portal (without overwriting Student Dashboard default dark theme)
   useEffect(() => {
     document.documentElement.classList.add('light');
-    localStorage.setItem('theme', 'light');
+    return () => {
+      const studentTheme = localStorage.getItem('student_theme') || 'dark';
+      if (studentTheme === 'dark') {
+        document.documentElement.classList.remove('light');
+      }
+    };
   }, []);
 
   // Close profile dropdown on outside click
