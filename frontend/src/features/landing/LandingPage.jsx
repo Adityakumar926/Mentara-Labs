@@ -552,7 +552,10 @@ function Hero() {
   return (
     <section 
       data-testid="hero-section" 
-      className="relative pt-16 pb-12 sm:pt-20 sm:pb-16 lg:pt-24 lg:pb-16 overflow-hidden flex items-center min-h-[640px] lg:min-h-[720px] bg-[#FAF9F6]"
+      className="relative pt-16 pb-12 sm:pt-20 sm:pb-16 lg:pt-24 lg:pb-16 overflow-hidden flex items-center min-h-[640px] lg:min-h-[720px]"
+      style={{
+        background: "linear-gradient(90deg, #CDE9FC 0%, #C4E4B4 52%, #CDE9FC 100%)",
+      }}
     >
       {/* ── HERO ARTWORK: Complete uncropped fit with cute reading robot in blue sky landscape ── */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden flex items-end justify-center">
@@ -562,10 +565,6 @@ function Hero() {
           muted
           playsInline
           className="w-full h-full object-cover object-bottom"
-          style={{
-            maskImage: "linear-gradient(to bottom, black 0%, black 90%, rgba(0,0,0,0.6) 96%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 90%, rgba(0,0,0,0.6) 96%, transparent 100%)",
-          }}
         >
           <source src="/v1.mp4" type="video/mp4" />
         </video>
@@ -573,19 +572,19 @@ function Hero() {
         <div 
           className="absolute inset-0" 
           style={{
-            background: "linear-gradient(to right, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.35) 30%, transparent 60%)",
+            background: "linear-gradient(to right, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.25) 30%, transparent 60%)",
           }}
         />
 
-        {/* Subtle, soft natural blend at bottom of Hero (reduced whiteness) */}
+        {/* Seamless Green + Blue Gradient & Blur Blend at bottom of Hero */}
         <div 
-          className="absolute inset-x-0 bottom-0 h-32 sm:h-44 pointer-events-none z-10"
+          className="absolute inset-x-0 bottom-0 h-28 sm:h-36 pointer-events-none z-10"
           style={{
-            backdropFilter: "blur(10px)",
-            WebkitBackdropFilter: "blur(10px)",
-            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.2) 30%, black 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.2) 30%, black 100%)",
-            background: "linear-gradient(to bottom, transparent 0%, rgba(240, 248, 252, 0.12) 50%, rgba(235, 246, 250, 0.28) 100%)",
+            backdropFilter: "blur(14px)",
+            WebkitBackdropFilter: "blur(14px)",
+            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.45) 45%, black 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.45) 45%, black 100%)",
+            background: "linear-gradient(90deg, rgba(205, 233, 252, 0.88) 0%, rgba(196, 228, 180, 0.92) 50%, rgba(205, 233, 252, 0.88) 100%)",
           }}
         />
       </div>
@@ -954,7 +953,10 @@ function FeaturesBento() {
       ref={sectionRef} 
       id="features" 
       data-testid="features-section" 
-      className="relative pt-8 pb-10 sm:py-14 lg:py-20 bg-[#FAF9F6] [perspective:1400px] overflow-hidden"
+      className="relative pt-8 pb-10 sm:py-14 lg:py-20 [perspective:1400px] overflow-hidden"
+      style={{
+        background: "linear-gradient(180deg, #C4E4B4 0%, #CDE9FC 22%, #FAF9F6 100%)",
+      }}
     >
       {/* ── BACKGROUND IMAGE (img_2): Platform Features Section ── */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
@@ -963,31 +965,31 @@ function FeaturesBento() {
           alt="Platform Features Background"
           className="w-full h-full object-cover object-center"
           style={{
-            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 4%, black 10%, black 86%, rgba(0,0,0,0.4) 95%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 4%, black 10%, black 86%, rgba(0,0,0,0.4) 95%, transparent 100%)",
+            maskImage: "linear-gradient(to bottom, black 0%, black 86%, rgba(0,0,0,0.4) 95%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 86%, rgba(0,0,0,0.4) 95%, transparent 100%)",
           }}
         />
-        {/* Subtle, soft natural blend at top of Features (reduced whiteness) */}
+        {/* Seamless Green + Blue Gradient & Blur Blend at top of Features */}
         <div 
-          className="absolute inset-x-0 top-0 h-32 sm:h-44 pointer-events-none z-10"
+          className="absolute inset-x-0 top-0 h-28 sm:h-36 pointer-events-none z-10"
           style={{
-            backdropFilter: "blur(10px)",
-            WebkitBackdropFilter: "blur(10px)",
-            maskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.2) 70%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.2) 70%, transparent 100%)",
-            background: "linear-gradient(to bottom, rgba(235, 246, 250, 0.28) 0%, rgba(240, 248, 252, 0.12) 50%, transparent 100%)",
+            backdropFilter: "blur(14px)",
+            WebkitBackdropFilter: "blur(14px)",
+            maskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.45) 55%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.45) 55%, transparent 100%)",
+            background: "linear-gradient(90deg, rgba(205, 233, 252, 0.88) 0%, rgba(196, 228, 180, 0.92) 50%, rgba(205, 233, 252, 0.88) 100%)",
           }}
         />
 
-        {/* Subtle, soft natural blend at bottom of Features (reduced whiteness) */}
+        {/* Seamless Green + Blue Gradient & Blur Blend at bottom of Features */}
         <div 
-          className="absolute inset-x-0 bottom-0 h-32 sm:h-44 pointer-events-none z-10"
+          className="absolute inset-x-0 bottom-0 h-28 sm:h-36 pointer-events-none z-10"
           style={{
-            backdropFilter: "blur(10px)",
-            WebkitBackdropFilter: "blur(10px)",
-            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.2) 30%, black 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.2) 30%, black 100%)",
-            background: "linear-gradient(to bottom, transparent 0%, rgba(244, 246, 252, 0.12) 50%, rgba(244, 246, 252, 0.3) 100%)",
+            backdropFilter: "blur(14px)",
+            WebkitBackdropFilter: "blur(14px)",
+            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.45) 45%, black 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.45) 45%, black 100%)",
+            background: "linear-gradient(90deg, rgba(205, 233, 252, 0.88) 0%, rgba(196, 228, 180, 0.92) 50%, rgba(205, 233, 252, 0.88) 100%)",
           }}
         />
       </div>
@@ -1934,9 +1936,20 @@ function Pricing() {
   ];
 
   return (
-    <section id="pricing" data-testid="pricing-section" className="relative z-20 pt-12 sm:pt-16 pb-16 bg-[#F4F6FC] border-t border-slate-200/50">
+    <section id="pricing" data-testid="pricing-section" className="relative z-20 pt-14 sm:pt-20 pb-16 overflow-hidden" style={{ background: "linear-gradient(180deg, rgba(205,233,252,0.55) 0%, #F4F6FC 220px, #F4F6FC 100%)" }}>
+      {/* Top Green + Blue Gradient & Blur Seam blending Platform Highlights into Pricing */}
+      <div
+        className="absolute inset-x-0 top-0 h-36 sm:h-48 pointer-events-none z-0"
+        style={{
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          maskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.55) 50%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.55) 50%, transparent 100%)",
+          background: "linear-gradient(90deg, rgba(205, 233, 252, 0.92) 0%, rgba(196, 228, 180, 0.94) 40%, rgba(205, 233, 252, 0.92) 100%)",
+        }}
+      />
       <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
-        <div className="max-w-2xl mb-10">
+        <div className="relative z-10 max-w-2xl mb-10">
           <span className="font-mono-label text-[10.5px] uppercase tracking-[0.24em] text-emerald-700 font-semibold px-4 py-1.5 rounded-full neu-pill bg-[#FAFBFD] border border-white/90 inline-block mb-3.5">
             · PRICING PLANS
           </span>

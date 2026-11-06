@@ -168,33 +168,49 @@ export default function LaptopScrollShowcase() {
   };
 
   return (
-    <div className="relative bg-[#F4F6FC]">
-      {/* ── STATIC FULL-SCREEN BACKGROUND LAYER (img_3): Never zooms or scrolls, stays 100% static in the viewport ── */}
-      <div className="sticky top-0 h-screen w-full -mb-[100vh] pointer-events-none z-0 overflow-hidden">
-        <img
-          src="/img_3.png"
-          alt="Platform Highlights Static Background"
-          className="w-full h-full object-fill object-center"
-          style={{
-            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 4%, black 12%, black 92%, rgba(0,0,0,0.5) 98%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 4%, black 12%, black 92%, rgba(0,0,0,0.5) 98%, transparent 100%)",
-          }}
-        />
-        {/* Subtle top blend transition */}
-        <div 
-          className="absolute inset-x-0 top-0 h-28 sm:h-36 pointer-events-none z-10"
-          style={{
-            backdropFilter: "blur(10px)",
-            WebkitBackdropFilter: "blur(10px)",
-            maskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.2) 70%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.2) 70%, transparent 100%)",
-            background: "linear-gradient(to bottom, rgba(244, 246, 252, 0.3) 0%, rgba(244, 246, 252, 0.12) 50%, transparent 100%)",
-          }}
-        />
+    <div
+      className="relative"
+      style={{
+        background: "linear-gradient(90deg, #CDE9FC 0%, #C4E4B4 50%, #CDE9FC 100%)",
+      }}
+    >
+      {/* ── BACKGROUND LAYER (img_3): Sticky during showcase scroll, then scrolls UP naturally with the section at the end ── */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <div className="sticky top-0 h-screen w-full overflow-hidden">
+          <img
+            src="/img_3.png"
+            alt="Platform Highlights Static Background"
+            className="w-full h-full object-fill object-center"
+          />
+        </div>
       </div>
 
+      {/* Seamless Green + Blue Gradient & Blur Blend at top of Showcase (scrolls naturally with top seam) */}
+      <div
+        className="absolute inset-x-0 top-0 h-28 sm:h-36 pointer-events-none z-20"
+        style={{
+          backdropFilter: "blur(14px)",
+          WebkitBackdropFilter: "blur(14px)",
+          maskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.45) 55%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.45) 55%, transparent 100%)",
+          background: "linear-gradient(90deg, rgba(205, 233, 252, 0.88) 0%, rgba(196, 228, 180, 0.92) 50%, rgba(205, 233, 252, 0.88) 100%)",
+        }}
+      />
+
+      {/* Seamless Green + Blue Gradient & Blur Blend at bottom of Showcase (scrolls naturally with bottom seam into Pricing) */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-28 sm:h-36 pointer-events-none z-20"
+        style={{
+          backdropFilter: "blur(14px)",
+          WebkitBackdropFilter: "blur(14px)",
+          maskImage: "linear-gradient(to top, black 0%, rgba(0,0,0,0.5) 55%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to top, black 0%, rgba(0,0,0,0.5) 55%, transparent 100%)",
+          background: "linear-gradient(90deg, rgba(205, 233, 252, 0.88) 0%, rgba(196, 228, 180, 0.92) 40%, rgba(205, 233, 252, 0.88) 100%)",
+        }}
+      />
+
       {/* INTRO HEADER SECTION */}
-      <section className="relative text-slate-800 border-t border-slate-200/50 z-10">
+      <section className="relative text-slate-800 z-10">
         <div className="pt-14 pb-4 sm:pt-16 sm:pb-6 text-center max-w-4xl mx-auto px-6">
           <span className="font-mono text-[10.5px] uppercase tracking-[0.24em] text-cyan-700 font-semibold px-4 py-1.5 rounded-full border border-white/90 bg-[#FAFBFD]/90 inline-block mb-4 shadow-[4px_6px_14px_rgba(200,212,236,0.35),-4px_-4px_12px_rgba(255,255,255,0.9)] backdrop-blur-sm">
             · PLATFORM HIGHLIGHTS
