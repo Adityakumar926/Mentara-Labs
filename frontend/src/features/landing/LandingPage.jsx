@@ -676,7 +676,7 @@ function Hero() {
               </a>
             </div>
 
-            {/* ── DIAGNOSTIC TEST FEATURE CARD: "Discover Your Thinking Style" ── */}
+            {/* ── DIAGNOSTIC TEST FEATURE CARD: "Discover Your Thinking Style" (Pastel + Claymorphism) ── */}
             <div className="mt-6 max-w-[600px]">
               <button
                 type="button"
@@ -691,13 +691,13 @@ function Hero() {
                     ? '/discover-thinking-style'
                     : '/discover-thinking-style';
                 }}
-                className="group relative overflow-hidden w-full text-left rounded-[26px] px-4 py-3.5 sm:px-5 sm:py-4 transition-all duration-300 hover:scale-[1.015] active:scale-[0.99] border-[1.5px] border-[#BCD9F7]/90 backdrop-blur-md cursor-pointer flex items-center justify-between gap-3 sm:gap-4"
+                className="group relative overflow-hidden w-full text-left rounded-[28px] px-4 py-3.5 sm:px-5 sm:py-4 transition-all duration-300 hover:scale-[1.015] active:scale-[0.99] border border-white/95 backdrop-blur-md cursor-pointer flex items-center justify-between gap-3 sm:gap-4"
                 style={{
-                  background: "linear-gradient(115deg, rgba(246, 251, 255, 0.88) 0%, rgba(235, 246, 255, 0.84) 58%, rgba(218, 236, 254, 0.88) 100%)",
-                  boxShadow: "0 12px 28px -8px rgba(43, 136, 232, 0.16), 0 4px 12px rgba(59, 130, 246, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9)",
+                  background: "linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(243, 248, 255, 0.93) 52%, rgba(238, 240, 255, 0.95) 100%)",
+                  boxShadow: "12px 14px 30px rgba(186, 204, 232, 0.45), -6px -6px 20px rgba(255, 255, 255, 0.92), inset 0 2.5px 5px rgba(255, 255, 255, 0.95), inset 0 -4px 8px rgba(165, 180, 252, 0.22)",
                 }}
               >
-                {/* Decorative Right-Corner Soft Sky-Blue Wave Shapes */}
+                {/* Decorative Right-Corner Soft Pastel Clay Wave Shapes */}
                 <svg
                   className="absolute right-0 top-0 h-full w-48 sm:w-56 pointer-events-none select-none z-0"
                   viewBox="0 0 220 120"
@@ -707,15 +707,15 @@ function Hero() {
                 >
                   <path
                     d="M145 0 C175 22, 162 58, 128 82 C102 100, 88 112, 75 120 L220 120 L220 0 Z"
-                    fill="rgba(191, 220, 252, 0.42)"
+                    fill="rgba(186, 230, 253, 0.36)"
                   />
                   <path
                     d="M112 120 C124 98, 146 88, 168 96 C188 103, 202 88, 220 72 L220 120 Z"
-                    fill="rgba(147, 197, 253, 0.38)"
+                    fill="rgba(165, 180, 252, 0.3)"
                   />
                   <path
                     d="M136 120 C148 104, 168 98, 186 105 C200 110, 210 100, 220 88 L220 120 Z"
-                    fill="rgba(96, 165, 250, 0.36)"
+                    fill="rgba(196, 181, 253, 0.34)"
                   />
                 </svg>
 
@@ -731,32 +731,36 @@ function Hero() {
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <span
-                        className="text-[9.5px] sm:text-[10.5px] font-extrabold uppercase tracking-[0.06em] px-2.5 py-0.5 rounded-full text-[#356283]"
+                        className="font-mono-label text-[9.5px] sm:text-[10px] font-bold uppercase tracking-[0.08em] px-3 py-0.5 rounded-full text-indigo-600 border border-white/95"
                         style={{
-                          background: "rgba(210, 234, 253, 0.95)",
+                          background: "linear-gradient(135deg, #FFFFFF 0%, #EEF6FF 50%, #F3EFFE 100%)",
+                          boxShadow: "0 4px 10px rgba(148, 163, 184, 0.16), inset 0 2px 3px rgba(255, 255, 255, 0.95), inset 0 -2px 3px rgba(129, 140, 248, 0.14)",
                         }}
                       >
                         8-Level Diagnostic Test
                       </span>
                     </div>
-                    <div className="font-doodle text-base sm:text-[19px] font-extrabold text-[#0F172A] mt-1 tracking-tight leading-tight group-hover:text-[#1E40AF] transition-colors">
+                    <div className="font-doodle text-base sm:text-[19px] font-bold text-slate-800 mt-1 tracking-tight leading-tight group-hover:text-indigo-600 transition-colors">
                       Discover Your Thinking Style
                     </div>
-                    <div className="text-[11.5px] sm:text-[12.5px] font-medium text-[#4B5E71] mt-0.5 leading-snug">
-                      Conceptualised and crafted by <span className="text-[#334155] font-bold">Ms. Sakshi Srivastava</span>
+                    <div className="text-[11.5px] sm:text-[12.5px] font-medium text-slate-600 mt-0.5 leading-snug">
+                      Conceptualised and crafted by{" "}
+                      <span className="bg-gradient-to-r from-sky-500 via-indigo-500 to-purple-500 bg-clip-text text-transparent font-bold">
+                        Ms. Sakshi Srivastava
+                      </span>
                     </div>
-                    <div className="text-[11px] sm:text-[11.5px] font-medium text-[#5A6E82] mt-0.5 leading-snug">
+                    <div className="text-[11px] sm:text-[11.5px] font-semibold text-emerald-600/90 mt-0.5 leading-snug">
                       B.Sc. Psychology · B.Ed. · Child Educator
                     </div>
                   </div>
                 </div>
 
-                {/* Right Pill CTA Button */}
+                {/* Right Pastel Claymorphic Pill CTA Button (matching Explore MentP clay style) */}
                 <div
-                  className="relative z-10 shrink-0 inline-flex items-center gap-1.5 px-4 py-2.5 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-[13px] font-semibold text-white transition-all duration-300 group-hover:translate-x-0.5"
+                  className="relative z-10 shrink-0 inline-flex items-center justify-center px-5 py-2.5 sm:px-6 sm:py-2.5 rounded-full text-xs sm:text-[13.5px] font-semibold text-white transition-all duration-300 group-hover:scale-[1.03]"
                   style={{
-                    background: "linear-gradient(95deg, #2B88E8 0%, #3E6AE8 50%, #5842F4 100%)",
-                    boxShadow: "0 8px 18px -4px rgba(59, 106, 232, 0.45), inset 0 1.5px 2px rgba(255, 255, 255, 0.35)",
+                    background: "linear-gradient(135deg, #60A5FA 0%, #818CF8 50%, #C084FC 100%)",
+                    boxShadow: "0 10px 22px rgba(129, 140, 248, 0.35), inset 0 2px 4px rgba(255, 255, 255, 0.45), inset 0 -3px 4px rgba(79, 70, 229, 0.2)",
                   }}
                 >
                   <span>Start</span>
