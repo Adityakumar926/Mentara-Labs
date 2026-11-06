@@ -554,11 +554,17 @@ function Hero() {
       data-testid="hero-section" 
       className="relative pt-16 pb-12 sm:pt-20 sm:pb-16 lg:pt-24 lg:pb-16 overflow-hidden flex items-center min-h-[640px] lg:min-h-[720px]"
       style={{
-        background: "linear-gradient(90deg, #CDE9FC 0%, #C4E4B4 52%, #CDE9FC 100%)",
+        background: "linear-gradient(90deg, #D2ECFC 0%, #D4EEDD 20%, #D7F0E2 50%, #D4EEDD 80%, #D2ECFC 100%)",
       }}
     >
       {/* ── HERO ARTWORK: Complete uncropped fit with cute reading robot in blue sky landscape ── */}
-      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden flex items-end justify-center">
+      <div
+        className="absolute inset-0 pointer-events-none z-0 overflow-hidden flex items-end justify-center"
+        style={{
+          maskImage: "linear-gradient(to bottom, black 0%, black 82%, rgba(0,0,0,0.45) 92%, transparent 99%)",
+          WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 82%, rgba(0,0,0,0.45) 92%, transparent 99%)",
+        }}
+      >
         <video
           autoPlay
           loop
@@ -576,20 +582,17 @@ function Hero() {
           }}
         />
 
-        {/* Seamless Green + Blue Gradient & Blur Blend at bottom of Hero */}
+        {/* Soft Feather Blur across the bottom fade zone */}
         <div 
-          className="absolute inset-x-0 bottom-0 h-28 sm:h-36 pointer-events-none z-10"
+          className="absolute inset-x-0 bottom-0 h-24 sm:h-28 pointer-events-none z-10"
           style={{
-            backdropFilter: "blur(14px)",
-            WebkitBackdropFilter: "blur(14px)",
-            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.45) 45%, black 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.45) 45%, black 100%)",
-            background: "linear-gradient(90deg, rgba(205, 233, 252, 0.88) 0%, rgba(196, 228, 180, 0.92) 50%, rgba(205, 233, 252, 0.88) 100%)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 55%, transparent 98%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 55%, transparent 98%)",
           }}
         />
       </div>
-
-
 
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 relative z-20 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
@@ -988,7 +991,7 @@ function FeaturesBento() {
       data-testid="features-section" 
       className="relative pt-8 pb-10 sm:py-14 lg:py-20 [perspective:1400px] overflow-hidden"
       style={{
-        background: "linear-gradient(180deg, #C4E4B4 0%, #CDE9FC 22%, #FAF9F6 100%)",
+        background: "linear-gradient(90deg, #D2ECFC 0%, #D4EEDD 20%, #D7F0E2 50%, #D4EEDD 80%, #D2ECFC 100%)",
       }}
     >
       {/* ── BACKGROUND IMAGE (img_2): Platform Features Section ── */}
@@ -998,31 +1001,29 @@ function FeaturesBento() {
           alt="Platform Features Background"
           className="w-full h-full object-cover object-center"
           style={{
-            maskImage: "linear-gradient(to bottom, black 0%, black 86%, rgba(0,0,0,0.4) 95%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, black 0%, black 86%, rgba(0,0,0,0.4) 95%, transparent 100%)",
+            maskImage: "linear-gradient(to bottom, transparent 1%, rgba(0,0,0,0.45) 8%, black 16%, black 84%, rgba(0,0,0,0.45) 92%, transparent 99%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 1%, rgba(0,0,0,0.45) 8%, black 16%, black 84%, rgba(0,0,0,0.45) 92%, transparent 99%)",
           }}
         />
-        {/* Seamless Green + Blue Gradient & Blur Blend at top of Features */}
+        {/* Soft Feather Blur across top fade-in zone */}
         <div 
-          className="absolute inset-x-0 top-0 h-28 sm:h-36 pointer-events-none z-10"
+          className="absolute inset-x-0 top-0 h-24 sm:h-28 pointer-events-none z-10"
           style={{
-            backdropFilter: "blur(14px)",
-            WebkitBackdropFilter: "blur(14px)",
-            maskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.45) 55%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.45) 55%, transparent 100%)",
-            background: "linear-gradient(90deg, rgba(205, 233, 252, 0.88) 0%, rgba(196, 228, 180, 0.92) 50%, rgba(205, 233, 252, 0.88) 100%)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            maskImage: "linear-gradient(to bottom, transparent 2%, rgba(0,0,0,0.7) 45%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 2%, rgba(0,0,0,0.7) 45%, transparent 100%)",
           }}
         />
 
-        {/* Seamless Green + Blue Gradient & Blur Blend at bottom of Features */}
+        {/* Soft Feather Blur across bottom fade-out zone */}
         <div 
-          className="absolute inset-x-0 bottom-0 h-28 sm:h-36 pointer-events-none z-10"
+          className="absolute inset-x-0 bottom-0 h-24 sm:h-28 pointer-events-none z-10"
           style={{
-            backdropFilter: "blur(14px)",
-            WebkitBackdropFilter: "blur(14px)",
-            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.45) 45%, black 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.45) 45%, black 100%)",
-            background: "linear-gradient(90deg, rgba(205, 233, 252, 0.88) 0%, rgba(196, 228, 180, 0.92) 50%, rgba(205, 233, 252, 0.88) 100%)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            maskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 55%, transparent 98%)",
+            WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.7) 55%, transparent 98%)",
           }}
         />
       </div>
@@ -1969,19 +1970,22 @@ function Pricing() {
   ];
 
   return (
-    <section id="pricing" data-testid="pricing-section" className="relative z-20 pt-14 sm:pt-20 pb-16 overflow-hidden" style={{ background: "linear-gradient(180deg, rgba(205,233,252,0.55) 0%, #F4F6FC 220px, #F4F6FC 100%)" }}>
-      {/* Top Green + Blue Gradient & Blur Seam blending Platform Highlights into Pricing */}
+    <section
+      id="pricing"
+      data-testid="pricing-section"
+      className="relative z-20 pt-14 sm:pt-20 pb-16 overflow-hidden"
+      style={{
+        background: "linear-gradient(90deg, #D2ECFC 0%, #D4EEDD 20%, #D7F0E2 50%, #D4EEDD 80%, #D2ECFC 100%)",
+      }}
+    >
+      {/* Smooth vertical fade from the seamless Green+Blue top border into #F4F6FC */}
       <div
-        className="absolute inset-x-0 top-0 h-36 sm:h-48 pointer-events-none z-0"
+        className="absolute inset-0 pointer-events-none z-0"
         style={{
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-          maskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.55) 50%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.55) 50%, transparent 100%)",
-          background: "linear-gradient(90deg, rgba(205, 233, 252, 0.92) 0%, rgba(196, 228, 180, 0.94) 40%, rgba(205, 233, 252, 0.92) 100%)",
+          background: "linear-gradient(180deg, rgba(244, 246, 252, 0) 0px, rgba(244, 246, 252, 0.72) 55px, #F4F6FC 125px, #F4F6FC 100%)",
         }}
       />
-      <div className="max-w-[1480px] mx-auto px-6 lg:px-12">
+      <div className="relative z-10 max-w-[1480px] mx-auto px-6 lg:px-12">
         <div className="relative z-10 max-w-2xl mb-10">
           <span className="font-mono-label text-[10.5px] uppercase tracking-[0.24em] text-emerald-700 font-semibold px-4 py-1.5 rounded-full neu-pill bg-[#FAFBFD] border border-white/90 inline-block mb-3.5">
             · PRICING PLANS

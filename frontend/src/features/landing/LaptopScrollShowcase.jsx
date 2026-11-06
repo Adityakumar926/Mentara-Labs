@@ -171,11 +171,17 @@ export default function LaptopScrollShowcase() {
     <div
       className="relative"
       style={{
-        background: "linear-gradient(90deg, #CDE9FC 0%, #C4E4B4 50%, #CDE9FC 100%)",
+        background: "linear-gradient(90deg, #D2ECFC 0%, #D4EEDD 20%, #D7F0E2 50%, #D4EEDD 80%, #D2ECFC 100%)",
       }}
     >
       {/* ── BACKGROUND LAYER (img_3): Sticky during showcase scroll, then scrolls UP naturally with the section at the end ── */}
-      <div className="absolute inset-0 pointer-events-none z-0">
+      <div
+        className="absolute inset-0 pointer-events-none z-0"
+        style={{
+          maskImage: "linear-gradient(to bottom, transparent 0px, rgba(0,0,0,0.5) 42px, black 105px, black calc(100% - 105px), rgba(0,0,0,0.5) calc(100% - 42px), transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, transparent 0px, rgba(0,0,0,0.5) 42px, black 105px, black calc(100% - 105px), rgba(0,0,0,0.5) calc(100% - 42px), transparent 100%)",
+        }}
+      >
         <div className="sticky top-0 h-screen w-full overflow-hidden">
           <img
             src="/img_3.png"
@@ -185,27 +191,25 @@ export default function LaptopScrollShowcase() {
         </div>
       </div>
 
-      {/* Seamless Green + Blue Gradient & Blur Blend at top of Showcase (scrolls naturally with top seam) */}
+      {/* Soft Feather Blur across top fade-in zone */}
       <div
-        className="absolute inset-x-0 top-0 h-28 sm:h-36 pointer-events-none z-20"
+        className="absolute inset-x-0 top-0 h-24 sm:h-28 pointer-events-none z-20"
         style={{
-          backdropFilter: "blur(14px)",
-          WebkitBackdropFilter: "blur(14px)",
-          maskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.45) 55%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(to bottom, black 0%, rgba(0,0,0,0.45) 55%, transparent 100%)",
-          background: "linear-gradient(90deg, rgba(205, 233, 252, 0.88) 0%, rgba(196, 228, 180, 0.92) 50%, rgba(205, 233, 252, 0.88) 100%)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          maskImage: "linear-gradient(to bottom, transparent 2%, rgba(0,0,0,0.7) 45%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, transparent 2%, rgba(0,0,0,0.7) 45%, transparent 100%)",
         }}
       />
 
-      {/* Seamless Green + Blue Gradient & Blur Blend at bottom of Showcase (scrolls naturally with bottom seam into Pricing) */}
+      {/* Soft Feather Blur across bottom fade-out zone */}
       <div
-        className="absolute inset-x-0 bottom-0 h-28 sm:h-36 pointer-events-none z-20"
+        className="absolute inset-x-0 bottom-0 h-24 sm:h-28 pointer-events-none z-20"
         style={{
-          backdropFilter: "blur(14px)",
-          WebkitBackdropFilter: "blur(14px)",
-          maskImage: "linear-gradient(to top, black 0%, rgba(0,0,0,0.5) 55%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(to top, black 0%, rgba(0,0,0,0.5) 55%, transparent 100%)",
-          background: "linear-gradient(90deg, rgba(205, 233, 252, 0.88) 0%, rgba(196, 228, 180, 0.92) 40%, rgba(205, 233, 252, 0.88) 100%)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          maskImage: "linear-gradient(to top, transparent 2%, rgba(0,0,0,0.7) 45%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to top, transparent 2%, rgba(0,0,0,0.7) 45%, transparent 100%)",
         }}
       />
 
