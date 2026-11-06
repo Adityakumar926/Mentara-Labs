@@ -722,7 +722,7 @@ function Hero() {
                 <div className="relative z-10 flex items-center gap-3.5 sm:gap-4 min-w-0">
                   {/* Left Brain Mascot PNG (no box, no border, no background) */}
                   <img
-                    src="/Smiling Orange Brain Mascot (1).png"
+                    src="/Cute Pastel Brain Character (1).png"
                     alt="Discover Your Thinking Style"
                     className="w-14 h-14 sm:w-[56px] sm:h-[56px] scale-[1.45] sm:scale-[1.55] object-contain shrink-0 select-none"
                   />
