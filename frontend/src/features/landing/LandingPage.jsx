@@ -657,7 +657,6 @@ function Hero() {
                 }}
               >
                 <span>Explore MentP</span>
-                <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </Link>
               <a
                 href="#features"
@@ -721,16 +720,12 @@ function Hero() {
                 </svg>
 
                 <div className="relative z-10 flex items-center gap-3.5 sm:gap-4 min-w-0">
-                  {/* Left Rounded Sky-Blue Compass Box */}
-                  <div
-                    className="w-14 h-14 sm:w-[56px] sm:h-[56px] rounded-[18px] flex items-center justify-center shrink-0 text-white"
-                    style={{
-                      background: "linear-gradient(160deg, #5BB8FA 0%, #3298F2 55%, #1E80E3 100%)",
-                      boxShadow: "0 8px 18px -4px rgba(45, 142, 238, 0.42), inset 0 1.5px 2px rgba(255, 255, 255, 0.45)",
-                    }}
-                  >
-                    <img src="/icon_frontend.png" alt="Discover Your Thinking Style" className="w-9 h-9 sm:w-10 sm:h-10 object-contain drop-shadow-sm select-none" />
-                  </div>
+                  {/* Left Brain Mascot PNG (no box, no border, no background) */}
+                  <img
+                    src="/Smiling Orange Brain Mascot (1).png"
+                    alt="Discover Your Thinking Style"
+                    className="w-14 h-14 sm:w-[56px] sm:h-[56px] scale-[1.45] sm:scale-[1.55] object-contain shrink-0 select-none"
+                  />
 
                   {/* Center Text Content */}
                   <div className="min-w-0">
@@ -764,8 +759,7 @@ function Hero() {
                     boxShadow: "0 8px 18px -4px rgba(59, 106, 232, 0.45), inset 0 1.5px 2px rgba(255, 255, 255, 0.35)",
                   }}
                 >
-                  <span>Start Test</span>
-                  <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.2]" />
+                  <span>Start</span>
                 </div>
               </button>
             </div>
