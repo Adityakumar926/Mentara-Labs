@@ -675,61 +675,94 @@ function Hero() {
             </div>
 
             {/* ── DIAGNOSTIC TEST FEATURE CARD: "Discover Your Thinking Style" ── */}
-            <div className="mt-6 max-w-xl">
+            <div className="mt-6 max-w-[600px]">
               <button
                 type="button"
                 data-testid="hero-discover-thinking-style-btn"
                 onClick={() => {
                   try {
-                    sessionStorage.setItem('mentara_post_auth_redirect', '/discover-thinking-style');
+                    localStorage.removeItem('mentara_compass_pending_report');
                   } catch (e) {
                     // ignore
                   }
                   window.location.href = localStorage.getItem('accessToken')
                     ? '/discover-thinking-style'
-                    : '/register?redirect=/discover-thinking-style';
+                    : '/discover-thinking-style';
                 }}
-                className="group w-full text-left rounded-2xl p-4 sm:p-4.5 transition-all duration-300 hover:scale-[1.015] active:scale-[0.99] border border-purple-200/90 bg-white/95 backdrop-blur-md shadow-md hover:shadow-xl cursor-pointer flex items-center justify-between gap-3.5"
+                className="group relative overflow-hidden w-full text-left rounded-[26px] px-4 py-3.5 sm:px-5 sm:py-4 transition-all duration-300 hover:scale-[1.015] active:scale-[0.99] border-[1.5px] border-[#BCD9F7]/90 backdrop-blur-md cursor-pointer flex items-center justify-between gap-3 sm:gap-4"
                 style={{
-                  boxShadow: "0 12px 30px -6px rgba(124, 58, 237, 0.16), inset 0 1px 0 rgba(255, 255, 255, 1)",
+                  background: "linear-gradient(115deg, rgba(246, 251, 255, 0.88) 0%, rgba(235, 246, 255, 0.84) 58%, rgba(218, 236, 254, 0.88) 100%)",
+                  boxShadow: "0 12px 28px -8px rgba(43, 136, 232, 0.16), 0 4px 12px rgba(59, 130, 246, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9)",
                 }}
               >
-                <div className="flex items-start sm:items-center gap-3.5 min-w-0">
+                {/* Decorative Right-Corner Soft Sky-Blue Wave Shapes */}
+                <svg
+                  className="absolute right-0 top-0 h-full w-48 sm:w-56 pointer-events-none select-none z-0"
+                  viewBox="0 0 220 120"
+                  fill="none"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M145 0 C175 22, 162 58, 128 82 C102 100, 88 112, 75 120 L220 120 L220 0 Z"
+                    fill="rgba(191, 220, 252, 0.42)"
+                  />
+                  <path
+                    d="M112 120 C124 98, 146 88, 168 96 C188 103, 202 88, 220 72 L220 120 Z"
+                    fill="rgba(147, 197, 253, 0.38)"
+                  />
+                  <path
+                    d="M136 120 C148 104, 168 98, 186 105 C200 110, 210 100, 220 88 L220 120 Z"
+                    fill="rgba(96, 165, 250, 0.36)"
+                  />
+                </svg>
+
+                <div className="relative z-10 flex items-center gap-3.5 sm:gap-4 min-w-0">
+                  {/* Left Rounded Sky-Blue Compass Box */}
                   <div
-                    className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-white shadow-sm"
+                    className="w-14 h-14 sm:w-[56px] sm:h-[56px] rounded-[18px] flex items-center justify-center shrink-0 text-white"
                     style={{
-                      background: "linear-gradient(135deg, #7C3AED 0%, #6366F1 55%, #0284C7 100%)",
-                      boxShadow: "0 6px 16px rgba(124, 58, 237, 0.3)",
+                      background: "linear-gradient(160deg, #5BB8FA 0%, #3298F2 55%, #1E80E3 100%)",
+                      boxShadow: "0 8px 18px -4px rgba(45, 142, 238, 0.42), inset 0 1.5px 2px rgba(255, 255, 255, 0.45)",
                     }}
                   >
-                    <span className="text-xl" aria-hidden="true">🧭</span>
+                    <img src="/icon_frontend.png" alt="Discover Your Thinking Style" className="w-9 h-9 sm:w-10 sm:h-10 object-contain drop-shadow-sm select-none" />
                   </div>
+
+                  {/* Center Text Content */}
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 border border-purple-200">
+                      <span
+                        className="text-[9.5px] sm:text-[10.5px] font-extrabold uppercase tracking-[0.06em] px-2.5 py-0.5 rounded-full text-[#356283]"
+                        style={{
+                          background: "rgba(210, 234, 253, 0.95)",
+                        }}
+                      >
                         8-Level Diagnostic Test
                       </span>
                     </div>
-                    <div className="font-doodle text-base sm:text-lg font-extrabold text-slate-900 mt-0.5 group-hover:text-purple-700 transition-colors">
+                    <div className="font-doodle text-base sm:text-[19px] font-extrabold text-[#0F172A] mt-1 tracking-tight leading-tight group-hover:text-[#1E40AF] transition-colors">
                       Discover Your Thinking Style
                     </div>
-                    <div className="text-[11.5px] sm:text-xs font-semibold text-slate-700 mt-0.5 leading-snug">
-                      Conceptualised and crafted by <span className="text-purple-800 font-bold">Ms. Sakshi Srivastava</span>
+                    <div className="text-[11.5px] sm:text-[12.5px] font-medium text-[#4B5E71] mt-0.5 leading-snug">
+                      Conceptualised and crafted by <span className="text-[#334155] font-bold">Ms. Sakshi Srivastava</span>
                     </div>
-                    <div className="text-[11px] font-medium text-emerald-700 leading-snug">
+                    <div className="text-[11px] sm:text-[11.5px] font-medium text-[#5A6E82] mt-0.5 leading-snug">
                       B.Sc. Psychology · B.Ed. · Child Educator
                     </div>
                   </div>
                 </div>
+
+                {/* Right Pill CTA Button */}
                 <div
-                  className="shrink-0 inline-flex items-center gap-1 px-3.5 py-2 rounded-full text-xs font-bold text-white transition-transform group-hover:translate-x-0.5"
+                  className="relative z-10 shrink-0 inline-flex items-center gap-1.5 px-4 py-2.5 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-[13px] font-semibold text-white transition-all duration-300 group-hover:translate-x-0.5"
                   style={{
-                    background: "linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%)",
-                    boxShadow: "0 4px 12px rgba(124, 58, 237, 0.25)",
+                    background: "linear-gradient(95deg, #2B88E8 0%, #3E6AE8 50%, #5842F4 100%)",
+                    boxShadow: "0 8px 18px -4px rgba(59, 106, 232, 0.45), inset 0 1.5px 2px rgba(255, 255, 255, 0.35)",
                   }}
                 >
                   <span>Start Test</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
+                  <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.2]" />
                 </div>
               </button>
             </div>

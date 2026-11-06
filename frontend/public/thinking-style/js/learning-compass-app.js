@@ -76,13 +76,39 @@ export const CompassApp = {
     if (!isNaN(requestedLevel) && requestedLevel >= 1 && requestedLevel <= 8) {
       this.renderMissionScreen(requestedLevel - 1);
     } else if (isReportRequested || testProfileKey) {
+      let restoredFromStorage = false;
+      if (!testProfileKey) {
+        try {
+          const savedRaw = localStorage.getItem('mentara_compass_completed_state');
+          if (savedRaw) {
+            const saved = JSON.parse(savedRaw);
+            if (saved && saved.answers && Object.keys(saved.answers).length > 0) {
+              const urlName = params.get('name') ? params.get('name').trim() : '';
+              this.state.childName =
+                saved.childName && saved.childName !== 'Alex'
+                  ? saved.childName
+                  : urlName || saved.childName || 'Explorer';
+              this.state.stage = saved.stage || this.state.stage;
+              this.state.ageBand = saved.ageBand || this.state.ageBand;
+              this.state.answers = { ...saved.answers };
+              this.state.confidences = { ...(saved.confidences || {}) };
+              this.state.reflections = { ...(saved.reflections || {}) };
+              this.state.latencies = { ...(saved.latencies || {}) };
+              restoredFromStorage = true;
+            }
+          }
+        } catch (e) {
+          console.warn('Could not restore saved compass state:', e);
+        }
+      }
+
       if (testProfileKey && ReportEngine.TEST_PROFILES[testProfileKey]) {
         const p = ReportEngine.TEST_PROFILES[testProfileKey];
         this.state.childName = p.childName;
         this.state.stage = p.stage;
         this.state.ageBand = p.ageBand;
         this.state.answers = { ...p.answers };
-      } else if (Object.keys(this.state.answers).length === 0) {
+      } else if (!restoredFromStorage && Object.keys(this.state.answers).length === 0) {
         // Load default completed test profile for immediate preview
         const p = ReportEngine.TEST_PROFILES['profile-a'];
         this.state.childName = p.childName;
@@ -90,7 +116,7 @@ export const CompassApp = {
         this.state.ageBand = p.ageBand;
         this.state.answers = { ...p.answers };
       }
-      this.renderFinalReport();
+      this.handleRevealReportClick();
     } else {
       // Start with Intro Screen
       this.renderIntroScreen();
@@ -696,6 +722,11 @@ export const CompassApp = {
      4. MISSION TRANSITION & CELEBRATION
      ========================================================================== */
   renderMissionTransition(completedMission) {
+    try {
+      localStorage.setItem('mentara_compass_completed_state', JSON.stringify(this.state));
+    } catch (e) {
+      // ignore storage errors
+    }
     const isFinalMission = completedMission.index >= EIGHT_MISSIONS.length;
     const nextMission = !isFinalMission ? EIGHT_MISSIONS[completedMission.index] : null;
 
@@ -766,9 +797,54 @@ export const CompassApp = {
       if (nextMission) {
         this.renderMissionScreen(completedMission.index);
       } else {
-        this.renderFinalReport();
+        this.handleRevealReportClick();
       }
     });
+  },
+
+  handleRevealReportClick() {
+    try {
+      localStorage.setItem('mentara_compass_completed_state', JSON.stringify(this.state));
+    } catch (e) {
+      // ignore storage errors
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    let hasAuth = params.get('authed') === '1';
+    try {
+      if (window.top?.localStorage?.getItem('accessToken') || localStorage.getItem('accessToken')) {
+        hasAuth = true;
+      }
+    } catch (e) {
+      // ignore cross-frame storage errors
+    }
+
+    if (!hasAuth) {
+      try {
+        localStorage.setItem('mentara_compass_pending_report', '1');
+        localStorage.setItem('mentara_post_auth_redirect', '/discover-thinking-style?report=1');
+        sessionStorage.setItem('mentara_post_auth_redirect', '/discover-thinking-style?report=1');
+      } catch (e) {
+        // ignore
+      }
+
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({
+            type: 'COMPASS_REQUIRE_AUTH_FOR_REPORT',
+            payload: this.state
+          }, '*');
+          return;
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      window.top.location.href = '/register?redirect=' + encodeURIComponent('/discover-thinking-style?report=1');
+      return;
+    }
+
+    this.renderFinalReport();
   },
 
   /* ==========================================================================
@@ -1369,7 +1445,7 @@ export const CompassApp = {
 
       document.getElementById('btn-modal-early-report').addEventListener('click', () => {
         modal.style.display = 'none';
-        this.renderFinalReport();
+        this.handleRevealReportClick();
       });
     }
 

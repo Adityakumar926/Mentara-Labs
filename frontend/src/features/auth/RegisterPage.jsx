@@ -24,9 +24,9 @@ export default function RegisterPage() {
   }, [queryRedirect]);
 
   const navigateAfterAuth = (user) => {
-    const target = queryRedirect || sessionStorage.getItem('mentara_post_auth_redirect');
+    const target = queryRedirect || sessionStorage.getItem('mentara_post_auth_redirect') || localStorage.getItem('mentara_post_auth_redirect');
     if (target) {
-      sessionStorage.removeItem('mentara_post_auth_redirect');
+      sessionStorage.removeItem('mentara_post_auth_redirect'); localStorage.removeItem('mentara_post_auth_redirect');
       navigate(target);
       return;
     }

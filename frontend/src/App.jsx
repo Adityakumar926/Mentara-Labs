@@ -224,6 +224,7 @@ export default function App() {
           <Route path="/"        element={<LandingPage />} />
           <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="/terms"   element={<TermsOfServicePage />} />
+          <Route path="/discover-thinking-style" element={<LearningCompassPage />} />
 
           {/* ── Auth ──────────────────────────────────────────────────────── */}
           <Route element={<AuthLayout />}>
@@ -297,7 +298,7 @@ export default function App() {
           <Route element={<ProtectedRoute role={['student', 'teacher', 'admin']} />}>
             <Route path="/exams/:id/take"          element={<ExamTakePage />} />
             <Route path="/exams/:id/result"        element={<ResultPage />} />
-            <Route path="/discover-thinking-style" element={<LearningCompassPage />} />
+            <Route path="/student/learning-compass" element={<LearningCompassPage />} />
             <Route path="/student/learning-compass" element={<LearningCompassPage />} />
           </Route>
 
