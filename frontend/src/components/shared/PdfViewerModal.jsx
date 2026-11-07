@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, Maximize2, Minimize2, Loader2,
@@ -63,8 +63,17 @@ export default function PdfViewerModal({ open, onClose, pdfUrl, title = "Cambrid
   const [brushSize, setBrushSize] = useState(4);
   const [strokes, setStrokes] = useState([]);
   const [redoStrokes, setRedoStrokes] = useState([]);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [currentStroke, setCurrentStroke] = useState(null);
+
+  // Refs for lag-free, bug-free drawing & scroll locking
+  const isDrawingRef = useRef(false);
+  const currentStrokeRef = useRef(null);
+  const strokesRef = useRef([]);
+  const activePointerIdRef = useRef(null);
+  const lockedScrollPosRef = useRef({ top: 0, left: 0 });
+
+  useEffect(() => {
+    strokesRef.current = strokes;
+  }, [strokes]);
 
   // ── Phase 1: Load PDF bytes and parse ──────────────────────────────────────
   useEffect(() => {
@@ -77,7 +86,12 @@ export default function PdfViewerModal({ open, onClose, pdfUrl, title = "Cambrid
     setCurrentPage(1);
     setZoom(1.0);
     setPdfReady(false);
+    setDrawMode(false);
     pdfDocRef.current = null;
+    isDrawingRef.current = false;
+    currentStrokeRef.current = null;
+    strokesRef.current = [];
+    activePointerIdRef.current = null;
     setStrokes([]);
     setRedoStrokes([]);
 
@@ -170,7 +184,6 @@ export default function PdfViewerModal({ open, onClose, pdfUrl, title = "Cambrid
         container.appendChild(pageCard);
       }
 
-
       if (!isMounted) return;
       setLoading(false);
       setCurrentPage(1);
@@ -206,33 +219,13 @@ export default function PdfViewerModal({ open, onClose, pdfUrl, title = "Cambrid
     el.style.marginBottom = `${naturalHeight * (zoom - 1)}px`;
   }, [zoom, loading]);
 
-  // ── Sync draw canvas size to the pages wrapper ─────────────────────────────
-  useEffect(() => {
-    if (!open || !canvasRef.current || !pagesWrapRef.current) return;
-
-    const sync = () => {
-      if (!canvasRef.current || !pagesWrapRef.current) return;
-      const w = pagesWrapRef.current.scrollWidth;
-      const h = pagesWrapRef.current.scrollHeight;
-      if (canvasRef.current.width !== w || canvasRef.current.height !== h) {
-        canvasRef.current.width = w;
-        canvasRef.current.height = h;
-      }
-      drawAllStrokes();
-    };
-
-    sync();
-    const ro = new ResizeObserver(sync);
-    ro.observe(pagesWrapRef.current);
-    return () => ro.disconnect();
-  }, [drawMode, open, loading]);
-
-  const drawAllStrokes = () => {
+  const drawAllStrokes = useCallback(() => {
     if (!canvasRef.current) return;
     const ctx = canvasRef.current.getContext('2d');
     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 
-    const all = currentStroke ? [...strokes, currentStroke] : strokes;
+    const active = currentStrokeRef.current;
+    const all = active ? [...strokesRef.current, active] : strokesRef.current;
     all.forEach(stroke => {
       if (!stroke.points || stroke.points.length < 1) return;
       ctx.save();
@@ -256,15 +249,89 @@ export default function PdfViewerModal({ open, onClose, pdfUrl, title = "Cambrid
       }
 
       ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
-      for (let i = 1; i < stroke.points.length; i++) {
-        ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+      if (stroke.points.length === 1) {
+        ctx.lineTo(stroke.points[0].x + 0.1, stroke.points[0].y + 0.1);
+      } else {
+        for (let i = 1; i < stroke.points.length; i++) {
+          ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+        }
       }
       ctx.stroke();
       ctx.restore();
     });
-  };
+  }, []);
 
-  useEffect(() => { drawAllStrokes(); }, [strokes, currentStroke]);
+  // ── Sync draw canvas size to the pages wrapper ─────────────────────────────
+  useEffect(() => {
+    if (!open || loading || !canvasRef.current || !pagesWrapRef.current) return;
+
+    const sync = () => {
+      if (!canvasRef.current || !pagesWrapRef.current) return;
+      const w = pagesWrapRef.current.clientWidth || pagesWrapRef.current.scrollWidth;
+      const h = pagesWrapRef.current.scrollHeight;
+      if (w > 0 && h > 0 && (canvasRef.current.width !== w || canvasRef.current.height !== h)) {
+        canvasRef.current.width = w;
+        canvasRef.current.height = h;
+      }
+      drawAllStrokes();
+    };
+
+    sync();
+    const ro = new ResizeObserver(sync);
+    ro.observe(pagesWrapRef.current);
+    return () => ro.disconnect();
+  }, [open, loading, drawAllStrokes]);
+
+  useEffect(() => {
+    drawAllStrokes();
+  }, [strokes, drawAllStrokes]);
+
+  // ── Freeze PDF scrolling & movement completely when drawMode is ON ─────────
+  useEffect(() => {
+    const scrollEl = scrollRef.current;
+    if (!open || !scrollEl || !drawMode) return;
+
+    // Snapshot exact scroll position when entering draw mode
+    lockedScrollPosRef.current = {
+      top: scrollEl.scrollTop,
+      left: scrollEl.scrollLeft,
+    };
+
+    const preventWheelAndTouchScroll = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    };
+
+    const enforceLockedScroll = () => {
+      if (scrollEl.scrollTop !== lockedScrollPosRef.current.top) {
+        scrollEl.scrollTop = lockedScrollPosRef.current.top;
+      }
+      if (scrollEl.scrollLeft !== lockedScrollPosRef.current.left) {
+        scrollEl.scrollLeft = lockedScrollPosRef.current.left;
+      }
+    };
+
+    const preventScrollKeys = (e) => {
+      const scrollKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'PageUp', 'PageDown', 'Home', 'End', ' '];
+      if (scrollKeys.includes(e.key)) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+
+    scrollEl.addEventListener('wheel', preventWheelAndTouchScroll, { passive: false });
+    scrollEl.addEventListener('touchmove', preventWheelAndTouchScroll, { passive: false });
+    scrollEl.addEventListener('scroll', enforceLockedScroll, { passive: true });
+    window.addEventListener('keydown', preventScrollKeys, true);
+
+    return () => {
+      scrollEl.removeEventListener('wheel', preventWheelAndTouchScroll);
+      scrollEl.removeEventListener('touchmove', preventWheelAndTouchScroll);
+      scrollEl.removeEventListener('scroll', enforceLockedScroll);
+      window.removeEventListener('keydown', preventScrollKeys, true);
+    };
+  }, [open, drawMode]);
 
   // ── Right-click & keyboard protection ────────────────────────────────────
   useEffect(() => {
@@ -293,6 +360,59 @@ export default function PdfViewerModal({ open, onClose, pdfUrl, title = "Cambrid
     };
   }, [open]);
 
+  // ── Draw event handlers (Pointer Events: Pen Tablet, Stylus, Mouse, Touch) ──
+  const getCoords = (e) => {
+    if (!canvasRef.current) return { x: 0, y: 0 };
+    const rect = canvasRef.current.getBoundingClientRect();
+    const clientX = e.clientX ?? (e.touches?.[0] || e.changedTouches?.[0])?.clientX ?? 0;
+    const clientY = e.clientY ?? (e.touches?.[0] || e.changedTouches?.[0])?.clientY ?? 0;
+    const scaleX = canvasRef.current.width / (rect.width || 1);
+    const scaleY = canvasRef.current.height / (rect.height || 1);
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
+    };
+  };
+
+  const finishStroke = useCallback(() => {
+    if (!isDrawingRef.current || !currentStrokeRef.current) return;
+    const finished = currentStrokeRef.current;
+    isDrawingRef.current = false;
+    currentStrokeRef.current = null;
+    activePointerIdRef.current = null;
+    setStrokes(prev => {
+      const next = [...prev, finished];
+      strokesRef.current = next;
+      return next;
+    });
+    setRedoStrokes([]);
+  }, []);
+
+  // Global safety handlers for pointer release (DO NOT attach blur, as pen drivers trigger transient blur on pen touch!)
+  useEffect(() => {
+    if (!open || !drawMode) return;
+    const handleGlobalUp = (e) => {
+      if (isDrawingRef.current) {
+        if (activePointerIdRef.current !== null && e.pointerId !== undefined && e.pointerId !== activePointerIdRef.current) {
+          return;
+        }
+        finishStroke();
+      }
+    };
+
+    window.addEventListener('pointerup', handleGlobalUp);
+    window.addEventListener('pointercancel', handleGlobalUp);
+    window.addEventListener('mouseup', handleGlobalUp);
+    window.addEventListener('touchend', handleGlobalUp);
+
+    return () => {
+      window.removeEventListener('pointerup', handleGlobalUp);
+      window.removeEventListener('pointercancel', handleGlobalUp);
+      window.removeEventListener('mouseup', handleGlobalUp);
+      window.removeEventListener('touchend', handleGlobalUp);
+    };
+  }, [open, drawMode, finishStroke]);
+
   if (!open || !pdfUrl) return null;
 
   const toggleFullscreen = () => {
@@ -306,45 +426,73 @@ export default function PdfViewerModal({ open, onClose, pdfUrl, title = "Cambrid
     }
   };
 
-  // ── Draw event handlers ───────────────────────────────────────────────────
-  const getCoords = (e) => {
-    if (!canvasRef.current) return { x: 0, y: 0 };
-    const rect = canvasRef.current.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    const scaleX = canvasRef.current.width / (rect.width || 1);
-    const scaleY = canvasRef.current.height / (rect.height || 1);
-    return {
-      x: (clientX - rect.left) * scaleX,
-      y: (clientY - rect.top) * scaleY
-    };
-  };
-
-  const handleMouseDown = (e) => {
+  const handlePointerDown = (e) => {
     if (!drawMode) return;
+    // Allow primary button (0), pen tip (0 or -1), or touch (0 or -1). Reject right clicks (> 0).
+    if (e.button !== undefined && e.button > 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Critical for pen tablets: capture pointer so all penmove events stay routed to canvas
+    if (e.target && typeof e.target.setPointerCapture === 'function' && e.pointerId !== undefined) {
+      try {
+        e.target.setPointerCapture(e.pointerId);
+      } catch (_) {}
+    }
+
+    activePointerIdRef.current = e.pointerId;
+    isDrawingRef.current = true;
     const pt = getCoords(e);
-    setIsDrawing(true);
-    setCurrentStroke({ tool, color, size: brushSize, points: [pt] });
+    currentStrokeRef.current = { tool, color, size: brushSize, points: [pt] };
+    drawAllStrokes();
   };
 
-  const handleMouseMove = (e) => {
-    if (!isDrawing || !currentStroke) return;
-    const pt = getCoords(e);
-    setCurrentStroke(prev => ({ ...prev, points: [...prev.points, pt] }));
+  const handlePointerMove = (e) => {
+    if (!drawMode || !isDrawingRef.current || !currentStrokeRef.current) return;
+    if (activePointerIdRef.current !== null && e.pointerId !== undefined && e.pointerId !== activePointerIdRef.current) {
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Support coalesced events from high-frequency pen tablets (XP-Pen, Wacom, Huion, Apple Pencil)
+    const events = typeof e.getCoalescedEvents === 'function' ? e.getCoalescedEvents() : [e];
+    for (const ev of events) {
+      const pt = getCoords(ev);
+      currentStrokeRef.current.points.push(pt);
+    }
+    drawAllStrokes();
   };
 
-  const handleMouseUp = () => {
-    if (!isDrawing || !currentStroke) return;
-    setIsDrawing(false);
-    setStrokes(prev => [...prev, currentStroke]);
-    setCurrentStroke(null);
-    setRedoStrokes([]);
+  const handlePointerUp = (e) => {
+    if (!isDrawingRef.current) return;
+    if (activePointerIdRef.current !== null && e?.pointerId !== undefined && e.pointerId !== activePointerIdRef.current) {
+      return;
+    }
+
+    if (e && e.target && typeof e.target.releasePointerCapture === 'function' && e.pointerId !== undefined) {
+      try {
+        if (e.target.hasPointerCapture(e.pointerId)) {
+          e.target.releasePointerCapture(e.pointerId);
+        }
+      } catch (_) {}
+    }
+
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    finishStroke();
   };
 
   const handleUndo = () => {
     if (strokes.length === 0) return;
     const last = strokes[strokes.length - 1];
-    setStrokes(prev => prev.slice(0, -1));
+    setStrokes(prev => {
+      const next = prev.slice(0, -1);
+      strokesRef.current = next;
+      return next;
+    });
     setRedoStrokes(prev => [...prev, last]);
   };
 
@@ -352,18 +500,32 @@ export default function PdfViewerModal({ open, onClose, pdfUrl, title = "Cambrid
     if (redoStrokes.length === 0) return;
     const last = redoStrokes[redoStrokes.length - 1];
     setRedoStrokes(prev => prev.slice(0, -1));
-    setStrokes(prev => [...prev, last]);
+    setStrokes(prev => {
+      const next = [...prev, last];
+      strokesRef.current = next;
+      return next;
+    });
   };
 
   const handleClearAll = () => {
+    isDrawingRef.current = false;
+    currentStrokeRef.current = null;
+    activePointerIdRef.current = null;
+    strokesRef.current = [];
     setStrokes([]);
     setRedoStrokes([]);
-    setCurrentStroke(null);
+    drawAllStrokes();
     toast.success('Drawing canvas cleared');
   };
 
-  const zoomOut = () => setZoom(z => Math.max(0.5, Math.round((z - 0.1) * 10) / 10));
-  const zoomIn  = () => setZoom(z => Math.min(3.0, Math.round((z + 0.1) * 10) / 10));
+  const zoomOut = () => {
+    if (drawMode) return;
+    setZoom(z => Math.max(0.5, Math.round((z - 0.1) * 10) / 10));
+  };
+  const zoomIn = () => {
+    if (drawMode) return;
+    setZoom(z => Math.min(3.0, Math.round((z + 0.1) * 10) / 10));
+  };
 
   return (
     <AnimatePresence>
@@ -406,18 +568,25 @@ export default function PdfViewerModal({ open, onClose, pdfUrl, title = "Cambrid
                 type="button"
                 onClick={() => {
                   const next = !drawMode;
+                  if (!next && isDrawingRef.current) {
+                    finishStroke();
+                  }
                   setDrawMode(next);
-                  if (next) toast.success('Drawing Mode active!');
+                  if (next) {
+                    toast.success('Drawing Mode active — PDF page frozen for smooth drawing & pen writing!');
+                  } else {
+                    toast('Scroll Mode restored', { icon: '🖱️' });
+                  }
                 }}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${
                   drawMode
                     ? 'bg-cyan-500 text-black border-cyan-400 shadow-[0_0_15px_rgba(0,212,255,0.4)]'
                     : 'bg-white/5 text-zinc-300 border-white/10 hover:bg-white/10 hover:text-white'
                 }`}
-                title={drawMode ? 'Switch to Pointer Mode' : 'Enable Drawing Tool'}
+                title={drawMode ? 'Switch to Scroll / Pointer Mode' : 'Enable Drawing Tool (Freezes PDF Scroll)'}
               >
                 {drawMode ? <Paintbrush className="h-3.5 w-3.5" /> : <MousePointer className="h-3.5 w-3.5 text-cyan-400" />}
-                <span>{drawMode ? 'Drawing On' : 'Draw Tool'}</span>
+                <span>{drawMode ? 'Drawing On (Frozen)' : 'Draw Tool'}</span>
               </button>
 
               {/* Draw toolbar */}
@@ -452,16 +621,19 @@ export default function PdfViewerModal({ open, onClose, pdfUrl, title = "Cambrid
                 {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
               </button>
 
-              {/* Zoom Controls — 10% per step */}
+              {/* Zoom Controls — 10% per step (frozen while drawMode is active) */}
               {numPages > 0 && (
-                <div className="flex items-center gap-0.5 px-1.5 py-1 rounded-xl border border-white/10 bg-white/[0.03]">
-                  <button type="button" onClick={zoomOut} disabled={zoom <= 0.5} className="p-1 rounded-md text-zinc-400 hover:text-white disabled:opacity-30 transition-colors" title="Zoom Out (−10%)">
+                <div
+                  className={`flex items-center gap-0.5 px-1.5 py-1 rounded-xl border border-white/10 bg-white/[0.03] ${drawMode ? 'opacity-50' : ''}`}
+                  title={drawMode ? 'PDF is frozen while drawing — turn off Draw Tool to zoom' : undefined}
+                >
+                  <button type="button" onClick={zoomOut} disabled={drawMode || zoom <= 0.5} className="p-1 rounded-md text-zinc-400 hover:text-white disabled:opacity-30 transition-colors" title={drawMode ? 'Turn off Draw Tool to zoom' : 'Zoom Out (−10%)'}>
                     <ZoomOut className="h-3.5 w-3.5" />
                   </button>
-                  <button type="button" onClick={() => setZoom(1.0)} className="px-2 py-0.5 rounded text-[10px] font-mono font-bold text-zinc-300 hover:text-cyan-300 transition-colors min-w-[38px] text-center" title="Reset to 100%">
+                  <button type="button" onClick={() => !drawMode && setZoom(1.0)} disabled={drawMode} className="px-2 py-0.5 rounded text-[10px] font-mono font-bold text-zinc-300 hover:text-cyan-300 disabled:hover:text-zinc-300 transition-colors min-w-[38px] text-center" title={drawMode ? 'Turn off Draw Tool to reset zoom' : 'Reset to 100%'}>
                     {Math.round(zoom * 100)}%
                   </button>
-                  <button type="button" onClick={zoomIn} disabled={zoom >= 3.0} className="p-1 rounded-md text-zinc-400 hover:text-white disabled:opacity-30 transition-colors" title="Zoom In (+10%)">
+                  <button type="button" onClick={zoomIn} disabled={drawMode || zoom >= 3.0} className="p-1 rounded-md text-zinc-400 hover:text-white disabled:opacity-30 transition-colors" title={drawMode ? 'Turn off Draw Tool to zoom' : 'Zoom In (+10%)'}>
                     <ZoomIn className="h-3.5 w-3.5" />
                   </button>
                 </div>
@@ -480,10 +652,17 @@ export default function PdfViewerModal({ open, onClose, pdfUrl, title = "Cambrid
             </button>
           </div>
 
-          {/* ── Scroll area ────────────────────────────────────────────────── */}
+          {/* ── Scroll area (frozen when drawMode is active) ───────────────── */}
           <div
             ref={scrollRef}
-            className="flex-1 bg-zinc-950 overflow-y-auto overflow-x-hidden select-none custom-scrollbar"
+            className={`flex-1 bg-zinc-950 select-none custom-scrollbar ${
+              drawMode ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'
+            }`}
+            style={{
+              scrollbarGutter: 'stable',
+              touchAction: drawMode ? 'none' : 'pan-y',
+              overscrollBehavior: 'contain',
+            }}
             onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); return false; }}
           >
             {/* Loading state */}
@@ -523,15 +702,13 @@ export default function PdfViewerModal({ open, onClose, pdfUrl, title = "Cambrid
               {/* Pages rendered imperatively by Phase 2 */}
               <div ref={pagesContainerRef} className="flex flex-col items-center w-full" />
 
-              {/* Draw canvas — absolute, covers only this wrapper, not empty space */}
+              {/* Draw canvas — supports Pen Tablet, Stylus, Mouse, and Touch */}
               <canvas
                 ref={canvasRef}
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onTouchStart={handleMouseDown}
-                onTouchMove={handleMouseMove}
-                onTouchEnd={handleMouseUp}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={handlePointerUp}
                 style={{
                   position: 'absolute',
                   top: 0,
@@ -541,6 +718,9 @@ export default function PdfViewerModal({ open, onClose, pdfUrl, title = "Cambrid
                   zIndex: 20,
                   pointerEvents: drawMode ? 'auto' : 'none',
                   cursor: drawMode ? 'crosshair' : 'default',
+                  touchAction: 'none',
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none',
                 }}
               />
             </div>
