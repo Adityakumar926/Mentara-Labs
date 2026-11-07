@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  X, Maximize2, Minimize2, Loader2,
-  FileText, Lock, Sparkles, Pencil, Highlighter, Eraser, Undo2, Redo2, Trash2, MousePointer, Paintbrush,
-  ZoomIn, ZoomOut
+  Maximize2, Minimize2, Loader2,
+  FileText, Sparkles, Pencil, Highlighter, Eraser, Undo2, Redo2, Trash2,
+  ZoomIn, ZoomOut, ArrowLeft
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -388,7 +388,7 @@ export default function PdfViewerModal({ open, onClose, pdfUrl, title = "Cambrid
     setRedoStrokes([]);
   }, []);
 
-  // Global safety handlers for pointer release (DO NOT attach blur, as pen drivers trigger transient blur on pen touch!)
+  // Global safety handlers for pointer release (no blur listener to protect pen tablet drivers)
   useEffect(() => {
     if (!open || !drawMode) return;
     const handleGlobalUp = (e) => {
@@ -541,8 +541,8 @@ export default function PdfViewerModal({ open, onClose, pdfUrl, title = "Cambrid
           transition={{ duration: 0.25 }}
           className="relative w-full max-w-7xl h-[95vh] flex flex-col rounded-2xl border border-white/10 bg-zinc-950 text-zinc-100 shadow-[0_0_90px_rgba(0,0,0,0.9)] overflow-hidden select-none"
         >
-          {/* ── Toolbar ────────────────────────────────────────────────────── */}
-          <div className="flex items-center justify-between px-3 sm:px-5 py-2.5 border-b border-white/10 bg-zinc-900/95 backdrop-blur-md z-30 shrink-0 gap-2 flex-wrap">
+          {/* ── Top Header Toolbar ─────────────────────────────────────────── */}
+          <div className="flex items-center justify-between px-3 sm:px-5 py-2.5 border-b border-white/10 bg-zinc-900/95 backdrop-blur-md z-30 shrink-0 gap-2 overflow-x-auto custom-scrollbar">
             {/* Title */}
             <div className="flex items-center gap-2.5 shrink-0">
               <div className="h-8 w-8 rounded-xl border border-cyan-500/30 bg-cyan-500/10 flex items-center justify-center text-cyan-400 shrink-0">
@@ -562,36 +562,10 @@ export default function PdfViewerModal({ open, onClose, pdfUrl, title = "Cambrid
             </div>
 
             {/* Controls */}
-            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-              {/* Draw toggle */}
-              <button
-                type="button"
-                onClick={() => {
-                  const next = !drawMode;
-                  if (!next && isDrawingRef.current) {
-                    finishStroke();
-                  }
-                  setDrawMode(next);
-                  if (next) {
-                    toast.success('Drawing Mode active — PDF page frozen for smooth drawing & pen writing!');
-                  } else {
-                    toast('Scroll Mode restored', { icon: '🖱️' });
-                  }
-                }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${
-                  drawMode
-                    ? 'bg-cyan-500 text-black border-cyan-400 shadow-[0_0_15px_rgba(0,212,255,0.4)]'
-                    : 'bg-white/5 text-zinc-300 border-white/10 hover:bg-white/10 hover:text-white'
-                }`}
-                title={drawMode ? 'Switch to Scroll / Pointer Mode' : 'Enable Drawing Tool (Freezes PDF Scroll)'}
-              >
-                {drawMode ? <Paintbrush className="h-3.5 w-3.5" /> : <MousePointer className="h-3.5 w-3.5 text-cyan-400" />}
-                <span>{drawMode ? 'Drawing On (Frozen)' : 'Draw Tool'}</span>
-              </button>
-
-              {/* Draw toolbar */}
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              {/* Draw toolbar (visible when drawMode is ON) */}
               {drawMode && (
-                <div className="flex items-center gap-1 px-2 py-1 rounded-xl border border-cyan-500/30 bg-cyan-950/40 backdrop-blur-md">
+                <div className="flex items-center gap-1 px-2 py-1 rounded-xl border border-cyan-500/30 bg-cyan-950/40 backdrop-blur-md shrink-0">
                   <button type="button" onClick={() => setTool('pen')} className={`p-1.5 rounded-lg transition-colors ${tool === 'pen' ? 'bg-cyan-500/30 text-cyan-300 border border-cyan-400/50' : 'text-zinc-400 hover:text-white'}`} title="Pen"><Pencil className="h-3.5 w-3.5" /></button>
                   <button type="button" onClick={() => setTool('highlighter')} className={`p-1.5 rounded-lg transition-colors ${tool === 'highlighter' ? 'bg-yellow-500/30 text-yellow-300 border border-yellow-400/50' : 'text-zinc-400 hover:text-white'}`} title="Highlighter"><Highlighter className="h-3.5 w-3.5" /></button>
                   <button type="button" onClick={() => setTool('eraser')} className={`p-1.5 rounded-lg transition-colors ${tool === 'eraser' ? 'bg-rose-500/30 text-rose-300 border border-rose-400/50' : 'text-zinc-400 hover:text-white'}`} title="Eraser"><Eraser className="h-3.5 w-3.5" /></button>
@@ -645,11 +619,35 @@ export default function PdfViewerModal({ open, onClose, pdfUrl, title = "Cambrid
                   {currentPage} / {numPages}
                 </span>
               )}
-            </div>
 
-            <button type="button" onClick={onClose} className="p-2 rounded-full border border-white/10 bg-white/5 text-zinc-400 hover:text-white hover:bg-rose-500/20 hover:border-rose-500/40 transition-all ml-1" title="Close Reader">
-              <X className="h-4 w-4" />
-            </button>
+              {/* 
+                Draw toggle button — placed right where the exit cross used to be!
+                Text only: 'Draw On' / 'Draw Off'
+              */}
+              <button
+                type="button"
+                onClick={() => {
+                  const next = !drawMode;
+                  if (!next && isDrawingRef.current) {
+                    finishStroke();
+                  }
+                  setDrawMode(next);
+                  if (next) {
+                    toast.success('Draw Mode active — PDF page frozen for writing!');
+                  } else {
+                    toast('Draw Mode off — Scroll restored', { icon: '🖱️' });
+                  }
+                }}
+                className={`px-3.5 py-1.5 rounded-xl border text-xs font-bold transition-all shrink-0 select-none ${
+                  drawMode
+                    ? 'bg-cyan-500 text-black border-cyan-400 shadow-[0_0_15px_rgba(0,212,255,0.4)]'
+                    : 'bg-white/5 text-zinc-300 border-white/10 hover:bg-white/10 hover:text-white'
+                }`}
+                title={drawMode ? 'Click to switch Draw Off' : 'Click to switch Draw On (Freezes PDF for drawing)'}
+              >
+                {drawMode ? 'Draw On' : 'Draw Off'}
+              </button>
+            </div>
           </div>
 
           {/* ── Scroll area (frozen when drawMode is active) ───────────────── */}
@@ -726,14 +724,25 @@ export default function PdfViewerModal({ open, onClose, pdfUrl, title = "Cambrid
             </div>
           </div>
 
-          {/* Protected badge */}
-          <div
-            className="fixed top-16 right-6 z-40 h-9 px-3 bg-zinc-950/95 backdrop-blur-md border border-white/10 rounded-full flex items-center gap-1.5 pointer-events-auto shadow-xl"
-            onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-          >
-            <Lock className="h-3 w-3 text-cyan-400" />
-            <span className="text-[10px] font-mono font-bold text-cyan-400">Protected</span>
+          {/* ── Bottom Bar: Exit button & Document info ───────────────────── */}
+          <div className="flex items-center justify-between px-3 sm:px-5 py-2.5 border-t border-white/10 bg-zinc-900/95 backdrop-blur-md z-30 shrink-0">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-white/10 bg-white/5 hover:bg-rose-500/20 hover:border-rose-500/40 text-zinc-300 hover:text-white text-xs font-bold transition-all shadow-md group shrink-0"
+              title="Exit PDF Viewer"
+            >
+              <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+              <span>Exit</span>
+            </button>
+
+            <div className="flex items-center gap-2">
+              {numPages > 0 && (
+                <span className="text-[11px] font-mono text-zinc-400">
+                  Page {currentPage} of {numPages}
+                </span>
+              )}
+            </div>
           </div>
         </motion.div>
       </div>
