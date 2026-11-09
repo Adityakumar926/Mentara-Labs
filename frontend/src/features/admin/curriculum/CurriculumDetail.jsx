@@ -35,6 +35,90 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS as DndCSS } from '@dnd-kit/utilities';
 
+/* ─── COLOR PALETTES FOR SQUARE FOLDER CARDS (Image 4 Inspiration) ─── */
+const CARD_PALETTES = [
+  {
+    id: 'blue',
+    bg: 'linear-gradient(150deg, rgba(59, 130, 246, 0.22) 0%, rgba(15, 23, 42, 0.92) 100%)',
+    border: 'rgba(96, 165, 250, 0.4)',
+    accent: '#60A5FA',
+    glow: 'rgba(59, 130, 246, 0.2)',
+    badgeBg: 'rgba(59, 130, 246, 0.16)',
+    badgeColor: '#93C5FD',
+    tabBg: 'rgba(30, 58, 138, 0.95)',
+  },
+  {
+    id: 'teal',
+    bg: 'linear-gradient(150deg, rgba(20, 184, 166, 0.22) 0%, rgba(15, 23, 42, 0.92) 100%)',
+    border: 'rgba(45, 212, 191, 0.4)',
+    accent: '#2DD4BF',
+    glow: 'rgba(20, 184, 166, 0.2)',
+    badgeBg: 'rgba(20, 184, 166, 0.16)',
+    badgeColor: '#5EEAD4',
+    tabBg: 'rgba(19, 78, 74, 0.95)',
+  },
+  {
+    id: 'emerald',
+    bg: 'linear-gradient(150deg, rgba(16, 185, 129, 0.22) 0%, rgba(15, 23, 42, 0.92) 100%)',
+    border: 'rgba(52, 211, 153, 0.4)',
+    accent: '#34D399',
+    glow: 'rgba(16, 185, 129, 0.2)',
+    badgeBg: 'rgba(16, 185, 129, 0.16)',
+    badgeColor: '#6EE7B7',
+    tabBg: 'rgba(6, 78, 59, 0.95)',
+  },
+  {
+    id: 'amber',
+    bg: 'linear-gradient(150deg, rgba(245, 158, 11, 0.22) 0%, rgba(15, 23, 42, 0.92) 100%)',
+    border: 'rgba(251, 191, 36, 0.4)',
+    accent: '#FBBF24',
+    glow: 'rgba(245, 158, 11, 0.2)',
+    badgeBg: 'rgba(245, 158, 11, 0.16)',
+    badgeColor: '#FCD34D',
+    tabBg: 'rgba(120, 53, 15, 0.95)',
+  },
+  {
+    id: 'coral',
+    bg: 'linear-gradient(150deg, rgba(244, 63, 94, 0.22) 0%, rgba(15, 23, 42, 0.92) 100%)',
+    border: 'rgba(251, 113, 133, 0.4)',
+    accent: '#FB7185',
+    glow: 'rgba(244, 63, 94, 0.2)',
+    badgeBg: 'rgba(244, 63, 94, 0.16)',
+    badgeColor: '#FDA4AF',
+    tabBg: 'rgba(136, 19, 55, 0.95)',
+  },
+  {
+    id: 'purple',
+    bg: 'linear-gradient(150deg, rgba(139, 92, 246, 0.22) 0%, rgba(15, 23, 42, 0.92) 100%)',
+    border: 'rgba(167, 139, 250, 0.4)',
+    accent: '#A78BFA',
+    glow: 'rgba(139, 92, 246, 0.2)',
+    badgeBg: 'rgba(139, 92, 246, 0.16)',
+    badgeColor: '#C4B5FD',
+    tabBg: 'rgba(76, 29, 149, 0.95)',
+  },
+  {
+    id: 'orange',
+    bg: 'linear-gradient(150deg, rgba(249, 115, 22, 0.22) 0%, rgba(15, 23, 42, 0.92) 100%)',
+    border: 'rgba(251, 146, 60, 0.4)',
+    accent: '#FB923C',
+    glow: 'rgba(249, 115, 22, 0.2)',
+    badgeBg: 'rgba(249, 115, 22, 0.16)',
+    badgeColor: '#FDBA74',
+    tabBg: 'rgba(124, 45, 18, 0.95)',
+  },
+  {
+    id: 'fuchsia',
+    bg: 'linear-gradient(150deg, rgba(217, 70, 239, 0.22) 0%, rgba(15, 23, 42, 0.92) 100%)',
+    border: 'rgba(232, 121, 249, 0.4)',
+    accent: '#E879F9',
+    glow: 'rgba(217, 70, 239, 0.2)',
+    badgeBg: 'rgba(217, 70, 239, 0.16)',
+    badgeColor: '#F0ABFC',
+    tabBg: 'rgba(112, 26, 117, 0.95)',
+  },
+];
+
 /* ─── CSS ─── */
 const CSS = `
   .cd-root {
@@ -134,7 +218,7 @@ const CSS = `
   }
   .cd-btn-secondary:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
 
-  /* ── DRILL-DOWN NAVIGATION BAR (BREADCRUMBS & CONTEXT) ── */
+  /* ── DRILL-DOWN NAVIGATION BAR (BREADCRUMBS) ── */
   .cd-nav-bar {
     display: flex; align-items: center; justify-content: space-between;
     flex-wrap: wrap; gap: 0.75rem;
@@ -207,62 +291,181 @@ const CSS = `
     display: flex; align-items: center; gap: 0.5rem;
   }
 
-  /* ── DRILL CARD (Stage / Subject / Topic) ── */
-  .cd-drill-card {
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 18px; padding: 1.15rem 1.35rem;
-    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-    cursor: pointer; transition: all 0.2s ease;
-    margin-bottom: 0.75rem;
+  /* ── SQUARE FOLDER CARDS (Image 4 Inspiration) ── */
+  .cd-folder-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem 1.25rem;
+    margin-top: 0.5rem;
   }
-  .cd-drill-card:hover {
-    background: rgba(124,58,237,0.05);
-    border-color: rgba(124,58,237,0.28);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  .cd-folder-card {
+    position: relative;
+    margin-top: 16px;
+    background: var(--f-bg);
+    border: 1px solid var(--f-bdr);
+    border-radius: 0 18px 18px 18px;
+    padding: 1.25rem 1.2rem 1.1rem;
+    min-height: 175px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+                box-shadow 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+                border-color 0.22s ease;
   }
-  .cd-drill-info { flex: 1; min-width: 0; }
-  .cd-drill-title-row {
-    display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;
+  .cd-folder-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--f-accent);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.38), 0 0 20px var(--f-glow);
   }
-  .cd-drill-title {
+  .cd-folder-tab {
+    position: absolute;
+    top: -15px;
+    left: -1px;
+    height: 16px;
+    width: 96px;
+    border-top: 1px solid var(--f-bdr);
+    border-left: 1px solid var(--f-bdr);
+    border-right: 1px solid var(--f-bdr);
+    border-radius: 10px 14px 0 0;
+    clip-path: polygon(0 0, 78% 0, 100% 100%, 0 100%);
+    display: flex;
+    align-items: center;
+    transition: border-color 0.22s ease;
+  }
+  .cd-folder-card:hover .cd-folder-tab {
+    border-color: var(--f-accent);
+  }
+  .cd-folder-title {
     font-family: 'Space Grotesk', sans-serif;
-    font-weight: 700; font-size: 1rem; color: var(--cream);
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    word-break: break-word;
   }
-  .cd-drill-desc {
-    font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem;
-    line-height: 1.45;
+  .cd-folder-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
   }
-  .cd-drill-pill {
-    display: inline-flex; align-items: center; gap: 0.35rem;
-    padding: 0.18rem 0.55rem; border-radius: 20px;
-    font-size: 0.65rem; font-weight: 600;
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+  .cd-folder-action-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
   }
-  .cd-drill-actions {
-    display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0;
+  .cd-folder-action-btn:hover {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    border-color: rgba(255,255,255,0.2);
   }
-  .cd-drill-arrow {
-    width: 34px; height: 34px; border-radius: 10px;
-    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
-    color: var(--muted); display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s ease; flex-shrink: 0;
+  .cd-folder-action-btn.delete:hover {
+    background: rgba(239,68,68,0.25);
+    color: #F87171;
+    border-color: rgba(239,68,68,0.4);
   }
-  .cd-drill-card:hover .cd-drill-arrow {
-    background: var(--violet); border-color: var(--violet); color: #fff;
-    transform: translateX(3px);
+  .cd-folder-desc {
+    font-size: 0.76rem;
+    color: rgba(245,240,232,0.65);
+    line-height: 1.45;
+    margin: 0.65rem 0 0.85rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .cd-folder-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .cd-folder-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.22rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.66rem;
+    font-weight: 700;
+    border: 1px solid;
+    letter-spacing: 0.02em;
+  }
+  .cd-folder-arrow {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, background 0.2s ease;
+    flex-shrink: 0;
+  }
+  .cd-folder-card:hover .cd-folder-arrow {
+    transform: translateX(4px);
+    background: rgba(255,255,255,0.12);
   }
 
-  .cd-icon-btn {
-    display: flex; align-items: center; justify-content: center;
-    width: 30px; height: 30px; border-radius: 9px; background: transparent;
-    border: none; cursor: pointer; color: var(--muted); transition: background 0.2s, color 0.2s;
+  /* Add New Folder Card */
+  .cd-folder-add-card {
+    border: 2px dashed rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.015);
+    border-radius: 18px;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 175px;
+    transition: all 0.2s ease;
   }
-  .cd-icon-btn:hover { background: rgba(255,255,255,0.06); color: var(--cream); }
-  .cd-icon-btn.edit:hover   { color: var(--violet-l); background: rgba(124,58,237,0.12); }
-  .cd-icon-btn.delete:hover { color: #F87171; background: rgba(239,68,68,0.1); }
+  .cd-folder-add-card:hover {
+    border-color: var(--violet);
+    background: rgba(124,58,237,0.05);
+    transform: translateY(-4px);
+  }
+  .cd-folder-add-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
+    color: var(--muted);
+  }
+  .cd-folder-add-card:hover .cd-folder-add-inner {
+    color: var(--lavender);
+  }
+  .cd-folder-add-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .cd-folder-add-card:hover .cd-folder-add-icon {
+    background: rgba(124,58,237,0.2);
+    color: #fff;
+  }
+  .cd-folder-add-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
 
   /* ── TOPIC STUDIO & MATERIALS ── */
   .cd-materials-header {
@@ -486,13 +689,20 @@ const CSS = `
     --card-bg: #FFFFFF;
     --card-bdr: #CBD5E1;
   }
-  html.light .cd-drill-card, .light .cd-drill-card {
-    background: #FFFFFF; border-color: #CBD5E1; box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  html.light .cd-folder-card, .light .cd-folder-card {
+    box-shadow: 0 4px 14px rgba(0,0,0,0.05);
   }
-  html.light .cd-drill-card:hover, .light .cd-drill-card:hover {
-    background: #F8FAFC; border-color: #94A3B8;
+  html.light .cd-folder-title, .light .cd-folder-title { color: #0F172A !important; }
+  html.light .cd-folder-desc, .light .cd-folder-desc { color: #475569; }
+  html.light .cd-folder-action-btn, .light .cd-folder-action-btn {
+    background: #FFFFFF; border-color: #E2E8F0; color: #475569;
   }
-  html.light .cd-drill-title, .light .cd-drill-title { color: #0F172A; }
+  html.light .cd-folder-action-btn:hover, .light .cd-folder-action-btn:hover {
+    background: #F1F5F9; color: #0F172A;
+  }
+  html.light .cd-folder-add-card, .light .cd-folder-add-card {
+    background: #FFFFFF; border-color: #CBD5E1;
+  }
   html.light .cd-content-item, .light .cd-content-item {
     background: #FFFFFF; border-color: #CBD5E1;
   }
@@ -885,6 +1095,142 @@ const ANIM_PLACEHOLDER = `<!DOCTYPE html>
 </body>
 </html>`;
 
+// ── SQUARE FOLDER CARD COMPONENT (Image 4 Inspiration) ────────────────────────
+function FolderCard({
+  title,
+  description,
+  badgeText,
+  badgeIcon: BadgeIcon,
+  palette,
+  index,
+  onClick,
+  onEdit,
+  onDelete,
+  onAddSub,
+  addSubTitle,
+  isTeacher,
+  teacherLink,
+}) {
+  return (
+    <div
+      className="cd-folder-card group"
+      style={{
+        '--f-bg': palette.bg,
+        '--f-bdr': palette.border,
+        '--f-accent': palette.accent,
+        '--f-glow': palette.glow,
+      }}
+      onClick={onClick}
+    >
+      {/* Folder Tab at Top Left */}
+      <div
+        className="cd-folder-tab"
+        style={{
+          background: palette.tabBg,
+          borderColor: palette.border,
+        }}
+      >
+        <span style={{ fontSize: '9px', fontWeight: 800, color: palette.accent, letterSpacing: '0.05em', paddingLeft: '8px', lineHeight: '16px' }}>
+          {String(index + 1).padStart(2, '0')}
+        </span>
+      </div>
+
+      {/* Top Header of Card Body */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.5rem' }}>
+        <h3 className="cd-folder-title" style={{ color: '#fff' }}>
+          {title}
+        </h3>
+
+        {/* Action icons */}
+        <div className="cd-folder-actions" onClick={(e) => e.stopPropagation()}>
+          {!isTeacher ? (
+            <>
+              {onAddSub && (
+                <button
+                  type="button"
+                  onClick={onAddSub}
+                  className="cd-folder-action-btn"
+                  title={addSubTitle || 'Add'}
+                  style={{ color: palette.accent }}
+                >
+                  <FolderPlus size={13} />
+                </button>
+              )}
+              {onEdit && (
+                <button
+                  type="button"
+                  onClick={onEdit}
+                  className="cd-folder-action-btn"
+                  title="Edit"
+                >
+                  <Edit2 size={12} />
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  type="button"
+                  onClick={onDelete}
+                  className="cd-folder-action-btn delete"
+                  title="Delete"
+                >
+                  <Trash2 size={12} />
+                </button>
+              )}
+            </>
+          ) : teacherLink ? (
+            <Link
+              to={teacherLink}
+              className="cd-folder-action-btn"
+              title="View"
+              style={{ color: palette.accent }}
+            >
+              <Eye size={13} />
+            </Link>
+          ) : null}
+        </div>
+      </div>
+
+      {/* Description */}
+      <p className="cd-folder-desc">
+        {description || 'No description provided.'}
+      </p>
+
+      {/* Footer Row */}
+      <div className="cd-folder-footer">
+        <span
+          className="cd-folder-pill"
+          style={{
+            background: palette.badgeBg,
+            borderColor: palette.border,
+            color: palette.badgeColor,
+          }}
+        >
+          {BadgeIcon && <BadgeIcon size={11} />}
+          <span>{badgeText}</span>
+        </span>
+
+        <div className="cd-folder-arrow" style={{ color: palette.accent }}>
+          <ChevronRight size={16} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── ADD NEW FOLDER CARD (Square Dashed Card) ──────────────────────────────────
+function AddFolderCard({ label, onClick }) {
+  return (
+    <div className="cd-folder-card cd-folder-add-card" onClick={onClick}>
+      <div className="cd-folder-add-inner">
+        <div className="cd-folder-add-icon">
+          <Plus size={22} />
+        </div>
+        <span className="cd-folder-add-label">{label}</span>
+      </div>
+    </div>
+  );
+}
+
 // ── MAIN CURRICULUM DETAIL COMPONENT ───────────────────────────────────────────
 export default function CurriculumDetail() {
   const user = useAuthStore((s) => s.user);
@@ -912,17 +1258,17 @@ export default function CurriculumDetail() {
   const [classForm, setClassForm] = useState(BLANK_CLASS);
   const [deleteClassId, setDeleteClassId] = useState(null);
 
-  const [subjectModal, setSubjectModal] = useState(null); // holds classId when creating
+  const [subjectModal, setSubjectModal] = useState(null);
   const [editingSubject, setEditingSubject] = useState(null);
   const [subjectForm, setSubjectForm] = useState(BLANK_SUBJECT);
   const [deleteSubjectId, setDeleteSubjectId] = useState(null);
 
-  const [topicModal, setTopicModal] = useState(null); // holds subjectId when creating
+  const [topicModal, setTopicModal] = useState(null);
   const [editingTopic, setEditingTopic] = useState(null);
   const [topicForm, setTopicForm] = useState(BLANK_TOPIC);
   const [deleteTopicId, setDeleteTopicId] = useState(null);
 
-  const [contentModal, setContentModal] = useState(null); // holds topicId when creating
+  const [contentModal, setContentModal] = useState(null);
   const [editingContent, setEditingContent] = useState(null);
   const [contentForm, setContentForm] = useState(BLANK_CONTENT);
   const [deleteContentId, setDeleteContentId] = useState(null);
@@ -1291,9 +1637,9 @@ export default function CurriculumDetail() {
               </div>
             </div>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {Array(4).fill(0).map((_, i) => (
-              <div key={i} className="cd-skel" style={{ height: 68, borderRadius: 18 }} />
+          <div className="cd-folder-grid">
+            {Array(6).fill(0).map((_, i) => (
+              <div key={i} className="cd-skel" style={{ height: 185, borderRadius: 18, marginTop: 16 }} />
             ))}
           </div>
         </div>
@@ -1420,7 +1766,7 @@ export default function CurriculumDetail() {
 
         {/* ══════════════════════════════════════════════════════════════════════
             TIER 1: ALL STAGES / CLASSES LIST VIEW
-            (Shown when no stage is selected)
+            (Rendered as Square Folder-Type Cards inspired by Image 4)
         ══════════════════════════════════════════════════════════════════════ */}
         {!selectedClassId && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}>
@@ -1438,39 +1784,30 @@ export default function CurriculumDetail() {
                 )}
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-                {classes.map((cls) => {
+              <div className="cd-folder-grid">
+                {classes.map((cls, idx) => {
                   const classSubjects = subjects.filter(sub => sub.class_id === cls.id);
+                  const palette = CARD_PALETTES[idx % CARD_PALETTES.length];
                   return (
-                    <div
+                    <FolderCard
                       key={cls.id}
-                      className="cd-drill-card"
+                      title={cls.name}
+                      description={cls.description}
+                      badgeText={`${classSubjects.length} Subject${classSubjects.length !== 1 ? 's' : ''}`}
+                      badgeIcon={BookOpen}
+                      palette={palette}
+                      index={idx}
                       onClick={() => setSelectedClassId(cls.id)}
-                    >
-                      <div className="cd-drill-info">
-                        <div className="cd-drill-title-row">
-                          <span className="cd-drill-title">{cls.name}</span>
-                          <span className="cd-drill-pill">
-                            <BookOpen size={11} /> {classSubjects.length} Subject{classSubjects.length !== 1 ? 's' : ''}
-                          </span>
-                        </div>
-                        {cls.description && <p className="cd-drill-desc">{cls.description}</p>}
-                      </div>
-
-                      <div className="cd-drill-actions" onClick={(e) => e.stopPropagation()}>
-                        {!isTeacher && (
-                          <>
-                            <button onClick={() => openEditClass(cls)} className="cd-icon-btn edit" title="Edit Stage"><Edit2 size={12} /></button>
-                            <button onClick={() => setDeleteClassId(cls.id)} className="cd-icon-btn delete" title="Delete Stage"><Trash2 size={12} /></button>
-                          </>
-                        )}
-                        <div className="cd-drill-arrow" title="Open Stage" onClick={() => setSelectedClassId(cls.id)}>
-                          <ChevronRight size={16} />
-                        </div>
-                      </div>
-                    </div>
+                      onEdit={() => openEditClass(cls)}
+                      onDelete={() => setDeleteClassId(cls.id)}
+                      isTeacher={isTeacher}
+                    />
                   );
                 })}
+
+                {!isTeacher && (
+                  <AddFolderCard label="Add New Stage" onClick={openCreateClass} />
+                )}
               </div>
             )}
           </motion.div>
@@ -1478,8 +1815,7 @@ export default function CurriculumDetail() {
 
         {/* ══════════════════════════════════════════════════════════════════════
             TIER 2: SELECTED STAGE'S SUBJECTS VIEW
-            (Shown when a stage is chosen, but no subject chosen yet)
-            "here if i need to do operations there in that page i want to see that stage only no other stage should be shown there"
+            (Rendered as Square Folder-Type Cards inspired by Image 4)
         ══════════════════════════════════════════════════════════════════════ */}
         {selectedClassId && !selectedSubjectId && activeClass && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
@@ -1528,36 +1864,29 @@ export default function CurriculumDetail() {
               }
 
               return (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-                  {stageSubjects.map((sub, idx) => (
-                    <div
-                      key={sub.id}
-                      className="cd-drill-card"
-                      onClick={() => setSelectedSubjectId(sub.id)}
-                    >
-                      <div className="cd-drill-info">
-                        <div className="cd-drill-title-row">
-                          <span style={{ fontSize: '0.75rem', fontFamily: 'Space Grotesk', fontWeight: 700, color: 'var(--muted)', width: 22 }}>
-                            {String(idx + 1).padStart(2, '0')}
-                          </span>
-                          <span className="cd-drill-title">{sub.name}</span>
-                        </div>
-                        {sub.description && <p className="cd-drill-desc" style={{ paddingLeft: 28 }}>{sub.description}</p>}
-                      </div>
+                <div className="cd-folder-grid">
+                  {stageSubjects.map((sub, idx) => {
+                    const palette = CARD_PALETTES[idx % CARD_PALETTES.length];
+                    return (
+                      <FolderCard
+                        key={sub.id}
+                        title={sub.name}
+                        description={sub.description}
+                        badgeText="Open Topics"
+                        badgeIcon={Layers}
+                        palette={palette}
+                        index={idx}
+                        onClick={() => setSelectedSubjectId(sub.id)}
+                        onEdit={() => openEditSubject(sub)}
+                        onDelete={() => setDeleteSubjectId(sub.id)}
+                        isTeacher={isTeacher}
+                      />
+                    );
+                  })}
 
-                      <div className="cd-drill-actions" onClick={(e) => e.stopPropagation()}>
-                        {!isTeacher && (
-                          <>
-                            <button onClick={() => openEditSubject(sub)} className="cd-icon-btn edit" title="Edit Subject"><Edit2 size={12} /></button>
-                            <button onClick={() => setDeleteSubjectId(sub.id)} className="cd-icon-btn delete" title="Delete Subject"><Trash2 size={12} /></button>
-                          </>
-                        )}
-                        <div className="cd-drill-arrow" title="Open Subject" onClick={() => setSelectedSubjectId(sub.id)}>
-                          <ChevronRight size={16} />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                  {!isTeacher && (
+                    <AddFolderCard label="Add New Subject" onClick={() => openCreateSubject(activeClass.id)} />
+                  )}
                 </div>
               );
             })()}
@@ -1566,8 +1895,7 @@ export default function CurriculumDetail() {
 
         {/* ══════════════════════════════════════════════════════════════════════
             TIER 3: SELECTED SUBJECT'S TOPICS VIEW
-            (Shown when stage & subject are chosen, but no topic chosen yet)
-            "and then we select the subject that subject content will only be visible there"
+            (Rendered as Square Folder-Type Cards inspired by Image 4)
         ══════════════════════════════════════════════════════════════════════ */}
         {selectedClassId && selectedSubjectId && !selectedTopicId && activeSubject && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
@@ -1616,8 +1944,8 @@ export default function CurriculumDetail() {
             </div>
 
             {loadingTopics ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-                {Array(3).fill(0).map((_, i) => <div key={i} className="cd-skel" style={{ height: 64, borderRadius: 18 }} />)}
+              <div className="cd-folder-grid">
+                {Array(4).fill(0).map((_, i) => <div key={i} className="cd-skel" style={{ height: 185, borderRadius: 18, marginTop: 16 }} />)}
               </div>
             ) : (() => {
               const rootTopics = topicsList.filter(t => !t.parent_topic_id);
@@ -1644,57 +1972,33 @@ export default function CurriculumDetail() {
               }
 
               return (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-                  {filteredRoots.map((topic) => {
+                <div className="cd-folder-grid">
+                  {filteredRoots.map((topic, idx) => {
                     const childTopics = topicsList.filter(t => t.parent_topic_id === topic.id);
+                    const palette = CARD_PALETTES[idx % CARD_PALETTES.length];
                     return (
-                      <div
+                      <FolderCard
                         key={topic.id}
-                        className="cd-drill-card"
+                        title={topic.name}
+                        description={topic.description}
+                        badgeText={childTopics.length > 0 ? `${childTopics.length} Subtopic${childTopics.length !== 1 ? 's' : ''}` : 'View Resources'}
+                        badgeIcon={childTopics.length > 0 ? Layers : FileText}
+                        palette={palette}
+                        index={idx}
                         onClick={() => setSelectedTopicId(topic.id)}
-                      >
-                        <div className="cd-drill-info">
-                          <div className="cd-drill-title-row">
-                            <span className="cd-drill-title">{topic.name}</span>
-                            {childTopics.length > 0 && (
-                              <span className="cd-drill-pill">
-                                <Layers size={10} /> {childTopics.length} Subtopic{childTopics.length !== 1 ? 's' : ''}
-                              </span>
-                            )}
-                          </div>
-                          {topic.description && <p className="cd-drill-desc">{topic.description}</p>}
-                        </div>
-
-                        <div className="cd-drill-actions" onClick={(e) => e.stopPropagation()}>
-                          {!isTeacher ? (
-                            <>
-                              <button onClick={() => openCreateSubtopic(topic)} className="cd-icon-btn edit" style={{ color: 'var(--cyan)' }} title="Add Subtopic">
-                                <FolderPlus size={12} />
-                              </button>
-                              <button onClick={() => openEditTopic(topic)} className="cd-icon-btn edit" title="Edit Topic">
-                                <Edit2 size={12} />
-                              </button>
-                              <button onClick={() => setDeleteTopicId(topic.id)} className="cd-icon-btn delete" title="Delete Topic">
-                                <Trash2 size={12} />
-                              </button>
-                            </>
-                          ) : (
-                            <Link
-                              to={`/courses/${id}/subjects/${topic.subject_id}/topics/${topic.id}`}
-                              className="cd-icon-btn edit"
-                              title="View Topic Content"
-                              style={{ color: 'var(--cyan)' }}
-                            >
-                              <Eye size={13} />
-                            </Link>
-                          )}
-                          <div className="cd-drill-arrow" title="Open Topic" onClick={() => setSelectedTopicId(topic.id)}>
-                            <ChevronRight size={16} />
-                          </div>
-                        </div>
-                      </div>
+                        onEdit={() => openEditTopic(topic)}
+                        onDelete={() => setDeleteTopicId(topic.id)}
+                        onAddSub={() => openCreateSubtopic(topic)}
+                        addSubTitle="Add Subtopic"
+                        isTeacher={isTeacher}
+                        teacherLink={`/courses/${id}/subjects/${topic.subject_id}/topics/${topic.id}`}
+                      />
                     );
                   })}
+
+                  {!isTeacher && !topicSearchQuery && (
+                    <AddFolderCard label="Add New Topic" onClick={() => openCreateTopic(activeSubject.id)} />
+                  )}
                 </div>
               );
             })()}
@@ -1703,8 +2007,7 @@ export default function CurriculumDetail() {
 
         {/* ══════════════════════════════════════════════════════════════════════
             TIER 4: SELECTED TOPIC STUDIO VIEW
-            (Focused on that topic, its subtopics, and its materials!)
-            "we choose any topic and there that topic and its subtopic will be visible only , like this it will become simple and easy to upload and visualize the things just there we need to make it simple"
+            (Subtopics also rendered as square folder cards!)
         ══════════════════════════════════════════════════════════════════════ */}
         {selectedClassId && selectedSubjectId && selectedTopicId && activeTopic && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
@@ -1742,7 +2045,7 @@ export default function CurriculumDetail() {
               </div>
             </div>
 
-            {/* Subtopics Section (if any subtopics exist or to add one) */}
+            {/* Subtopics Section (rendered as Square Folder-Type Cards) */}
             {(() => {
               const childTopics = topicsList.filter(t => t.parent_topic_id === activeTopic.id);
               if (childTopics.length === 0) return null;
@@ -1762,31 +2065,29 @@ export default function CurriculumDetail() {
                     )}
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '0.65rem' }}>
-                    {childTopics.map(ct => (
-                      <div
-                        key={ct.id}
-                        className="cd-drill-card"
-                        style={{ padding: '0.9rem 1.1rem', margin: 0 }}
-                        onClick={() => setSelectedTopicId(ct.id)}
-                      >
-                        <div className="cd-drill-info">
-                          <span className="cd-drill-title" style={{ fontSize: '0.88rem' }}>{ct.name}</span>
-                          {ct.description && <p className="cd-drill-desc" style={{ fontSize: '0.72rem' }}>{ct.description}</p>}
-                        </div>
-                        <div className="cd-drill-actions" onClick={e => e.stopPropagation()}>
-                          {!isTeacher && (
-                            <>
-                              <button onClick={() => openEditTopic(ct)} className="cd-icon-btn edit" title="Edit"><Edit2 size={11} /></button>
-                              <button onClick={() => setDeleteTopicId(ct.id)} className="cd-icon-btn delete" title="Delete"><Trash2 size={11} /></button>
-                            </>
-                          )}
-                          <div className="cd-drill-arrow" style={{ width: 28, height: 28 }} onClick={() => setSelectedTopicId(ct.id)}>
-                            <ChevronRight size={14} />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="cd-folder-grid">
+                    {childTopics.map((ct, idx) => {
+                      const palette = CARD_PALETTES[(idx + 2) % CARD_PALETTES.length];
+                      return (
+                        <FolderCard
+                          key={ct.id}
+                          title={ct.name}
+                          description={ct.description}
+                          badgeText="Subtopic"
+                          badgeIcon={Layers}
+                          palette={palette}
+                          index={idx}
+                          onClick={() => setSelectedTopicId(ct.id)}
+                          onEdit={() => openEditTopic(ct)}
+                          onDelete={() => setDeleteTopicId(ct.id)}
+                          isTeacher={isTeacher}
+                        />
+                      );
+                    })}
+
+                    {!isTeacher && (
+                      <AddFolderCard label="Add Subtopic" onClick={() => openCreateSubtopic(activeTopic)} />
+                    )}
                   </div>
                 </div>
               );
