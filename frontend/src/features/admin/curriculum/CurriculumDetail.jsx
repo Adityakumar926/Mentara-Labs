@@ -35,87 +35,128 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS as DndCSS } from '@dnd-kit/utilities';
 
+/* ─── TITLE & SIZE UTILITIES ─── */
+export function formatTitleFromFilename(filename) {
+  if (!filename) return '';
+  // Remove file extension
+  const withoutExt = filename.replace(/\.[^/.]+$/, '');
+  // Replace underscores, hyphens, and dots with spaces
+  const withSpaces = withoutExt.replace(/[-_.]+/g, ' ');
+  // Clean multiple spaces and trim
+  const cleaned = withSpaces.replace(/\s+/g, ' ').trim();
+  if (!cleaned) return filename;
+  // Capitalize each word nicely
+  return cleaned
+    .split(' ')
+    .map(w => w ? w.charAt(0).toUpperCase() + w.slice(1) : '')
+    .join(' ');
+}
+
+export function formatFileSize(bytes) {
+  if (!bytes || bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
 /* ─── COLOR PALETTES FOR SQUARE FOLDER CARDS (Image 4 Inspiration) ─── */
 const CARD_PALETTES = [
   {
     id: 'blue',
-    bg: 'linear-gradient(150deg, rgba(59, 130, 246, 0.22) 0%, rgba(15, 23, 42, 0.92) 100%)',
-    border: 'rgba(96, 165, 250, 0.4)',
-    accent: '#60A5FA',
-    glow: 'rgba(59, 130, 246, 0.2)',
-    badgeBg: 'rgba(59, 130, 246, 0.16)',
-    badgeColor: '#93C5FD',
-    tabBg: 'rgba(30, 58, 138, 0.95)',
+    bg: '#3E7BFA',
+    tabBg: '#2E66E2',
+    border: 'rgba(255, 255, 255, 0.22)',
+    accent: '#FFFFFF',
+    text: '#FFFFFF',
+    descText: 'rgba(255, 255, 255, 0.88)',
+    glow: 'rgba(62, 123, 250, 0.45)',
+    badgeBg: 'rgba(0, 0, 0, 0.22)',
+    badgeColor: '#FFFFFF',
   },
   {
     id: 'teal',
-    bg: 'linear-gradient(150deg, rgba(20, 184, 166, 0.22) 0%, rgba(15, 23, 42, 0.92) 100%)',
-    border: 'rgba(45, 212, 191, 0.4)',
-    accent: '#2DD4BF',
-    glow: 'rgba(20, 184, 166, 0.2)',
-    badgeBg: 'rgba(20, 184, 166, 0.16)',
-    badgeColor: '#5EEAD4',
-    tabBg: 'rgba(19, 78, 74, 0.95)',
+    bg: '#14B8A6',
+    tabBg: '#0D9488',
+    border: 'rgba(255, 255, 255, 0.22)',
+    accent: '#FFFFFF',
+    text: '#FFFFFF',
+    descText: 'rgba(255, 255, 255, 0.88)',
+    glow: 'rgba(20, 184, 166, 0.45)',
+    badgeBg: 'rgba(0, 0, 0, 0.22)',
+    badgeColor: '#FFFFFF',
   },
   {
     id: 'emerald',
-    bg: 'linear-gradient(150deg, rgba(16, 185, 129, 0.22) 0%, rgba(15, 23, 42, 0.92) 100%)',
-    border: 'rgba(52, 211, 153, 0.4)',
-    accent: '#34D399',
-    glow: 'rgba(16, 185, 129, 0.2)',
-    badgeBg: 'rgba(16, 185, 129, 0.16)',
-    badgeColor: '#6EE7B7',
-    tabBg: 'rgba(6, 78, 59, 0.95)',
-  },
-  {
-    id: 'amber',
-    bg: 'linear-gradient(150deg, rgba(245, 158, 11, 0.22) 0%, rgba(15, 23, 42, 0.92) 100%)',
-    border: 'rgba(251, 191, 36, 0.4)',
-    accent: '#FBBF24',
-    glow: 'rgba(245, 158, 11, 0.2)',
-    badgeBg: 'rgba(245, 158, 11, 0.16)',
-    badgeColor: '#FCD34D',
-    tabBg: 'rgba(120, 53, 15, 0.95)',
+    bg: '#10B981',
+    tabBg: '#059669',
+    border: 'rgba(255, 255, 255, 0.22)',
+    accent: '#FFFFFF',
+    text: '#FFFFFF',
+    descText: 'rgba(255, 255, 255, 0.88)',
+    glow: 'rgba(16, 185, 129, 0.45)',
+    badgeBg: 'rgba(0, 0, 0, 0.22)',
+    badgeColor: '#FFFFFF',
   },
   {
     id: 'coral',
-    bg: 'linear-gradient(150deg, rgba(244, 63, 94, 0.22) 0%, rgba(15, 23, 42, 0.92) 100%)',
-    border: 'rgba(251, 113, 133, 0.4)',
-    accent: '#FB7185',
-    glow: 'rgba(244, 63, 94, 0.2)',
-    badgeBg: 'rgba(244, 63, 94, 0.16)',
-    badgeColor: '#FDA4AF',
-    tabBg: 'rgba(136, 19, 55, 0.95)',
+    bg: '#FA7268',
+    tabBg: '#E85B51',
+    border: 'rgba(255, 255, 255, 0.22)',
+    accent: '#FFFFFF',
+    text: '#FFFFFF',
+    descText: 'rgba(255, 255, 255, 0.88)',
+    glow: 'rgba(250, 114, 104, 0.45)',
+    badgeBg: 'rgba(0, 0, 0, 0.22)',
+    badgeColor: '#FFFFFF',
+  },
+  {
+    id: 'amber',
+    bg: '#FBBF24',
+    tabBg: '#F59E0B',
+    border: 'rgba(0, 0, 0, 0.15)',
+    accent: '#0F172A',
+    text: '#1E293B',
+    descText: 'rgba(30, 41, 59, 0.85)',
+    glow: 'rgba(251, 191, 36, 0.45)',
+    badgeBg: 'rgba(0, 0, 0, 0.15)',
+    badgeColor: '#1E293B',
+  },
+  {
+    id: 'rose',
+    bg: '#F43F5E',
+    tabBg: '#E11D48',
+    border: 'rgba(255, 255, 255, 0.22)',
+    accent: '#FFFFFF',
+    text: '#FFFFFF',
+    descText: 'rgba(255, 255, 255, 0.88)',
+    glow: 'rgba(244, 63, 94, 0.45)',
+    badgeBg: 'rgba(0, 0, 0, 0.22)',
+    badgeColor: '#FFFFFF',
+  },
+  {
+    id: 'sky',
+    bg: '#0EA5E9',
+    tabBg: '#0284C7',
+    border: 'rgba(255, 255, 255, 0.22)',
+    accent: '#FFFFFF',
+    text: '#FFFFFF',
+    descText: 'rgba(255, 255, 255, 0.88)',
+    glow: 'rgba(14, 165, 233, 0.45)',
+    badgeBg: 'rgba(0, 0, 0, 0.22)',
+    badgeColor: '#FFFFFF',
   },
   {
     id: 'purple',
-    bg: 'linear-gradient(150deg, rgba(139, 92, 246, 0.22) 0%, rgba(15, 23, 42, 0.92) 100%)',
-    border: 'rgba(167, 139, 250, 0.4)',
-    accent: '#A78BFA',
-    glow: 'rgba(139, 92, 246, 0.2)',
-    badgeBg: 'rgba(139, 92, 246, 0.16)',
-    badgeColor: '#C4B5FD',
-    tabBg: 'rgba(76, 29, 149, 0.95)',
-  },
-  {
-    id: 'orange',
-    bg: 'linear-gradient(150deg, rgba(249, 115, 22, 0.22) 0%, rgba(15, 23, 42, 0.92) 100%)',
-    border: 'rgba(251, 146, 60, 0.4)',
-    accent: '#FB923C',
-    glow: 'rgba(249, 115, 22, 0.2)',
-    badgeBg: 'rgba(249, 115, 22, 0.16)',
-    badgeColor: '#FDBA74',
-    tabBg: 'rgba(124, 45, 18, 0.95)',
-  },
-  {
-    id: 'fuchsia',
-    bg: 'linear-gradient(150deg, rgba(217, 70, 239, 0.22) 0%, rgba(15, 23, 42, 0.92) 100%)',
-    border: 'rgba(232, 121, 249, 0.4)',
-    accent: '#E879F9',
-    glow: 'rgba(217, 70, 239, 0.2)',
-    badgeBg: 'rgba(217, 70, 239, 0.16)',
-    badgeColor: '#F0ABFC',
-    tabBg: 'rgba(112, 26, 117, 0.95)',
+    bg: '#8B5CF6',
+    tabBg: '#7C3AED',
+    border: 'rgba(255, 255, 255, 0.22)',
+    accent: '#FFFFFF',
+    text: '#FFFFFF',
+    descText: 'rgba(255, 255, 255, 0.88)',
+    glow: 'rgba(139, 92, 246, 0.45)',
+    badgeBg: 'rgba(0, 0, 0, 0.22)',
+    badgeColor: '#FFFFFF',
   },
 ];
 
@@ -418,6 +459,244 @@ const CSS = `
   .cd-folder-card:hover .cd-folder-arrow {
     transform: translateX(4px);
     background: rgba(255,255,255,0.12);
+  }
+
+
+  /* Staged Files Multi-Upload Grid */
+  .cd-batch-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .cd-batch-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 9999px;
+    background: rgba(0, 212, 255, 0.1);
+    border: 1px solid rgba(0, 212, 255, 0.25);
+    color: var(--cyan);
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+  .cd-batch-add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .cd-batch-add-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+  .cd-dest-pills {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.15rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .cd-dest-pill-btn {
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .cd-dest-pill-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+  .cd-batch-clear-btn {
+    padding: 0.25rem 0.55rem;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: #F87171;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .cd-batch-clear-btn:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.4);
+  }
+  .cd-staged-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.85rem;
+    max-height: 440px;
+    overflow-y: auto;
+    padding: 0.2rem 0.1rem 0.4rem;
+  }
+  .cd-staged-card {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+  .cd-staged-card:hover {
+    border-color: rgba(255, 255, 255, 0.22);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  }
+  .cd-staged-card.uploading {
+    border-color: var(--cyan);
+    box-shadow: 0 0 14px rgba(0, 212, 255, 0.25);
+  }
+  .cd-staged-card.done {
+    border-color: #10B981;
+    background: rgba(16, 185, 129, 0.08);
+  }
+  .cd-staged-card.error {
+    border-color: #EF4444;
+    background: rgba(239, 68, 68, 0.08);
+  }
+  .cd-file-type-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.18rem 0.45rem;
+    border-radius: 6px;
+    font-size: 0.64rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .cd-file-type-pill.pdf {
+    background: rgba(239, 68, 68, 0.16);
+    color: #F87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+  .cd-file-type-pill.img {
+    background: rgba(245, 158, 11, 0.16);
+    color: #FBBF24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+  .cd-staged-remove-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .cd-staged-remove-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #F87171;
+    border-color: rgba(239, 68, 68, 0.4);
+  }
+  .cd-staged-title-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 0.45rem 0.6rem;
+    font-size: 0.82rem;
+    color: #fff;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .cd-staged-title-input:focus {
+    border-color: var(--cyan);
+  }
+  .cd-dest-chip {
+    padding: 0.2rem 0.45rem;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .cd-dest-chip:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+  }
+  .cd-dest-chip.active.shared {
+    background: rgba(0, 212, 255, 0.12);
+    border-color: rgba(0, 212, 255, 0.35);
+    color: var(--cyan);
+  }
+  .cd-dest-chip.active.student {
+    background: rgba(167, 139, 250, 0.15);
+    border-color: rgba(167, 139, 250, 0.35);
+    color: var(--lavender);
+  }
+  .cd-dest-chip.active.teacher {
+    background: rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.35);
+    color: #FBBF24;
+  }
+  .cd-protected-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.22rem 0.55rem;
+    border-radius: 9999px;
+    background: #000000;
+    border: 1px solid #22D3EE;
+    color: #22D3EE;
+    font-size: 0.68rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(34, 211, 238, 0.25);
+    transition: all 0.15s ease;
+  }
+  .cd-protected-pill.unlocked {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.55);
+    box-shadow: none;
+  }
+  .cd-protected-pill:hover {
+    transform: scale(1.03);
+  }
+  .cd-staged-thumbnail {
+    width: 100%;
+    height: 90px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #000;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .cd-staged-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   /* Add New Folder Card */
@@ -1137,7 +1416,7 @@ function FolderCard({
 
       {/* Top Header of Card Body */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.5rem' }}>
-        <h3 className="cd-folder-title" style={{ color: '#fff' }}>
+        <h3 className="cd-folder-title" style={{ color: palette.text || '#fff' }}>
           {title}
         </h3>
 
@@ -1191,7 +1470,7 @@ function FolderCard({
       </div>
 
       {/* Description */}
-      <p className="cd-folder-desc">
+      <p className="cd-folder-desc" style={{ color: palette.descText || 'rgba(255,255,255,0.85)' }}>
         {description || 'No description provided.'}
       </p>
 
@@ -1271,6 +1550,10 @@ export default function CurriculumDetail() {
   const [contentModal, setContentModal] = useState(null);
   const [editingContent, setEditingContent] = useState(null);
   const [contentForm, setContentForm] = useState(BLANK_CONTENT);
+  const [batchQueue, setBatchQueue] = useState([]);
+  const [uploadingBatch, setUploadingBatch] = useState(false);
+  const [batchProgress, setBatchProgress] = useState({ current: 0, total: 0 });
+  const batchFileInputRef = useRef(null);
   const [deleteContentId, setDeleteContentId] = useState(null);
   
   const [animTab, setAnimTab] = useState('html');
@@ -1387,11 +1670,129 @@ export default function CurriculumDetail() {
     successMsg: 'Content deleted',
   });
 
+  // ── Multi-File Batch Queue Handlers ──────────────────────────────────────────
+  const handleFilesAdded = (fileList) => {
+    if (!fileList || fileList.length === 0) return;
+    const files = Array.from(fileList);
+    const isNote = contentForm.content_type === 'note';
+
+    const validFiles = files.filter(f => {
+      if (isNote) {
+        return f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf');
+      } else {
+        return f.type.startsWith('image/') || /\.(jpg|jpeg|png|webp)$/i.test(f.name);
+      }
+    });
+
+    if (validFiles.length === 0) {
+      toast.error(isNote ? 'Please select valid PDF files.' : 'Please select valid image files (JPG, PNG, WebP).');
+      return;
+    }
+
+    const newItems = validFiles.map((f, idx) => ({
+      id: `${Date.now()}-${idx}-${Math.random().toString(36).substr(2, 6)}`,
+      file: f,
+      filename: f.name,
+      size: f.size,
+      formattedSize: formatFileSize(f.size),
+      title: formatTitleFromFilename(f.name),
+      destination: contentForm.destination || 'shared',
+      is_premium: contentForm.is_premium || false,
+      previewUrl: f.type.startsWith('image/') ? URL.createObjectURL(f) : null,
+      status: 'idle',
+      error: null,
+    }));
+
+    setBatchQueue(q => [...q, ...newItems]);
+
+    // If single title is blank, fill with first file's clean name
+    if (!contentForm.title && newItems.length > 0) {
+      setContentForm(cf => ({ ...cf, title: newItems[0].title }));
+    }
+  };
+
+  const handleUpdateBatchItem = (id, updates) => {
+    setBatchQueue(q => q.map(it => it.id === id ? { ...it, ...updates } : it));
+  };
+
+  const handleRemoveBatchItem = (id) => {
+    setBatchQueue(q => q.filter(it => it.id !== id));
+  };
+
+  const handleSetAllDestination = (dest) => {
+    setBatchQueue(q => q.map(it => ({ ...it, destination: dest })));
+    setContentForm(cf => ({ ...cf, destination: dest }));
+  };
+
+  const handleToggleAllPremium = () => {
+    const allPremium = batchQueue.length > 0 && batchQueue.every(it => it.is_premium);
+    const nextVal = !allPremium;
+    setBatchQueue(q => q.map(it => ({ ...it, is_premium: nextVal })));
+    setContentForm(cf => ({ ...cf, is_premium: nextVal }));
+  };
+
   const handleSaveContent = async () => {
     setSaveError('');
+    const f = contentForm;
+
+    // ── BATCH MULTI-UPLOAD MODE ────────────────────────────────────────────────
+    if (!editingContent && (f.content_type === 'note' || f.content_type === 'worksheet') && batchQueue.length > 0) {
+      setUploadingBatch(true);
+      setBatchProgress({ current: 0, total: batchQueue.length });
+      let successCount = 0;
+      let hasError = false;
+
+      for (let i = 0; i < batchQueue.length; i++) {
+        const item = batchQueue[i];
+        if (item.status === 'done') {
+          successCount++;
+          continue;
+        }
+
+        setBatchQueue(q => q.map(it => it.id === item.id ? { ...it, status: 'uploading', error: null } : it));
+        setBatchProgress({ current: i + 1, total: batchQueue.length });
+
+        try {
+          const itemTitle = (item.title || '').trim() || formatTitleFromFilename(item.filename) || 'Untitled';
+          const fd = new FormData();
+          fd.append('title', itemTitle);
+          fd.append('is_premium', String(!!item.is_premium));
+          fd.append('destination', item.destination || 'shared');
+          fd.append('file', item.file);
+
+          if (f.content_type === 'note') {
+            await adminApi.uploadNote(contentModal, fd);
+          } else {
+            await adminApi.uploadWorksheet(contentModal, fd);
+          }
+
+          setBatchQueue(q => q.map(it => it.id === item.id ? { ...it, status: 'done', error: null } : it));
+          successCount++;
+        } catch (itemErr) {
+          hasError = true;
+          const msg = itemErr.response?.data?.message ?? itemErr.message ?? 'Upload failed';
+          setBatchQueue(q => q.map(it => it.id === item.id ? { ...it, status: 'error', error: msg } : it));
+        }
+      }
+
+      setUploadingBatch(false);
+      triggerContentRefetch();
+
+      if (!hasError) {
+        toast.success(`Successfully uploaded ${successCount} material${successCount !== 1 ? 's' : ''}!`);
+        setContentModal(null);
+        setEditingContent(null);
+        setContentForm(BLANK_CONTENT);
+        setBatchQueue([]);
+      } else {
+        toast.error(`Uploaded ${successCount} files, but some had errors. You can fix and retry.`);
+      }
+      return;
+    }
+
+    // ── SINGLE CONTENT SAVE MODE ──────────────────────────────────────────────
     setSaving(true);
     try {
-      const f = contentForm;
       if (f.content_type === 'note') {
         if (editingContent) {
           const fd = new FormData();
@@ -1473,6 +1874,7 @@ export default function CurriculumDetail() {
       setContentModal(null);
       setEditingContent(null);
       setContentForm(BLANK_CONTENT);
+      setBatchQueue([]);
       triggerContentRefetch();
     } catch (err) {
       setSaveError(err.response?.data?.message ?? err.message ?? 'Failed to save content');
@@ -1483,12 +1885,13 @@ export default function CurriculumDetail() {
 
   // ── Video upload handler ─────────────────────────────────────────────────────
   const handleVideoUpload = async (file) => {
-    if (!contentForm.title.trim()) {
-      setSaveError('Enter a title before uploading the video.');
-      return;
+    let currentTitle = contentForm.title.trim();
+    if (!currentTitle) {
+      currentTitle = formatTitleFromFilename(file.name);
+      setContentForm(f => ({ ...f, title: currentTitle }));
     }
     setSaveError('');
-    setContentForm(f => ({ ...f, videoFile: file, videoStage: 'uploading', videoProgress: 0 }));
+    setContentForm(f => ({ ...f, title: currentTitle, videoFile: file, videoStage: 'uploading', videoProgress: 0 }));
 
     const performDirectUpload = async () => {
       const fd = new FormData();
@@ -1595,11 +1998,15 @@ export default function CurriculumDetail() {
   const openAddContent = (topicId, defaultType = 'note') => {
     setEditingContent(null);
     setContentForm({ ...BLANK_CONTENT, content_type: defaultType });
+    setBatchQueue([]);
+    setUploadingBatch(false);
     setSaveError('');
     setContentModal(topicId);
   };
   const openEditContent = (topicId, c) => {
     setEditingContent(c);
+    setBatchQueue([]);
+    setUploadingBatch(false);
     setSaveError('');
     const parsed = parseHtmlContent(c.html_content ?? '');
     setContentForm({
@@ -2158,53 +2565,336 @@ export default function CurriculumDetail() {
         </div>
       </Modal>
 
-      {/* Content Modal */}
+      {/* Content Modal (Supports Multi-File Batch Staging & Editing) */}
       <Modal
         open={!!contentModal}
-        onClose={() => { setContentModal(null); setEditingContent(null); setContentForm(BLANK_CONTENT); setSaveError(''); }}
-        title={editingContent ? 'Edit Content' : 'Add Content'}
+        onClose={() => {
+          if (uploadingBatch) return;
+          setContentModal(null);
+          setEditingContent(null);
+          setContentForm(BLANK_CONTENT);
+          setBatchQueue([]);
+          setSaveError('');
+        }}
+        title={editingContent ? 'Edit Material' : 'Add Materials / Content'}
         size="xl"
         preventOutsideClickClose={true}
       >
         <style>{CSS}</style>
         <div className="cd-root">
           <div className="space-y-4">
-            <Input label="Title" placeholder="e.g. Unit 5: Forces and Magnetism" value={contentForm.title} onChange={(e) => setContentForm({ ...contentForm, title: e.target.value })} />
-            <Select label="Content Type" value={contentForm.content_type} onChange={(e) => setContentForm({ ...contentForm, content_type: e.target.value, videoStage: 'idle', noteFile: null, worksheetFile: null, worksheetPreviewUrl: null })} disabled={!!editingContent}>
-              <option value="note">Note / PDF</option>
-              <option value="video">Video</option>
-              <option value="animation">Animation / 3D Simulation</option>
-              <option value="worksheet">Worksheet (Image)</option>
-            </Select>
+            {/* If editing existing single item OR uploading video / animation, show single title input */}
+            {(!!editingContent || (contentForm.content_type !== 'note' && contentForm.content_type !== 'worksheet')) && (
+              <Input
+                label="Title"
+                placeholder="e.g. Unit 5: Forces and Magnetism"
+                value={contentForm.title}
+                onChange={(e) => setContentForm({ ...contentForm, title: e.target.value })}
+              />
+            )}
 
-            <Select label="Destination Audience" value={contentForm.destination} onChange={(e) => setContentForm({ ...contentForm, destination: e.target.value })} disabled={!!editingContent}>
-              <option value="shared">Shared Content (Both Student & Teacher)</option>
-              <option value="student">Student Content (Student Only)</option>
-              <option value="teacher">Teacher Content (Teacher Only)</option>
-            </Select>
+            <div style={{ display: 'grid', gridTemplateColumns: (!editingContent && (contentForm.content_type === 'note' || contentForm.content_type === 'worksheet')) ? '1fr 1fr' : '1fr', gap: '0.75rem' }}>
+              <Select
+                label="Content Type"
+                value={contentForm.content_type}
+                onChange={(e) => {
+                  setContentForm({
+                    ...contentForm,
+                    content_type: e.target.value,
+                    videoStage: 'idle',
+                    noteFile: null,
+                    worksheetFile: null,
+                    worksheetPreviewUrl: null,
+                  });
+                  setBatchQueue([]);
+                }}
+                disabled={uploadingBatch || !!editingContent}
+              >
+                <option value="note">Note / PDF (Multi-upload supported)</option>
+                <option value="worksheet">Worksheet Image (Multi-upload supported)</option>
+                <option value="video">Video</option>
+                <option value="animation">Animation / 3D Simulation</option>
+              </Select>
 
+              {/* Default Audience for new batch or single destination for edit */}
+              <Select
+                label={!editingContent && (contentForm.content_type === 'note' || contentForm.content_type === 'worksheet') ? 'Default Audience' : 'Destination Audience'}
+                value={contentForm.destination}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setContentForm({ ...contentForm, destination: val });
+                  if (batchQueue.length > 0) {
+                    handleSetAllDestination(val);
+                  }
+                }}
+                disabled={uploadingBatch || (!!editingContent && contentForm.content_type !== 'note' && contentForm.content_type !== 'worksheet')}
+              >
+                <option value="shared">Shared Content (Both Student & Teacher)</option>
+                <option value="student">Student Content (Student Only)</option>
+                <option value="teacher">Teacher Content (Teacher Only)</option>
+              </Select>
+            </div>
+
+            {/* ── NOTES / PDFS SECTION ── */}
             {contentForm.content_type === 'note' && (
-              <div>
-                <p style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--muted)', marginBottom: '0.5rem' }}>{editingContent ? 'Replace PDF (optional)' : 'Upload PDF'}</p>
-                <NoteDropzone
-                  file={contentForm.noteFile}
-                  onChange={(file) => setContentForm({ ...contentForm, noteFile: file })}
-                  existingName={editingContent ? 'Current PDF file' : null}
-                />
+              <div className="space-y-3">
+                {editingContent ? (
+                  <div>
+                    <p style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--muted)', marginBottom: '0.5rem' }}>Replace PDF (optional)</p>
+                    <NoteDropzone
+                      file={contentForm.noteFile}
+                      onChange={(file) => {
+                        setContentForm({ ...contentForm, noteFile: file });
+                        if (!contentForm.title) {
+                          setContentForm(f => ({ ...f, title: formatTitleFromFilename(file.name) }));
+                        }
+                      }}
+                      existingName={editingContent ? 'Current PDF file' : null}
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <NoteDropzone
+                      multiple={true}
+                      onFilesSelected={handleFilesAdded}
+                      batchCount={batchQueue.length}
+                      disabled={uploadingBatch}
+                    />
+                  </div>
+                )}
               </div>
             )}
 
+            {/* ── WORKSHEETS SECTION ── */}
             {contentForm.content_type === 'worksheet' && (
-              <div>
-                <p style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--muted)', marginBottom: '0.5rem' }}>{editingContent ? 'Replace Worksheet Image (optional)' : 'Upload Worksheet Image'}</p>
-                <WorksheetDropzone
-                  file={contentForm.worksheetFile}
-                  previewUrl={contentForm.worksheetPreviewUrl || (contentForm.worksheetFile ? URL.createObjectURL(contentForm.worksheetFile) : null)}
-                  onChange={(file) => setContentForm({ ...contentForm, worksheetFile: file, worksheetPreviewUrl: URL.createObjectURL(file) })}
-                />
+              <div className="space-y-3">
+                {editingContent ? (
+                  <div>
+                    <p style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--muted)', marginBottom: '0.5rem' }}>Replace Worksheet Image (optional)</p>
+                    <WorksheetDropzone
+                      file={contentForm.worksheetFile}
+                      previewUrl={contentForm.worksheetPreviewUrl || (contentForm.worksheetFile ? URL.createObjectURL(contentForm.worksheetFile) : null)}
+                      onChange={(file) => {
+                        setContentForm({ ...contentForm, worksheetFile: file, worksheetPreviewUrl: URL.createObjectURL(file) });
+                        if (!contentForm.title) {
+                          setContentForm(f => ({ ...f, title: formatTitleFromFilename(file.name) }));
+                        }
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <WorksheetDropzone
+                      multiple={true}
+                      onFilesSelected={handleFilesAdded}
+                      batchCount={batchQueue.length}
+                      disabled={uploadingBatch}
+                    />
+                  </div>
+                )}
               </div>
             )}
 
+            {/* ── STAGED QUEUE TOOLBAR & CARDS GRID (When files are staged in multi-mode) ── */}
+            {!editingContent && (contentForm.content_type === 'note' || contentForm.content_type === 'worksheet') && batchQueue.length > 0 && (
+              <div className="space-y-3 pt-1">
+                <div className="cd-batch-toolbar">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                    <span className="cd-batch-badge">
+                      <Layers size={13} />
+                      <span>{batchQueue.length} File{batchQueue.length !== 1 ? 's' : ''} Staged</span>
+                    </span>
+
+                    <button
+                      type="button"
+                      className="cd-batch-add-btn"
+                      onClick={() => batchFileInputRef.current?.click()}
+                      disabled={uploadingBatch}
+                      title="Select more files to add to this batch"
+                    >
+                      <Plus size={13} /> Add More Files
+                    </button>
+                    <input
+                      ref={batchFileInputRef}
+                      type="file"
+                      multiple
+                      accept={contentForm.content_type === 'note' ? 'application/pdf' : 'image/jpeg,image/png,image/webp'}
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        if (e.target.files) handleFilesAdded(e.target.files);
+                        e.target.value = '';
+                      }}
+                    />
+                  </div>
+
+                  {/* Bulk Actions */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '0.68rem', color: 'var(--muted)', fontWeight: 600 }}>Set all:</span>
+                    <div className="cd-dest-pills">
+                      {[
+                        { id: 'shared', label: 'Shared' },
+                        { id: 'student', label: 'Student' },
+                        { id: 'teacher', label: 'Teacher' },
+                      ].map((d) => (
+                        <button
+                          key={d.id}
+                          type="button"
+                          className="cd-dest-pill-btn"
+                          onClick={() => handleSetAllDestination(d.id)}
+                          disabled={uploadingBatch}
+                        >
+                          {d.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    <button
+                      type="button"
+                      className="cd-protected-pill"
+                      onClick={handleToggleAllPremium}
+                      disabled={uploadingBatch}
+                      title="Toggle Protected status for all staged files"
+                    >
+                      <Lock size={11} />
+                      <span>Toggle Protected</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="cd-batch-clear-btn"
+                      onClick={() => setBatchQueue([])}
+                      disabled={uploadingBatch}
+                      title="Clear all staged files"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+
+                {/* Staged Cards Grid */}
+                <div className="cd-staged-grid">
+                  {batchQueue.map((item) => (
+                    <div
+                      key={item.id}
+                      className={clsx(
+                        'cd-staged-card',
+                        item.status === 'uploading' && 'uploading',
+                        item.status === 'done' && 'done',
+                        item.status === 'error' && 'error'
+                      )}
+                    >
+                      {/* Top row: Pill + Size + Remove */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                          {contentForm.content_type === 'note' ? (
+                            <span className="cd-file-type-pill pdf">
+                              <FileText size={11} /> PDF
+                            </span>
+                          ) : (
+                            <span className="cd-file-type-pill img">
+                              <Image size={11} /> IMG
+                            </span>
+                          )}
+                          <span style={{ fontSize: '0.68rem', color: 'var(--muted)', fontWeight: 600 }}>
+                            {item.formattedSize}
+                          </span>
+                        </div>
+
+                        {!uploadingBatch && item.status !== 'done' && (
+                          <button
+                            type="button"
+                            className="cd-staged-remove-btn"
+                            onClick={() => handleRemoveBatchItem(item.id)}
+                            title="Remove file from upload queue"
+                          >
+                            <X size={13} />
+                          </button>
+                        )}
+
+                        {item.status === 'done' && (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.7rem', color: '#10B981', fontWeight: 700 }}>
+                            <CheckCircle2 size={13} /> Uploaded
+                          </span>
+                        )}
+
+                        {item.status === 'uploading' && (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.7rem', color: 'var(--cyan)', fontWeight: 700 }}>
+                            <Loader2 size={13} className="animate-spin" /> Uploading...
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Worksheet Image Thumbnail Preview */}
+                      {item.previewUrl && (
+                        <div className="cd-staged-thumbnail">
+                          <img src={item.previewUrl} alt={item.filename} />
+                        </div>
+                      )}
+
+                      {/* Editable Title Input */}
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.68rem', fontWeight: 700, color: 'var(--muted)', marginBottom: '0.25rem', letterSpacing: '0.02em', textTransform: 'uppercase' }}>
+                          Material Title
+                        </label>
+                        <input
+                          type="text"
+                          className="cd-staged-title-input"
+                          value={item.title}
+                          onChange={(e) => handleUpdateBatchItem(item.id, { title: e.target.value })}
+                          placeholder="e.g. Animal Sounds and Movement"
+                          disabled={uploadingBatch || item.status === 'done'}
+                        />
+                        <span style={{ display: 'block', fontSize: '0.62rem', color: 'rgba(255,255,255,0.4)', marginTop: '0.2rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={item.filename}>
+                          Source: {item.filename}
+                        </span>
+                      </div>
+
+                      {/* Controls row: Audience + Protected badge */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', paddingTop: '0.35rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                        {/* Audience Chips */}
+                        <div style={{ display: 'flex', gap: '0.2rem' }}>
+                          {[
+                            { id: 'shared', label: 'Shared' },
+                            { id: 'student', label: 'Student' },
+                            { id: 'teacher', label: 'Teacher' },
+                          ].map((aud) => (
+                            <button
+                              key={aud.id}
+                              type="button"
+                              className={clsx('cd-dest-chip', aud.id, item.destination === aud.id && 'active')}
+                              onClick={() => handleUpdateBatchItem(item.id, { destination: aud.id })}
+                              disabled={uploadingBatch || item.status === 'done'}
+                            >
+                              {aud.label}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Protected / Premium Toggle Button */}
+                        <button
+                          type="button"
+                          className={clsx('cd-protected-pill', !item.is_premium && 'unlocked')}
+                          onClick={() => handleUpdateBatchItem(item.id, { is_premium: !item.is_premium })}
+                          disabled={uploadingBatch || item.status === 'done'}
+                          title={item.is_premium ? 'Protected (Premium) - click to make Free' : 'Free - click to make Protected'}
+                        >
+                          <Lock size={11} />
+                          <span>{item.is_premium ? 'Protected' : 'Free'}</span>
+                        </button>
+                      </div>
+
+                      {item.error && (
+                        <p style={{ fontSize: '0.68rem', color: '#F87171', background: 'rgba(239,68,68,0.1)', padding: '0.35rem 0.5rem', borderRadius: 6, margin: 0 }}>
+                          {item.error}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── VIDEO SECTION ── */}
             {contentForm.content_type === 'video' && (
               <div>
                 <p style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--muted)', marginBottom: '0.5rem' }}>Video File</p>
@@ -2219,6 +2909,7 @@ export default function CurriculumDetail() {
               </div>
             )}
 
+            {/* ── ANIMATION SECTION ── */}
             {contentForm.content_type === 'animation' && (
               <div className="space-y-4">
                 <Select
@@ -2290,9 +2981,16 @@ export default function CurriculumDetail() {
               </div>
             )}
 
-            <div className="pt-2">
-              <Toggle label="Premium Content" checked={contentForm.is_premium} onChange={(val) => setContentForm({ ...contentForm, is_premium: val })} />
-            </div>
+            {/* Global Premium Toggle (for single content or edit mode) */}
+            {(!!editingContent || (contentForm.content_type !== 'note' && contentForm.content_type !== 'worksheet')) && (
+              <div className="pt-2">
+                <Toggle
+                  label="Premium Content"
+                  checked={contentForm.is_premium}
+                  onChange={(val) => setContentForm({ ...contentForm, is_premium: val })}
+                />
+              </div>
+            )}
 
             {saveError && (
               <p style={{ fontSize: '0.75rem', color: '#F87171', background: 'rgba(239,68,68,0.1)', padding: '0.5rem 0.75rem', borderRadius: 8 }}>
@@ -2302,10 +3000,44 @@ export default function CurriculumDetail() {
           </div>
 
           <div className="flex justify-end gap-2 mt-5 pt-4 border-t border-surface-border">
-            <Button variant="ghost" onClick={() => setContentModal(null)}>Cancel</Button>
-            <Button variant="primary" loading={saving} onClick={handleSaveContent}>
-              {editingContent ? 'Save Changes' : 'Upload Content'}
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setContentModal(null);
+                setEditingContent(null);
+                setContentForm(BLANK_CONTENT);
+                setBatchQueue([]);
+                setUploadingBatch(false);
+              }}
+              disabled={uploadingBatch}
+            >
+              Cancel
             </Button>
+
+            {!editingContent && (contentForm.content_type === 'note' || contentForm.content_type === 'worksheet') && batchQueue.length > 0 ? (
+              <Button
+                variant="primary"
+                loading={uploadingBatch}
+                onClick={handleSaveContent}
+                style={{
+                  background: 'linear-gradient(135deg, var(--cyan) 0%, var(--lavender) 100%)',
+                  color: '#0A0E1A',
+                  fontWeight: 800,
+                  boxShadow: '0 4px 16px rgba(0, 212, 255, 0.3)',
+                }}
+              >
+                <UploadCloud size={15} />
+                <span>
+                  {uploadingBatch
+                    ? `Uploading ${batchProgress.current} of ${batchProgress.total}...`
+                    : `Upload All (${batchQueue.length} ${contentForm.content_type === 'note' ? 'Notes' : 'Worksheets'})`}
+                </span>
+              </Button>
+            ) : (
+              <Button variant="primary" loading={saving} onClick={handleSaveContent}>
+                {editingContent ? 'Save Changes' : 'Upload Content'}
+              </Button>
+            )}
           </div>
         </div>
       </Modal>
@@ -2574,22 +3306,56 @@ function TopicContentPanel({ topicId, contentRefreshKey, onEditContent, onDelete
   );
 }
 
-// ── NOTE DROPZONE ─────────────────────────────────────────────────────────────
-function NoteDropzone({ file, onChange, existingName }) {
+// ── NOTE DROPZONE (Supports Single & Multi-File Batch) ────────────────────────
+function NoteDropzone({ file, onChange, existingName, multiple, onFilesSelected, batchCount, disabled }) {
   const [drag, setDrag] = useState(false);
   const inputRef = useRef(null);
+
+  const handleFiles = (fileList) => {
+    if (!fileList || fileList.length === 0) return;
+    if (multiple && onFilesSelected) {
+      onFilesSelected(fileList);
+    } else if (onChange) {
+      const f = fileList[0];
+      if (f?.type === 'application/pdf' || f?.name?.toLowerCase().endsWith('.pdf')) {
+        onChange(f);
+      }
+    }
+  };
+
   return (
     <div
-      className={clsx('cd-dropzone', drag && 'drag-over', file && 'has-file')}
+      className={clsx('cd-dropzone', drag && 'drag-over', (file || batchCount > 0) && 'has-file')}
+      style={{ opacity: disabled ? 0.6 : 1, pointerEvents: disabled ? 'none' : 'auto' }}
       onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
       onDragLeave={() => setDrag(false)}
-      onDrop={(e) => { e.preventDefault(); setDrag(false); const f = e.dataTransfer.files[0]; if (f?.type === 'application/pdf') onChange(f); }}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDrag(false);
+        handleFiles(e.dataTransfer.files);
+      }}
+      onClick={() => inputRef.current?.click()}
     >
-      <input ref={inputRef} type="file" accept="application/pdf" onChange={(e) => { const f = e.target.files[0]; if (f) onChange(f); }} />
-      <div className={clsx('cd-dropzone-icon', file && 'green')}>
-        {file ? <CheckCircle2 size={18} color="#6EE7B7" /> : <FilePlus size={18} color="var(--violet-l)" />}
+      <input
+        ref={inputRef}
+        type="file"
+        multiple={!!multiple}
+        accept="application/pdf"
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          handleFiles(e.target.files);
+          e.target.value = '';
+        }}
+      />
+      <div className={clsx('cd-dropzone-icon', (file || batchCount > 0) && 'green')}>
+        {batchCount > 0 || file ? <CheckCircle2 size={18} color="#6EE7B7" /> : <FilePlus size={18} color="var(--violet-l)" />}
       </div>
-      {file ? (
+      {batchCount > 0 ? (
+        <>
+          <span className="cd-file-name"><CheckCircle2 size={12} /> {batchCount} PDF{batchCount !== 1 ? 's' : ''} staged in list below</span>
+          <span className="cd-dropzone-hint">Click or drag more PDFs to add to the batch</span>
+        </>
+      ) : file ? (
         <span className="cd-file-name"><CheckCircle2 size={12} /> {file.name}</span>
       ) : existingName ? (
         <>
@@ -2598,37 +3364,64 @@ function NoteDropzone({ file, onChange, existingName }) {
         </>
       ) : (
         <>
-          <span className="cd-dropzone-label">Click or drag a PDF here</span>
-          <span className="cd-dropzone-hint">PDF only · max 20 MB</span>
+          <span className="cd-dropzone-label">Click or drag PDF files here</span>
+          <span className="cd-dropzone-hint">{multiple ? 'Select multiple PDFs at once · Auto-names each from file' : 'PDF only · max 20 MB'}</span>
         </>
       )}
     </div>
   );
 }
 
-// ── WORKSHEET DROPZONE ────────────────────────────────────────────────────────
-function WorksheetDropzone({ file, previewUrl, onChange }) {
+// ── WORKSHEET DROPZONE (Supports Single & Multi-File Batch) ───────────────────
+function WorksheetDropzone({ file, previewUrl, onChange, multiple, onFilesSelected, batchCount, disabled }) {
   const [drag, setDrag] = useState(false);
   const inputRef = useRef(null);
   const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp'];
 
-  const handleFile = (f) => {
-    if (f && ACCEPTED.includes(f.type)) onChange(f);
+  const handleFiles = (fileList) => {
+    if (!fileList || fileList.length === 0) return;
+    if (multiple && onFilesSelected) {
+      onFilesSelected(fileList);
+    } else if (onChange) {
+      const f = fileList[0];
+      if (f && ACCEPTED.includes(f.type)) onChange(f);
+    }
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
       <div
-        className={clsx('cd-dropzone', drag && 'drag-over', file && 'has-file')}
+        className={clsx('cd-dropzone', drag && 'drag-over', (file || batchCount > 0) && 'has-file')}
+        style={{ opacity: disabled ? 0.6 : 1, pointerEvents: disabled ? 'none' : 'auto' }}
         onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
         onDragLeave={() => setDrag(false)}
-        onDrop={(e) => { e.preventDefault(); setDrag(false); handleFile(e.dataTransfer.files[0]); }}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDrag(false);
+          handleFiles(e.dataTransfer.files);
+        }}
+        onClick={() => inputRef.current?.click()}
       >
-        <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => handleFile(e.target.files[0])} />
-        <div className={clsx('cd-dropzone-icon', file ? 'green' : 'amber')}>
-          {file ? <CheckCircle2 size={18} color="#6EE7B7" /> : <Image size={18} color="#FCD34D" />}
+        <input
+          ref={inputRef}
+          type="file"
+          multiple={!!multiple}
+          accept="image/jpeg,image/png,image/webp"
+          style={{ display: 'none' }}
+          onChange={(e) => {
+            handleFiles(e.target.files);
+            e.target.value = '';
+          }}
+        />
+        <div className={clsx('cd-dropzone-icon', (file || batchCount > 0) ? 'green' : 'amber')}>
+          {batchCount > 0 || file ? <CheckCircle2 size={18} color="#6EE7B7" /> : <Image size={18} color="#FCD34D" />}
         </div>
-        {file ? (
+        {batchCount > 0 ? (
+          <>
+            <span className="cd-file-name"><CheckCircle2 size={12} /> {batchCount} image{batchCount !== 1 ? 's' : ''} staged in list below</span>
+            <span className="cd-dropzone-hint">Click or drag more images to add to the batch</span>
+          </>
+        ) : file ? (
           <span className="cd-file-name"><CheckCircle2 size={12} /> {file.name}</span>
         ) : previewUrl ? (
           <>
@@ -2637,13 +3430,13 @@ function WorksheetDropzone({ file, previewUrl, onChange }) {
           </>
         ) : (
           <>
-            <span className="cd-dropzone-label">Click or drag an image here</span>
-            <span className="cd-dropzone-hint">JPG, PNG, WebP · max 10 MB</span>
+            <span className="cd-dropzone-label">Click or drag worksheet images here</span>
+            <span className="cd-dropzone-hint">{multiple ? 'Select multiple images at once · Auto-names each from file' : 'JPG, PNG, WebP · max 10 MB'}</span>
           </>
         )}
       </div>
 
-      {previewUrl && (
+      {!multiple && previewUrl && (
         <div className="cd-ws-preview">
           <div className="cd-ws-preview-toolbar">
             <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Image size={11} /> Preview</span>
