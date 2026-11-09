@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft, Plus, Trash2, Edit2, GripVertical,
-  FileText, Video, Sparkles, ChevronDown, Lock,
+  FileText, Video, Sparkles, ChevronDown, ChevronRight, Lock,
   Eye, Code2, UploadCloud, CheckCircle2, Loader2,
   FilePlus, X, Image, FolderPlus, Layers, BookOpen,
+  Search, ArrowRight, Folder, Filter, Compass
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -36,7 +37,6 @@ import { CSS as DndCSS } from '@dnd-kit/utilities';
 
 /* ─── CSS ─── */
 const CSS = `
-  
   .cd-root {
     --navy:     var(--local-navy, #0A0E1A);
     --navy2:    var(--local-navy2, #0F1629);
@@ -49,7 +49,7 @@ const CSS = `
     --amber:    var(--local-amber, #F59E0B);
     --red:      var(--local-red, #EF4444);
     --muted:    var(--local-muted, rgba(245,240,232,0.45));
-    --card-bg:  var(--local-card-bg, rgba(255,255,255,0.04));
+    --card-bg:  var(--local-card-bg, rgba(255,255,255,0.03));
     --card-bdr: var(--local-card-bdr, rgba(255,255,255,0.08));
     font-family: 'Inter', sans-serif;
     color: var(--cream);
@@ -61,10 +61,11 @@ const CSS = `
     position: relative;
     background: linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(0,212,255,0.06) 60%, rgba(10,14,26,0) 100%);
     border: 1px solid var(--card-bdr);
-    border-radius: 28px; padding: 1.75rem 2.25rem;
+    border-radius: 24px; padding: 1.5rem 2rem;
     overflow: hidden; backdrop-filter: blur(16px);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
     display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    flex-wrap: wrap;
   }
   .cd-hblob { position: absolute; border-radius: 50%; filter: blur(70px); pointer-events: none; }
   .cd-hblob-1 {
@@ -92,9 +93,9 @@ const CSS = `
   .cd-eyebrow {
     display: inline-flex; align-items: center; gap: 0.5rem;
     background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3);
-    padding: 0.25rem 0.8rem; border-radius: 50px;
+    padding: 0.22rem 0.75rem; border-radius: 50px;
     font-size: 0.67rem; font-weight: 700; color: var(--lavender);
-    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.4rem;
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;
   }
   .cd-eyebrow-dot {
     width: 5px; height: 5px; border-radius: 50%;
@@ -105,7 +106,7 @@ const CSS = `
 
   .cd-title {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: clamp(1.2rem, 2.2vw, 1.65rem); font-weight: 700; letter-spacing: -0.02em;
+    font-size: clamp(1.2rem, 2vw, 1.6rem); font-weight: 700; letter-spacing: -0.02em;
     background: linear-gradient(135deg, var(--cream) 0%, var(--lavender) 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     line-height: 1.2; margin-bottom: 0.15rem;
@@ -124,121 +125,173 @@ const CSS = `
   .cd-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 7px 24px rgba(124,58,237,0.5); }
   .cd-btn-primary:active { transform: translateY(0); }
 
-  /* ── SECTION CARDS ── */
-  .cd-subject-list { display: flex; flex-direction: column; gap: 0.75rem; }
-  
-  .cd-class-card {
+  .cd-btn-secondary {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    color: var(--cream); font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 600;
+    padding: 0.55rem 1rem; border-radius: 12px; cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .cd-btn-secondary:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
+
+  /* ── DRILL-DOWN NAVIGATION BAR (BREADCRUMBS & CONTEXT) ── */
+  .cd-nav-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(15,22,41,0.6);
+    border: 1px solid var(--card-bdr);
+    border-radius: 16px;
+    margin-bottom: 1.25rem;
+    backdrop-filter: blur(12px);
+  }
+  .cd-breadcrumbs {
+    display: flex; align-items: center; gap: 0.45rem;
+    flex-wrap: wrap; font-size: 0.8rem;
+  }
+  .cd-crumb-link {
+    color: var(--muted); cursor: pointer; display: flex; align-items: center; gap: 0.35rem;
+    transition: color 0.15s; font-weight: 500; border: none; background: none; padding: 0;
+  }
+  .cd-crumb-link:hover { color: var(--lavender); }
+  .cd-crumb-sep { color: rgba(255,255,255,0.25); font-size: 0.75rem; }
+  .cd-crumb-current { color: var(--cyan); font-weight: 700; }
+
+  .cd-back-action-btn {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    font-size: 0.75rem; font-weight: 600; color: var(--muted);
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    padding: 0.4rem 0.85rem; border-radius: 10px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .cd-back-action-btn:hover {
+    color: var(--cream); background: rgba(124,58,237,0.15); border-color: rgba(124,58,237,0.3);
+    transform: translateX(-2px);
+  }
+
+  /* ── HERO BANNER FOR FOCUSED ENTITY ── */
+  .cd-entity-banner {
+    background: linear-gradient(135deg, rgba(124,58,237,0.08) 0%, rgba(15,22,41,0.7) 100%);
+    border: 1px solid var(--card-bdr);
+    border-radius: 20px; padding: 1.25rem 1.6rem;
+    margin-bottom: 1.25rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .cd-entity-badge {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.2rem 0.6rem; border-radius: 6px;
+    font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.25); color: var(--cyan);
+    margin-bottom: 0.35rem;
+  }
+  .cd-entity-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.25rem; font-weight: 700; color: var(--cream);
+  }
+  .cd-entity-desc {
+    font-size: 0.76rem; color: var(--muted); margin-top: 0.2rem; max-width: 650px; line-height: 1.5;
+  }
+  .cd-entity-actions {
+    display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+  }
+
+  /* ── SECTION HEADER ── */
+  .cd-section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 0.85rem; padding: 0 0.25rem; gap: 0.75rem; flex-wrap: wrap;
+  }
+  .cd-section-title {
+    font-size: 0.8rem; font-weight: 700; color: var(--lavender);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+
+  /* ── DRILL CARD (Stage / Subject / Topic) ── */
+  .cd-drill-card {
     background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 20px; overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 18px; padding: 1.15rem 1.35rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    cursor: pointer; transition: all 0.2s ease;
     margin-bottom: 0.75rem;
   }
-  .cd-class-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 1.1rem 1.35rem; cursor: pointer;
-    background: rgba(255,255,255,0.01);
-    transition: background 0.2s;
+  .cd-drill-card:hover {
+    background: rgba(124,58,237,0.05);
+    border-color: rgba(124,58,237,0.28);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
   }
-  .cd-class-header:hover {
-    background: rgba(255,255,255,0.03);
+  .cd-drill-info { flex: 1; min-width: 0; }
+  .cd-drill-title-row {
+    display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;
   }
-
-  .cd-class-title-sec {
-    display: flex; align-items: center; gap: 0.75rem;
-  }
-  .cd-class-title {
+  .cd-drill-title {
     font-family: 'Space Grotesk', sans-serif;
-    font-weight: 700; font-size: 1.05rem; color: var(--cream);
+    font-weight: 700; font-size: 1rem; color: var(--cream);
   }
-  
-  .cd-subject {
-    background: rgba(255,255,255,0.02); border: 1px solid var(--card-bdr);
-    border-radius: 16px; overflow: hidden; backdrop-filter: blur(12px);
-    margin-bottom: 0.5rem;
-    transition: border-color 0.3s;
+  .cd-drill-desc {
+    font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem;
+    line-height: 1.45;
   }
-  .cd-subject:hover { border-color: rgba(124,58,237,0.2); }
-  .cd-subject.is-open { border-color: rgba(124,58,237,0.28); }
+  .cd-drill-pill {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    padding: 0.18rem 0.55rem; border-radius: 20px;
+    font-size: 0.65rem; font-weight: 600;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    color: var(--muted);
+  }
+  .cd-drill-actions {
+    display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0;
+  }
+  .cd-drill-arrow {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+    color: var(--muted); display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s ease; flex-shrink: 0;
+  }
+  .cd-drill-card:hover .cd-drill-arrow {
+    background: var(--violet); border-color: var(--violet); color: #fff;
+    transform: translateX(3px);
+  }
 
-  .cd-subject-header {
-    display: flex; align-items: center; gap: 0.75rem;
-    padding: 0.85rem 1rem; cursor: pointer; transition: background 0.2s;
-  }
-  .cd-subject-header:hover { background: rgba(255,255,255,0.025); }
-
-  .cd-grip { color: var(--muted); flex-shrink: 0; opacity: 0.5; }
-  .cd-subject-idx {
-    font-size: 0.65rem; font-family: 'Space Grotesk', sans-serif;
-    color: var(--muted); width: 20px; flex-shrink: 0; font-weight: 600;
-  }
-  .cd-subject-info { flex: 1; min-width: 0; }
-  .cd-subject-name {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 0.875rem; font-weight: 700; color: var(--cream);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .cd-subject-desc { font-size: 0.72rem; color: var(--muted); margin-top: 0.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cd-subject-actions { display: flex; align-items: center; gap: 0.2rem; flex-shrink: 0; }
   .cd-icon-btn {
     display: flex; align-items: center; justify-content: center;
     width: 30px; height: 30px; border-radius: 9px; background: transparent;
     border: none; cursor: pointer; color: var(--muted); transition: background 0.2s, color 0.2s;
   }
   .cd-icon-btn:hover { background: rgba(255,255,255,0.06); color: var(--cream); }
-  .cd-icon-btn.edit:hover   { color: var(--violet-l); background: rgba(124,58,237,0.1); }
-  .cd-icon-btn.delete:hover { color: #F87171; background: rgba(239,68,68,0.08); }
-  .cd-chevron { color: var(--muted); flex-shrink: 0; transition: transform 0.25s ease; }
-  .cd-chevron.open { transform: rotate(180deg); }
+  .cd-icon-btn.edit:hover   { color: var(--violet-l); background: rgba(124,58,237,0.12); }
+  .cd-icon-btn.delete:hover { color: #F87171; background: rgba(239,68,68,0.1); }
 
-  /* ── CONTENT PANEL ── */
-  .cd-panel {
-    border-top: 1px solid rgba(255,255,255,0.06);
-    background: rgba(10,14,26,0.4);
-    padding: 0.85rem 1.15rem 1rem;
-    display: flex; flex-direction: column; gap: 0.5rem;
+  /* ── TOPIC STUDIO & MATERIALS ── */
+  .cd-materials-header {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.85rem;
   }
-  
-  .cd-topics-container {
-    padding: 0.75rem 1rem;
-    background: rgba(10,14,26,0.3);
-    border-top: 1px solid rgba(255,255,255,0.05);
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+  .cd-filter-pills {
+    display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;
   }
-
-  .cd-topic-card {
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 12px;
-    overflow: hidden;
-    margin-bottom: 0.4rem;
+  .cd-filter-pill {
+    padding: 0.35rem 0.75rem; border-radius: 20px;
+    font-size: 0.7rem; font-weight: 600; cursor: pointer;
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+    color: var(--muted); transition: all 0.15s ease;
   }
-  .cd-topic-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.65rem 0.85rem;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .cd-topic-header:hover {
-    background: rgba(255,255,255,0.03);
-  }
-  .cd-topic-name {
-    font-size: 0.82rem; font-weight: 600; color: var(--cream);
-  }
-  .cd-topic-desc {
-    font-size: 0.7rem; color: var(--muted);
+  .cd-filter-pill:hover { color: var(--cream); background: rgba(255,255,255,0.06); }
+  .cd-filter-pill.active {
+    background: rgba(124,58,237,0.15); border-color: rgba(124,58,237,0.4);
+    color: var(--lavender);
   }
 
   .cd-content-item {
     display: flex; align-items: center; gap: 0.75rem;
-    padding: 0.65rem 0.85rem; border-radius: 14px;
-    background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+    padding: 0.75rem 1rem; border-radius: 14px;
+    background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
     transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    margin-bottom: 0.45rem;
   }
-  .cd-content-item:hover { border-color: rgba(124,58,237,0.2); background: rgba(124,58,237,0.04); }
+  .cd-content-item:hover { border-color: rgba(124,58,237,0.25); background: rgba(124,58,237,0.04); }
   .cd-content-item.cd-dragging {
     opacity: 0.85;
     background: rgba(124,58,237,0.15);
@@ -248,56 +301,65 @@ const CSS = `
   .cd-content-drag-handle {
     display: inline-flex; align-items: center; justify-content: center;
     color: var(--muted); cursor: grab; opacity: 0.45;
-    transition: opacity 0.2s, color 0.2s;
-    padding: 2px;
-    touch-action: none;
-    flex-shrink: 0;
+    transition: opacity 0.2s, color 0.2s; padding: 2px;
+    touch-action: none; flex-shrink: 0;
   }
   .cd-content-drag-handle:hover { opacity: 1; color: var(--lavender); }
   .cd-content-drag-handle:active { cursor: grabbing; }
-  .cd-reorder-saving {
-    font-size: 0.68rem; color: var(--lavender);
-    font-weight: 500;
-  }
+
   .cd-content-icon {
-    width: 28px; height: 28px; border-radius: 9px; flex-shrink: 0;
+    width: 32px; height: 32px; border-radius: 10px; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center; border: 1px solid;
   }
   .cd-content-icon.note      { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: var(--muted); }
   .cd-content-icon.video     { background: rgba(124,58,237,0.12); border-color: rgba(124,58,237,0.3); color: var(--violet-l); }
   .cd-content-icon.animation { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); color: #6EE7B7; }
   .cd-content-icon.worksheet { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); color: #FCD34D; }
-  .cd-content-title { flex: 1; min-width: 0; font-size: 0.78rem; font-weight: 600; color: var(--cream); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .cd-content-title { flex: 1; min-width: 0; font-size: 0.82rem; font-weight: 600; color: var(--cream); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
   .cd-type-badge {
-    display: inline-flex; align-items: center; padding: 0.14rem 0.5rem;
-    border-radius: 50px; font-size: 0.58rem; font-weight: 700;
+    display: inline-flex; align-items: center; padding: 0.16rem 0.55rem;
+    border-radius: 50px; font-size: 0.6rem; font-weight: 700;
     letter-spacing: 0.05em; text-transform: uppercase; border: 1px solid; flex-shrink: 0;
   }
   .cd-type-badge.note      { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.12); color: var(--muted); }
   .cd-type-badge.video     { background: rgba(124,58,237,0.12); border-color: rgba(124,58,237,0.3); color: var(--lavender); }
   .cd-type-badge.animation { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.25); color: #6EE7B7; }
   .cd-type-badge.worksheet { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); color: #FCD34D; }
-  .cd-premium-tag { color: #FCD34D; flex-shrink: 0; }
-  
-  .cd-add-content-btn {
-    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-    padding: 0.6rem; border-radius: 14px;
-    border: 1px dashed rgba(124,58,237,0.25);
-    background: transparent; color: var(--muted);
-    font-size: 0.75rem; font-weight: 600; cursor: pointer;
-    width: 100%;
-    transition: border-color 0.2s, color 0.2s, background 0.2s; margin-top: 0.25rem;
-  }
-  .cd-add-content-btn:hover { border-color: rgba(124,58,237,0.5); color: var(--violet-l); background: rgba(124,58,237,0.05); }
 
-  /* ── FILE DROP ZONE ── */
+  .cd-reorder-saving { font-size: 0.7rem; color: var(--lavender); font-weight: 500; }
+
+  /* ── QUICK UPLOAD CARDS (EMPTY STATE SHORTCUTS) ── */
+  .cd-upload-shortcuts {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem; margin-top: 1rem;
+  }
+  .cd-shortcut-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px dashed rgba(255,255,255,0.1);
+    border-radius: 14px; padding: 1.25rem 1rem;
+    display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.5rem;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .cd-shortcut-card:hover {
+    background: rgba(124,58,237,0.06); border-color: rgba(124,58,237,0.4);
+    transform: translateY(-2px);
+  }
+  .cd-shortcut-icon {
+    width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cd-shortcut-title { font-size: 0.8rem; font-weight: 700; color: var(--cream); }
+  .cd-shortcut-desc { font-size: 0.68rem; color: var(--muted); }
+
+  /* ── DROPZONES, VIDEO & ANIMATION STYLES ── */
   .cd-dropzone {
     border: 2px dashed rgba(255,255,255,0.12);
     border-radius: 14px; padding: 1.5rem 1rem;
     display: flex; flex-direction: column; align-items: center; gap: 0.65rem;
     cursor: pointer; transition: border-color 0.2s, background 0.2s;
-    background: rgba(255,255,255,0.02); text-align: center;
-    position: relative;
+    background: rgba(255,255,255,0.02); text-align: center; position: relative;
   }
   .cd-dropzone:hover, .cd-dropzone.drag-over {
     border-color: rgba(124,58,237,0.4); background: rgba(124,58,237,0.04);
@@ -322,36 +384,29 @@ const CSS = `
     display: flex; align-items: center; gap: 0.35rem;
   }
 
-  /* ── WORKSHEET IMAGE PREVIEW ── */
   .cd-ws-preview {
     border-radius: 12px; overflow: hidden;
     border: 1px solid rgba(245,158,11,0.25);
-    background: rgba(10,14,26,0.6);
-    display: flex; flex-direction: column;
+    background: rgba(10,14,26,0.6); display: flex; flex-direction: column;
   }
   .cd-ws-preview-toolbar {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 0.45rem 0.75rem;
-    background: rgba(245,158,11,0.06);
+    padding: 0.45rem 0.75rem; background: rgba(245,158,11,0.06);
     border-bottom: 1px solid rgba(245,158,11,0.15);
     font-size: 0.68rem; font-weight: 700; color: #FCD34D;
     letter-spacing: 0.06em; text-transform: uppercase;
   }
   .cd-ws-preview img {
-    width: 100%; max-height: 220px; object-fit: contain;
-    display: block; background: #fff;
+    width: 100%; max-height: 220px; object-fit: contain; display: block; background: #fff;
   }
 
-  /* ── VIDEO UPLOADER STATES ── */
   .cd-video-stage {
     border: 1px solid rgba(124,58,237,0.2);
-    border-radius: 14px; overflow: hidden;
-    background: rgba(10,14,26,0.5);
+    border-radius: 14px; overflow: hidden; background: rgba(10,14,26,0.5);
   }
   .cd-video-stage-header {
     display: flex; align-items: center; gap: 0.5rem;
-    padding: 0.6rem 0.85rem;
-    background: rgba(124,58,237,0.06);
+    padding: 0.6rem 0.85rem; background: rgba(124,58,237,0.06);
     border-bottom: 1px solid rgba(124,58,237,0.12);
     font-size: 0.68rem; font-weight: 700; color: var(--lavender);
     letter-spacing: 0.06em; text-transform: uppercase;
@@ -361,8 +416,7 @@ const CSS = `
     border-radius: 0 0 4px 4px; overflow: hidden;
   }
   .cd-video-progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--violet), var(--cyan));
+    height: 100%; background: linear-gradient(90deg, var(--violet), var(--cyan));
     transition: width 0.3s ease;
   }
   .cd-video-stage-body { padding: 0.85rem; }
@@ -375,15 +429,13 @@ const CSS = `
   .cd-status-row.pending { color: var(--amber); }
   .cd-status-row.error   { color: #F87171; }
 
-  /* ── ANIMATION CODE EDITOR ── */
   .cd-anim-editor-wrap {
     border: 1px solid rgba(16,185,129,0.25); border-radius: 14px;
     overflow: hidden; background: rgba(10,14,26,0.8);
   }
   .cd-anim-editor-toolbar {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 0.5rem 0.75rem;
-    background: rgba(16,185,129,0.06);
+    padding: 0.5rem 0.75rem; background: rgba(16,185,129,0.06);
     border-bottom: 1px solid rgba(16,185,129,0.15);
   }
   .cd-anim-editor-label {
@@ -408,12 +460,24 @@ const CSS = `
   }
   .cd-anim-textarea::placeholder { color: rgba(245,240,232,0.2); }
 
-  /* ── SHIMMER ── */
   .cd-skel {
     background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 75%);
     background-size: 200% 100%; animation: cd-shimmer 1.6s ease infinite; border-radius: 12px;
   }
   @keyframes cd-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+  .cd-empty {
+    display: flex; flex-direction: column; align-items: center; gap: 0.85rem;
+    padding: 3rem 1.5rem; border: 1px dashed rgba(124,58,237,0.2);
+    border-radius: 20px; background: rgba(124,58,237,0.02); text-align: center;
+  }
+  .cd-empty-icon {
+    width: 50px; height: 50px; border-radius: 16px;
+    background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.2);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cd-empty-title { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--cream); }
+  .cd-empty-desc  { font-size: 0.78rem; color: var(--muted); max-width: 320px; line-height: 1.5; }
 
   /* ── LIGHT THEME COMPATIBILITY ── */
   html.light .cd-root, .light .cd-root {
@@ -422,179 +486,69 @@ const CSS = `
     --card-bg: #FFFFFF;
     --card-bdr: #CBD5E1;
   }
-  html.light .cd-class-card, .light .cd-class-card {
-    background: #FFFFFF;
-    border-color: #CBD5E1;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  html.light .cd-drill-card, .light .cd-drill-card {
+    background: #FFFFFF; border-color: #CBD5E1; box-shadow: 0 4px 12px rgba(0,0,0,0.04);
   }
-  html.light .cd-class-header, .light .cd-class-header {
-    background: #FFFFFF;
+  html.light .cd-drill-card:hover, .light .cd-drill-card:hover {
+    background: #F8FAFC; border-color: #94A3B8;
   }
-  html.light .cd-class-header:hover, .light .cd-class-header:hover {
-    background: #F8FAFC;
-  }
-  html.light .cd-class-title, .light .cd-class-title {
-    color: #0F172A;
-  }
-  html.light .cd-subject, .light .cd-subject {
-    background: #FFFFFF;
-    border-color: #CBD5E1;
-  }
-  html.light .cd-subject-header:hover, .light .cd-subject-header:hover {
-    background: #F8FAFC;
-  }
-  html.light .cd-subject-name, .light .cd-subject-name {
-    color: #0F172A;
-  }
-  html.light .cd-panel, .light .cd-panel {
-    background: #F8FAFC;
-    border-top-color: #E2E8F0;
-  }
-  html.light .cd-topic-card, .light .cd-topic-card {
-    background: #FFFFFF;
-    border-color: #CBD5E1;
-  }
-  html.light .cd-topic-header:hover, .light .cd-topic-header:hover {
-    background: #F8FAFC;
-  }
-  html.light .cd-topic-name, .light .cd-topic-name {
-    color: #0F172A;
-  }
+  html.light .cd-drill-title, .light .cd-drill-title { color: #0F172A; }
   html.light .cd-content-item, .light .cd-content-item {
-    background: #FFFFFF;
-    border-color: #CBD5E1;
+    background: #FFFFFF; border-color: #CBD5E1;
   }
   html.light .cd-content-item:hover, .light .cd-content-item:hover {
-    background: #F1F5F9;
-    border-color: #94A3B8;
+    background: #F1F5F9; border-color: #94A3B8;
   }
-  html.light .cd-content-title, .light .cd-content-title {
-    color: #0F172A;
+  html.light .cd-content-title, .light .cd-content-title { color: #0F172A; }
+  html.light .cd-nav-bar, .light .cd-nav-bar {
+    background: #F8FAFC; border-color: #CBD5E1;
   }
-  html.light .cd-type-badge.note, .light .cd-type-badge.note {
-    background: #F1F5F9;
-    border-color: #E2E8F0;
-    color: #475569;
+  html.light .cd-entity-banner, .light .cd-entity-banner {
+    background: #FFFFFF; border-color: #CBD5E1;
   }
+  html.light .cd-entity-title, .light .cd-entity-title { color: #0F172A; }
   html.light .cd-empty, .light .cd-empty {
-    background: #F8FAFC;
-    border-color: #CBD5E1;
+    background: #F8FAFC; border-color: #CBD5E1;
   }
-  html.light .cd-empty-title, .light .cd-empty-title {
-    color: #0F172A;
+  html.light .cd-empty-title, .light .cd-empty-title { color: #0F172A; }
+  html.light .cd-shortcut-card, .light .cd-shortcut-card {
+    background: #FFFFFF; border-color: #CBD5E1;
   }
-  html.light .cd-empty-desc, .light .cd-empty-desc {
-    color: #475569;
-  }
-  html.light .cd-action-choice-btn, .light .cd-action-choice-btn {
-    background: #FFFFFF;
-    border-color: #CBD5E1;
-    color: #475569;
-  }
-  html.light .cd-action-choice-btn:hover, .light .cd-action-choice-btn:hover {
-    background: #F1F5F9;
-    color: #0F172A;
-    border-color: #94A3B8;
-  }
+  html.light .cd-shortcut-title, .light .cd-shortcut-title { color: #0F172A; }
   html.light .cd-dropzone, .light .cd-dropzone {
-    background: #FFFFFF;
-    border-color: #CBD5E1;
+    background: #FFFFFF; border-color: #CBD5E1;
   }
-  html.light .cd-dropzone-label, .light .cd-dropzone-label {
-    color: #0F172A;
-  }
+  html.light .cd-dropzone-label, .light .cd-dropzone-label { color: #0F172A; }
   html.light .cd-video-stage, .light .cd-video-stage {
-    background: #FFFFFF;
-    border-color: #CBD5E1;
+    background: #FFFFFF; border-color: #CBD5E1;
   }
   html.light .cd-anim-editor-wrap, .light .cd-anim-editor-wrap {
-    background: #FFFFFF;
-    border-color: #CBD5E1;
+    background: #FFFFFF; border-color: #CBD5E1;
   }
-  html.light .cd-anim-textarea, .light .cd-anim-textarea {
-    color: #0F172A;
-  }
+  html.light .cd-anim-textarea, .light .cd-anim-textarea { color: #0F172A; }
   html.light .cd-skel, .light .cd-skel {
     background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%);
   }
-
-  /* ── EMPTY STATE ── */
-  .cd-empty {
-    display: flex; flex-direction: column; align-items: center; gap: 1rem;
-    padding: 3.5rem 2rem; border: 1px dashed rgba(124,58,237,0.2);
-    border-radius: 20px; background: rgba(124,58,237,0.02); text-align: center;
-  }
-  .cd-empty-icon {
-    width: 52px; height: 52px; border-radius: 16px;
-    background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.2);
-    display: flex; align-items: center; justify-content: center;
-  }
-  .cd-empty-title { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: 700; color: var(--cream); }
-  .cd-empty-desc  { font-size: 0.78rem; color: var(--muted); max-width: 260px; line-height: 1.55; }
-
-  /* ── TOPIC OPTIONS ROW ── */
-  .cd-topic-actions-row {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.75rem 0.85rem;
-    border-top: 1px dashed rgba(255,255,255,0.06);
-    background: rgba(10,14,26,0.15);
-  }
-  .cd-action-choice-btn {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: 10px;
-    font-size: 0.72rem;
-    font-weight: 600;
-    cursor: pointer;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.06);
-    color: var(--muted);
-    transition: background 0.2s, border-color 0.2s, color 0.2s;
-  }
-  .cd-action-choice-btn:hover {
-    color: var(--cream);
-    background: rgba(255,255,255,0.06);
-    border-color: rgba(255,255,255,0.15);
-  }
-  .cd-action-choice-btn.subtopic {
-    color: var(--cyan);
-    background: rgba(0,212,255,0.03);
-    border-color: rgba(0,212,255,0.15);
-  }
-  .cd-action-choice-btn.subtopic:hover {
-    background: rgba(0,212,255,0.06);
-    border-color: rgba(0,212,255,0.35);
-  }
-  .cd-action-choice-btn.material {
-    color: var(--lavender);
-    background: rgba(196,181,253,0.03);
-    border-color: rgba(196,181,253,0.15);
-  }
-  .cd-action-choice-btn.material:hover {
-    background: rgba(196,181,253,0.06);
-    border-color: rgba(196,181,253,0.35);
-    color: var(--cream);
-  }
 `;
 
-const CONTENT_ICON = { note: FileText, video: Video, animation: Sparkles, worksheet: Image };
+const CONTENT_ICON = {
+  note:      FileText,
+  video:     Video,
+  animation: Sparkles,
+  worksheet: Image,
+};
 
 const BLANK_CLASS = { name: '', description: '' };
 const BLANK_SUBJECT = { name: '', description: '' };
 const BLANK_TOPIC = { name: '', description: '', parent_topic_id: '' };
 const BLANK_CONTENT = {
-  title: '', content_type: 'note',
+  title: '',
+  content_type: 'note',
   destination: 'shared',
   target_tab: 'simulators',
   noteFile: null,
-  videoStage: 'idle',
   videoFile: null,
+  videoStage: 'idle',
   videoProgress: 0,
   videoContentId: null,
   videoUploadId: null,
@@ -618,19 +572,16 @@ const parseHtmlContent = (fullHtml) => {
                     /<(html|head|body)\b/i.test(trimmed);
 
   if (isFullDoc) {
-    // Extract JSON data if present
     let json = '';
     const jsonMatch = trimmed.match(/<script id="animation-data"[^>]*>([\s\S]*?)<\/script>/i);
     if (jsonMatch) json = jsonMatch[1].trim();
 
-    // Extract all <style> blocks for display in the CSS editor tab
     const styleMatches = trimmed.match(/<style[^>]*>([\s\S]*?)<\/style>/gi) || [];
     const css = styleMatches.map(tag => {
       const m = tag.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
       return m ? m[1].trim() : '';
     }).filter(Boolean).join('\n\n');
 
-    // Extract all inline <script> blocks for display in the JS editor tab
     const scriptMatches = trimmed.match(/<script(?![^>]*\bsrc\b)[^>]*>([\s\S]*?)<\/script>/gi) || [];
     const js = scriptMatches.map(tag => {
       if (tag.includes('id="animation-data"') || tag.includes('window.ANIMATION_DATA')) return '';
@@ -638,20 +589,12 @@ const parseHtmlContent = (fullHtml) => {
       return m ? m[1].trim() : '';
     }).filter(Boolean).join('\n\n');
 
-    return {
-      html: trimmed, // Preserve the entire self-contained HTML document intact!
-      css,
-      js,
-      json
-    };
+    return { html: trimmed, css, js, json };
   }
 
-  // Snippet mode (standard 4-part editor component)
   let json = '';
   const jsonMatch = fullHtml.match(/<script id="animation-data"[^>]*>([\s\S]*?)<\/script>/i);
-  if (jsonMatch) {
-    json = jsonMatch[1].trim();
-  }
+  if (jsonMatch) json = jsonMatch[1].trim();
 
   let cleanHtml = fullHtml
     .replace(/<script id="animation-data"[^>]*>([\s\S]*?)<\/script>/gi, '')
@@ -660,17 +603,12 @@ const parseHtmlContent = (fullHtml) => {
 
   let css = '';
   const styleMatch = cleanHtml.match(/<style[^>]*>([\s\S]*?)<\/style>/i);
-  if (styleMatch) {
-    css = styleMatch[1].trim();
-  }
+  if (styleMatch) css = styleMatch[1].trim();
   cleanHtml = cleanHtml.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
 
   let js = '';
-  const scriptRegex = /<script(?![^>]*\bsrc\b)[^>]*>([\s\S]*?)<\/script>/i;
-  const scriptMatch = cleanHtml.match(scriptRegex);
-  if (scriptMatch) {
-    js = scriptMatch[1].trim();
-  }
+  const scriptMatch = cleanHtml.match(/<script(?![^>]*\bsrc\b)[^>]*>([\s\S]*?)<\/script>/i);
+  if (scriptMatch) js = scriptMatch[1].trim();
   cleanHtml = cleanHtml.replace(/<script(?![^>]*\bsrc\b)[^>]*>[\s\S]*?<\/script>/gi, '');
 
   let html = '';
@@ -679,15 +617,12 @@ const parseHtmlContent = (fullHtml) => {
     const headScripts = [];
     const headMatches = cleanHtml.match(/<(script\b[^>]*\bsrc\b|link\b[^>]*)[^>]*>([\s\S]*?<\/script>)?/gi) || [];
     headMatches.forEach(tag => {
-      if (!bodyMatch[0].includes(tag)) {
-        headScripts.push(tag);
-      }
+      if (!bodyMatch[0].includes(tag)) headScripts.push(tag);
     });
     html = (headScripts.join('\n') + '\n' + bodyMatch[1]).trim();
   } else {
     html = cleanHtml.trim();
   }
-  
   return { html, css, js, json };
 };
 
@@ -727,9 +662,7 @@ const getEffectiveHtml = (form) => {
   const isFullDoc = html.toLowerCase().startsWith('<!doctype') ||
                     html.toLowerCase().startsWith('<html') ||
                     /<(html|head|body)\b/i.test(html);
-  if (isFullDoc) {
-    return html;
-  }
+  if (isFullDoc) return html;
   return compileHtmlContent(form.html_part, form.css_part, form.js_part, form.json_part);
 };
 
@@ -747,11 +680,8 @@ function SimulationFolderDropzone({ onParsed }) {
     setFilesSummary(null);
 
     let parsedFiles = [];
-
     try {
-      // Build a map of basename -> content for all files
-      const fileMap = {}; // basename (lowercase) -> text content
-
+      const fileMap = {};
       const zipFile = files.find(f => f.name.toLowerCase().endsWith('.zip'));
 
       if (zipFile) {
@@ -764,7 +694,6 @@ function SimulationFolderDropzone({ onParsed }) {
           if (!['html', 'htm', 'css', 'js', 'json'].includes(ext)) continue;
           const fileObj = zip.files[filename];
           const text = await fileObj.async('string');
-          // Store by both the full path and basename for flexible lookup
           const basename = filename.split('/').pop().toLowerCase();
           fileMap[basename] = text;
           fileMap[filename.toLowerCase()] = text;
@@ -775,7 +704,6 @@ function SimulationFolderDropzone({ onParsed }) {
           const ext = file.name.toLowerCase().split('.').pop();
           if (!['html', 'htm', 'css', 'js', 'json'].includes(ext)) continue;
           const text = await file.text();
-          // webkitRelativePath gives "FolderName/file.ext", use it for disambiguation
           const relPath = (file.webkitRelativePath || file.name).toLowerCase();
           const basename = file.name.toLowerCase();
           fileMap[basename] = text;
@@ -784,7 +712,6 @@ function SimulationFolderDropzone({ onParsed }) {
         }
       }
 
-      // Find the primary HTML entry (index.html preferred)
       let htmlEntry = Object.keys(fileMap).find(k => k.endsWith('index.html') || k.endsWith('index.htm'));
       if (!htmlEntry) htmlEntry = Object.keys(fileMap).find(k => k.endsWith('.html') || k.endsWith('.htm'));
       let rawHtml = htmlEntry ? fileMap[htmlEntry] : '';
@@ -795,17 +722,15 @@ function SimulationFolderDropzone({ onParsed }) {
         return;
       }
 
-      // ─── INLINE all external CSS <link href="..."> references ──────────────
       rawHtml = rawHtml.replace(
         /<link\b[^>]*\brel=["']stylesheet["'][^>]*\bhref=["']([^"']+)["'][^>]*\/?>/gi,
         (match, href) => {
-          const key = href.toLowerCase().split('/').pop(); // get basename
+          const key = href.toLowerCase().split('/').pop();
           const css = fileMap[key] || fileMap[href.toLowerCase()];
           if (css) return `<style>\n${css}\n</style>`;
-          return match; // leave untouched if not found
+          return match;
         }
       );
-      // Also handle <link href="..." rel="stylesheet"> order
       rawHtml = rawHtml.replace(
         /<link\b[^>]*\bhref=["']([^"']+\.css)["'][^>]*\/?>/gi,
         (match, href) => {
@@ -815,12 +740,9 @@ function SimulationFolderDropzone({ onParsed }) {
           return match;
         }
       );
-
-      // ─── INLINE all external <script src="..."> references ─────────────────
       rawHtml = rawHtml.replace(
         /<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*><\/script>/gi,
         (match, src) => {
-          // Skip CDN/external URLs
           if (/^https?:\/\//.test(src)) return match;
           const key = src.toLowerCase().split('/').pop();
           const js = fileMap[key] || fileMap[src.toLowerCase()];
@@ -829,26 +751,16 @@ function SimulationFolderDropzone({ onParsed }) {
         }
       );
 
-      // ─── Produce the final self-contained html_content directly ────────────
-      // We store the full inlined HTML as html_content.
-      // The html_part/css_part/js_part split is kept for the editor preview tabs
-      // but we override html_content on save via compileHtmlContent.
       const extracted = parseHtmlContent(rawHtml);
-
       onParsed({
-        // Pass the full inlined HTML as html_part so the editor shows it
-        // and compileHtmlContent wraps it correctly on save.
-        html_part: rawHtml.trim(),       // full self-contained inlined HTML
-        css_part: extracted.css || '',   // parsed CSS for editor tab display
-        js_part: extracted.js || '',     // parsed JS for editor tab display
-        json_part: extracted.json || ''  // parsed JSON for editor tab display
+        html_part: rawHtml.trim(),
+        css_part: extracted.css || '',
+        js_part: extracted.js || '',
+        json_part: extracted.json || ''
       });
 
-      setFilesSummary({
-        fileCount: parsedFiles.length,
-        files: parsedFiles
-      });
-      toast.success(`Simulation bundle uploaded! Processed ${parsedFiles.length} file(s). All assets inlined.`);
+      setFilesSummary({ fileCount: parsedFiles.length, files: parsedFiles });
+      toast.success(`Simulation bundle processed! ${parsedFiles.length} file(s) inlined.`);
     } catch (err) {
       toast.error('Error reading simulation bundle: ' + err.message);
     } finally {
@@ -866,23 +778,8 @@ function SimulationFolderDropzone({ onParsed }) {
 
   return (
     <div style={{ marginBottom: '1.25rem' }}>
-      <input
-        ref={folderInputRef}
-        type="file"
-        webkitdirectory="true"
-        directory="true"
-        multiple
-        style={{ display: 'none' }}
-        onChange={(e) => processFileList(e.target.files)}
-      />
-      <input
-        ref={fileInputRef}
-        type="file"
-        multiple
-        accept=".zip,.html,.htm,.css,.js,.json"
-        style={{ display: 'none' }}
-        onChange={(e) => processFileList(e.target.files)}
-      />
+      <input ref={folderInputRef} type="file" webkitdirectory="true" directory="true" multiple style={{ display: 'none' }} onChange={(e) => processFileList(e.target.files)} />
+      <input ref={fileInputRef} type="file" multiple accept=".zip,.html,.htm,.css,.js,.json" style={{ display: 'none' }} onChange={(e) => processFileList(e.target.files)} />
 
       <div
         onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
@@ -895,7 +792,6 @@ function SimulationFolderDropzone({ onParsed }) {
           padding: '1.4rem 1.25rem',
           textAlign: 'center',
           transition: 'all 0.2s ease',
-          boxShadow: dragActive ? '0 0 24px rgba(0, 212, 255, 0.15)' : 'none'
         }}
       >
         {parsing ? (
@@ -909,20 +805,15 @@ function SimulationFolderDropzone({ onParsed }) {
               width: '48px', height: '48px', borderRadius: '14px',
               background: 'rgba(124, 58, 237, 0.15)', border: '1px solid rgba(124, 58, 237, 0.35)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--lavender)',
-              boxShadow: '0 0 20px rgba(124, 58, 237, 0.15)'
             }}>
               <UploadCloud size={24} />
             </div>
-            
             <div>
-              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.01em' }}>
-                Upload Simulation Folder or ZIP Bundle
-              </div>
+              <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#f8fafc' }}>Upload Simulation Folder or ZIP Bundle</div>
               <div style={{ fontSize: '0.76rem', color: '#94a3b8', marginTop: '4px', maxWidth: '420px', margin: '4px auto 0' }}>
-                Drop a simulation folder, .zip file, or HTML/CSS/JS/JSON files. They will be auto-parsed into working simulation code.
+                Drop a simulation folder, .zip file, or HTML/CSS/JS/JSON files. All code and assets will be auto-inlined.
               </div>
             </div>
-
             <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.25rem', flexWrap: 'wrap', justifyContent: 'center' }}>
               <button
                 type="button"
@@ -932,12 +823,10 @@ function SimulationFolderDropzone({ onParsed }) {
                   background: 'rgba(0, 212, 255, 0.12)', border: '1px solid rgba(0, 212, 255, 0.35)',
                   color: 'var(--cyan)', fontSize: '0.8rem', fontWeight: 700,
                   display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer',
-                  transition: 'all 0.15s ease'
                 }}
               >
                 <FolderPlus size={15} /> Upload Folder
               </button>
-
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
@@ -946,7 +835,6 @@ function SimulationFolderDropzone({ onParsed }) {
                   background: 'rgba(124, 58, 237, 0.18)', border: '1px solid rgba(124, 58, 237, 0.35)',
                   color: 'var(--lavender)', fontSize: '0.8rem', fontWeight: 700,
                   display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer',
-                  transition: 'all 0.15s ease'
                 }}
               >
                 <FilePlus size={15} /> Upload ZIP / Files
@@ -966,7 +854,7 @@ function SimulationFolderDropzone({ onParsed }) {
             <CheckCircle2 size={18} color="#10b981" />
             <div>
               <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#10b981' }}>
-                Auto-extracted {filesSummary.fileCount} file(s) ({filesSummary.files.map(f => f.type).join(', ')})
+                Auto-extracted ${filesSummary.fileCount} file(s)
               </div>
               <div style={{ fontSize: '0.7rem', color: '#94a3b8', marginTop: '1px' }}>
                 Extracted HTML, CSS, JS, and JSON are populated below.
@@ -997,12 +885,7 @@ const ANIM_PLACEHOLDER = `<!DOCTYPE html>
 </body>
 </html>`;
 
-const listContainer = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
-const subjectVariant = {
-  hidden: { opacity: 0, y: 15 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] } },
-};
-
+// ── MAIN CURRICULUM DETAIL COMPONENT ───────────────────────────────────────────
 export default function CurriculumDetail() {
   const user = useAuthStore((s) => s.user);
   const isTeacher = user?.role === 'teacher';
@@ -1010,9 +893,18 @@ export default function CurriculumDetail() {
   const { id } = useParams(); // curriculumId
   const navigate = useNavigate();
 
-  const [expandedClass, setExpandedClass] = useState(null);
-  const [expandedSubject, setExpandedSubject] = useState(null);
-  const [expandedTopic, setExpandedTopic] = useState(null);
+  // ── DRILL-DOWN NAVIGATION STATE ─────────────────────────────────────────────
+  // Tier 1: selectedClassId = null -> Shows all stages/classes of this curriculum
+  // Tier 2: selectedClassId && !selectedSubjectId -> Shows only the selected stage and its subjects
+  // Tier 3: selectedClassId && selectedSubjectId && !selectedTopicId -> Shows only the selected subject and its topics
+  // Tier 4: selectedClassId && selectedSubjectId && selectedTopicId -> Shows only the selected topic, its subtopics & materials
+  const [selectedClassId, setSelectedClassId] = useState(null);
+  const [selectedSubjectId, setSelectedSubjectId] = useState(null);
+  const [selectedTopicId, setSelectedTopicId] = useState(null);
+
+  // Search & Filter state
+  const [topicSearchQuery, setTopicSearchQuery] = useState('');
+  const [materialFilter, setMaterialFilter] = useState('all');
 
   // Modals & Forms
   const [classModal, setClassModal] = useState(false);
@@ -1035,16 +927,16 @@ export default function CurriculumDetail() {
   const [contentForm, setContentForm] = useState(BLANK_CONTENT);
   const [deleteContentId, setDeleteContentId] = useState(null);
   
-  const [animTab, setAnimTab]         = useState('html');
+  const [animTab, setAnimTab] = useState('html');
 
-  // Auto-refresh states for localized components
+  // Auto-refresh keys
   const [topicsRefreshKey, setTopicsRefreshKey] = useState(0);
   const [contentRefreshKey, setContentRefreshKey] = useState(0);
 
   const triggerTopicsRefetch = () => setTopicsRefreshKey(k => k + 1);
   const triggerContentRefetch = () => setContentRefreshKey(k => k + 1);
 
-  // Fetch curriculum & pre-load all subjects globally
+  // Fetch curriculum & all subjects
   const { data: curriculum, loading, refetch } = useApi(
     () => adminApi.getCurriculum(id), null, [id]
   );
@@ -1054,6 +946,25 @@ export default function CurriculumDetail() {
 
   const classes = curriculum?.classes ?? [];
   const subjects = allSubjects ?? [];
+
+  // Active items resolved from drill-down state
+  const activeClass = useMemo(() => classes.find(c => c.id === selectedClassId) || null, [classes, selectedClassId]);
+  const activeSubject = useMemo(() => subjects.find(s => s.id === selectedSubjectId) || null, [subjects, selectedSubjectId]);
+
+  // Fetch topics for currently active subject
+  const { data: topicsData, loading: loadingTopics } = useApi(
+    () => selectedSubjectId ? adminApi.getTopics(selectedSubjectId) : Promise.resolve({ data: [] }),
+    null,
+    [selectedSubjectId, topicsRefreshKey]
+  );
+  const topicsList = useMemo(() => topicsData ?? [], [topicsData]);
+
+  // Active topic resolved from drill-down state
+  const activeTopic = useMemo(() => topicsList.find(t => t.id === selectedTopicId) || null, [topicsList, selectedTopicId]);
+  const parentTopic = useMemo(() => {
+    if (!activeTopic?.parent_topic_id) return null;
+    return topicsList.find(t => t.id === activeTopic.parent_topic_id) || null;
+  }, [activeTopic, topicsList]);
 
   // ── Class mutations ──────────────────────────────────────────────────────────
   const { mutate: saveClass, loading: savingClass } = useMutation(
@@ -1066,7 +977,15 @@ export default function CurriculumDetail() {
     }
   );
   const { mutate: deleteClass } = useMutation(adminApi.deleteClass, {
-    onSuccess: () => { setDeleteClassId(null); refetch(); },
+    onSuccess: () => {
+      if (deleteClassId === selectedClassId) {
+        setSelectedClassId(null);
+        setSelectedSubjectId(null);
+        setSelectedTopicId(null);
+      }
+      setDeleteClassId(null);
+      refetch();
+    },
     successMsg: 'Class deleted',
   });
 
@@ -1081,7 +1000,14 @@ export default function CurriculumDetail() {
     }
   );
   const { mutate: deleteSubject } = useMutation(adminApi.deleteSubject, {
-    onSuccess: () => { setDeleteSubjectId(null); refetchSubjects(); },
+    onSuccess: () => {
+      if (deleteSubjectId === selectedSubjectId) {
+        setSelectedSubjectId(null);
+        setSelectedTopicId(null);
+      }
+      setDeleteSubjectId(null);
+      refetchSubjects();
+    },
     successMsg: 'Subject deleted',
   });
 
@@ -1096,7 +1022,13 @@ export default function CurriculumDetail() {
     }
   );
   const { mutate: deleteTopic } = useMutation(adminApi.deleteTopic, {
-    onSuccess: () => { setDeleteTopicId(null); triggerTopicsRefetch(); },
+    onSuccess: () => {
+      if (deleteTopicId === selectedTopicId) {
+        setSelectedTopicId(parentTopic ? parentTopic.id : null);
+      }
+      setDeleteTopicId(null);
+      triggerTopicsRefetch();
+    },
     successMsg: 'Topic deleted',
   });
 
@@ -1143,7 +1075,6 @@ export default function CurriculumDetail() {
         }
       } else if (f.content_type === 'animation') {
         const compiledHtml = getEffectiveHtml(f);
-
         const isStudyAdventure = f.target_tab === 'notes' || f.target_tab === 'study_adventure';
         let finalHtml = compiledHtml;
         if (isStudyAdventure && !finalHtml.includes('METADATA:target_tab=notes')) {
@@ -1204,7 +1135,7 @@ export default function CurriculumDetail() {
     }
   };
 
-  // ── Video upload handler with automatic Cloudinary fallback ──────────────────
+  // ── Video upload handler ─────────────────────────────────────────────────────
   const handleVideoUpload = async (file) => {
     if (!contentForm.title.trim()) {
       setSaveError('Enter a title before uploading the video.');
@@ -1304,10 +1235,10 @@ export default function CurriculumDetail() {
   };
 
   const openCreateTopic = (subjectId) => { setEditingTopic(null); setTopicForm(BLANK_TOPIC); setTopicModal(subjectId); };
-  const openCreateSubtopic = (parentTopic) => {
+  const openCreateSubtopic = (parent) => {
     setEditingTopic(null);
-    setTopicForm({ name: '', description: '', parent_topic_id: parentTopic.id });
-    setTopicModal(parentTopic.subject_id);
+    setTopicForm({ name: '', description: '', parent_topic_id: parent.id });
+    setTopicModal(parent.subject_id);
   };
   const openEditTopic = (t) => {
     setEditingTopic(t);
@@ -1315,9 +1246,9 @@ export default function CurriculumDetail() {
     setTopicModal(t.subject_id);
   };
 
-  const openAddContent = (topicId) => {
+  const openAddContent = (topicId, defaultType = 'note') => {
     setEditingContent(null);
-    setContentForm(BLANK_CONTENT);
+    setContentForm({ ...BLANK_CONTENT, content_type: defaultType });
     setSaveError('');
     setContentModal(topicId);
   };
@@ -1344,6 +1275,7 @@ export default function CurriculumDetail() {
     setContentModal(topicId);
   };
 
+  // ── SKELETON LOADING ─────────────────────────────────────────────────────────
   if (loading) {
     return (
       <PageWrapper className="p-6">
@@ -1359,9 +1291,9 @@ export default function CurriculumDetail() {
               </div>
             </div>
           </div>
-          <div className="cd-subject-list">
-            {Array(3).fill(0).map((_, i) => (
-              <div key={i} className="cd-skel" style={{ height: 62, borderRadius: 20 }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {Array(4).fill(0).map((_, i) => (
+              <div key={i} className="cd-skel" style={{ height: 68, borderRadius: 18 }} />
             ))}
           </div>
         </div>
@@ -1376,16 +1308,16 @@ export default function CurriculumDetail() {
       <style>{CSS}</style>
       <div className="cd-root">
 
-        {/* ── Header ── */}
+        {/* ── TOP HEADER (Curriculum Scope) ── */}
         <motion.div
           className="cd-header"
-          initial={{ opacity: 0, y: -14 }}
+          initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ duration: 0.35 }}
         >
           <div className="cd-hblob cd-hblob-1" /><div className="cd-hblob cd-hblob-2" />
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', position: 'relative', zIndex: 1 }}>
-            <button className="cd-back-btn" onClick={() => navigate(isTeacher ? '/courses' : '/admin/curriculum')}>
+            <button className="cd-back-btn" onClick={() => navigate(isTeacher ? '/courses' : '/admin/curriculum')} title="Curriculums List">
               <ArrowLeft size={15} />
             </button>
             <div>
@@ -1394,139 +1326,494 @@ export default function CurriculumDetail() {
               <p className="cd-subtitle">{classes.length} Stage/Class{classes.length !== 1 ? 'es' : ''} assigned</p>
             </div>
           </div>
-          {!isTeacher && (
+          {!isTeacher && !selectedClassId && (
             <button className="cd-btn-primary" onClick={openCreateClass}>
               <FolderPlus size={14} /> Add Class
             </button>
           )}
         </motion.div>
 
-        {/* ── Classes ACCORDION ── */}
-        {classes.length === 0 ? (
-          <motion.div className="cd-empty" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.35 }}>
-            <div className="cd-empty-icon"><FolderPlus size={22} style={{ color: 'var(--violet-l)' }} /></div>
-            <p className="cd-empty-title">No classes yet</p>
-            <p className="cd-empty-desc">Create classes (e.g. CBSE Class 10) under this curriculum.</p>
-            {!isTeacher && (
-              <button className="cd-btn-primary" onClick={openCreateClass}><Plus size={14} /> Add Class</button>
+        {/* ── DRILL-DOWN BREADCRUMBS BAR (Appears whenever drilling into a stage) ── */}
+        {selectedClassId && (
+          <motion.div
+            className="cd-nav-bar"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className="cd-breadcrumbs">
+              <button
+                className="cd-crumb-link"
+                onClick={() => { setSelectedClassId(null); setSelectedSubjectId(null); setSelectedTopicId(null); }}
+              >
+                <Compass size={13} style={{ color: 'var(--lavender)' }} />
+                <span>{curriculum.name}</span>
+              </button>
+
+              <span className="cd-crumb-sep"><ChevronRight size={12} /></span>
+
+              <button
+                className={clsx('cd-crumb-link', !selectedSubjectId && 'cd-crumb-current')}
+                onClick={() => { setSelectedSubjectId(null); setSelectedTopicId(null); }}
+              >
+                <span>{activeClass?.name || 'Stage'}</span>
+              </button>
+
+              {activeSubject && (
+                <>
+                  <span className="cd-crumb-sep"><ChevronRight size={12} /></span>
+                  <button
+                    className={clsx('cd-crumb-link', !selectedTopicId && 'cd-crumb-current')}
+                    onClick={() => { setSelectedTopicId(null); }}
+                  >
+                    <span>{activeSubject.name}</span>
+                  </button>
+                </>
+              )}
+
+              {activeTopic && (
+                <>
+                  {parentTopic && (
+                    <>
+                      <span className="cd-crumb-sep"><ChevronRight size={12} /></span>
+                      <button
+                        className="cd-crumb-link"
+                        onClick={() => setSelectedTopicId(parentTopic.id)}
+                      >
+                        <span>{parentTopic.name}</span>
+                      </button>
+                    </>
+                  )}
+                  <span className="cd-crumb-sep"><ChevronRight size={12} /></span>
+                  <span className="cd-crumb-current">{activeTopic.name}</span>
+                </>
+              )}
+            </div>
+
+            {/* Back action with contextual label */}
+            {selectedTopicId ? (
+              <button
+                className="cd-back-action-btn"
+                onClick={() => setSelectedTopicId(parentTopic ? parentTopic.id : null)}
+              >
+                <ArrowLeft size={13} />
+                <span>Back to {parentTopic ? parentTopic.name : activeSubject?.name + ' Topics'}</span>
+              </button>
+            ) : selectedSubjectId ? (
+              <button
+                className="cd-back-action-btn"
+                onClick={() => setSelectedSubjectId(null)}
+              >
+                <ArrowLeft size={13} />
+                <span>Back to {activeClass?.name} Subjects</span>
+              </button>
+            ) : (
+              <button
+                className="cd-back-action-btn"
+                onClick={() => setSelectedClassId(null)}
+              >
+                <ArrowLeft size={13} />
+                <span>Back to All Stages</span>
+              </button>
             )}
           </motion.div>
-        ) : (
-          <div className="cd-subject-list">
-            {classes.map((cls, idx) => {
-              const isClassOpen = expandedClass === cls.id;
-              const classSubjects = subjects.filter(sub => sub.class_id === cls.id);
-              return (
-                <div key={cls.id} className="cd-class-card">
-                  <div className="cd-class-header" onClick={() => setExpandedClass(isClassOpen ? null : cls.id)}>
-                    <div className="cd-class-title-sec">
-                      <ChevronDown size={16} className={`cd-chevron ${isClassOpen ? 'open' : ''}`} />
-                      <div>
-                        <span className="cd-class-title">{cls.name}</span>
-                        {cls.description && <p style={{ fontSize: '0.72rem', color: 'var(--muted)', marginTop: 2 }}>{cls.description}</p>}
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            TIER 1: ALL STAGES / CLASSES LIST VIEW
+            (Shown when no stage is selected)
+        ══════════════════════════════════════════════════════════════════════ */}
+        {!selectedClassId && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}>
+            <div className="cd-section-header">
+              <span className="cd-section-title">Stages / Classes ({classes.length})</span>
+            </div>
+
+            {classes.length === 0 ? (
+              <div className="cd-empty">
+                <div className="cd-empty-icon"><FolderPlus size={22} style={{ color: 'var(--violet-l)' }} /></div>
+                <p className="cd-empty-title">No stages or classes yet</p>
+                <p className="cd-empty-desc">Create stages (e.g. Stage 1, Stage 2) under this curriculum.</p>
+                {!isTeacher && (
+                  <button className="cd-btn-primary" onClick={openCreateClass}><Plus size={14} /> Add Class</button>
+                )}
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                {classes.map((cls) => {
+                  const classSubjects = subjects.filter(sub => sub.class_id === cls.id);
+                  return (
+                    <div
+                      key={cls.id}
+                      className="cd-drill-card"
+                      onClick={() => setSelectedClassId(cls.id)}
+                    >
+                      <div className="cd-drill-info">
+                        <div className="cd-drill-title-row">
+                          <span className="cd-drill-title">{cls.name}</span>
+                          <span className="cd-drill-pill">
+                            <BookOpen size={11} /> {classSubjects.length} Subject{classSubjects.length !== 1 ? 's' : ''}
+                          </span>
+                        </div>
+                        {cls.description && <p className="cd-drill-desc">{cls.description}</p>}
+                      </div>
+
+                      <div className="cd-drill-actions" onClick={(e) => e.stopPropagation()}>
+                        {!isTeacher && (
+                          <>
+                            <button onClick={() => openEditClass(cls)} className="cd-icon-btn edit" title="Edit Stage"><Edit2 size={12} /></button>
+                            <button onClick={() => setDeleteClassId(cls.id)} className="cd-icon-btn delete" title="Delete Stage"><Trash2 size={12} /></button>
+                          </>
+                        )}
+                        <div className="cd-drill-arrow" title="Open Stage" onClick={() => setSelectedClassId(cls.id)}>
+                          <ChevronRight size={16} />
+                        </div>
                       </div>
                     </div>
+                  );
+                })}
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            TIER 2: SELECTED STAGE'S SUBJECTS VIEW
+            (Shown when a stage is chosen, but no subject chosen yet)
+            "here if i need to do operations there in that page i want to see that stage only no other stage should be shown there"
+        ══════════════════════════════════════════════════════════════════════ */}
+        {selectedClassId && !selectedSubjectId && activeClass && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
+            {/* Stage Hero Banner */}
+            <div className="cd-entity-banner">
+              <div>
+                <span className="cd-entity-badge">Active Stage</span>
+                <h2 className="cd-entity-title">{activeClass.name}</h2>
+                {activeClass.description && <p className="cd-entity-desc">{activeClass.description}</p>}
+              </div>
+
+              <div className="cd-entity-actions">
+                {!isTeacher && (
+                  <>
+                    <button className="cd-btn-secondary" onClick={() => openEditClass(activeClass)}>
+                      <Edit2 size={13} /> Edit Stage
+                    </button>
+                    <button className="cd-btn-primary" onClick={() => openCreateSubject(activeClass.id)}>
+                      <Plus size={13} /> Add Subject
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* List of Subjects in this Stage */}
+            <div className="cd-section-header">
+              <span className="cd-section-title">Subjects in {activeClass.name}</span>
+            </div>
+
+            {(() => {
+              const stageSubjects = subjects.filter(sub => sub.class_id === activeClass.id);
+              if (stageSubjects.length === 0) {
+                return (
+                  <div className="cd-empty">
+                    <div className="cd-empty-icon"><BookOpen size={22} style={{ color: 'var(--cyan)' }} /></div>
+                    <p className="cd-empty-title">No subjects in {activeClass.name} yet</p>
+                    <p className="cd-empty-desc">Add subjects like English, Mathematics, or Science to this stage.</p>
                     {!isTeacher && (
-                      <div className="cd-subject-actions" onClick={e => e.stopPropagation()}>
-                        <button onClick={() => openEditClass(cls)} className="cd-icon-btn edit" title="Edit Class"><Edit2 size={12} /></button>
-                        <button onClick={() => setDeleteClassId(cls.id)} className="cd-icon-btn delete" title="Delete Class"><Trash2 size={12} /></button>
+                      <button className="cd-btn-primary" onClick={() => openCreateSubject(activeClass.id)}>
+                        <Plus size={14} /> Add First Subject
+                      </button>
+                    )}
+                  </div>
+                );
+              }
+
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                  {stageSubjects.map((sub, idx) => (
+                    <div
+                      key={sub.id}
+                      className="cd-drill-card"
+                      onClick={() => setSelectedSubjectId(sub.id)}
+                    >
+                      <div className="cd-drill-info">
+                        <div className="cd-drill-title-row">
+                          <span style={{ fontSize: '0.75rem', fontFamily: 'Space Grotesk', fontWeight: 700, color: 'var(--muted)', width: 22 }}>
+                            {String(idx + 1).padStart(2, '0')}
+                          </span>
+                          <span className="cd-drill-title">{sub.name}</span>
+                        </div>
+                        {sub.description && <p className="cd-drill-desc" style={{ paddingLeft: 28 }}>{sub.description}</p>}
                       </div>
+
+                      <div className="cd-drill-actions" onClick={(e) => e.stopPropagation()}>
+                        {!isTeacher && (
+                          <>
+                            <button onClick={() => openEditSubject(sub)} className="cd-icon-btn edit" title="Edit Subject"><Edit2 size={12} /></button>
+                            <button onClick={() => setDeleteSubjectId(sub.id)} className="cd-icon-btn delete" title="Delete Subject"><Trash2 size={12} /></button>
+                          </>
+                        )}
+                        <div className="cd-drill-arrow" title="Open Subject" onClick={() => setSelectedSubjectId(sub.id)}>
+                          <ChevronRight size={16} />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
+          </motion.div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            TIER 3: SELECTED SUBJECT'S TOPICS VIEW
+            (Shown when stage & subject are chosen, but no topic chosen yet)
+            "and then we select the subject that subject content will only be visible there"
+        ══════════════════════════════════════════════════════════════════════ */}
+        {selectedClassId && selectedSubjectId && !selectedTopicId && activeSubject && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
+            {/* Subject Hero Banner */}
+            <div className="cd-entity-banner">
+              <div>
+                <span className="cd-entity-badge">{activeClass?.name} · Subject</span>
+                <h2 className="cd-entity-title">{activeSubject.name}</h2>
+                {activeSubject.description && <p className="cd-entity-desc">{activeSubject.description}</p>}
+              </div>
+
+              <div className="cd-entity-actions">
+                {!isTeacher && (
+                  <>
+                    <button className="cd-btn-secondary" onClick={() => openEditSubject(activeSubject)}>
+                      <Edit2 size={13} /> Edit Subject
+                    </button>
+                    <button className="cd-btn-primary" onClick={() => openCreateTopic(activeSubject.id)}>
+                      <Plus size={13} /> Add Topic
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Topics Section & Search Filter */}
+            <div className="cd-section-header">
+              <span className="cd-section-title">Topics & Chapters ({topicsList.filter(t => !t.parent_topic_id).length})</span>
+              {topicsList.length > 3 && (
+                <div style={{ position: 'relative', width: 220 }}>
+                  <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
+                  <input
+                    type="text"
+                    placeholder="Search topics..."
+                    value={topicSearchQuery}
+                    onChange={(e) => setTopicSearchQuery(e.target.value)}
+                    style={{
+                      width: '100%', padding: '0.4rem 0.75rem 0.4rem 2rem',
+                      borderRadius: 10, background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.08)', color: 'var(--cream)',
+                      fontSize: '0.75rem', outline: 'none'
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+
+            {loadingTopics ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                {Array(3).fill(0).map((_, i) => <div key={i} className="cd-skel" style={{ height: 64, borderRadius: 18 }} />)}
+              </div>
+            ) : (() => {
+              const rootTopics = topicsList.filter(t => !t.parent_topic_id);
+              const filteredRoots = rootTopics.filter(t => 
+                t.name.toLowerCase().includes(topicSearchQuery.toLowerCase()) ||
+                (t.description && t.description.toLowerCase().includes(topicSearchQuery.toLowerCase()))
+              );
+
+              if (filteredRoots.length === 0) {
+                return (
+                  <div className="cd-empty">
+                    <div className="cd-empty-icon"><Layers size={22} style={{ color: 'var(--lavender)' }} /></div>
+                    <p className="cd-empty-title">{topicSearchQuery ? 'No matching topics' : 'No topics added yet'}</p>
+                    <p className="cd-empty-desc">
+                      {topicSearchQuery ? 'Try clearing your search query.' : `Add topics and chapters under ${activeSubject.name}.`}
+                    </p>
+                    {!isTeacher && !topicSearchQuery && (
+                      <button className="cd-btn-primary" onClick={() => openCreateTopic(activeSubject.id)}>
+                        <Plus size={14} /> Add First Topic
+                      </button>
+                    )}
+                  </div>
+                );
+              }
+
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                  {filteredRoots.map((topic) => {
+                    const childTopics = topicsList.filter(t => t.parent_topic_id === topic.id);
+                    return (
+                      <div
+                        key={topic.id}
+                        className="cd-drill-card"
+                        onClick={() => setSelectedTopicId(topic.id)}
+                      >
+                        <div className="cd-drill-info">
+                          <div className="cd-drill-title-row">
+                            <span className="cd-drill-title">{topic.name}</span>
+                            {childTopics.length > 0 && (
+                              <span className="cd-drill-pill">
+                                <Layers size={10} /> {childTopics.length} Subtopic{childTopics.length !== 1 ? 's' : ''}
+                              </span>
+                            )}
+                          </div>
+                          {topic.description && <p className="cd-drill-desc">{topic.description}</p>}
+                        </div>
+
+                        <div className="cd-drill-actions" onClick={(e) => e.stopPropagation()}>
+                          {!isTeacher ? (
+                            <>
+                              <button onClick={() => openCreateSubtopic(topic)} className="cd-icon-btn edit" style={{ color: 'var(--cyan)' }} title="Add Subtopic">
+                                <FolderPlus size={12} />
+                              </button>
+                              <button onClick={() => openEditTopic(topic)} className="cd-icon-btn edit" title="Edit Topic">
+                                <Edit2 size={12} />
+                              </button>
+                              <button onClick={() => setDeleteTopicId(topic.id)} className="cd-icon-btn delete" title="Delete Topic">
+                                <Trash2 size={12} />
+                              </button>
+                            </>
+                          ) : (
+                            <Link
+                              to={`/courses/${id}/subjects/${topic.subject_id}/topics/${topic.id}`}
+                              className="cd-icon-btn edit"
+                              title="View Topic Content"
+                              style={{ color: 'var(--cyan)' }}
+                            >
+                              <Eye size={13} />
+                            </Link>
+                          )}
+                          <div className="cd-drill-arrow" title="Open Topic" onClick={() => setSelectedTopicId(topic.id)}>
+                            <ChevronRight size={16} />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+          </motion.div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            TIER 4: SELECTED TOPIC STUDIO VIEW
+            (Focused on that topic, its subtopics, and its materials!)
+            "we choose any topic and there that topic and its subtopic will be visible only , like this it will become simple and easy to upload and visualize the things just there we need to make it simple"
+        ══════════════════════════════════════════════════════════════════════ */}
+        {selectedClassId && selectedSubjectId && selectedTopicId && activeTopic && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
+            {/* Topic Hero Banner */}
+            <div className="cd-entity-banner">
+              <div>
+                <span className="cd-entity-badge">
+                  {parentTopic ? `Subtopic of ${parentTopic.name}` : 'Topic'}
+                </span>
+                <h2 className="cd-entity-title">{activeTopic.name}</h2>
+                {activeTopic.description && <p className="cd-entity-desc">{activeTopic.description}</p>}
+              </div>
+
+              <div className="cd-entity-actions">
+                {!isTeacher ? (
+                  <>
+                    <button className="cd-btn-secondary" onClick={() => openCreateSubtopic(activeTopic)}>
+                      <FolderPlus size={13} /> Add Subtopic
+                    </button>
+                    <button className="cd-btn-secondary" onClick={() => openEditTopic(activeTopic)}>
+                      <Edit2 size={13} /> Edit Topic
+                    </button>
+                    <button className="cd-btn-primary" onClick={() => openAddContent(activeTopic.id)}>
+                      <Plus size={13} /> Add Material
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    to={`/courses/${id}/subjects/${activeTopic.subject_id}/topics/${activeTopic.id}`}
+                    className="cd-btn-primary"
+                  >
+                    <Eye size={13} /> Student View
+                  </Link>
+                )}
+              </div>
+            </div>
+
+            {/* Subtopics Section (if any subtopics exist or to add one) */}
+            {(() => {
+              const childTopics = topicsList.filter(t => t.parent_topic_id === activeTopic.id);
+              if (childTopics.length === 0) return null;
+
+              return (
+                <div style={{ marginBottom: '1.75rem' }}>
+                  <div className="cd-section-header">
+                    <span className="cd-section-title">Subtopics ({childTopics.length})</span>
+                    {!isTeacher && (
+                      <button
+                        className="cd-back-action-btn"
+                        style={{ fontSize: '0.72rem', padding: '0.3rem 0.7rem' }}
+                        onClick={() => openCreateSubtopic(activeTopic)}
+                      >
+                        <Plus size={11} /> Add Subtopic
+                      </button>
                     )}
                   </div>
 
-                  <AnimatePresence>
-                    {isClassOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.25 }}
-                        style={{ overflow: 'hidden', padding: '1rem 1.25rem' }}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '0.65rem' }}>
+                    {childTopics.map(ct => (
+                      <div
+                        key={ct.id}
+                        className="cd-drill-card"
+                        style={{ padding: '0.9rem 1.1rem', margin: 0 }}
+                        onClick={() => setSelectedTopicId(ct.id)}
                       >
-                        {/* Subjects Inside Class */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.85rem' }}>
-                          <span style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--lavender)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Subjects List</span>
-                          {!isTeacher && (
-                            <button className="cd-btn-primary" style={{ padding: '0.45rem 0.85rem', fontSize: '0.72rem' }} onClick={() => openCreateSubject(cls.id)}>
-                              <Plus size={12} /> Add Subject
-                            </button>
-                          )}
+                        <div className="cd-drill-info">
+                          <span className="cd-drill-title" style={{ fontSize: '0.88rem' }}>{ct.name}</span>
+                          {ct.description && <p className="cd-drill-desc" style={{ fontSize: '0.72rem' }}>{ct.description}</p>}
                         </div>
-
-                        {classSubjects.length === 0 ? (
-                          <p style={{ fontSize: '0.75rem', color: 'var(--muted)', padding: '1rem 0', textAlign: 'center' }}>No subjects added to this class yet.</p>
-                        ) : (
-                          <div className="cd-subject-list">
-                            {classSubjects.map((subject, subIdx) => {
-                              const isSubOpen = expandedSubject === subject.id;
-                              return (
-                                <div key={subject.id} className={`cd-subject ${isSubOpen ? 'is-open' : ''}`}>
-                                  <div className="cd-subject-header" onClick={() => setExpandedSubject(isSubOpen ? null : subject.id)}>
-                                    {!isTeacher && <GripVertical size={13} className="cd-grip" />}
-                                    <span className="cd-subject-idx">{String(subIdx + 1).padStart(2, '0')}</span>
-                                    <div className="cd-subject-info">
-                                      <p className="cd-subject-name">{subject.name}</p>
-                                      {subject.description && <p className="cd-subject-desc">{subject.description}</p>}
-                                    </div>
-                                    <div className="cd-subject-actions" onClick={e => e.stopPropagation()}>
-                                      {!isTeacher && (
-                                        <>
-                                          <button onClick={() => openEditSubject(subject)} className="cd-icon-btn edit" title="Edit Subject"><Edit2 size={12} /></button>
-                                          <button onClick={() => setDeleteSubjectId(subject.id)} className="cd-icon-btn delete" title="Delete Subject"><Trash2 size={12} /></button>
-                                        </>
-                                      )}
-                                      <ChevronDown size={14} className={`cd-chevron ${isSubOpen ? 'open' : ''}`} onClick={() => setExpandedSubject(isSubOpen ? null : subject.id)} />
-                                    </div>
-                                  </div>
-
-                                  <AnimatePresence>
-                                    {isSubOpen && (
-                                      <motion.div
-                                        initial={{ height: 0, opacity: 0 }}
-                                        animate={{ height: 'auto', opacity: 1 }}
-                                        exit={{ height: 0, opacity: 0 }}
-                                        transition={{ duration: 0.25 }}
-                                        style={{ overflow: 'hidden' }}
-                                      >
-                                        <SubjectTopicsPanel
-                                          subjectId={subject.id}
-                                          topicsRefreshKey={topicsRefreshKey}
-                                          onAddTopic={() => openCreateTopic(subject.id)}
-                                          onAddSubtopic={openCreateSubtopic}
-                                          onEditTopic={openEditTopic}
-                                          onDeleteTopic={(tId) => setDeleteTopicId(tId)}
-                                          onAddContent={openAddContent}
-                                          onEditContent={openEditContent}
-                                          onDeleteContent={(cId) => setDeleteContentId(cId)}
-                                          expandedTopic={expandedTopic}
-                                          setExpandedTopic={setExpandedTopic}
-                                          contentRefreshKey={contentRefreshKey}
-                                          isTeacher={isTeacher}
-                                          curriculumId={id}
-                                        />
-                                      </motion.div>
-                                    )}
-                                  </AnimatePresence>
-                                </div>
-                              );
-                            })}
+                        <div className="cd-drill-actions" onClick={e => e.stopPropagation()}>
+                          {!isTeacher && (
+                            <>
+                              <button onClick={() => openEditTopic(ct)} className="cd-icon-btn edit" title="Edit"><Edit2 size={11} /></button>
+                              <button onClick={() => setDeleteTopicId(ct.id)} className="cd-icon-btn delete" title="Delete"><Trash2 size={11} /></button>
+                            </>
+                          )}
+                          <div className="cd-drill-arrow" style={{ width: 28, height: 28 }} onClick={() => setSelectedTopicId(ct.id)}>
+                            <ChevronRight size={14} />
                           </div>
-                        )}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               );
-            })}
-          </div>
+            })()}
+
+            {/* Topic Materials Studio */}
+            <TopicContentPanel
+              topicId={activeTopic.id}
+              contentRefreshKey={contentRefreshKey}
+              onEditContent={(c) => openEditContent(activeTopic.id, c)}
+              onDeleteContent={(cId) => setDeleteContentId(cId)}
+              onQuickAdd={(type) => openAddContent(activeTopic.id, type)}
+              isTeacher={isTeacher}
+              filter={materialFilter}
+              onFilterChange={setMaterialFilter}
+            />
+          </motion.div>
         )}
 
       </div>
 
-      {/* ── Class Modal ── */}
+      {/* ── MODALS ── */}
+
+      {/* Class Modal */}
       <Modal open={classModal} onClose={() => { setClassModal(false); setEditingClass(null); }} title={editingClass ? 'Edit Class' : 'New Class'} size="sm" preventOutsideClickClose={true}>
         <div className="space-y-4">
-          <Input label="Class Name" placeholder="e.g. CBSE Class 10" value={classForm.name} onChange={(e) => setClassForm({ ...classForm, name: e.target.value })} />
+          <Input label="Class Name" placeholder="e.g. Stage 1" value={classForm.name} onChange={(e) => setClassForm({ ...classForm, name: e.target.value })} />
           <Textarea label="Description (optional)" rows={3} value={classForm.description} onChange={(e) => setClassForm({ ...classForm, description: e.target.value })} />
         </div>
         <div className="flex justify-end gap-2 mt-5 pt-4 border-t border-surface-border">
@@ -1537,10 +1824,10 @@ export default function CurriculumDetail() {
         </div>
       </Modal>
 
-      {/* ── Subject Modal ── */}
+      {/* Subject Modal */}
       <Modal open={!!subjectModal} onClose={() => { setSubjectModal(null); setEditingSubject(null); }} title={editingSubject ? 'Edit Subject' : 'New Subject'} size="sm" preventOutsideClickClose={true}>
         <div className="space-y-4">
-          <Input label="Subject Name" placeholder="e.g. Science" value={subjectForm.name} onChange={(e) => setSubjectForm({ ...subjectForm, name: e.target.value })} />
+          <Input label="Subject Name" placeholder="e.g. English" value={subjectForm.name} onChange={(e) => setSubjectForm({ ...subjectForm, name: e.target.value })} />
           <Textarea label="Description (optional)" rows={3} value={subjectForm.description} onChange={(e) => setSubjectForm({ ...subjectForm, description: e.target.value })} />
         </div>
         <div className="flex justify-end gap-2 mt-5 pt-4 border-t border-surface-border">
@@ -1551,7 +1838,7 @@ export default function CurriculumDetail() {
         </div>
       </Modal>
 
-      {/* ── Topic Modal ── */}
+      {/* Topic Modal */}
       <Modal open={!!topicModal} onClose={() => { setTopicModal(null); setEditingTopic(null); }} title={editingTopic ? 'Edit Topic' : 'New Topic'} size="sm" preventOutsideClickClose={true}>
         <div className="space-y-4">
           {topicForm.parent_topic_id && (
@@ -1559,7 +1846,7 @@ export default function CurriculumDetail() {
               Creating subtopic under parent topic
             </div>
           )}
-          <Input label="Topic Name" placeholder="e.g. Chapter 1: Chemical Reactions" value={topicForm.name} onChange={(e) => setTopicForm({ ...topicForm, name: e.target.value })} />
+          <Input label="Topic Name" placeholder="e.g. Reading & Phonics" value={topicForm.name} onChange={(e) => setTopicForm({ ...topicForm, name: e.target.value })} />
           <Textarea label="Description (optional)" rows={3} value={topicForm.description} onChange={(e) => setTopicForm({ ...topicForm, description: e.target.value })} />
         </div>
         <div className="flex justify-end gap-2 mt-5 pt-4 border-t border-surface-border">
@@ -1570,7 +1857,7 @@ export default function CurriculumDetail() {
         </div>
       </Modal>
 
-      {/* ── Content Modal ── */}
+      {/* Content Modal */}
       <Modal
         open={!!contentModal}
         onClose={() => { setContentModal(null); setEditingContent(null); setContentForm(BLANK_CONTENT); setSaveError(''); }}
@@ -1581,11 +1868,11 @@ export default function CurriculumDetail() {
         <style>{CSS}</style>
         <div className="cd-root">
           <div className="space-y-4">
-            <Input label="Title" placeholder="e.g. Introduction to Motion" value={contentForm.title} onChange={(e) => setContentForm({ ...contentForm, title: e.target.value })} />
+            <Input label="Title" placeholder="e.g. Unit 5: Forces and Magnetism" value={contentForm.title} onChange={(e) => setContentForm({ ...contentForm, title: e.target.value })} />
             <Select label="Content Type" value={contentForm.content_type} onChange={(e) => setContentForm({ ...contentForm, content_type: e.target.value, videoStage: 'idle', noteFile: null, worksheetFile: null, worksheetPreviewUrl: null })} disabled={!!editingContent}>
               <option value="note">Note / PDF</option>
               <option value="video">Video</option>
-              <option value="animation">Animation</option>
+              <option value="animation">Animation / 3D Simulation</option>
               <option value="worksheet">Worksheet (Image)</option>
             </Select>
 
@@ -1598,323 +1885,169 @@ export default function CurriculumDetail() {
             {contentForm.content_type === 'note' && (
               <div>
                 <p style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--muted)', marginBottom: '0.5rem' }}>{editingContent ? 'Replace PDF (optional)' : 'Upload PDF'}</p>
-                <NoteDropzone file={contentForm.noteFile} onChange={(f) => setContentForm({ ...contentForm, noteFile: f })} existingName={editingContent?.title} />
-              </div>
-            )}
-
-            {contentForm.content_type === 'video' && (
-              <VideoUploader editingContent={editingContent} stage={contentForm.videoStage} progress={contentForm.videoProgress} playbackId={contentForm.videoPlaybackId} titleReady={!!contentForm.title.trim()} onFileSelected={handleVideoUpload} />
-            )}
-
-             {contentForm.content_type === 'animation' && (
-              <div className="space-y-3">
-                <Select
-                  label="Display Column / Section"
-                  value={contentForm.target_tab || 'simulators'}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setContentForm(prev => ({ ...prev, target_tab: val }));
-                  }}
-                >
-                  <option value="simulators">🎮 Play Simulators (Default)</option>
-                  <option value="notes">📖 Study Adventure</option>
-                </Select>
-
-                <div className="cd-anim-editor-wrap">
-                <SimulationFolderDropzone
-                  onParsed={({ html_part, css_part, js_part, json_part }) => {
-                    setContentForm(prev => ({
-                      ...prev,
-                      html_part: html_part !== undefined ? html_part : prev.html_part,
-                      css_part: css_part !== undefined ? css_part : prev.css_part,
-                      js_part: js_part !== undefined ? js_part : prev.js_part,
-                      json_part: json_part !== undefined ? json_part : prev.json_part
-                    }));
-                  }}
+                <NoteDropzone
+                  file={contentForm.noteFile}
+                  onChange={(file) => setContentForm({ ...contentForm, noteFile: file })}
+                  existingName={editingContent ? 'Current PDF file' : null}
                 />
-
-                <div className="cd-anim-editor-toolbar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  <div style={{ display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.03)', padding: '2px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    {['html', 'css', 'js', 'json', 'output'].map((tab) => (
-                      <button
-                        key={tab}
-                        type="button"
-                        onClick={() => setAnimTab(tab)}
-                        style={{
-                          padding: '0.35rem 0.8rem',
-                          borderRadius: '6px',
-                          fontSize: '0.72rem',
-                          fontWeight: 600,
-                          textTransform: 'uppercase',
-                          background: animTab === tab ? 'rgba(124,58,237,0.2)' : 'transparent',
-                          color: animTab === tab ? 'var(--lavender)' : 'rgba(250,250,250,0.5)',
-                          border: 'none',
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease'
-                        }}
-                      >
-                        {tab}
-                      </button>
-                    ))}
-                  </div>
-                  
-                  <button 
-                    type="button"
-                    className="cd-anim-preview-btn" 
-                    onClick={() => {
-                      const compiled = getEffectiveHtml(contentForm) || ANIM_PLACEHOLDER;
-                      const blob = new Blob([compiled], { type: 'text/html' });
-                      const url = URL.createObjectURL(blob);
-                      window.open(url, '_blank');
-                      setTimeout(() => URL.revokeObjectURL(url), 10_000);
-                    }}
-                  >
-                    <Eye size={11} /> Live Preview
-                  </button>
-                </div>
-
-                <div style={{ marginTop: '0.5rem' }}>
-                  {animTab === 'html' && (
-                    <textarea 
-                      className="cd-anim-textarea" 
-                      placeholder="<!-- Paste your HTML layout here -->" 
-                      value={contentForm.html_part} 
-                      onChange={(e) => setContentForm({ ...contentForm, html_part: e.target.value })} 
-                    />
-                  )}
-                  {animTab === 'css' && (
-                    <textarea 
-                      className="cd-anim-textarea" 
-                      placeholder="/* Paste your CSS styling rules here (without <style> tags) */" 
-                      value={contentForm.css_part} 
-                      onChange={(e) => setContentForm({ ...contentForm, css_part: e.target.value })} 
-                    />
-                  )}
-                  {animTab === 'js' && (
-                    <textarea 
-                      className="cd-anim-textarea" 
-                      placeholder="// Paste your JavaScript interactive logic here (without <script> tags). Access JSON data using window.ANIMATION_DATA." 
-                      value={contentForm.js_part} 
-                      onChange={(e) => setContentForm({ ...contentForm, js_part: e.target.value })} 
-                    />
-                  )}
-                  {animTab === 'json' && (
-                    <textarea 
-                      className="cd-anim-textarea" 
-                      placeholder='{ "key": "value", "list": [1, 2, 3] }' 
-                      value={contentForm.json_part} 
-                      onChange={(e) => setContentForm({ ...contentForm, json_part: e.target.value })} 
-                    />
-                  )}
-                  {animTab === 'output' && (
-                    <div style={{ borderRadius: '12px', overflow: 'hidden', background: '#fff', height: '320px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                      <iframe
-                        srcDoc={getEffectiveHtml(contentForm) || ANIM_PLACEHOLDER}
-                        title="Animation Preview"
-                        style={{ width: '100%', height: '100%', border: 'none' }}
-                        sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-                        allowFullScreen
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
               </div>
             )}
 
             {contentForm.content_type === 'worksheet' && (
               <div>
-                <p style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--muted)', marginBottom: '0.5rem' }}>{editingContent ? 'Replace Image (optional)' : 'Upload image worksheet'}</p>
-                <WorksheetDropzone file={contentForm.worksheetFile} previewUrl={contentForm.worksheetPreviewUrl} onChange={(f) => setContentForm({ ...contentForm, worksheetFile: f, worksheetPreviewUrl: URL.createObjectURL(f) })} />
+                <p style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--muted)', marginBottom: '0.5rem' }}>{editingContent ? 'Replace Worksheet Image (optional)' : 'Upload Worksheet Image'}</p>
+                <WorksheetDropzone
+                  file={contentForm.worksheetFile}
+                  previewUrl={contentForm.worksheetPreviewUrl || (contentForm.worksheetFile ? URL.createObjectURL(contentForm.worksheetFile) : null)}
+                  onChange={(file) => setContentForm({ ...contentForm, worksheetFile: file, worksheetPreviewUrl: URL.createObjectURL(file) })}
+                />
               </div>
             )}
 
-            <Toggle label="Premium content (requires paid plan)" checked={contentForm.is_premium} onChange={(v) => setContentForm({ ...contentForm, is_premium: v })} />
-            {saveError && <p style={{ fontSize: '0.74rem', color: '#F87171', padding: '0.5rem 0.75rem', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10 }}>{saveError}</p>}
+            {contentForm.content_type === 'video' && (
+              <div>
+                <p style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--muted)', marginBottom: '0.5rem' }}>Video File</p>
+                <VideoUploader
+                  editingContent={!!editingContent}
+                  stage={contentForm.videoStage}
+                  progress={contentForm.videoProgress}
+                  playbackId={contentForm.videoPlaybackId}
+                  titleReady={!!contentForm.title.trim()}
+                  onFileSelected={handleVideoUpload}
+                />
+              </div>
+            )}
+
+            {contentForm.content_type === 'animation' && (
+              <div className="space-y-4">
+                <Select
+                  label="Target Section / Feature Tab"
+                  value={contentForm.target_tab}
+                  onChange={(e) => setContentForm({ ...contentForm, target_tab: e.target.value })}
+                >
+                  <option value="simulators">🎮 3D Simulator (Rendered in Lab / Simulations Tab)</option>
+                  <option value="notes">📖 Study Adventure / Interactive Story (Rendered in Course Notes Tab)</option>
+                </Select>
+
+                <SimulationFolderDropzone
+                  onParsed={({ html_part, css_part, js_part, json_part }) => {
+                    setContentForm(f => ({
+                      ...f,
+                      html_part,
+                      css_part,
+                      js_part,
+                      json_part,
+                      html_content: html_part
+                    }));
+                  }}
+                />
+
+                <div className="cd-anim-editor-wrap">
+                  <div className="cd-anim-editor-toolbar">
+                    <div style={{ display: 'flex', gap: '0.25rem' }}>
+                      {['html', 'css', 'js', 'json'].map((t) => (
+                        <button
+                          key={t}
+                          type="button"
+                          className={clsx('cd-filter-pill', animTab === t && 'active')}
+                          onClick={() => setAnimTab(t)}
+                        >
+                          {t.toUpperCase()}
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      className="cd-anim-preview-btn"
+                      onClick={() => {
+                        const html = getEffectiveHtml(contentForm);
+                        const win = window.open();
+                        win.document.write(html);
+                        win.document.close();
+                      }}
+                    >
+                      <Eye size={12} /> Test Simulation
+                    </button>
+                  </div>
+                  <textarea
+                    className="cd-anim-textarea"
+                    placeholder="Enter code here..."
+                    value={
+                      animTab === 'html' ? contentForm.html_part :
+                      animTab === 'css'  ? contentForm.css_part  :
+                      animTab === 'js'   ? contentForm.js_part   : contentForm.json_part
+                    }
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setContentForm(f => ({
+                        ...f,
+                        [animTab === 'html' ? 'html_part' : animTab === 'css' ? 'css_part' : animTab === 'js' ? 'js_part' : 'json_part']: val
+                      }));
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="pt-2">
+              <Toggle label="Premium Content" checked={contentForm.is_premium} onChange={(val) => setContentForm({ ...contentForm, is_premium: val })} />
+            </div>
+
+            {saveError && (
+              <p style={{ fontSize: '0.75rem', color: '#F87171', background: 'rgba(239,68,68,0.1)', padding: '0.5rem 0.75rem', borderRadius: 8 }}>
+                {saveError}
+              </p>
+            )}
           </div>
-        </div>
-        <div className="flex justify-end gap-2 mt-5 pt-4 border-t border-surface-border">
-          <Button variant="ghost" onClick={() => { setContentModal(null); setEditingContent(null); setContentForm(BLANK_CONTENT); setSaveError(''); }}>Cancel</Button>
-          <Button variant="primary" loading={saving} onClick={handleSaveContent}>{editingContent ? 'Save Changes' : 'Add Content'}</Button>
+
+          <div className="flex justify-end gap-2 mt-5 pt-4 border-t border-surface-border">
+            <Button variant="ghost" onClick={() => setContentModal(null)}>Cancel</Button>
+            <Button variant="primary" loading={saving} onClick={handleSaveContent}>
+              {editingContent ? 'Save Changes' : 'Upload Content'}
+            </Button>
+          </div>
         </div>
       </Modal>
 
-      {/* ── Delete Confirm Dialogs ── */}
-      <ConfirmDialog open={!!deleteClassId} onClose={() => setDeleteClassId(null)} onConfirm={() => deleteClass(deleteClassId)} title="Delete Class" description="All subjects, topics, and contents under this class will be permanently deleted." danger />
-      <ConfirmDialog open={!!deleteSubjectId} onClose={() => setDeleteSubjectId(null)} onConfirm={() => deleteSubject(deleteSubjectId)} title="Delete Subject" description="This subject and all its topics and contents will be permanently deleted." danger />
-      <ConfirmDialog open={!!deleteTopicId} onClose={() => setDeleteTopicId(null)} onConfirm={() => deleteTopic(deleteTopicId)} title="Delete Topic" description="This topic and all its contents will be permanently deleted." danger />
-      <ConfirmDialog open={!!deleteContentId} onClose={() => setDeleteContentId(null)} onConfirm={() => deleteContent(deleteContentId)} title="Delete Content" description="This content item will be permanently removed." danger />
+      {/* ── CONFIRM DIALOGS ── */}
+      <ConfirmDialog
+        open={!!deleteClassId}
+        onClose={() => setDeleteClassId(null)}
+        onConfirm={() => deleteClass(deleteClassId)}
+        title="Delete Class"
+        message="Are you sure you want to delete this class? All subjects, topics, and materials inside it will be permanently deleted."
+        confirmVariant="danger"
+      />
+      <ConfirmDialog
+        open={!!deleteSubjectId}
+        onClose={() => setDeleteSubjectId(null)}
+        onConfirm={() => deleteSubject(deleteSubjectId)}
+        title="Delete Subject"
+        message="Are you sure you want to delete this subject? All topics and materials inside it will be permanently deleted."
+        confirmVariant="danger"
+      />
+      <ConfirmDialog
+        open={!!deleteTopicId}
+        onClose={() => setDeleteTopicId(null)}
+        onConfirm={() => deleteTopic(deleteTopicId)}
+        title="Delete Topic"
+        message="Are you sure you want to delete this topic? All subtopics and materials inside it will be permanently deleted."
+        confirmVariant="danger"
+      />
+      <ConfirmDialog
+        open={!!deleteContentId}
+        onClose={() => setDeleteContentId(null)}
+        onConfirm={() => deleteContent(deleteContentId)}
+        title="Delete Content"
+        message="Are you sure you want to delete this material?"
+        confirmVariant="danger"
+      />
+
     </PageWrapper>
   );
 }
 
-// ── Sub-component: Topics list inside expanded subject ────────────────────────
-function SubjectTopicsPanel({
-  subjectId,
-  topicsRefreshKey,
-  onAddTopic,
-  onAddSubtopic,
-  onEditTopic,
-  onDeleteTopic,
-  onAddContent,
-  onEditContent,
-  onDeleteContent,
-  contentRefreshKey,
-  isTeacher,
-  curriculumId
-}) {
-  const { data: topics, loading } = useApi(
-    () => adminApi.getTopics(subjectId), null, [subjectId, topicsRefreshKey]
-  );
-
-  const list = topics ?? [];
-  const rootTopics = list.filter(t => !t.parent_topic_id);
-
-  return (
-    <div className="cd-topics-container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Topics & Chapters</span>
-        {!isTeacher && (
-          <button className="cd-add-content-btn" style={{ width: 'auto', padding: '0.35rem 0.75rem', marginTop: 0 }} onClick={onAddTopic}>
-            <Plus size={11} /> Add Root Topic
-          </button>
-        )}
-      </div>
-
-      {loading ? (
-        <>{Array(2).fill(0).map((_, i) => <div key={i} className="cd-skel" style={{ height: 46 }} />)}</>
-      ) : rootTopics.length === 0 ? (
-        <p style={{ textAlign: 'center', fontSize: '0.72rem', color: 'var(--muted)', padding: '0.75rem 0' }}>No topics added yet.</p>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          {rootTopics.map(rt => (
-            <TopicNode
-              key={rt.id}
-              topic={rt}
-              allTopics={list}
-              onAddSubtopic={onAddSubtopic}
-              onEditTopic={onEditTopic}
-              onDeleteTopic={onDeleteTopic}
-              onAddContent={onAddContent}
-              onEditContent={onEditContent}
-              onDeleteContent={onDeleteContent}
-              contentRefreshKey={contentRefreshKey}
-              isTeacher={isTeacher}
-              curriculumId={curriculumId}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Recursive Node Component for unlimited nested subtopics ───────────────────
-function TopicNode({
-  topic,
-  allTopics,
-  onAddSubtopic,
-  onEditTopic,
-  onDeleteTopic,
-  onAddContent,
-  onEditContent,
-  onDeleteContent,
-  contentRefreshKey,
-  isTeacher,
-  curriculumId
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-  const childTopics = allTopics.filter(t => t.parent_topic_id === topic.id);
-
-  return (
-    <div className="cd-topic-card" style={{ marginLeft: topic.parent_topic_id ? '0.75rem' : '0' }}>
-      <div className="cd-topic-header" onClick={() => setIsOpen(!isOpen)}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-          <ChevronDown size={12} className={`cd-chevron ${isOpen ? 'open' : ''}`} style={{ opacity: childTopics.length > 0 ? 1 : 0.2 }} />
-          <div>
-            <span className="cd-topic-name">{topic.name}</span>
-            {topic.description && <p className="cd-topic-desc">{topic.description}</p>}
-          </div>
-        </div>
-        <div className="cd-subject-actions" onClick={e => e.stopPropagation()}>
-          {isTeacher ? (
-            <Link
-              to={`/courses/${curriculumId}/subjects/${topic.subject_id}/topics/${topic.id}`}
-              className="cd-icon-btn edit"
-              title="View Topic Content"
-              style={{ color: 'var(--cyan)' }}
-            >
-              <Eye size={12} />
-            </Link>
-          ) : (
-            <>
-              <button onClick={() => onAddSubtopic(topic)} className="cd-icon-btn edit" style={{ color: 'var(--cyan)' }} title="Add Subtopic"><FolderPlus size={11} /></button>
-              <button onClick={() => onEditTopic(topic)} className="cd-icon-btn edit" title="Edit Topic"><Edit2 size={11} /></button>
-              <button onClick={() => onDeleteTopic(topic.id)} className="cd-icon-btn delete" title="Delete Topic"><Trash2 size={11} /></button>
-            </>
-          )}
-        </div>
-      </div>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.22 }}
-            style={{ overflow: 'hidden', borderLeft: '1px dashed rgba(255,255,255,0.06)' }}
-          >
-            {/* Child Topics (Recursive) */}
-            {childTopics.length > 0 && (
-              <div style={{ padding: '0.25rem 0 0.25rem 0.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                {childTopics.map(ct => (
-                  <TopicNode
-                    key={ct.id}
-                    topic={ct}
-                    allTopics={allTopics}
-                    onAddSubtopic={onAddSubtopic}
-                    onEditTopic={onEditTopic}
-                    onDeleteTopic={onDeleteTopic}
-                    onAddContent={onAddContent}
-                    onEditContent={onEditContent}
-                    onDeleteContent={onDeleteContent}
-                    contentRefreshKey={contentRefreshKey}
-                    isTeacher={isTeacher}
-                    curriculumId={curriculumId}
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* Topic Resources */}
-            <TopicContentPanel
-              topicId={topic.id}
-              contentRefreshKey={contentRefreshKey}
-              onEditContent={(c) => onEditContent(topic.id, c)}
-              onDeleteContent={onDeleteContent}
-              isTeacher={isTeacher}
-            />
-
-            {/* Two choice actions row */}
-            {!isTeacher && (
-              <div className="cd-topic-actions-row">
-                <button className="cd-action-choice-btn subtopic" onClick={() => onAddSubtopic(topic)}>
-                  <FolderPlus size={12} /> Add Subtopic
-                </button>
-                <button className="cd-action-choice-btn material" onClick={() => onAddContent(topic.id)}>
-                  <Plus size={12} /> Add Material
-                </button>
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-// ── Sortable Item for Drag & Drop ─────────────────────────────────────────────
+// ── SORTABLE CONTENT ITEM (DRAG & DROP) ───────────────────────────────────────
 function SortableContentItem({ item, isTeacher, onEdit, onDelete }) {
   const {
     attributes,
@@ -1950,7 +2083,7 @@ function SortableContentItem({ item, isTeacher, onEdit, onDelete }) {
           <GripVertical size={13} />
         </span>
       )}
-      <div className={`cd-content-icon ${item.content_type}`}><Icon size={12} /></div>
+      <div className={`cd-content-icon ${item.content_type}`}><Icon size={14} /></div>
       <p className="cd-content-title">{item.title}</p>
       <span className={`cd-type-badge ${item.content_type}`}>{item.content_type}</span>
       {item.destination && (
@@ -1983,19 +2116,19 @@ function SortableContentItem({ item, isTeacher, onEdit, onDelete }) {
           {(item.target_tab === 'notes' || item.target_tab === 'study_adventure' || item.html_content?.includes('target_tab=notes')) ? '📖 Study Adv' : '🎮 Play Sim'}
         </span>
       )}
-      {item.is_premium && <span className="cd-premium-tag" title="Premium"><Lock size={11} /></span>}
+      {item.is_premium && <span className="cd-premium-tag" title="Premium"><Lock size={12} color="#FCD34D" /></span>}
       {!isTeacher && (
-        <>
-          <button onClick={() => onEdit(item)} className="cd-icon-btn edit" style={{ width: 26, height: 26 }} title="Edit"><Edit2 size={11} /></button>
-          <button onClick={() => onDelete(item.id)} className="cd-icon-btn delete" style={{ width: 26, height: 26 }} title="Delete"><Trash2 size={11} /></button>
-        </>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+          <button onClick={() => onEdit(item)} className="cd-icon-btn edit" style={{ width: 28, height: 28 }} title="Edit"><Edit2 size={12} /></button>
+          <button onClick={() => onDelete(item.id)} className="cd-icon-btn delete" style={{ width: 28, height: 28 }} title="Delete"><Trash2 size={12} /></button>
+        </div>
       )}
     </div>
   );
 }
 
-// ── Sub-component: Content list inside expanded Topic ─────────────────────────
-function TopicContentPanel({ topicId, contentRefreshKey, onEditContent, onDeleteContent, isTeacher }) {
+// ── TOPIC CONTENT PANEL (STUDIO) ──────────────────────────────────────────────
+function TopicContentPanel({ topicId, contentRefreshKey, onEditContent, onDeleteContent, onQuickAdd, isTeacher, filter, onFilterChange }) {
   const { data: content, loading } = useApi(
     () => adminApi.getSubjectContent(topicId), null, [topicId, contentRefreshKey]
   );
@@ -2003,9 +2136,7 @@ function TopicContentPanel({ topicId, contentRefreshKey, onEditContent, onDelete
   const [savingOrder, setSavingOrder] = useState(false);
 
   useEffect(() => {
-    if (content) {
-      setItems(content);
-    }
+    if (content) setItems(content);
   }, [content]);
 
   const sensors = useSensors(
@@ -2033,33 +2164,99 @@ function TopicContentPanel({ topicId, contentRefreshKey, onEditContent, onDelete
       await adminApi.reorderContent(topicId, orderPayload);
     } catch (err) {
       toast.error('Failed to update material sequence');
-      setItems(items); // Rollback
+      setItems(items);
     } finally {
       setSavingOrder(false);
     }
   }, [items, topicId]);
 
-  if (!loading && items.length === 0) {
-    return null; // hide completely when empty to keep UI clean and compact
-  }
+  const filteredItems = useMemo(() => {
+    if (filter === 'all') return items;
+    return items.filter(c => c.content_type === filter);
+  }, [items, filter]);
 
   return (
-    <div className="cd-panel" style={{ borderBottom: 'none' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-        <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--lavender)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-          Topic Resources {items.length > 0 && `(${items.length})`}
-        </span>
-        {savingOrder && (
-          <span className="cd-reorder-saving">⟳ Saving sequence…</span>
+    <div style={{ marginTop: '0.5rem' }}>
+      <div className="cd-materials-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+          <span className="cd-section-title">
+            Materials & Resources ({items.length})
+          </span>
+          {savingOrder && <span className="cd-reorder-saving">⟳ Saving sequence…</span>}
+        </div>
+
+        {items.length > 0 && (
+          <div className="cd-filter-pills">
+            {[
+              { id: 'all', label: 'All' },
+              { id: 'animation', label: 'Simulations' },
+              { id: 'note', label: 'PDFs' },
+              { id: 'video', label: 'Videos' },
+              { id: 'worksheet', label: 'Worksheets' },
+            ].map(p => (
+              <button
+                key={p.id}
+                className={clsx('cd-filter-pill', filter === p.id && 'active')}
+                onClick={() => onFilterChange(p.id)}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
         )}
       </div>
+
       {loading && items.length === 0 ? (
-        <>{Array(2).fill(0).map((_, i) => <div key={i} className="cd-skel" style={{ height: 46 }} />)}</>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {Array(2).fill(0).map((_, i) => <div key={i} className="cd-skel" style={{ height: 50, borderRadius: 14 }} />)}
+        </div>
+      ) : items.length === 0 ? (
+        <div className="cd-empty">
+          <div className="cd-empty-icon"><Sparkles size={22} style={{ color: 'var(--cyan)' }} /></div>
+          <p className="cd-empty-title">No materials in this topic yet</p>
+          <p className="cd-empty-desc">Choose a resource type below to quickly upload and attach content.</p>
+
+          {!isTeacher && (
+            <div className="cd-upload-shortcuts">
+              <div className="cd-shortcut-card" onClick={() => onQuickAdd('note')}>
+                <div className="cd-shortcut-icon" style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--cream)' }}>
+                  <FileText size={20} />
+                </div>
+                <span className="cd-shortcut-title">Upload PDF</span>
+                <span className="cd-shortcut-desc">Lesson notes, guides, and readable slides</span>
+              </div>
+
+              <div className="cd-shortcut-card" onClick={() => onQuickAdd('animation')}>
+                <div className="cd-shortcut-icon" style={{ background: 'rgba(16,185,129,0.15)', color: '#6EE7B7' }}>
+                  <Sparkles size={20} />
+                </div>
+                <span className="cd-shortcut-title">3D Simulation</span>
+                <span className="cd-shortcut-desc">Interactive HTML labs and study adventures</span>
+              </div>
+
+              <div className="cd-shortcut-card" onClick={() => onQuickAdd('video')}>
+                <div className="cd-shortcut-icon" style={{ background: 'rgba(124,58,237,0.15)', color: 'var(--lavender)' }}>
+                  <Video size={20} />
+                </div>
+                <span className="cd-shortcut-title">Upload Video</span>
+                <span className="cd-shortcut-desc">Video explanations and walk-throughs</span>
+              </div>
+
+              <div className="cd-shortcut-card" onClick={() => onQuickAdd('worksheet')}>
+                <div className="cd-shortcut-icon" style={{ background: 'rgba(245,158,11,0.15)', color: '#FCD34D' }}>
+                  <Image size={20} />
+                </div>
+                <span className="cd-shortcut-title">Worksheet</span>
+                <span className="cd-shortcut-desc">Drawable printable worksheets for students</span>
+              </div>
+            </div>
+          )}
+        </div>
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={items.map((c) => c.id)} strategy={verticalListSortingStrategy}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              {items.map((c) => (
+          <SortableContext items={filteredItems.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              {filteredItems.map((c) => (
                 <SortableContentItem
                   key={c.id}
                   item={c}
@@ -2076,7 +2273,7 @@ function TopicContentPanel({ topicId, contentRefreshKey, onEditContent, onDelete
   );
 }
 
-// ── Note drop-zone ────────────────────────────────────────────────────────────
+// ── NOTE DROPZONE ─────────────────────────────────────────────────────────────
 function NoteDropzone({ file, onChange, existingName }) {
   const [drag, setDrag] = useState(false);
   const inputRef = useRef(null);
@@ -2087,12 +2284,7 @@ function NoteDropzone({ file, onChange, existingName }) {
       onDragLeave={() => setDrag(false)}
       onDrop={(e) => { e.preventDefault(); setDrag(false); const f = e.dataTransfer.files[0]; if (f?.type === 'application/pdf') onChange(f); }}
     >
-      <input
-        ref={inputRef}
-        type="file"
-        accept="application/pdf"
-        onChange={(e) => { const f = e.target.files[0]; if (f) onChange(f); }}
-      />
+      <input ref={inputRef} type="file" accept="application/pdf" onChange={(e) => { const f = e.target.files[0]; if (f) onChange(f); }} />
       <div className={clsx('cd-dropzone-icon', file && 'green')}>
         {file ? <CheckCircle2 size={18} color="#6EE7B7" /> : <FilePlus size={18} color="var(--violet-l)" />}
       </div>
@@ -2113,7 +2305,7 @@ function NoteDropzone({ file, onChange, existingName }) {
   );
 }
 
-// ── Worksheet drop-zone ───────────────────────────────────────────────────────
+// ── WORKSHEET DROPZONE ────────────────────────────────────────────────────────
 function WorksheetDropzone({ file, previewUrl, onChange }) {
   const [drag, setDrag] = useState(false);
   const inputRef = useRef(null);
@@ -2131,12 +2323,7 @@ function WorksheetDropzone({ file, previewUrl, onChange }) {
         onDragLeave={() => setDrag(false)}
         onDrop={(e) => { e.preventDefault(); setDrag(false); handleFile(e.dataTransfer.files[0]); }}
       >
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          onChange={(e) => handleFile(e.target.files[0])}
-        />
+        <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => handleFile(e.target.files[0])} />
         <div className={clsx('cd-dropzone-icon', file ? 'green' : 'amber')}>
           {file ? <CheckCircle2 size={18} color="#6EE7B7" /> : <Image size={18} color="#FCD34D" />}
         </div>
@@ -2155,7 +2342,6 @@ function WorksheetDropzone({ file, previewUrl, onChange }) {
         )}
       </div>
 
-      {/* Live preview of selected or existing image */}
       {previewUrl && (
         <div className="cd-ws-preview">
           <div className="cd-ws-preview-toolbar">
@@ -2169,7 +2355,7 @@ function WorksheetDropzone({ file, previewUrl, onChange }) {
   );
 }
 
-// ── Video uploader ────────────────────────────────────────────────────────────
+// ── VIDEO UPLOADER ────────────────────────────────────────────────────────────
 function VideoUploader({ editingContent, stage, progress, playbackId, titleReady, onFileSelected }) {
   const inputRef = useRef(null);
 
