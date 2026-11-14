@@ -23,7 +23,6 @@ const STAGE_NAV = [
 
 const SECONDARY_NAV = [
   { to: '/classrooms',         icon: Users,      label: 'My Classrooms'   },
-  { to: '/question-generator', icon: Sparkles,   label: 'Generator'       },
   { to: '/exams',              icon: FileText,   label: 'Exams & Quizzes' },
   { to: '/questions',          icon: HelpCircle, label: 'Question Bank'   },
   { to: '/explore',            icon: Compass,    label: 'Explore'         },
@@ -34,7 +33,6 @@ const MOBILE_NAV = [
   { to: '/courses',            icon: Home,       label: 'Dashboard'  },
   { to: '/classrooms',         icon: Users,      label: 'Classrooms' },
   { to: '/explore',            icon: Compass,    label: 'Resources'  },
-  { to: '/question-generator', icon: Sparkles,   label: 'Generator'  },
   { to: '/exams',              icon: FileText,   label: 'Exams'      },
   { to: '/profile',            icon: User,       label: 'Profile'    },
 ];

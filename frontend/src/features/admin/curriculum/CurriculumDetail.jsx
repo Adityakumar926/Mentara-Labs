@@ -1532,6 +1532,8 @@ export default function CurriculumDetail() {
   const [deleteTopicId, setDeleteTopicId] = useState(null);
 
   const [contentModal, setContentModal] = useState(null);
+  const [subjectContentModal, setSubjectContentModal] = useState(null);
+  const [selectedTargetTopicId, setSelectedTargetTopicId] = useState('__subject__');
   const [editingContent, setEditingContent] = useState(null);
   const [contentForm, setContentForm] = useState(BLANK_CONTENT);
   const [batchQueue, setBatchQueue] = useState([]);
@@ -1571,6 +1573,11 @@ export default function CurriculumDetail() {
     [selectedSubjectId, topicsRefreshKey]
   );
   const topicsList = useMemo(() => topicsData ?? [], [topicsData]);
+  const SUBJECT_MATERIALS_TOPIC_NAME = 'Subject Materials';
+  const subjectMaterialsTopic = useMemo(
+    () => topicsList.find(t => !t.parent_topic_id && t.name === SUBJECT_MATERIALS_TOPIC_NAME) || null,
+    [topicsList]
+  );
 
   // Active topic resolved from drill-down state
   const activeTopic = useMemo(() => topicsList.find(t => t.id === selectedTopicId) || null, [topicsList, selectedTopicId]);
@@ -1715,6 +1722,26 @@ export default function CurriculumDetail() {
     setContentForm(cf => ({ ...cf, is_premium: nextVal }));
   };
 
+  const resolveTargetTopicId = async () => {
+    const currentTarget = subjectContentModal ? selectedTargetTopicId : contentModal;
+    if (currentTarget && currentTarget !== '__subject__') {
+      return currentTarget;
+    }
+    if (subjectMaterialsTopic) return subjectMaterialsTopic.id;
+    const res = await adminApi.createTopic(subjectContentModal || selectedSubjectId, {
+      name: SUBJECT_MATERIALS_TOPIC_NAME,
+      description: 'General subject-level materials and resources',
+      order_index: 999,
+    });
+    const created = res.data?.data ?? res.data;
+    triggerTopicsRefetch();
+    if (subjectContentModal) {
+      setSelectedTargetTopicId(created.id);
+      setContentModal(created.id);
+    }
+    return created.id;
+  };
+
   const handleSaveContent = async () => {
     setSaveError('');
     const f = contentForm;
@@ -1725,6 +1752,14 @@ export default function CurriculumDetail() {
       setBatchProgress({ current: 0, total: batchQueue.length });
       let successCount = 0;
       let hasError = false;
+      let targetTopicId;
+      try {
+        targetTopicId = await resolveTargetTopicId();
+      } catch (err) {
+        setUploadingBatch(false);
+        setSaveError(err.response?.data?.message ?? err.message ?? 'Failed to prepare subject material container');
+        return;
+      }
 
       for (let i = 0; i < batchQueue.length; i++) {
         const item = batchQueue[i];
@@ -1745,9 +1780,9 @@ export default function CurriculumDetail() {
           fd.append('file', item.file);
 
           if (f.content_type === 'note') {
-            await adminApi.uploadNote(contentModal, fd);
+            await adminApi.uploadNote(targetTopicId, fd);
           } else {
-            await adminApi.uploadWorksheet(contentModal, fd);
+            await adminApi.uploadWorksheet(targetTopicId, fd);
           }
 
           setBatchQueue(q => q.map(it => it.id === item.id ? { ...it, status: 'done', error: null } : it));
@@ -1765,6 +1800,7 @@ export default function CurriculumDetail() {
       if (!hasError) {
         toast.success(`Successfully uploaded ${successCount} material${successCount !== 1 ? 's' : ''}!`);
         setContentModal(null);
+        setSubjectContentModal(null);
         setEditingContent(null);
         setContentForm(BLANK_CONTENT);
         setBatchQueue([]);
@@ -1777,6 +1813,7 @@ export default function CurriculumDetail() {
     // ── SINGLE CONTENT SAVE MODE ──────────────────────────────────────────────
     setSaving(true);
     try {
+      const targetTopicId = editingContent ? contentModal : await resolveTargetTopicId();
       if (f.content_type === 'note') {
         if (editingContent) {
           const fd = new FormData();
@@ -1791,7 +1828,7 @@ export default function CurriculumDetail() {
           fd.append('is_premium', String(f.is_premium));
           fd.append('destination', f.destination);
           fd.append('file', f.noteFile);
-          await adminApi.uploadNote(contentModal, fd);
+          await adminApi.uploadNote(targetTopicId, fd);
         }
       } else if (f.content_type === 'video') {
         if (editingContent) {
@@ -1835,7 +1872,7 @@ export default function CurriculumDetail() {
         if (editingContent) {
           await adminApi.updateContent(editingContent.id, body);
         } else {
-          await adminApi.addContent(contentModal, body);
+          await adminApi.addContent(targetTopicId, body);
         }
       } else if (f.content_type === 'worksheet') {
         if (editingContent) {
@@ -1851,11 +1888,12 @@ export default function CurriculumDetail() {
           fd.append('is_premium', String(f.is_premium));
           fd.append('destination', f.destination);
           fd.append('file', f.worksheetFile);
-          await adminApi.uploadWorksheet(contentModal, fd);
+          await adminApi.uploadWorksheet(targetTopicId, fd);
         }
       }
 
       setContentModal(null);
+      setSubjectContentModal(null);
       setEditingContent(null);
       setContentForm(BLANK_CONTENT);
       setBatchQueue([]);
@@ -1877,14 +1915,23 @@ export default function CurriculumDetail() {
     setSaveError('');
     setContentForm(f => ({ ...f, title: currentTitle, videoFile: file, videoStage: 'uploading', videoProgress: 0 }));
 
+    let targetTopicId;
+    try {
+      targetTopicId = await resolveTargetTopicId();
+    } catch (err) {
+      setContentForm(f => ({ ...f, videoStage: 'idle', videoProgress: 0 }));
+      setSaveError(err.response?.data?.message ?? err.message ?? 'Failed to prepare upload target.');
+      return;
+    }
+
     const performDirectUpload = async () => {
       const fd = new FormData();
-      fd.append('title', contentForm.title);
+      fd.append('title', currentTitle);
       fd.append('is_premium', String(contentForm.is_premium));
       fd.append('destination', contentForm.destination);
       fd.append('file', file);
 
-      const res = await adminApi.uploadVideo(contentModal, fd, (progressEvent) => {
+      const res = await adminApi.uploadVideo(targetTopicId, fd, (progressEvent) => {
         if (progressEvent.total) {
           const pct = Math.round((progressEvent.loaded / progressEvent.total) * 100);
           setContentForm(f => ({ ...f, videoProgress: pct }));
@@ -1902,8 +1949,8 @@ export default function CurriculumDetail() {
     try {
       let res;
       try {
-        res = await adminApi.createMuxUpload(contentModal, {
-          title: contentForm.title,
+        res = await adminApi.createMuxUpload(targetTopicId, {
+          title: currentTitle,
           is_premium: String(contentForm.is_premium),
           destination: contentForm.destination,
         });
@@ -1981,14 +2028,28 @@ export default function CurriculumDetail() {
 
   const openAddContent = (topicId, defaultType = 'note') => {
     setEditingContent(null);
+    setSubjectContentModal(null);
+    setSelectedTargetTopicId(topicId);
     setContentForm({ ...BLANK_CONTENT, content_type: defaultType });
     setBatchQueue([]);
     setUploadingBatch(false);
     setSaveError('');
     setContentModal(topicId);
   };
+  const openAddSubjectContent = (subjectId, defaultType = 'note') => {
+    setEditingContent(null);
+    setSubjectContentModal(subjectId);
+    const defaultTarget = subjectMaterialsTopic ? subjectMaterialsTopic.id : '__subject__';
+    setSelectedTargetTopicId(defaultTarget);
+    setContentForm({ ...BLANK_CONTENT, content_type: defaultType });
+    setBatchQueue([]);
+    setUploadingBatch(false);
+    setSaveError('');
+    setContentModal(defaultTarget);
+  };
   const openEditContent = (topicId, c) => {
     setEditingContent(c);
+    setSubjectContentModal(null);
     setBatchQueue([]);
     setUploadingBatch(false);
     setSaveError('');
@@ -2304,8 +2365,11 @@ export default function CurriculumDetail() {
                     <button className="cd-btn-secondary" onClick={() => openEditSubject(activeSubject)}>
                       <Edit2 size={13} /> Edit Subject
                     </button>
-                    <button className="cd-btn-primary" onClick={() => openCreateTopic(activeSubject.id)}>
+                    <button className="cd-btn-secondary" onClick={() => openCreateTopic(activeSubject.id)}>
                       <Plus size={13} /> Add Topic
+                    </button>
+                    <button className="cd-btn-primary" onClick={() => openAddSubjectContent(activeSubject.id)}>
+                      <Plus size={13} /> Add Material
                     </button>
                   </>
                 )}
@@ -2314,8 +2378,8 @@ export default function CurriculumDetail() {
 
             {/* Topics Section & Search Filter */}
             <div className="cd-section-header">
-              <span className="cd-section-title">Topics & Chapters ({topicsList.filter(t => !t.parent_topic_id).length})</span>
-              {topicsList.length > 3 && (
+              <span className="cd-section-title">Topics & Chapters ({topicsList.filter(t => !t.parent_topic_id && t.name !== SUBJECT_MATERIALS_TOPIC_NAME).length})</span>
+              {topicsList.filter(t => t.name !== SUBJECT_MATERIALS_TOPIC_NAME).length > 3 && (
                 <div style={{ position: 'relative', width: 220 }}>
                   <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
                   <input
@@ -2339,7 +2403,7 @@ export default function CurriculumDetail() {
                 {Array(4).fill(0).map((_, i) => <div key={i} className="cd-skel" style={{ height: 185, borderRadius: 18, marginTop: 16 }} />)}
               </div>
             ) : (() => {
-              const rootTopics = topicsList.filter(t => !t.parent_topic_id);
+              const rootTopics = topicsList.filter(t => !t.parent_topic_id && t.name !== SUBJECT_MATERIALS_TOPIC_NAME);
               const filteredRoots = rootTopics.filter(t => 
                 t.name.toLowerCase().includes(topicSearchQuery.toLowerCase()) ||
                 (t.description && t.description.toLowerCase().includes(topicSearchQuery.toLowerCase()))
@@ -2393,6 +2457,40 @@ export default function CurriculumDetail() {
                 </div>
               );
             })()}
+
+            {/* Subject-Level Materials Section */}
+            <div style={{ marginTop: '2.25rem' }}>
+              {subjectMaterialsTopic ? (
+                <TopicContentPanel
+                  topicId={subjectMaterialsTopic.id}
+                  contentRefreshKey={contentRefreshKey}
+                  onEditContent={(c) => openEditContent(subjectMaterialsTopic.id, c)}
+                  onDeleteContent={(cId) => setDeleteContentId(cId)}
+                  onQuickAdd={(type) => openAddSubjectContent(activeSubject.id, type)}
+                  isTeacher={isTeacher}
+                  filter={materialFilter}
+                  onFilterChange={setMaterialFilter}
+                />
+              ) : (
+                <div>
+                  <div className="cd-section-header">
+                    <span className="cd-section-title">Subject Materials (0)</span>
+                  </div>
+                  <div className="cd-empty" style={{ padding: '1.75rem 1.25rem' }}>
+                    <div className="cd-empty-icon"><FileText size={20} style={{ color: 'var(--cyan)' }} /></div>
+                    <p className="cd-empty-title">No subject-level materials yet</p>
+                    <p className="cd-empty-desc">
+                      Upload general PDFs, worksheets, videos, or 3D simulations directly for {activeSubject.name}.
+                    </p>
+                    {!isTeacher && (
+                      <button className="cd-btn-primary" onClick={() => openAddSubjectContent(activeSubject.id)}>
+                        <Plus size={14} /> Add Material to {activeSubject.name}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </motion.div>
         )}
 
@@ -2555,18 +2653,47 @@ export default function CurriculumDetail() {
         onClose={() => {
           if (uploadingBatch) return;
           setContentModal(null);
+          setSubjectContentModal(null);
           setEditingContent(null);
           setContentForm(BLANK_CONTENT);
           setBatchQueue([]);
           setSaveError('');
         }}
-        title={editingContent ? 'Edit Material' : 'Add Materials / Content'}
+        title={editingContent ? 'Edit Material' : subjectContentModal ? `Add Materials to ${activeSubject?.name || 'Subject'}` : 'Add Materials / Content'}
         size="xl"
         preventOutsideClickClose={true}
       >
         <style>{CSS}</style>
         <div className="cd-root">
           <div className="space-y-4">
+            {/* Subject-level target selector (Upload directly to Subject or into any Topic/Subtopic) */}
+            {subjectContentModal && !editingContent && (
+              <Select
+                label="Upload Location"
+                value={selectedTargetTopicId}
+                onChange={(e) => {
+                  setSelectedTargetTopicId(e.target.value);
+                  setContentModal(e.target.value);
+                }}
+                disabled={uploadingBatch}
+              >
+                <option value={subjectMaterialsTopic ? subjectMaterialsTopic.id : '__subject__'}>
+                  {activeSubject?.name || 'Subject'} — General Subject Materials
+                </option>
+                {topicsList
+                  .filter(t => !t.parent_topic_id && t.name !== SUBJECT_MATERIALS_TOPIC_NAME)
+                  .flatMap(root => {
+                    const children = topicsList.filter(c => c.parent_topic_id === root.id);
+                    return [
+                      <option key={root.id} value={root.id}>Topic: {root.name}</option>,
+                      ...children.map(ch => (
+                        <option key={ch.id} value={ch.id}>&nbsp;&nbsp;↳ {root.name} / {ch.name}</option>
+                      ))
+                    ];
+                  })}
+              </Select>
+            )}
+
             {/* If editing existing single item OR uploading video / animation, show single title input */}
             {(!!editingContent || (contentForm.content_type !== 'note' && contentForm.content_type !== 'worksheet')) && (
               <Input
@@ -2988,6 +3115,7 @@ export default function CurriculumDetail() {
               variant="ghost"
               onClick={() => {
                 setContentModal(null);
+                setSubjectContentModal(null);
                 setEditingContent(null);
                 setContentForm(BLANK_CONTENT);
                 setBatchQueue([]);

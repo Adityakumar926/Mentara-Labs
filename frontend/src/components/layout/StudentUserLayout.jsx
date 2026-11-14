@@ -9,7 +9,6 @@ import VoiceTutor from '@/components/shared/VoiceTutor';
 const NAV = [
   { to: '/student/dashboard',          icon: BookOpen, label: 'Dashboard' },
   { to: '/student/classrooms',         icon: Users,    label: 'Classrooms'},
-  { to: '/student/question-generator', icon: Sparkles, label: 'Generator' },
   { to: '/student/certificates',       icon: Award,    label: 'Certificates' },
   { to: '/student/profile',            icon: User,     label: 'Profile'   },
 ];
