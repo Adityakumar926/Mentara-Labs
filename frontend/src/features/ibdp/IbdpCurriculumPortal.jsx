@@ -646,15 +646,15 @@ export default function IbdpCurriculumPortal() {
               textTransform: 'uppercase', color: '#2563EB',
               background: '#EFF6FF', padding: '0.25rem 0.65rem', borderRadius: 999,
             }}>
-              Curriculum Portal
+              IBDP Curriculum Portal
             </span>
           </div>
 
           <h1 style={{ fontSize: '1.45rem', fontWeight: 800, color: '#0F172A', margin: '0 0 0.35rem 0', letterSpacing: '-0.02em' }}>
-            {authMode === 'login' ? 'Sign in to Curriculum' : 'Register for Curriculum Access'}
+            {authMode === 'login' ? 'Sign in to IBDP Curriculum' : 'Register for IBDP Curriculum'}
           </h1>
           <p style={{ fontSize: '0.85rem', color: '#64748B', margin: '0 0 1.5rem 0', lineHeight: 1.5 }}>
-            Confidential curriculum portal. Continue with Google or sign in with your email credentials.
+            IBDP curriculum portal. Continue with Google or sign in with your email credentials.
           </p>
 
           <button
