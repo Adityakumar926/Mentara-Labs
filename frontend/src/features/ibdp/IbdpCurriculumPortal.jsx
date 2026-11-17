@@ -226,6 +226,7 @@ export default function IbdpCurriculumPortal() {
   const [submittingAuth, setSubmittingAuth] = useState(false);
 
   useEffect(() => {
+    document.title = 'Curriculum Portal';
     if (!document.getElementById('google-gsi-client')) {
       const script = document.createElement('script');
       script.id = 'google-gsi-client';

@@ -59,9 +59,30 @@ const ExplorePage          = lazy(() => import('@/features/teacher/courses/Explo
 const StudentQuestionsPage = lazy(() => import('@/features/teacher/questions/QuestionsPage'));
 const ClassroomsPage       = lazy(() => import('@/features/teacher/classrooms/ClassroomsPage'));
 const ClassroomDetail      = lazy(() => import('@/features/teacher/classrooms/ClassroomDetail'));
-const IbdpCurriculumPortal = lazy(() => import('@/features/ibdp/IbdpCurriculumPortal'));
+import IbdpCurriculumPortal from '@/features/ibdp/IbdpCurriculumPortal';
 
 function PageLoader() {
+  if (typeof window !== 'undefined' && window.location.pathname.toLowerCase().startsWith('/ibdp')) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#FFFFFF',
+      }}>
+        <div style={{
+          width: 28,
+          height: 28,
+          border: '3px solid #E2E8F0',
+          borderTopColor: '#2563EB',
+          borderRadius: '50%',
+          animation: 'mentara-spin 0.8s linear infinite',
+        }} />
+        <style>{`@keyframes mentara-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
   return (
     <div style={{
       minHeight: '100vh',

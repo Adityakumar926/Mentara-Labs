@@ -143,30 +143,49 @@
   </head>
   <body>
     <div id="root">
-      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;background:linear-gradient(135deg,#edf6fd 0%,#cce7f9 32%,#b5ddf7 68%,#9dd4f4 100%);font-family:'Inter',system-ui,-apple-system,sans-serif;color:#072740;position:relative;overflow:hidden;">
-        <div style="position:absolute;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,0.85) 0%,rgba(181,221,247,0.3) 50%,transparent 70%);filter:blur(60px);pointer-events:none;top:50%;left:50%;transform:translate(-50%,-50%);"></div>
-        <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:1.25rem;text-align:center;">
-          <div style="position:relative;width:80px;height:80px;display:flex;align-items:center;justify-content:center;">
-            <div style="position:absolute;inset:-6px;border-radius:50%;border:2px solid transparent;border-top-color:#0284c7;border-right-color:#7c3aed;border-bottom-color:rgba(2,132,199,0.2);animation:mentara-spin 1.2s cubic-bezier(0.5,0.1,0.5,0.9) infinite;"></div>
-            <div style="position:absolute;inset:-14px;border-radius:50%;border:1px solid rgba(2,132,199,0.2);animation:mentara-pulse 2s ease-in-out infinite;"></div>
-            <img src="/mentara-new.png" alt="Mentara Learning" style="width:54px;height:54px;object-fit:contain;filter:drop-shadow(0 4px 16px rgba(2,132,199,0.25));" />
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;">
-            <span style="font-family:'Outfit','Space Grotesk',sans-serif;font-size:1.35rem;font-weight:800;letter-spacing:-0.02em;color:#072740;">Mentara Learning</span>
-            <div style="display:flex;align-items:center;gap:0.45rem;">
-              <span style="width:7px;height:7px;border-radius:50%;background:#0284c7;box-shadow:0 0 8px #0284c7;animation:mentara-pulse 1.4s ease-in-out infinite;"></span>
-              <span style="font-size:0.8rem;font-weight:600;color:#1e4f6d;letter-spacing:0.02em;">Loading interactive lab...</span>
-            </div>
-          </div>
-          <div style="width:140px;height:3.5px;background:rgba(2,132,199,0.15);border-radius:999px;overflow:hidden;position:relative;margin-top:0.25rem;">
-            <div style="position:absolute;height:100%;width:45%;background:linear-gradient(90deg,#7c3aed,#0284c7);border-radius:999px;animation:mentara-bar 1.5s ease-in-out infinite;"></div>
-          </div>
-        </div>
+      <div id="initial-splash" style="min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#FFFFFF;font-family:'Inter',system-ui,-apple-system,sans-serif;color:#072740;position:relative;overflow:hidden;">
         <style>
           @keyframes mentara-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
           @keyframes mentara-pulse { 0%, 100% { opacity: 0.4; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.1); } }
           @keyframes mentara-bar { 0% { left: -45%; } 50% { left: 55%; width: 55%; } 100% { left: 100%; width: 45%; } }
         </style>
+        <script>
+          (function() {
+            var p = window.location.pathname.toLowerCase();
+            var isIbdp = p.indexOf('/ibdp') === 0 || p.indexOf('/ipdb') === 0;
+            var splash = document.getElementById('initial-splash');
+            if (isIbdp) {
+              document.title = 'Curriculum Portal';
+              var fav = document.querySelector("link[rel='icon']");
+              if (fav) fav.href = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 24'><path d='M2 4.5C2 3.1 3.1 2 4.5 2H10.6L14.2 4.5H23.5C24.9 4.5 26 5.6 26 7V19.5C26 20.9 24.9 22 23.5 22H4.5C3.1 22 2 20.9 2 19.5V4.5Z' fill='%233B82F6'/></svg>";
+              if (splash) {
+                splash.style.background = '#FFFFFF';
+                splash.innerHTML = '<div style="width:28px;height:28px;border:3px solid #E2E8F0;border-top-color:#2563EB;border-radius:50%;animation:mentara-spin 0.8s linear infinite;"></div>';
+              }
+            } else if (splash) {
+              splash.style.background = 'linear-gradient(135deg,#edf6fd 0%,#cce7f9 32%,#b5ddf7 68%,#9dd4f4 100%)';
+              splash.innerHTML =
+                '<div style="position:absolute;width:480px;height:480px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,0.85) 0%,rgba(181,221,247,0.3) 50%,transparent 70%);filter:blur(60px);pointer-events:none;top:50%;left:50%;transform:translate(-50%,-50%);"></div>' +
+                '<div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:1.25rem;text-align:center;">' +
+                  '<div style="position:relative;width:80px;height:80px;display:flex;align-items:center;justify-content:center;">' +
+                    '<div style="position:absolute;inset:-6px;border-radius:50%;border:2px solid transparent;border-top-color:#0284c7;border-right-color:#7c3aed;border-bottom-color:rgba(2,132,199,0.2);animation:mentara-spin 1.2s cubic-bezier(0.5,0.1,0.5,0.9) infinite;"></div>' +
+                    '<div style="position:absolute;inset:-14px;border-radius:50%;border:1px solid rgba(2,132,199,0.2);animation:mentara-pulse 2s ease-in-out infinite;"></div>' +
+                    '<img src="/mentara-new.png" alt="Mentara Learning" style="width:54px;height:54px;object-fit:contain;filter:drop-shadow(0 4px 16px rgba(2,132,199,0.25));" />' +
+                  '</div>' +
+                  '<div style="display:flex;flex-direction:column;align-items:center;gap:0.4rem;">' +
+                    '<span style="font-family:\'Outfit\',\'Space Grotesk\',sans-serif;font-size:1.35rem;font-weight:800;letter-spacing:-0.02em;color:#072740;">Mentara Learning</span>' +
+                    '<div style="display:flex;align-items:center;gap:0.45rem;">' +
+                      '<span style="width:7px;height:7px;border-radius:50%;background:#0284c7;box-shadow:0 0 8px #0284c7;animation:mentara-pulse 1.4s ease-in-out infinite;"></span>' +
+                      '<span style="font-size:0.8rem;font-weight:600;color:#1e4f6d;letter-spacing:0.02em;">Loading interactive lab...</span>' +
+                    '</div>' +
+                  '</div>' +
+                  '<div style="width:140px;height:3.5px;background:rgba(2,132,199,0.15);border-radius:999px;overflow:hidden;position:relative;margin-top:0.25rem;">' +
+                    '<div style="position:absolute;height:100%;width:45%;background:linear-gradient(90deg,#7c3aed,#0284c7);border-radius:999px;animation:mentara-bar 1.5s ease-in-out infinite;"></div>' +
+                  '</div>' +
+                '</div>';
+            }
+          })();
+        </script>
       </div>
     </div>
     <script type="module" src="/src/main.jsx"></script>
