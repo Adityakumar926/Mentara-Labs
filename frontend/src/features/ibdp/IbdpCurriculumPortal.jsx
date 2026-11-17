@@ -621,7 +621,11 @@ export default function IbdpCurriculumPortal() {
     return (
       <div style={{
         minHeight: '100vh',
-        background: 'linear-gradient(145deg, #F1F5F9 0%, #F8FAFC 50%, #EFF6FF 100%)',
+        backgroundImage: "url('/ibdp-auth-bg.webp')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundColor: '#EBF4FF',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -633,11 +637,13 @@ export default function IbdpCurriculumPortal() {
         <div style={{
           width: '100%',
           maxWidth: '420px',
-          background: '#FFFFFF',
-          border: '1px solid #E2E8F0',
+          background: 'rgba(255, 255, 255, 0.92)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          border: '1px solid rgba(226, 232, 240, 0.9)',
           borderRadius: '22px',
           padding: '2.25rem 2rem',
-          boxShadow: '0 20px 40px -15px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.03)',
+          boxShadow: '0 20px 45px -15px rgba(15, 23, 42, 0.12), 0 2px 8px rgba(15, 23, 42, 0.04)',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
             <SmallFolderIcon color="blue" size={28} />
