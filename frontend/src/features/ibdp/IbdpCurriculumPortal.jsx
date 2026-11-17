@@ -821,7 +821,7 @@ export default function IbdpCurriculumPortal() {
           overflow: 'hidden',
           position: 'fixed',
           inset: 0,
-          backgroundImage: "url('/ibdp-auth-clay-bg.webp')",
+          backgroundImage: "url('/ibdp-auth-v2.jpg?v=2')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
@@ -847,23 +847,34 @@ export default function IbdpCurriculumPortal() {
             boxSizing: 'border-box',
           }}
         >
-          {/* Top Clay Badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.85rem' }}>
-            <SmallFolderIcon color="blue" size={28} />
-            <span
-              className="ibdp-clay-btn"
-              style={{
-                fontSize: '0.7rem',
+          {/* Top Mentara Learning · IBDP Portal Brand Header */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.95rem' }}>
+            <img
+              src="/mentara-new.png"
+              alt="Mentara Learning"
+              style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0, background: 'transparent', border: 'none' }}
+            />
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{
+                fontFamily: "'Outfit', 'Plus Jakarta Sans', sans-serif",
+                fontSize: '1.05rem',
                 fontWeight: 800,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
+                color: '#0F172A',
+                lineHeight: 1.15,
+                letterSpacing: '-0.01em',
+              }}>
+                Mentara Learning
+              </span>
+              <span style={{
+                fontSize: '0.74rem',
+                fontWeight: 700,
                 color: '#2563EB',
-                padding: '0.3rem 0.8rem',
-                borderRadius: 999,
-              }}
-            >
-              IBDP Curriculum Portal
-            </span>
+                lineHeight: 1.2,
+                marginTop: '2px',
+              }}>
+                IBDP Portal
+              </span>
+            </div>
           </div>
 
           <h1 style={{
@@ -1414,37 +1425,54 @@ export default function IbdpCurriculumPortal() {
             gap: '0.45rem',
           }}
         >
-          {/* Top IBDP Clay Brand Pill */}
+          {/* Top Mentara Learning · IBDP Portal Brand Header (No border or background) */}
           <div
             onClick={handleHome}
-            className="ibdp-clay-btn"
             style={{
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '0.65rem 0.85rem',
-              marginBottom: '0.55rem',
-              borderRadius: 18,
+              gap: '0.75rem',
+              padding: '0.45rem 0.65rem 0.85rem',
+              marginBottom: '0.35rem',
               cursor: 'pointer',
+              background: 'transparent',
+              border: 'none',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-              <div
-                className="ibdp-clay-bubble"
-                style={{
-                  width: 32, height: 32, borderRadius: 11,
-                  background: 'linear-gradient(145deg, #60A5FA 0%, #2563EB 100%)',
-                  color: '#FFFFFF',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}
-              >
-                <Layers size={16} />
-              </div>
-              <span style={{ fontSize: '0.98rem', fontWeight: 800, color: '#0F172A' }}>
-                {ibdpCurriculum?.name || 'IBDP'}
+            <img
+              src="/mentara-new.png"
+              alt="Mentara Learning"
+              style={{
+                width: 36,
+                height: 36,
+                objectFit: 'contain',
+                flexShrink: 0,
+                background: 'transparent',
+                border: 'none',
+              }}
+            />
+            <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+              <span style={{
+                fontFamily: "'Outfit', 'Plus Jakarta Sans', sans-serif",
+                fontSize: '1.02rem',
+                fontWeight: 800,
+                color: '#0F172A',
+                lineHeight: 1.15,
+                letterSpacing: '-0.01em',
+                whiteSpace: 'nowrap',
+              }}>
+                Mentara Learning
+              </span>
+              <span style={{
+                fontSize: '0.74rem',
+                fontWeight: 700,
+                color: '#2563EB',
+                lineHeight: 1.2,
+                marginTop: '2px',
+              }}>
+                IBDP Portal
               </span>
             </div>
-            <ChevronDown size={15} color="#475569" />
           </div>
 
           {/* Primary Clay Nav Items */}
