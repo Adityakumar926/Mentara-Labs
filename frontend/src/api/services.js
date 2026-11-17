@@ -137,10 +137,18 @@ export const adminApi = {
 };
 
 // ── STUDENT ───────────────────────────────────────────────────────────────────
+const isConfidentialIbdp = (name) => String(name || '').trim().toLowerCase().includes('ibdp');
+
 export const studentApi = {
 
   getScheduledExams: () => api.get('/student/exams/scheduled'),
-  getExploreContents: () => api.get('/student/explore'),
+  getExploreContents: async () => {
+    const res = await api.get('/student/explore');
+    if (Array.isArray(res?.data?.data)) {
+      res.data.data = res.data.data.filter(item => !isConfidentialIbdp(item.curriculum_name));
+    }
+    return res;
+  },
 
   getLiveExams: () => api.get('/student/exams'),
 
@@ -161,12 +169,37 @@ export const studentApi = {
   getCalendar: (params) => api.get('/student/streak/calendar', { params }),
   getHeatmap:  (params) => api.get('/student/streak/heatmap', { params }),
 
-  // Courses
-  getHierarchy:          ()          => api.get('/student/hierarchy'),
-  getCurriculums:        ()          => api.get('/student/curriculums'),
-  getAllCurriculums:     ()          => api.get('/student/all-curriculums'),
+  // Courses (Confidential IBDP curriculum is hidden from standard student/teacher views)
+  getIbdpHierarchy:      ()          => api.get('/student/hierarchy'),
+  getHierarchy:          async ()    => {
+    const res = await api.get('/student/hierarchy');
+    if (Array.isArray(res?.data?.data)) {
+      res.data.data = res.data.data.filter(c => !isConfidentialIbdp(c.name));
+    }
+    return res;
+  },
+  getCurriculums:        async ()    => {
+    const res = await api.get('/student/curriculums');
+    if (Array.isArray(res?.data?.data)) {
+      res.data.data = res.data.data.filter(c => !isConfidentialIbdp(c.name));
+    }
+    return res;
+  },
+  getAllCurriculums:     async ()    => {
+    const res = await api.get('/student/all-curriculums');
+    if (Array.isArray(res?.data?.data)) {
+      res.data.data = res.data.data.filter(c => !isConfidentialIbdp(c.name));
+    }
+    return res;
+  },
   getCurriculumClasses:  (currId)    => api.get(`/student/curriculums/${currId}/classes`),
-  getCurriculumSubjects: (currId, params) => api.get(`/student/curriculums/${currId}/subjects`, { params }),
+  getCurriculumSubjects: async (currId, params) => {
+    const res = await api.get(`/student/curriculums/${currId}/subjects`, { params });
+    if ((!currId || currId === 'all' || currId === 'default' || currId === 'null') && Array.isArray(res?.data?.data)) {
+      res.data.data = res.data.data.filter(s => !isConfidentialIbdp(s.curriculum_name));
+    }
+    return res;
+  },
   getSubjectTopics:      (subjectId) => api.get(`/student/subjects/${subjectId}/topics`),
   getTopicContent:       (topicId)   => api.get(`/student/topics/${topicId}/content`),
   getNoteUrl:            (contentId) => api.get(`/student/content/${contentId}/note-url`),

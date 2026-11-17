@@ -59,6 +59,7 @@ const ExplorePage          = lazy(() => import('@/features/teacher/courses/Explo
 const StudentQuestionsPage = lazy(() => import('@/features/teacher/questions/QuestionsPage'));
 const ClassroomsPage       = lazy(() => import('@/features/teacher/classrooms/ClassroomsPage'));
 const ClassroomDetail      = lazy(() => import('@/features/teacher/classrooms/ClassroomDetail'));
+const IbdpCurriculumPortal = lazy(() => import('@/features/ibdp/IbdpCurriculumPortal'));
 
 function PageLoader() {
   return (
@@ -225,6 +226,11 @@ export default function App() {
           <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="/terms"   element={<TermsOfServicePage />} />
           <Route path="/discover-thinking-style" element={<LearningCompassPage />} />
+
+          {/* ── Confidential IBDP Curriculum Portal ───────────────────────── */}
+          <Route path="/ibdp"            element={<Navigate to="/ibdp/curriculam" replace />} />
+          <Route path="/ibdp/curriculam" element={<IbdpCurriculumPortal />} />
+          <Route path="/ibdp/curriculum" element={<IbdpCurriculumPortal />} />
 
           {/* ── Auth ──────────────────────────────────────────────────────── */}
           <Route element={<AuthLayout />}>
