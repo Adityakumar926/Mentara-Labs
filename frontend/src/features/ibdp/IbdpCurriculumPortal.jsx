@@ -222,6 +222,34 @@ const CLAY_CSS = `
       inset 2px 2px 5px rgba(255, 255, 255, 0.85),
       inset -3px -3px 6px rgba(148, 163, 184, 0.22);
   }
+
+  /* Enhanced 3D Study Folder Card */
+  .ibdp-clay-folder-card {
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease, border-color 0.28s ease;
+  }
+  .ibdp-clay-folder-card:hover {
+    transform: translateY(-6px) scale(1.02);
+  }
+  .ibdp-clay-folder-card .ibdp-folder-papers {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .ibdp-clay-folder-card:hover .ibdp-folder-papers {
+    transform: translateY(-5px);
+  }
+  .ibdp-clay-folder-card .ibdp-folder-badge {
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .ibdp-clay-folder-card:hover .ibdp-folder-badge {
+    transform: scale(1.18) rotate(-6deg);
+  }
+  .ibdp-clay-folder-card .ibdp-folder-arrow {
+    transition: transform 0.22s ease, opacity 0.22s ease, background 0.22s ease;
+    opacity: 0.7;
+  }
+  .ibdp-clay-folder-card:hover .ibdp-folder-arrow {
+    transform: translateX(4px);
+    opacity: 1;
+  }
 `;
 
 // ── Custom 3D Clay Folder SVGs ───────────────────────────────────────────────
@@ -275,6 +303,506 @@ function SmallFolderIcon({ color = 'blue', size = 26 }) {
         </linearGradient>
       </defs>
     </svg>
+  );
+}
+
+// ── Smart Topic Study Meta (Multiple Styles & Unique Study Emojis) ────────────
+function getTopicStudyMeta(topicName = '', index = 0) {
+  const name = String(topicName || '').trim();
+  const lower = name.toLowerCase();
+
+  // 1. Past Papers / Exam Archives / Year papers / Test series / Mocks
+  if (lower.includes('past') || lower.includes('year') || lower.includes('exam') || lower.includes('paper') || lower.includes('test') || lower.includes('mock')) {
+    return {
+      uid: 'past-papers',
+      emoji: '📜',
+      tag: 'Past Papers',
+      theme: 'sapphire',
+      folderStyle: 'archive',
+      accent: '#2563EB',
+      gradient: 'linear-gradient(135deg, #60A5FA 0%, #2563EB 55%, #1D4ED8 100%)',
+      backFill: '#3B82F6',
+      frontTop: '#BFDBFE',
+      frontMid: '#60A5FA',
+      frontBot: '#1D4ED8',
+      lightBg: 'rgba(37, 99, 235, 0.09)',
+      shadow: 'rgba(37, 99, 235, 0.28)',
+      badgeBg: 'linear-gradient(135deg, #FFFFFF 0%, #DBEAFE 100%)',
+      badgeBorder: '#93C5FD',
+      badgeColor: '#1E40AF',
+    };
+  }
+
+  // 2. Conceptual Ladder / Concepts / Foundations / Core Theory / Principles
+  if (lower.includes('ladder') || lower.includes('concept') || lower.includes('foundation') || lower.includes('core') || lower.includes('intro') || lower.includes('principle')) {
+    return {
+      uid: 'concept-ladder',
+      emoji: '🪜',
+      tag: 'Concept Ladder',
+      theme: 'emerald',
+      folderStyle: 'stepped',
+      accent: '#059669',
+      gradient: 'linear-gradient(135deg, #34D399 0%, #10B981 55%, #059669 100%)',
+      backFill: '#10B981',
+      frontTop: '#A7F3D0',
+      frontMid: '#34D399',
+      frontBot: '#047857',
+      lightBg: 'rgba(16, 185, 129, 0.09)',
+      shadow: 'rgba(16, 185, 129, 0.28)',
+      badgeBg: 'linear-gradient(135deg, #FFFFFF 0%, #D1FAE5 100%)',
+      badgeBorder: '#6EE7B7',
+      badgeColor: '#065F46',
+    };
+  }
+
+  // 3. Homework / Assignment / Problem Sets / Tasks / HW Questions
+  if (lower.includes('hw') || lower.includes('homework') || lower.includes('assignment') || lower.includes('task') || lower.includes('exercise') || lower.includes('worksheet') || lower.includes('problem')) {
+    return {
+      uid: 'hw-questions',
+      emoji: '✍️',
+      tag: 'HW Questions',
+      theme: 'violet',
+      folderStyle: 'binder',
+      accent: '#7C3AED',
+      gradient: 'linear-gradient(135deg, #A78BFA 0%, #8B5CF6 55%, #6D28D9 100%)',
+      backFill: '#8B5CF6',
+      frontTop: '#DDD6FE',
+      frontMid: '#A78BFA',
+      frontBot: '#6D28D9',
+      lightBg: 'rgba(124, 58, 237, 0.09)',
+      shadow: 'rgba(124, 58, 237, 0.28)',
+      badgeBg: 'linear-gradient(135deg, #FFFFFF 0%, #EDE9FE 100%)',
+      badgeBorder: '#C4B5FD',
+      badgeColor: '#5B21B6',
+    };
+  }
+
+  // 4. Models / 3D Simulations / Visuals / Geometry / Physics Structures
+  if (lower.includes('model') || lower.includes('simulation') || lower.includes('3d') || lower.includes('diagram') || lower.includes('structure') || lower.includes('visual')) {
+    return {
+      uid: 'models-3d',
+      emoji: '🧊',
+      tag: '3D Models',
+      theme: 'amber',
+      folderStyle: 'technical',
+      accent: '#D97706',
+      gradient: 'linear-gradient(135deg, #FBBF24 0%, #F59E0B 55%, #D97706 100%)',
+      backFill: '#F59E0B',
+      frontTop: '#FEF08A',
+      frontMid: '#FBBF24',
+      frontBot: '#B45309',
+      lightBg: 'rgba(217, 119, 6, 0.09)',
+      shadow: 'rgba(217, 119, 6, 0.28)',
+      badgeBg: 'linear-gradient(135deg, #FFFFFF 0%, #FEF3C7 100%)',
+      badgeBorder: '#FDE68A',
+      badgeColor: '#92400E',
+    };
+  }
+
+  // 5. IBDP Style Practice / Drills / Target / Exam Practice / Scoring
+  if (lower.includes('practice') || lower.includes('drill') || lower.includes('style') || lower.includes('target') || lower.includes('mastery') || lower.includes('ibdp')) {
+    return {
+      uid: 'ibdp-practice',
+      emoji: '🎯',
+      tag: 'IBDP Practice',
+      theme: 'rose',
+      folderStyle: 'target',
+      accent: '#E11D48',
+      gradient: 'linear-gradient(135deg, #FB7185 0%, #F43F5E 55%, #BE123C 100%)',
+      backFill: '#F43F5E',
+      frontTop: '#FECDD3',
+      frontMid: '#FB7185',
+      frontBot: '#9F1239',
+      lightBg: 'rgba(225, 29, 72, 0.09)',
+      shadow: 'rgba(225, 29, 72, 0.28)',
+      badgeBg: 'linear-gradient(135deg, #FFFFFF 0%, #FFE4E6 100%)',
+      badgeBorder: '#FDA4AF',
+      badgeColor: '#9F1239',
+    };
+  }
+
+  // 6. Formulas / Equations / Mathematics / Data Booklet
+  if (lower.includes('formula') || lower.includes('equation') || lower.includes('math') || lower.includes('data booklet') || lower.includes('calc')) {
+    return {
+      uid: 'formulas-data',
+      emoji: '🔢',
+      tag: 'Formulas & Data',
+      theme: 'cyan',
+      folderStyle: 'technical',
+      accent: '#0891B2',
+      gradient: 'linear-gradient(135deg, #38BDF8 0%, #0EA5E9 55%, #0284C7 100%)',
+      backFill: '#0EA5E9',
+      frontTop: '#BAE6FD',
+      frontMid: '#38BDF8',
+      frontBot: '#0369A1',
+      lightBg: 'rgba(14, 165, 233, 0.09)',
+      shadow: 'rgba(14, 165, 233, 0.28)',
+      badgeBg: 'linear-gradient(135deg, #FFFFFF 0%, #E0F2FE 100%)',
+      badgeBorder: '#BAE6FD',
+      badgeColor: '#0369A1',
+    };
+  }
+
+  // 7. Lab / Practical / Experiments / Internal Assessment (IA)
+  if (lower.includes('lab') || lower.includes('practical') || lower.includes('experiment') || lower.includes('investigation') || lower.includes('ia') || lower.includes('assessment')) {
+    return {
+      uid: 'lab-ia',
+      emoji: '🧪',
+      tag: 'Lab & IA',
+      theme: 'teal',
+      folderStyle: 'archive',
+      accent: '#0D9488',
+      gradient: 'linear-gradient(135deg, #2DD4BF 0%, #14B8A6 55%, #0F766E 100%)',
+      backFill: '#14B8A6',
+      frontTop: '#99F6E4',
+      frontMid: '#2DD4BF',
+      frontBot: '#115E59',
+      lightBg: 'rgba(20, 184, 166, 0.09)',
+      shadow: 'rgba(20, 184, 166, 0.28)',
+      badgeBg: 'linear-gradient(135deg, #FFFFFF 0%, #CCFBF1 100%)',
+      badgeBorder: '#99F6E4',
+      badgeColor: '#115E59',
+    };
+  }
+
+  // 8. Revision / Summary / Cheatsheet / Quick review
+  if (lower.includes('revision') || lower.includes('summary') || lower.includes('cheat') || lower.includes('review') || lower.includes('flash') || lower.includes('quick')) {
+    return {
+      uid: 'revision-summary',
+      emoji: '⚡',
+      tag: 'Quick Revision',
+      theme: 'orange',
+      folderStyle: 'stepped',
+      accent: '#EA580C',
+      gradient: 'linear-gradient(135deg, #FB923C 0%, #F97316 55%, #C2410C 100%)',
+      backFill: '#F97316',
+      frontTop: '#FED7AA',
+      frontMid: '#FB923C',
+      frontBot: '#9A3412',
+      lightBg: 'rgba(234, 88, 12, 0.09)',
+      shadow: 'rgba(234, 88, 12, 0.28)',
+      badgeBg: 'linear-gradient(135deg, #FFFFFF 0%, #FFEDD5 100%)',
+      badgeBorder: '#FED7AA',
+      badgeColor: '#9A3412',
+    };
+  }
+
+  // 9. Notes / Lectures / Slides / Reading / Textbook / Guide
+  if (lower.includes('note') || lower.includes('lecture') || lower.includes('slide') || lower.includes('read') || lower.includes('textbook') || lower.includes('guide') || lower.includes('book')) {
+    return {
+      uid: 'study-notes',
+      emoji: '📚',
+      tag: 'Study Notes',
+      theme: 'indigo',
+      folderStyle: 'binder',
+      accent: '#4F46E5',
+      gradient: 'linear-gradient(135deg, #818CF8 0%, #6366F1 55%, #4338CA 100%)',
+      backFill: '#6366F1',
+      frontTop: '#C7D2FE',
+      frontMid: '#818CF8',
+      frontBot: '#3730A3',
+      lightBg: 'rgba(99, 102, 241, 0.09)',
+      shadow: 'rgba(99, 102, 241, 0.28)',
+      badgeBg: 'linear-gradient(135deg, #FFFFFF 0%, #E0E7FF 100%)',
+      badgeBorder: '#C7D2FE',
+      badgeColor: '#3730A3',
+    };
+  }
+
+  // 10. Question Bank / Quiz / MCQs / Topical Questions
+  if (lower.includes('bank') || lower.includes('mcq') || lower.includes('quiz') || lower.includes('topical')) {
+    return {
+      uid: 'question-bank',
+      emoji: '🧠',
+      tag: 'Question Bank',
+      theme: 'purple',
+      folderStyle: 'target',
+      accent: '#9333EA',
+      gradient: 'linear-gradient(135deg, #C084FC 0%, #A855F7 55%, #7E22CE 100%)',
+      backFill: '#A855F7',
+      frontTop: '#E9D5FF',
+      frontMid: '#C084FC',
+      frontBot: '#6B21A8',
+      lightBg: 'rgba(168, 85, 247, 0.09)',
+      shadow: 'rgba(168, 85, 247, 0.28)',
+      badgeBg: 'linear-gradient(135deg, #FFFFFF 0%, #F3E8FF 100%)',
+      badgeBorder: '#E9D5FF',
+      badgeColor: '#6B21A8',
+    };
+  }
+
+  // Curated diverse study styles rotation (for multiple folders when names are generic)
+  const rotating = [
+    {
+      uid: `topic-rot-${index}-1`,
+      emoji: '💡',
+      tag: 'Core Concept',
+      theme: 'amber',
+      folderStyle: 'stepped',
+      accent: '#F59E0B',
+      gradient: 'linear-gradient(135deg, #FCD34D 0%, #F59E0B 55%, #D97706 100%)',
+      backFill: '#F59E0B',
+      frontTop: '#FEF08A',
+      frontMid: '#FBBF24',
+      frontBot: '#B45309',
+      lightBg: 'rgba(245, 158, 11, 0.09)',
+      shadow: 'rgba(245, 158, 11, 0.28)',
+      badgeBg: 'linear-gradient(135deg, #FFFFFF 0%, #FEF3C7 100%)',
+      badgeBorder: '#FDE68A',
+      badgeColor: '#92400E',
+    },
+    {
+      uid: `topic-rot-${index}-2`,
+      emoji: '🔬',
+      tag: 'Investigation',
+      theme: 'emerald',
+      folderStyle: 'technical',
+      accent: '#10B981',
+      gradient: 'linear-gradient(135deg, #6EE7B7 0%, #10B981 55%, #047857 100%)',
+      backFill: '#10B981',
+      frontTop: '#A7F3D0',
+      frontMid: '#34D399',
+      frontBot: '#065F46',
+      lightBg: 'rgba(16, 185, 129, 0.09)',
+      shadow: 'rgba(16, 185, 129, 0.28)',
+      badgeBg: 'linear-gradient(135deg, #FFFFFF 0%, #D1FAE5 100%)',
+      badgeBorder: '#A7F3D0',
+      badgeColor: '#065F46',
+    },
+    {
+      uid: `topic-rot-${index}-3`,
+      emoji: '📐',
+      tag: 'Application',
+      theme: 'sapphire',
+      folderStyle: 'archive',
+      accent: '#3B82F6',
+      gradient: 'linear-gradient(135deg, #93C5FD 0%, #3B82F6 55%, #1D4ED8 100%)',
+      backFill: '#3B82F6',
+      frontTop: '#BFDBFE',
+      frontMid: '#60A5FA',
+      frontBot: '#1E40AF',
+      lightBg: 'rgba(59, 130, 246, 0.09)',
+      shadow: 'rgba(59, 130, 246, 0.28)',
+      badgeBg: 'linear-gradient(135deg, #FFFFFF 0%, #DBEAFE 100%)',
+      badgeBorder: '#BFDBFE',
+      badgeColor: '#1E40AF',
+    },
+    {
+      uid: `topic-rot-${index}-4`,
+      emoji: '🏆',
+      tag: 'Key Mastery',
+      theme: 'rose',
+      folderStyle: 'target',
+      accent: '#F43F5E',
+      gradient: 'linear-gradient(135deg, #FDA4AF 0%, #F43F5E 55%, #BE123C 100%)',
+      backFill: '#F43F5E',
+      frontTop: '#FECDD3',
+      frontMid: '#FB7185',
+      frontBot: '#9F1239',
+      lightBg: 'rgba(244, 63, 94, 0.09)',
+      shadow: 'rgba(244, 63, 94, 0.28)',
+      badgeBg: 'linear-gradient(135deg, #FFFFFF 0%, #FFE4E6 100%)',
+      badgeBorder: '#FECDD3',
+      badgeColor: '#9F1239',
+    },
+    {
+      uid: `topic-rot-${index}-5`,
+      emoji: '🧩',
+      tag: 'Problem Solving',
+      theme: 'violet',
+      folderStyle: 'binder',
+      accent: '#8B5CF6',
+      gradient: 'linear-gradient(135deg, #C4B5FD 0%, #8B5CF6 55%, #6D28D9 100%)',
+      backFill: '#8B5CF6',
+      frontTop: '#DDD6FE',
+      frontMid: '#A78BFA',
+      frontBot: '#5B21B6',
+      lightBg: 'rgba(139, 92, 246, 0.09)',
+      shadow: 'rgba(139, 92, 246, 0.28)',
+      badgeBg: 'linear-gradient(135deg, #FFFFFF 0%, #EDE9FE 100%)',
+      badgeBorder: '#DDD6FE',
+      badgeColor: '#5B21B6',
+    },
+    {
+      uid: `topic-rot-${index}-6`,
+      emoji: '📖',
+      tag: 'Theory Guide',
+      theme: 'cyan',
+      folderStyle: 'stepped',
+      accent: '#06B6D4',
+      gradient: 'linear-gradient(135deg, #67E8F9 0%, #06B6D4 55%, #0E7490 100%)',
+      backFill: '#06B6D4',
+      frontTop: '#CFFAFE',
+      frontMid: '#67E8F9',
+      frontBot: '#155E75',
+      lightBg: 'rgba(6, 182, 212, 0.09)',
+      shadow: 'rgba(6, 182, 212, 0.28)',
+      badgeBg: 'linear-gradient(135deg, #FFFFFF 0%, #CFFAFE 100%)',
+      badgeBorder: '#A5F3FC',
+      badgeColor: '#155E75',
+    },
+  ];
+
+  return rotating[index % rotating.length];
+}
+
+// ── Multi-Style 3D Clay Topic Folder Component ────────────────────────────────
+function TopicClayFolder({ meta, size = 62, className = '' }) {
+  const width = Math.round(size * 1.16);
+  const height = size;
+  const uid = meta.uid || 'folder';
+
+  return (
+    <div
+      className={className}
+      style={{
+        position: 'relative',
+        width,
+        height,
+        flexShrink: 0,
+      }}
+    >
+      <svg
+        width={width}
+        height={height}
+        viewBox="0 0 76 64"
+        fill="none"
+        style={{
+          filter: `drop-shadow(4px 8px 14px ${meta.shadow})`,
+          overflow: 'visible',
+        }}
+      >
+        <defs>
+          <linearGradient id={`bgFront-${uid}`} x1="10" y1="20" x2="66" y2="62" gradientUnits="userSpaceOnUse">
+            <stop stopColor={meta.frontTop} />
+            <stop offset="0.5" stopColor={meta.frontMid} />
+            <stop offset="1" stopColor={meta.frontBot} />
+          </linearGradient>
+          <linearGradient id={`bgBack-${uid}`} x1="38" y1="6" x2="38" y2="28" gradientUnits="userSpaceOnUse">
+            <stop stopColor={meta.frontMid} />
+            <stop offset="1" stopColor={meta.backFill} />
+          </linearGradient>
+        </defs>
+
+        {/* Folder Back Tab */}
+        <path
+          d="M6 14C6 9.58 9.58 6 14 6H29C30.6 6 32.1 6.64 33.2 7.78L36.8 12H62C66.42 12 70 15.58 70 20V52C70 56.42 66.42 60 62 60H14C9.58 60 6 56.42 6 52V14Z"
+          fill={`url(#bgBack-${uid})`}
+        />
+
+        {/* Peeking Lined Study Papers (Layer 1 - Tilted) */}
+        <g className="ibdp-folder-papers">
+          <rect
+            x="17"
+            y="7"
+            width="44"
+            height="32"
+            rx="3.5"
+            fill="#F8FAFC"
+            stroke="#E2E8F0"
+            strokeWidth="1"
+            transform="rotate(-3.5 39 23)"
+          />
+          <line x1="22" y1="13" x2="48" y2="13" stroke="#CBD5E1" strokeWidth="1.2" strokeLinecap="round" transform="rotate(-3.5 39 23)" />
+          <line x1="22" y1="17" x2="45" y2="17" stroke="#CBD5E1" strokeWidth="1.2" strokeLinecap="round" transform="rotate(-3.5 39 23)" />
+          <line x1="22" y1="21" x2="52" y2="21" stroke="#CBD5E1" strokeWidth="1.2" strokeLinecap="round" transform="rotate(-3.5 39 23)" />
+
+          {/* Peeking Study Paper (Layer 2 - Crisp Front Sheet with Style Details) */}
+          <rect x="23" y="9" width="43" height="30" rx="3.5" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="1" />
+          <line x1="27" y1="15" x2="52" y2="15" stroke="#E2E8F0" strokeWidth="1.2" strokeLinecap="round" />
+          <line x1="27" y1="19" x2="48" y2="19" stroke="#E2E8F0" strokeWidth="1.2" strokeLinecap="round" />
+
+          {meta.folderStyle === 'archive' && (
+            <g>
+              <circle cx="58" cy="18" r="4.2" fill="#EF4444" fillOpacity="0.85" />
+              <path d="M56 18L57.5 19.5L60.2 16.5" stroke="#FFFFFF" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
+            </g>
+          )}
+
+          {meta.folderStyle === 'stepped' && (
+            <g>
+              <line x1="27" y1="15" x2="44" y2="15" stroke="#10B981" strokeWidth="1.6" strokeLinecap="round" />
+              <line x1="27" y1="19" x2="38" y2="19" stroke="#34D399" strokeWidth="1.6" strokeLinecap="round" />
+            </g>
+          )}
+
+          {meta.folderStyle === 'binder' && (
+            <g>
+              <rect x="25" y="5" width="5.5" height="12" rx="2" fill="#94A3B8" />
+              <rect x="26.2" y="6" width="3" height="9" rx="1" fill="#CBD5E1" />
+            </g>
+          )}
+
+          {meta.folderStyle === 'technical' && (
+            <g>
+              <line x1="27" y1="15" x2="57" y2="15" stroke="#38BDF8" strokeWidth="1" strokeDasharray="2 2" />
+              <line x1="27" y1="19" x2="50" y2="19" stroke="#38BDF8" strokeWidth="1" strokeDasharray="2 2" />
+            </g>
+          )}
+
+          {meta.folderStyle === 'target' && (
+            <g>
+              <circle cx="58" cy="18" r="4.5" fill="#F43F5E" fillOpacity="0.9" />
+              <circle cx="58" cy="18" r="2.2" fill="#FFFFFF" />
+            </g>
+          )}
+        </g>
+
+        {/* Front Clay Folder Flap */}
+        <path
+          d="M6 26C16 23.5 28 21.5 38 21.5C48 21.5 60 23.5 70 26V52C70 56.42 66.42 60 62 60H14C9.58 60 6 56.42 6 52V26Z"
+          fill={`url(#bgFront-${uid})`}
+        />
+        {/* Specular Edge Highlight on Clay Flap */}
+        <path
+          d="M7.5 27.2C17 25 28.5 23 38 23C47.5 23 59 25 68.5 27.2V51.5C68.5 55 65.5 58.5 61.5 58.5H14.5C10.5 58.5 7.5 55 7.5 51.5V27.2Z"
+          stroke="#FFFFFF"
+          strokeOpacity="0.65"
+          strokeWidth="1.5"
+          fill="none"
+        />
+
+        {/* Style-specific front cover accents */}
+        {meta.folderStyle === 'archive' && (
+          <g>
+            <circle cx="11" cy="36" r="1.6" fill="#FFFFFF" fillOpacity="0.8" />
+            <circle cx="11" cy="46" r="1.6" fill="#FFFFFF" fillOpacity="0.8" />
+          </g>
+        )}
+
+        {meta.folderStyle === 'binder' && (
+          <line x1="14" y1="26" x2="14" y2="58" stroke="#FFFFFF" strokeOpacity="0.38" strokeWidth="1.2" />
+        )}
+
+        {meta.folderStyle === 'technical' && (
+          <path d="M12 32H16M12 32V36" stroke="#FFFFFF" strokeOpacity="0.65" strokeWidth="1.3" strokeLinecap="round" />
+        )}
+      </svg>
+
+      {/* Floating 3D Study Emoji Medallion */}
+      <div
+        className="ibdp-folder-badge"
+        style={{
+          position: 'absolute',
+          right: '-4px',
+          bottom: '-3px',
+          width: Math.round(size * 0.48),
+          height: Math.round(size * 0.48),
+          borderRadius: '50%',
+          background: meta.badgeBg,
+          border: `2px solid ${meta.badgeBorder}`,
+          boxShadow: `0 4px 10px ${meta.shadow}, inset 0 2px 3px #FFFFFF`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: `${Math.round(size * 0.26)}px`,
+          lineHeight: 1,
+          userSelect: 'none',
+        }}
+      >
+        <span>{meta.emoji}</span>
+      </div>
+    </div>
   );
 }
 
@@ -1817,7 +2345,11 @@ export default function IbdpCurriculumPortal() {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.15rem' }}>
-                  <SubjectFolderIllustration subjectName={activeSubject?.name} index={0} />
+                  {activeTopic ? (
+                    <TopicClayFolder meta={getTopicStudyMeta(activeTopic.name, 0)} size={72} />
+                  ) : (
+                    <SubjectFolderIllustration subjectName={activeSubject?.name} index={0} />
+                  )}
                   <div>
                     <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#2563EB', marginBottom: '0.2rem' }}>
                       {activeTopic ? `${activeSubject?.class_name} • ${activeSubject?.name}` : activeSubject?.class_name}
@@ -1835,37 +2367,159 @@ export default function IbdpCurriculumPortal() {
               {/* 3D Clay Topics Folder Cards (when viewing a Subject) */}
               {!selectedTopicId && subjectRootTopics.length > 0 && (
                 <div style={{ marginBottom: '2.2rem' }}>
-                  <h2 style={{ fontSize: '0.96rem', fontWeight: 800, color: '#334155', margin: '0 0 1rem' }}>
-                    Topics & Chapters ({subjectRootTopics.length})
-                  </h2>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '1rem',
+                  }}>
+                    <h2 style={{ fontSize: '0.96rem', fontWeight: 800, color: '#334155', margin: 0 }}>
+                      Topics & Chapters ({subjectRootTopics.length})
+                    </h2>
+                    <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#64748B' }}>
+                      Explore study folders & resources
+                    </span>
+                  </div>
                   <div style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(235px, 275px))',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(245px, 285px))',
                     gap: '1.25rem',
                   }}>
                     {subjectRootTopics.map((top, idx) => {
                       const subs = top.children || top.subtopics || [];
+                      const meta = getTopicStudyMeta(top.name, idx);
                       return (
                         <div
                           key={top.id}
                           onClick={() => navigateExplorer({ tab: 'curriculum', subjectId: activeSubject.id, topicId: top.id })}
-                          className="ibdp-clay-card"
+                          className="ibdp-clay-card ibdp-clay-folder-card"
                           style={{
-                            padding: '1.35rem 1.45rem',
+                            padding: '1.3rem 1.4rem 1.15rem',
                             cursor: 'pointer',
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '0.8rem',
+                            justifyContent: 'space-between',
+                            gap: '0.85rem',
+                            position: 'relative',
+                            overflow: 'hidden',
+                            background: `radial-gradient(circle at 18% 18%, ${meta.lightBg} 0%, rgba(255, 255, 255, 0.98) 55%, #F4F7FC 100%)`,
+                            minHeight: 180,
                           }}
                         >
-                          <SmallFolderIcon color={['blue', 'green', 'purple', 'amber', 'rose'][idx % 5]} size={42} />
+                          {/* Top Row: 3D Study Folder Graphic + Category Tag */}
+                          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.65rem' }}>
+                            <TopicClayFolder meta={meta} size={58} />
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.3rem',
+                                padding: '0.3rem 0.65rem',
+                                borderRadius: 999,
+                                fontSize: '0.7rem',
+                                fontWeight: 800,
+                                letterSpacing: '0.02em',
+                                background: meta.badgeBg,
+                                border: `1px solid ${meta.badgeBorder}`,
+                                color: meta.badgeColor,
+                                boxShadow: '0 2px 5px rgba(0,0,0,0.03)',
+                                flexShrink: 0,
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              <span>{meta.emoji}</span>
+                              <span>{meta.tag}</span>
+                            </span>
+                          </div>
+
+                          {/* Middle: Topic Name & Description */}
                           <div>
-                            <h3 style={{ fontSize: '1.02rem', fontWeight: 800, color: '#0F172A', margin: '0 0 0.28rem' }}>
+                            <h3 style={{
+                              fontSize: '1.02rem',
+                              fontWeight: 800,
+                              color: '#0F172A',
+                              margin: '0 0 0.25rem',
+                              lineHeight: 1.3,
+                              letterSpacing: '-0.01em',
+                              wordBreak: 'break-word',
+                            }}>
                               {top.name}
                             </h3>
-                            <div style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 600 }}>
-                              {subs.length > 0 && <span>{subs.length} Subtopic{subs.length !== 1 ? 's' : ''} • </span>}
-                              <span>{top.resource_count || 0} Material{(top.resource_count || 0) !== 1 ? 's' : ''}</span>
+                            {top.description && (
+                              <p style={{
+                                fontSize: '0.78rem',
+                                color: '#64748B',
+                                margin: 0,
+                                lineHeight: 1.35,
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                              }}>
+                                {top.description}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Bottom Row: Metadata Pill + Arrow */}
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            paddingTop: '0.65rem',
+                            borderTop: '1px solid rgba(226, 232, 240, 0.85)',
+                          }}>
+                            <div style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.4rem',
+                              fontSize: '0.78rem',
+                              fontWeight: 700,
+                              color: '#475569',
+                            }}>
+                              <span style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.28rem',
+                                padding: '0.22rem 0.55rem',
+                                borderRadius: 8,
+                                background: '#F1F5F9',
+                                color: '#334155',
+                              }}>
+                                <FileText size={12} color={meta.accent} />
+                                <span>{top.resource_count || 0} Material{(top.resource_count || 0) !== 1 ? 's' : ''}</span>
+                              </span>
+
+                              {subs.length > 0 && (
+                                <span style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '0.25rem',
+                                  padding: '0.22rem 0.55rem',
+                                  borderRadius: 8,
+                                  background: '#F1F5F9',
+                                  color: '#64748B',
+                                }}>
+                                  <span>{subs.length} Subtopic{subs.length !== 1 ? 's' : ''}</span>
+                                </span>
+                              )}
+                            </div>
+
+                            <div
+                              className="ibdp-folder-arrow"
+                              style={{
+                                width: 26,
+                                height: 26,
+                                borderRadius: '50%',
+                                background: meta.badgeBg,
+                                border: `1px solid ${meta.badgeBorder}`,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: meta.accent,
+                              }}
+                            >
+                              <ArrowRight size={13} strokeWidth={2.6} />
                             </div>
                           </div>
                         </div>
@@ -1883,31 +2537,55 @@ export default function IbdpCurriculumPortal() {
                   </h2>
                   <div style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(225px, 260px))',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(235px, 275px))',
                     gap: '1.15rem',
                   }}>
-                    {(activeTopic.children || activeTopic.subtopics || []).map((st, idx) => (
-                      <div
-                        key={st.id}
-                        onClick={() => navigateExplorer({ tab: 'curriculum', subjectId: activeSubject.id, topicId: st.id })}
-                        className="ibdp-clay-card"
-                        style={{
-                          padding: '1.2rem 1.3rem',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.85rem',
-                        }}
-                      >
-                        <SmallFolderIcon color={['blue', 'green', 'purple', 'amber', 'rose'][idx % 5]} size={34} />
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ fontSize: '0.94rem', fontWeight: 800, color: '#0F172A' }}>{st.name}</div>
-                          <div style={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 600, marginTop: '0.15rem' }}>
-                            {st.resource_count || 0} Material{(st.resource_count || 0) !== 1 ? 's' : ''}
+                    {(activeTopic.children || activeTopic.subtopics || []).map((st, idx) => {
+                      const meta = getTopicStudyMeta(st.name, idx);
+                      return (
+                        <div
+                          key={st.id}
+                          onClick={() => navigateExplorer({ tab: 'curriculum', subjectId: activeSubject.id, topicId: st.id })}
+                          className="ibdp-clay-card ibdp-clay-folder-card"
+                          style={{
+                            padding: '1.1rem 1.25rem',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.95rem',
+                            background: `radial-gradient(circle at 15% 50%, ${meta.lightBg} 0%, rgba(255, 255, 255, 0.98) 60%, #F4F7FC 100%)`,
+                          }}
+                        >
+                          <TopicClayFolder meta={meta} size={46} />
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <div style={{ fontSize: '0.94rem', fontWeight: 800, color: '#0F172A', lineHeight: 1.25 }}>
+                              {st.name}
+                            </div>
+                            <div style={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 600, marginTop: '0.2rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                              <span>{meta.emoji}</span>
+                              <span>{st.resource_count || 0} Material{(st.resource_count || 0) !== 1 ? 's' : ''}</span>
+                            </div>
+                          </div>
+                          <div
+                            className="ibdp-folder-arrow"
+                            style={{
+                              width: 24,
+                              height: 24,
+                              borderRadius: '50%',
+                              background: meta.badgeBg,
+                              border: `1px solid ${meta.badgeBorder}`,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: meta.accent,
+                              flexShrink: 0,
+                            }}
+                          >
+                            <ArrowRight size={12} strokeWidth={2.4} />
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
